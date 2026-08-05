@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一兆链采供应链平台 - 品牌商城管理</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: #f0f2f5; }
+        .sidebar-item:hover { background-color: #e6f7ff; color: #1890ff; }
+        .sidebar-item.active { background-color: #e6f7ff; color: #1890ff; border-right: 3px solid #1890ff; }
+        .tab-active { color: #1890ff; border-bottom: 2px solid #1890ff; }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.45); }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .slide-in { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <!-- 顶部导航栏 -->
+    <header class="bg-white shadow-sm h-16 flex items-center justify-between px-6 z-20">
+        <div class="flex items-center gap-2">
+            <div class="text-blue-600 font-bold text-xl tracking-tight">一兆链采供应链平台</div>
+        </div>
+        <div class="flex items-center gap-6 text-gray-600">
+            <button class="hover:text-blue-600 transition"><i class="fas fa-search text-lg"></i></button>
+            <button class="hover:text-blue-600 transition relative">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <div class="flex items-center gap-2 cursor-pointer hover:text-blue-600">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span class="text-sm">客户名</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- 左侧边栏 -->
+        <aside class="w-64 bg-white shadow-md flex flex-col">
+            <div class="p-4">
+                <div class="flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-gray-50 cursor-pointer rounded-lg transition">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-cog text-gray-400"></i>
+                        <span class="font-medium">设置</span>
+                    </div>
+                    <i class="fas fa-chevron-up text-xs text-gray-400"></i>
+                </div>
+                <div class="mt-1 pl-4">
+                    <div class="sidebar-item active flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer transition text-sm">
+                        <i class="fas fa-store text-xs"></i>
+                        <span>商城列表</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="flex-1 overflow-auto bg-gray-50 p-6 relative" id="mainContent">
+            
+            <!-- 面包屑 -->
+            <div class="mb-4 flex items-center gap-2 text-sm text-gray-600">
+                <span class="text-blue-600 cursor-pointer hover:underline" onclick="showList()">品牌商城列表</span>
+                <i class="fas fa-chevron-right text-xs text-gray-400" id="breadcrumbArrow" style="display: none;"></i>
+                <span class="text-gray-400" id="breadcrumbDetail" style="display: none;">品牌商城详情</span>
+            </div>
+
+            <!-- 页面1: 品牌商城列表 -->
+            <div id="listPage" class="fade-in">
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <!-- 搜索区域 -->
+                    <div class="grid grid-cols-5 gap-4 mb-6">
+                        <div class="flex items-center gap-2">
+                            <label class="text-sm text-gray-600 whitespace-nowrap">客户名称:</label>
+                            <input type="text" placeholder="请输入" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label class="text-sm text-gray-600 whitespace-nowrap">手机号:</label>
+                            <input type="text" placeholder="请输入" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label class="text-sm text-gray-600 whitespace-nowrap">K3渠道编码:</label>
+                            <input type="text" placeholder="请输入" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label class="text-sm text-gray-600 whitespace-nowrap">商城名称:</label>
+                            <input type="text" placeholder="请输入" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label class="text-sm text-gray-600 whitespace-nowrap">商城状态:</label>
+                            <select class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
+                                <option>全部</option>
+                                <option>启用</option>
+                                <option>停用</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2 mb-6">
+                        <button class="bg-blue-600 text-white px-6 py-1.5 rounded text-sm hover:bg-blue-700 transition">查询</button>
+                        <button class="border border-gray-300 px-6 py-1.5 rounded text-sm hover:border-gray-400 transition">重置</button>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div class="flex items-center gap-3 mb-4">
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded text-sm flex items-center gap-1 hover:bg-blue-700 transition">
+                            <i class="fas fa-plus text-xs"></i>
+                            新增品牌商城
+                        </button>
+                        <div class="relative">
+                            <button class="border border-gray-300 px-4 py-2 rounded text-sm flex items-center gap-2 hover:border-gray-400 transition bg-white" onclick="toggleBatchMenu()">
+                                批量操作
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div id="batchMenu" class="hidden absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded shadow-lg z-10 w-32">
+                                <div class="py-1">
+                                    <button onclick="showBatchModal('enable')" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50">批量启用</button>
+                                    <button onclick="showBatchModal('disable')" class="block w-full text-left px-4 py-2 text-sm hover:bg-gray-50">批量停用</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 表格 -->
+                    <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50 text-gray-600">
+                                <tr>
+                                    <th class="w-10 px-4 py-3 text-left"><input type="checkbox" class="rounded border-gray-300"></th>
+                                    <th class="px-4 py-3 text-left font-medium">客户名称</th>
+                                    <th class="px-4 py-3 text-left font-medium">商城名称</th>
+                                    <th class="px-4 py-3 text-left font-medium">K3渠道编码</th>
+                                    <th class="px-4 py-3 text-left font-medium">对接人手机号</th>
+                                    <th class="px-4 py-3 text-left font-medium">商城状态</th>
+                                    <th class="px-4 py-3 text-left font-medium">对接业务员</th>
+                                    <th class="px-4 py-3 text-left font-medium">商城有效期</th>
+                                    <th class="px-4 py-3 text-left font-medium">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100" id="tableBody">
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-4 py-4"><input type="checkbox" class="rounded border-gray-300"></td>
+                                    <td class="px-4 py-4">中国农业银行股份有限公司</td>
+                                    <td class="px-4 py-4">农行商城</td>
+                                    <td class="px-4 py-4">NHJF</td>
+                                    <td class="px-4 py-4">188****9554</td>
+                                    <td class="px-4 py-4"><span class="text-green-600">启用</span></td>
+                                    <td class="px-4 py-4">张三</td>
+                                    <td class="px-4 py-4 text-gray-500">2024-01-23 12:34:56~2024-01-23 12:34:56</td>
+                                    <td class="px-4 py-4">
+                                        <div class="flex items-center gap-3 text-blue-600">
+                                            <button onclick="showDetail('nonghang')" class="hover:underline">详情</button>
+                                            <button class="hover:underline">编辑</button>
+                                            <button onclick="showSingleModal('disable')" class="hover:underline text-red-500">停用</button>
+                                            <button class="hover:underline">进入商城</button>
+                                            <button class="hover:underline">日志</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="px-4 py-4"><input type="checkbox" class="rounded border-gray-300"></td>
+                                    <td class="px-4 py-4">东方航空股份有限公司</td>
+                                    <td class="px-4 py-4">东航商城</td>
+                                    <td class="px-4 py-4">DFHK</td>
+                                    <td class="px-4 py-4">188****9554</td>
+                                    <td class="px-4 py-4"><span class="text-gray-400">停用</span></td>
+                                    <td class="px-4 py-4">李四</td>
+                                    <td class="px-4 py-4 text-gray-500">2024-01-23 12:34:56~2024-01-23 12:34:56</td>
+                                    <td class="px-4 py-4">
+                                        <div class="flex items-center gap-3 text-blue-600">
+                                            <button onclick="showDetail('donghang')" class="hover:underline">详情</button>
+                                            <button class="hover:underline">编辑</button>
+                                            <button onclick="showSingleModal('enable')" class="hover:underline text-green-600">启用</button>
+                                            <button class="hover:underline">进入商城</button>
+                                            <button class="hover:underline">日志</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div class="flex items-center justify-between mt-4 text-sm text-gray-600">
+                        <div>第 1-10 条/总共 100 条</div>
+                        <div class="flex items-center gap-2">
+                            <button class="px-2 py-1 border border-gray-300 rounded hover:border-gray-400 disabled:opacity-50"><i class="fas fa-chevron-left text-xs"></i></button>
+                            <button class="px-3 py-1 bg-blue-600 text-white rounded">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded hover:border-gray-400">2</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded hover:border-gray-400">3</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded hover:border-gray-400">4</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded hover:border-gray-400">5</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded hover:border-gray-400">6</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded hover:border-gray-400">7</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded hover:border-gray-400">8</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded hover:border-gray-400">9</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded hover:border-gray-400">10</button>
+                            <button class="px-2 py-1 border border-gray-300 rounded hover:border-gray-400"><i class="fas fa-chevron-right text-xs"></i></button>
+                            <select class="border border-gray-300 rounded px-2 py-1 text-sm">
+                                <option>10 条/页</option>
+                                <option>20 条/页</option>
+                                <option>50 条/页</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 页面2: 品牌商城详情 -->
+            <div id="detailPage" class="hidden fade-in">
+                <div class="bg-white rounded-lg shadow-sm min-h-[600px]">
+                    <!-- 标签页 -->
+                    <div class="border-b border-gray-200 px-6 pt-4">
+                        <div class="flex gap-8">
+                            <button onclick="switchTab('enterprise')" id="tab-enterprise" class="pb-3 text-blue-600 border-b-2 border-blue-600 font-medium transition">企业认证</button>
+                            <button onclick="switchTab('legal')" id="tab-legal" class="pb-3 text-gray-500 hover:text-gray-700 transition">法人认证</button>
+                            <button onclick="switchTab('finance')" id="tab-finance" class="pb-3 text-gray-500 hover:text-gray-700 transition">财务认证</button>
+                        </div>
+                    </div>
+
+                    <!-- 企业认证内容 -->
+                    <div id="content-enterprise" class="p-8">
+                        <div class="max-w-3xl space-y-6">
+                            <div class="flex items-start gap-8">
+                                <label class="text-sm text-gray-600 w-32 pt-2"><span class="text-red-500 mr-1">*</span>企业营业执照:</label>
+                                <div class="flex-1">
+                                    <div class="w-64 h-40 bg-gray-100 rounded-lg flex items-center justify-center border border-gray-200 overflow-hidden">
+                                        <img src="https://gw.alicdn.com/imgextra/i1/O1CN01L3CLo11O0zuCC7osS_!!6000000001642-55-tps-83-82.svg" alt="钉钉开发者平台" class="w-32 opacity-80">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32"><span class="text-red-500 mr-1">*</span>企业名称:</label>
+                                <div class="flex-1 text-gray-800">台积电</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32"><span class="text-red-500 mr-1">*</span>企业简称:</label>
+                                <div class="flex-1 text-gray-800">台积电</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32"><span class="text-red-500 mr-1">*</span>统一社会信用代码:</label>
+                                <div class="flex-1 text-gray-800">1234567890</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32">注册地址:</label>
+                                <div class="flex-1 text-gray-800">湖北省武汉市江夏区佛祖岭</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32">经营地址:</label>
+                                <div class="flex-1 text-gray-800">湖北省武汉市江夏区佛祖岭</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32">客户名称</label>
+                                <div class="flex-1 text-gray-800">东方航空股份有限公司</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32"><span class="text-red-500 mr-1">*</span>对接人姓名:</label>
+                                <div class="flex-1 text-gray-800">夏植超</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32">对接人手机号:</label>
+                                <div class="flex-1 text-gray-800">18665385307</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 法人认证内容 -->
+                    <div id="content-legal" class="hidden p-8">
+                        <div class="max-w-3xl space-y-6">
+                            <div class="flex items-start gap-8">
+                                <label class="text-sm text-gray-600 w-32 pt-2"><span class="text-red-500 mr-1">*</span>法人证件照片:</label>
+                                <div class="flex-1 space-y-4">
+                                    <div class="w-48 h-32 bg-gray-100 rounded border border-gray-200 overflow-hidden relative">
+                                        <div class="absolute inset-0 bg-gradient-to-b from-blue-50 to-white flex flex-col items-center justify-center p-2">
+                                            <div class="w-16 h-20 bg-gray-300 rounded mb-1 overflow-hidden">
+                                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=200&fit=crop" class="w-full h-full object-cover" alt="证件照">
+                                            </div>
+                                            <div class="text-[10px] text-gray-500 text-center leading-tight">
+                                                姓名 金明<br>
+                                                性别 女 民族 汉<br>
+                                                出生 1978年10月27日<br>
+                                                <span class="scale-75 inline-block">110102197810272321</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="w-48 h-32 bg-gray-100 rounded border border-gray-200 overflow-hidden relative">
+                                        <div class="absolute inset-0 bg-gradient-to-b from-red-50 to-white flex flex-col items-center justify-center p-2">
+                                            <div class="text-red-800 font-bold text-lg mb-1">中华人民共和国</div>
+                                            <div class="text-red-800 font-bold text-xl mb-2">居民身份证</div>
+                                            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-1">
+                                                <i class="fas fa-star text-red-600 text-xs"></i>
+                                            </div>
+                                            <div class="text-[10px] text-gray-500">签发机关 北京市公安局西城分局</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32"><span class="text-red-500 mr-1">*</span>法人姓名:</label>
+                                <div class="flex-1 text-gray-800">夏植超</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32"><span class="text-red-500 mr-1">*</span>法人证件号:</label>
+                                <div class="flex-1 text-gray-800">420682198411266519</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32"><span class="text-red-500 mr-1">*</span>法人手机号:</label>
+                                <div class="flex-1 text-gray-800">18665385307</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32"><span class="text-red-500 mr-1">*</span>所属公司名称:</label>
+                                <div class="flex-1 text-gray-800">台积电</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 财务认证内容 -->
+                    <div id="content-finance" class="hidden p-8">
+                        <div class="max-w-3xl space-y-6 relative">
+                            <button class="absolute right-0 top-0 bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700 transition flex items-center gap-2">
+                                <i class="fas fa-copy"></i>
+                                复制账户信息
+                            </button>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32"><span class="text-red-500 mr-1">*</span>开户银行:</label>
+                                <div class="flex-1 text-gray-800">招商银行</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32"><span class="text-red-500 mr-1">*</span>银行账号:</label>
+                                <div class="flex-1 text-gray-800 font-mono">622588776655443321</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32"><span class="text-red-500 mr-1">*</span>结算币种:</label>
+                                <div class="flex-1 text-gray-800">人民币</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32">账户名称:</label>
+                                <div class="flex-1 text-gray-800">台积电</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32"><span class="text-red-500 mr-1">*</span>开户支行名称:</label>
+                                <div class="flex-1 text-gray-800">湖北省武汉市洪山区街道口招商银行支行</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32"><span class="text-red-500 mr-1">*</span>是否默认账户:</label>
+                                <div class="flex-1 text-gray-800">是</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32">开户支行地址:</label>
+                                <div class="flex-1 text-gray-800">湖北省武汉市洪山区街道口</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32">渠道名称:</label>
+                                <div class="flex-1 text-gray-800">(ZD)DFHK</div>
+                            </div>
+
+                            <div class="flex items-center gap-8">
+                                <label class="text-sm text-gray-600 w-32">渠道编码:</label>
+                                <div class="flex-1 text-gray-800">(兆点)东方航空</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 弹窗: 单个操作 -->
+    <div id="singleModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay">
+        <div class="bg-white rounded-lg shadow-xl w-[480px] p-6 fade-in">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-6 h-6 rounded-full border-2 border-orange-400 flex items-center justify-center">
+                    <i class="fas fa-exclamation text-orange-400 text-xs"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-800">提示</h3>
+            </div>
+            <div class="pl-9 mb-6">
+                <p class="text-gray-700 mb-2" id="singleModalTitle">确认要停用该品牌商城账号吗？</p>
+                <p class="text-gray-500 text-sm" id="singleModalDesc">停用后该商城所有永不可登录，可通过启用恢复。</p>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal('singleModal')" class="px-5 py-2 border border-gray-300 rounded text-sm hover:border-gray-400 transition">取消</button>
+                <button onclick="confirmSingleAction()" class="px-5 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 弹窗: 批量操作 -->
+    <div id="batchModal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal-overlay">
+        <div class="bg-white rounded-lg shadow-xl w-[480px] p-6 fade-in">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-6 h-6 rounded-full border-2 border-orange-400 flex items-center justify-center">
+                    <i class="fas fa-exclamation text-orange-400 text-xs"></i>
+                </div>
+                <h3 class="text-lg font-medium text-gray-800">提示</h3>
+            </div>
+            <div class="pl-9 mb-6">
+                <p class="text-gray-700 mb-2" id="batchModalTitle">确认要批量停用已选品牌商城账号吗？</p>
+                <p class="text-gray-500 text-sm" id="batchModalDesc">停用后将无法登录，可通过启用恢复。</p>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button onclick="closeModal('batchModal')" class="px-5 py-2 border border-gray-300 rounded text-sm hover:border-gray-400 transition">取消</button>
+                <button onclick="confirmBatchAction()" class="px-5 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAction = '';
+        let currentBatchAction = '';
+
+        // 显示列表页
+        function showList() {
+            document.getElementById('listPage').classList.remove('hidden');
+            document.getElementById('detailPage').classList.add('hidden');
+            document.getElementById('breadcrumbArrow').style.display = 'none';
+            document.getElementById('breadcrumbDetail').style.display = 'none';
+        }
+
+        // 显示详情页
+        function showDetail(type) {
+            document.getElementById('listPage').classList.add('hidden');
+            document.getElementById('detailPage').classList.remove('hidden');
+            document.getElementById('breadcrumbArrow').style.display = 'inline';
+            document.getElementById('breadcrumbDetail').style.display = 'inline';
+            
+            // 默认显示企业认证
+            switchTab('enterprise');
+        }
+
+        // 切换标签页
+        function switchTab(tab) {
+            // 重置所有标签样式
+            ['enterprise', 'legal', 'finance'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.remove('tab-active', 'text-blue-600', 'border-b-2', 'border-blue-600');
+                document.getElementById(`tab-${t}`).classList.add('text-gray-500');
+                document.getElementById(`content-${t}`).classList.add('hidden');
+            });
+            
+            // 激活当前标签
+            document.getElementById(`tab-${tab}`).classList.add('tab-active', 'text-blue-600', 'border-b-2', 'border-blue-600');
+            document.getElementById(`tab-${tab}`).classList.remove('text-gray-500');
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
+        }
+
+        // 切换批量操作菜单
+        function toggleBatchMenu() {
+            const menu = document.getElementById('batchMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // 显示单个操作弹窗
+        function showSingleModal(action) {
+            currentAction = action;
+            const modal = document.getElementById('singleModal');
+            const title = document.getElementById('singleModalTitle');
+            const desc = document.getElementById('singleModalDesc');
+            
+            if (action === 'disable') {
+                title.textContent = '确认要停用该品牌商城账号吗？';
+                desc.textContent = '停用后该商城所有永不可登录，可通过启用恢复。';
+            } else {
+                title.textContent = '确认要启用该品牌商城账号吗？';
+                desc.textContent = '';
+            }
+            
+            modal.classList.remove('hidden');
+        }
+
+        // 显示批量操作弹窗
+        function showBatchModal(action) {
+            currentBatchAction = action;
+            const modal = document.getElementById('batchModal');
+            const title = document.getElementById('batchModalTitle');
+            const desc = document.getElementById('batchModalDesc');
+            
+            if (action === 'disable') {
+                title.textContent = '确认要批量停用已选品牌商城账号吗？';
+                desc.textContent = '停用后将无法登录，可通过启用恢复。';
+            } else {
+                title.textContent = '确认要批量启用已选品牌商城账号吗？';
+                desc.textContent = '';
+            }
+            
+            document.getElementById('batchMenu').classList.add('hidden');
+            modal.classList.remove('hidden');
+        }
+
+        // 关闭弹窗
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // 确认单个操作
+        function confirmSingleAction() {
+            closeModal('singleModal');
+            // 这里可以添加实际的业务逻辑
+            alert(currentAction === 'disable' ? '已停用该账号' : '已启用该账号');
+        }
+
+        // 确认批量操作
+        function confirmBatchAction() {
+            closeModal('batchModal');
+            alert(currentBatchAction === 'disable' ? '已批量停用选中账号' : '已批量启用选中账号');
+        }
+
+        // 点击外部关闭批量菜单
+        document.addEventListener('click', function(e) {
+            const batchBtn = e.target.closest('[onclick="toggleBatchMenu()"]');
+            const batchMenu = document.getElementById('batchMenu');
+            if (!batchBtn && !batchMenu.contains(e.target)) {
+                batchMenu.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

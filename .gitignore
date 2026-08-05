@@ -1,0 +1,27 @@
+# ===== 依赖（可由 package.json 重新安装）=====
+node_modules/
+
+# ===== 操作系统垃圾 =====
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# ===== Office / Word 临时锁文件 =====
+~$*
+*.tmp
+
+# ===== AI 产研工具配置（工具而非交付物）=====
+.claude/
+.qoder/
+.qoder
+
+# ===== 编辑器 / IDE =====
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ===== 日志 =====
+*.log

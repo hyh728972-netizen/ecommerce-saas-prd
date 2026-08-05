@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>默认规则 - 兆链采供应链平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            height: 64px;
+            background: #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1890ff;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #1890ff, #36cfc9);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+            color: #666;
+            border: none;
+            background: transparent;
+        }
+
+        .icon-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .user-profile:hover {
+            background: #f5f5f5;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #1890ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        /* 主体布局 */
+        .container {
+            display: flex;
+            margin-top: 64px;
+            height: calc(100vh - 64px);
+        }
+
+        /* 左侧边栏 */
+        .sidebar {
+            width: 200px;
+            background: #fff;
+            border-right: 1px solid #e8e8e8;
+            padding: 16px 0;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            padding: 12px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            transition: all 0.3s;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .menu-item:hover {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .menu-item.active {
+            color: #1890ff;
+            background: #e6f7ff;
+            border-right: 3px solid #1890ff;
+        }
+
+        .menu-icon {
+            font-size: 16px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .submenu {
+            padding: 10px 24px 10px 48px;
+            cursor: pointer;
+            color: #666;
+            font-size: 14px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .submenu:hover {
+            color: #1890ff;
+            background: #f5f5f5;
+        }
+
+        .submenu.active {
+            color: #1890ff;
+            background: #e6f7ff;
+            border-right: 3px solid #1890ff;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            position: relative;
+            padding-bottom: 80px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .breadcrumb a {
+            color: #666;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .breadcrumb a:hover {
+            color: #1890ff;
+        }
+
+        .breadcrumb-separator {
+            color: #999;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            color: #262626;
+        }
+
+        /* 规则卡片 */
+        .rules-container {
+            max-width: 600px;
+        }
+
+        .rule-card {
+            background: #fff;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+            margin-bottom: 0;
+            overflow: hidden;
+        }
+
+        .rule-card:first-of-type {
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+        }
+
+        .rule-card:last-of-type {
+            border-radius: 0 0 4px 4px;
+        }
+
+        .rule-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .rule-content {
+            padding: 24px;
+        }
+
+        .rule-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #595959;
+        }
+
+        .rule-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .required {
+            color: #ff4d4f;
+            margin-right: 4px;
+        }
+
+        .number-input {
+            width: 60px;
+            padding: 4px 8px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 14px;
+            margin: 0 4px;
+            transition: all 0.3s;
+        }
+
+        .number-input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.2);
+        }
+
+        /* 单选按钮组 */
+        .radio-group {
+            display: flex;
+            gap: 32px;
+            margin-left: 16px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .radio-item:hover {
+            color: #1890ff;
+        }
+
+        .radio-input {
+            width: 16px;
+            height: 16px;
+            accent-color: #1890ff;
+            cursor: pointer;
+        }
+
+        /* 按钮组 */
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 32px;
+            padding: 24px 0;
+        }
+
+        .btn {
+            padding: 8px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+            outline: none;
+            height: 36px;
+            line-height: 20px;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .btn-primary:active {
+            background: #096dd9;
+            border-color: #096dd9;
+        }
+
+        .btn-default {
+            background: #fff;
+            color: #595959;
+            border-color: #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        .btn-default:active {
+            border-color: #1890ff;
+            color: #1890ff;
+        }
+
+        /* 固定在底部的操作栏 */
+        .fixed-actions {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            left: 200px;
+            background: #fff;
+            padding: 16px 24px;
+            border-top: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.02);
+            z-index: 99;
+        }
+
+        /* 图标SVG */
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+            }
+            .sidebar .menu-item span,
+            .sidebar .submenu {
+                display: none;
+            }
+            .fixed-actions {
+                left: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">兆</div>
+            <span>兆链采 供应链平台</span>
+        </div>
+        <div class="header-right">
+            <button class="icon-btn" title="搜索">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+            </button>
+            <button class="icon-btn" title="消息通知">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+                </svg>
+            </button>
+            <div class="user-profile">
+                <div class="avatar">用</div>
+                <span>用户名</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <div class="container">
+        <!-- 左侧菜单 -->
+        <aside class="sidebar">
+            <div class="menu-item active">
+                <span class="menu-icon">⚙️</span>
+                <span>设置</span>
+            </div>
+            <div class="submenu active">默认规则</div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="#">设置</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>默认规则</span>
+            </div>
+
+            <h1 class="page-title">默认规则</h1>
+
+            <div class="rules-container">
+                <!-- 订单规则 -->
+                <div class="rule-card">
+                    <div class="rule-header">订单规则</div>
+                    <div class="rule-content">
+                        <div class="rule-item">
+                            <span class="required">*</span>
+                            <span>订单发货</span>
+                            <input type="number" class="number-input" value="15" min="1" max="999" id="deliveryDays">
+                            <span>天后，确认收货。</span>
+                        </div>
+                        <div class="rule-item">
+                            <span class="required">*</span>
+                            <span>未支付超过</span>
+                            <input type="number" class="number-input" value="1" min="1" max="999" id="cancelHours">
+                            <span>小时后，取消订单。</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 商品规则 -->
+                <div class="rule-card">
+                    <div class="rule-header">商品规则</div>
+                    <div class="rule-content">
+                        <div class="rule-item">
+                            <span class="required">*</span>
+                            <span>仅展示有货商品</span>
+                            <div class="radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="stockOnly" class="radio-input" value="1" checked>
+                                    <span>开</span>
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="stockOnly" class="radio-input" value="0">
+                                    <span>关</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="rule-item">
+                            <span class="required">*</span>
+                            <span>展示商品评价</span>
+                            <div class="radio-group">
+                                <label class="radio-item">
+                                    <input type="radio" name="showReview" class="radio-input" value="1">
+                                    <span>开</span>
+                                </label>
+                                <label class="radio-item">
+                                    <input type="radio" name="showReview" class="radio-input" value="0" checked>
+                                    <span>关</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 中间按钮组（截图中显示在中间位置） -->
+                <div class="form-actions">
+                    <button class="btn btn-default" onclick="handleCancel()">取消</button>
+                    <button class="btn btn-primary" onclick="handleSave()">保存</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 固定在右下角的操作按钮（与截图一致） -->
+    <div class="fixed-actions">
+        <button class="btn btn-default" onclick="handleCancel()">取消</button>
+        <button class="btn btn-primary" onclick="handleSave()">保存</button>
+    </div>
+
+    <script>
+        // 保存原始值用于取消操作
+        const originalValues = {
+            deliveryDays: '15',
+            cancelHours: '1',
+            stockOnly: '1',
+            showReview: '0'
+        };
+
+        // 保存操作
+        function handleSave() {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            
+            // 模拟保存过程
+            btn.textContent = '保存中...';
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            
+            setTimeout(() => {
+                btn.textContent = '保存成功';
+                btn.style.background = '#52c41a';
+                btn.style.borderColor = '#52c41a';
+                
+                // 更新原始值为当前值
+                originalValues.deliveryDays = document.getElementById('deliveryDays').value;
+                originalValues.cancelHours = document.getElementById('cancelHours').value;
+                originalValues.stockOnly = document.querySelector('input[name="stockOnly"]:checked').value;
+                originalValues.showReview = document.querySelector('input[name="showReview"]:checked').value;
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = '';
+                    btn.style.borderColor = '';
+                    btn.style.opacity = '';
+                    btn.disabled = false;
+                }, 1500);
+            }, 800);
+        }
+
+        // 取消操作 - 重置为原始值
+        function handleCancel() {
+            document.getElementById('deliveryDays').value = originalValues.deliveryDays;
+            document.getElementById('cancelHours').value = originalValues.cancelHours;
+            
+            // 恢复单选按钮
+            document.querySelectorAll(`input[name="stockOnly"]`).forEach(radio => {
+                radio.checked = radio.value === originalValues.stockOnly;
+            });
+            document.querySelectorAll(`input[name="showReview"]`).forEach(radio => {
+                radio.checked = radio.value === originalValues.showReview;
+            });
+            
+            // 视觉反馈
+            const mainContent = document.querySelector('.main-content');
+            mainContent.style.opacity = '0.7';
+            setTimeout(() => {
+                mainContent.style.opacity = '1';
+            }, 200);
+        }
+
+        // 输入框限制只能输入正整数
+        document.querySelectorAll('.number-input').forEach(input => {
+            input.addEventListener('input', function() {
+                // 移除非数字字符
+                this.value = this.value.replace(/[^0-9]/g, '');
+                // 限制最大值
+                if (this.value > 999) this.value = 999;
+                // 确保最小为1
+                if (this.value === '0') this.value = '';
+            });
+            
+            input.addEventListener('blur', function() {
+                if (this.value === '' || this.value === '0') {
+                    this.value = originalValues[this.id] || '1';
+                }
+            });
+        });
+
+        // 单选按钮切换效果
+        document.querySelectorAll('.radio-input').forEach(radio => {
+            radio.addEventListener('change', function() {
+                // 添加切换动画效果
+                const label = this.closest('.radio-item');
+                label.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    label.style.transform = 'scale(1)';
+                }, 100);
+            });
+        });
+
+        // 页面加载完成后的初始化
+        window.addEventListener('load', () => {
+            console.log('默认规则配置页面加载完成');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商品品牌列表 - 选品后台管理系统</title>
+<style>
+:root {
+  --bg-app: #f4f3f0; --bg-sidebar: #1e1e22; --bg-surface: #ffffff; --bg-hover: #f7f6f4;
+  --border: #e6e4e0; --border-light: #f0eeeb; --text-primary: #1a1a1c; --text-secondary: #6b6b70;
+  --text-muted: #99999d; --text-sidebar: #c4c4c9; --accent: #2d2d33; --accent-soft: #f0eeeb;
+  --blue: #2563eb; --blue-bg: #f5f8ff; --red: #da3e3a; --red-bg: #fef4f3; --green: #16a34a;
+  --green-bg: #f4fdf6; --orange: #d97706; --orange-bg: #fffbf0;
+  --radius-sm: 4px; --radius: 8px; --radius-lg: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06); --shadow-lg: 0 4px 16px rgba(0,0,0,.10);
+  --transition: 160ms ease;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;background:var(--bg-app);color:var(--text-primary);display:flex;min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+.sidebar{width:232px;min-width:232px;background:var(--bg-sidebar);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:10;}
+.sidebar-brand{padding:20px 20px 28px;border-bottom:1px solid rgba(255,255,255,.06);}
+.sidebar-brand .logo{font-size:17px;font-weight:600;color:#fff;letter-spacing:-.02em;display:flex;align-items:center;gap:10px;}
+.sidebar-brand .sub{font-size:11px;color:var(--text-sidebar);margin-top:2px;letter-spacing:.02em;}
+.sidebar-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px;}
+.nav-section-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.25);padding:14px 10px 6px;display:flex;align-items:center;gap:4px;cursor:pointer;user-select:none;}
+.nav-section-label:hover{color:rgba(255,255,255,.45);}
+.section-arrow{font-size:8px;transition:transform .2s ease;flex-shrink:0;}
+.nav-section.collapsed .section-arrow{transform:rotate(-90deg);}
+.nav-section.collapsed .nav-section-items{display:none;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;color:var(--text-sidebar);font-size:13.5px;cursor:pointer;transition:all var(--transition);text-decoration:none;}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#fff;}
+.nav-item.active{background:rgba(255,255,255,.10);color:#fff;font-weight:500;}
+.nav-icon{width:18px;height:18px;opacity:.55;flex-shrink:0;}
+.nav-item.active .nav-icon{opacity:1;}
+.nav-item .badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px;min-width:20px;text-align:center;line-height:18px;}
+
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{height:52px;min-height:52px;background:var(--bg-surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;z-index:5;}
+.topbar .breadcrumb{font-size:12.5px;color:var(--text-muted);}
+.topbar .breadcrumb span{color:var(--text-primary);font-weight:500;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:16px;}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:#e6e4e0;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);}
+
+.content{flex:1;display:flex;flex-direction:column;padding:20px 24px;}
+.page-header{margin-bottom:18px;display:flex;align-items:flex-start;justify-content:space-between;}
+.page-header h1{font-size:22px;font-weight:600;letter-spacing:-.02em;}
+.page-header p{font-size:13px;color:var(--text-muted);margin-top:2px;}
+
+
+.btn{display:inline-flex;align-items:center;padding:6px 14px;border-radius:var(--radius-sm);font-size:12.5px;font-family:inherit;cursor:pointer;border:1px solid var(--border);background:var(--bg-surface);color:var(--text-primary);font-weight:500;transition:all var(--transition);white-space:nowrap;}
+.btn:hover{border-color:var(--text-muted);}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btn-primary:hover{opacity:.88;}
+.btn-sm{padding:4px 10px;font-size:11.5px;}
+.btn-outline{border:1px solid var(--border);background:var(--bg-surface);}
+.btn-outline:hover{border-color:var(--accent);}
+.btn-text{color:var(--blue);border:none;background:none;padding:2px 4px;cursor:pointer;font-size:12.5px;font-family:inherit;}
+
+/* ---- Filter Bar ---- */
+.filter-bar{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--bg-surface);border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
+.filter-bar input,.filter-bar select{height:34px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;background:var(--bg-surface);color:var(--text-primary);outline:none;}
+.filter-bar input[type="text"]{width:220px;}
+.filter-bar input::placeholder{color:var(--text-muted);}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--accent);}
+.filter-bar .sep{color:var(--text-muted);font-size:12px;margin:0 2px;}
+
+/* ---- Table Panel ---- */
+.table-panel{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg);display:flex;flex-direction:column;flex:1;min-height:0;}
+.table-wrap{flex:1;overflow:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{background:#fafaf9;text-align:left;padding:10px 12px;font-weight:500;font-size:12px;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:1;}
+thead th:first-child{padding-left:20px;}
+tbody td{padding:11px 12px;border-bottom:1px solid var(--border-light);vertical-align:middle;}
+tbody td:first-child{padding-left:20px;}
+tbody tr{transition:background var(--transition);}
+tbody tr:hover{background:var(--bg-hover);}
+tbody tr:last-child td{border-bottom:none;}
+
+/* ---- Expandable Rows ---- */
+.row-main{cursor:pointer;user-select:none;}
+.row-main:hover{background:var(--bg-hover);}
+.row-main .expand-cell{display:flex;align-items:center;gap:6px;}
+.expand-arrow{display:inline-flex;width:18px;height:18px;align-items:center;justify-content:center;font-size:10px;color:var(--text-muted);transition:transform .15s ease;flex-shrink:0;}
+.expand-arrow.expanded{transform:rotate(90deg);}
+.brand-info{display:flex;align-items:center;gap:10px;}
+.brand-logo{width:36px;height:36px;border-radius:8px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--accent);flex-shrink:0;letter-spacing:-.02em;}
+.brand-logo.has-children{background:#eef2ff;color:#4338ca;}
+.brand-text{display:flex;flex-direction:column;gap:1px;}
+.brand-name{font-weight:500;font-size:13px;line-height:1.3;}
+.brand-name-en{font-size:11px;color:var(--text-muted);line-height:1.3;}
+.sub-badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--blue);font-weight:400;margin-left:4px;background:var(--blue-bg);padding:1px 6px;border-radius:100px;}
+
+/* ---- Child Row ---- */
+.row-child{background:#fafbfb;display:none;}
+.row-child.visible{display:table-row;}
+.row-child:hover{background:#f3f4f6;}
+.row-child td:first-child{padding-left:44px;}
+.row-child .brand-logo{width:28px;height:28px;border-radius:6px;font-size:12px;background:#f5f8ff;color:#6366f1;}
+.row-child .brand-name{font-size:12.5px;font-weight:400;}
+
+/* ---- Supplier Link ---- */
+.supplier-link{color:var(--blue);cursor:pointer;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:3px;}
+.supplier-link:hover{text-decoration:underline;}
+.supplier-count{font-weight:500;}
+
+/* ---- Help Tip ---- */
+.help-tip{display:inline-flex;width:16px;height:16px;border-radius:50%;background:var(--border);color:#fff;font-size:10px;font-weight:600;align-items:center;justify-content:center;cursor:help;margin-left:4px;position:relative;}
+.help-tip:hover{background:var(--text-muted);}
+
+/* ---- Toggle Switch ---- */
+.switch{position:relative;display:inline-block;width:38px;height:21px;}
+.switch input{opacity:0;width:0;height:0;}
+.switch .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ccc;border-radius:21px;transition:.2s;}
+.switch .slider:before{content:"";position:absolute;height:15px;width:15px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;}
+.switch input:checked+.slider{background:var(--accent);}
+.switch input:checked+.slider:before{transform:translateX(17px);}
+
+
+
+/* ---- Modal (supplier detail) ---- */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);width:480px;max-width:90vw;max-height:70vh;overflow:auto;animation:modalIn .18s ease;}
+@keyframes modalIn{from{opacity:0;transform:translateY(8px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+.modal-header{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-header h3{font-size:15px;font-weight:600;}
+.modal-close{width:28px;height:28px;border:none;background:none;cursor:pointer;font-size:18px;color:var(--text-muted);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:var(--bg-hover);color:var(--text-primary);}
+.modal-body{padding:20px 24px;font-size:13px;}
+.supplier-list{list-style:none;display:flex;flex-direction:column;gap:6px;}
+.supplier-list li{padding:8px 12px;background:var(--bg-hover);border-radius:var(--radius-sm);font-size:13px;display:flex;align-items:center;gap:8px;}
+.supplier-list li .dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;}
+/* ---- Toast ---- */
+.toast-container{position:fixed;top:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--bg-sidebar);color:#fff;padding:12px 18px;border-radius:var(--radius);font-size:13px;box-shadow:var(--shadow-lg);animation:toastIn .25s ease;display:flex;align-items:center;gap:8px;}
+.toast.success{border-left:3px solid #16a34a;}
+.toast.info{border-left:3px solid #2563eb;}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+
+/* ---- Tooltip on hover for supplier ---- */
+.supplier-hover-area{position:relative;display:inline-block;}
+.supplier-tooltip{display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--bg-sidebar);color:#fff;padding:8px 12px;border-radius:var(--radius-sm);font-size:12px;white-space:nowrap;z-index:50;pointer-events:none;}
+.supplier-hover-area:hover .supplier-tooltip{display:block;}
+.supplier-tooltip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--bg-sidebar);}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>商城运营平台</div>
+    <div class="sub">Mall Operations Platform</div>
+  </div>
+  <nav class="sidebar-nav">
+    <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>工作台首页</a>
+    <div class="nav-section">
+      <div class="nav-section-label" onclick="toggleSection(this)"><span class="section-arrow">▾</span>选品管理</div>
+      <div class="nav-section-items">
+        <a class="nav-item" href="01.供应链商品池-原型页面.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>供应链商品池</a>
+        <a class="nav-item" href="02.选品清单管理-原型页面.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>选品清单管理</a>
+        <a class="nav-item" href="03.待处理选品-原型页面.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg>待处理选品<span class="badge">8</span></a>
+        <a class="nav-item" href="04.渠道商品管理-原型页面.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>渠道商品管理</a>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label" onclick="toggleSection(this)"><span class="section-arrow">▾</span>运营配置</div>
+      <div class="nav-section-items">
+        <a class="nav-item" href="06.前台分类管理-原型页面.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>前台分类管理</a>
+        <a class="nav-item" href="07.商品标签管理-原型页面.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>商品标签管理</a>
+        <a class="nav-item active" href="09.商品品牌列表-原型页面.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8.5" cy="10.5" r="2.5"/><path d="M21 15l-5-5L8.5 18"/></svg>商品品牌列表</a>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label" onclick="toggleSection(this)"><span class="section-arrow">▾</span>商城装修</div>
+      <div class="nav-section-items">
+        <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>模板管理</a>
+        <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>素材库</a>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label" onclick="toggleSection(this)"><span class="section-arrow">▾</span>营销管理</div>
+      <div class="nav-section-items">
+        <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/></svg>商城积分列表</a>
+        <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="12" y1="4" x2="12" y2="10"/></svg>卡券模板列表</a>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label" onclick="toggleSection(this)"><span class="section-arrow">▾</span>订单监控</div>
+      <div class="nav-section-items">
+        <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>订单列表</a>
+        <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>售后列表</a>
+        <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>订单配置</a>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label" onclick="toggleSection(this)"><span class="section-arrow">▾</span>渠道管理</div>
+      <div class="nav-section-items">
+        <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>企业客户列表</a>
+        <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/><line x1="12" y1="12" x2="12" y2="17"/><line x1="9" y1="15" x2="15" y2="15"/></svg>品牌商城列表</a>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label" onclick="toggleSection(this)"><span class="section-arrow">▾</span>系统设置</div>
+      <div class="nav-section-items">
+        <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>组织架构</a>
+        <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>角色权限</a>
+        <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>操作日志</a>
+        <a class="nav-item" href="#"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="5" y1="4" x2="5" y2="16"/></svg>平台信息</a>
+      </div>
+    </div>
+  </nav>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">运营配置 / <span>商品品牌列表</span></div>
+    <div class="topbar-right">
+      <span style="font-size:12px;color:var(--text-muted);">运营专员</span>
+      <div class="user-avatar">张</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <div>
+        <h1>商品品牌列表</h1>
+        <p>品牌聚合展示，体现主体品牌与实际运营品牌关系。数据由供应链侧维护，商城端仅查看。</p>
+      </div>
+    </div>
+
+    <div class="table-panel">
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <input type="text" placeholder="搜索品牌名称" id="searchInput" oninput="applyFilter()">
+        <select id="supplierFilter" onchange="applyFilter()" style="width:180px;">
+          <option value="">全部供应商</option>
+        </select>
+        <select id="statusFilter" onchange="applyFilter()" style="width:110px;">
+          <option value="">全部状态</option>
+          <option value="active">显示</option>
+          <option value="inactive">隐藏</option>
+        </select>
+        <button class="btn btn-sm" onclick="applyFilter()">查询</button>
+        <button class="btn btn-sm" onclick="resetFilter()">重置</button>
+        <button class="btn btn-sm" id="btnToggleAll" style="margin-left:auto" onclick="toggleAllExpand()">全部展开</button>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:280px;">品牌信息</th>
+              <th style="width:160px;">关联商品数</th>
+              <th style="width:180px;">相关授权供应商</th>
+              <th style="width:100px;">C端展示状态 <span class="help-tip" title="控制品牌在C端是否可见，关闭后相关商品将不在前台展示">?</span></th>
+              <th style="width:160px;">更新时间/更新人</th>
+            </tr>
+          </thead>
+          <tbody id="brandTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Supplier Detail Modal -->
+<div class="modal-overlay" id="supplierModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="supplierModalTitle">相关授权供应商</h3>
+      <button class="modal-close" onclick="closeModal('supplierModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <ul class="supplier-list" id="supplierList"></ul>
+    </div>
+  </div>
+</div>
+
+<!-- Category Detail Modal -->
+<div class="modal-overlay" id="categoryModal">
+  <div class="modal" style="width:520px;">
+    <div class="modal-header">
+      <h3 id="categoryModalTitle">关联商品明细</h3>
+      <button class="modal-close" onclick="closeModal('categoryModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="padding:8px 0;">
+        <div id="categoryDetail" style="font-size:13px;line-height:2;"></div>
+        <div style="text-align:center;margin:16px 0;padding:12px;background:var(--bg-hover);border-radius:var(--radius-sm);">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">合计</div>
+          <div style="font-size:22px;font-weight:600;color:var(--text-primary);" id="categoryCountTotal">0</div>
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">以上为该品牌在前台各分类下关联的商品数量汇总</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ========================================
+// BRAND DATA — 品牌聚合结构
+// ========================================
+var brandData = [
+  {
+    id: 'B001', name: '美的', nameEn: 'Midea',
+    categoryCount: 1250, categoryActive: 980,
+    categories: [{ name: '家用空调', count: 350, active: 280 }, { name: '中央空调', count: 280, active: 230 }, { name: '洗衣机', count: 200, active: 160 }, { name: '冰箱', count: 180, active: 150 }, { name: '厨房电器', count: 150, active: 110 }, { name: '小家电', count: 90, active: 50 }],
+    supplierIds: ['sup-01','sup-02','sup-03','sup-04','sup-05'], status: 'active',
+    children: [
+      { id: 'B001-1', name: 'COLMO', nameEn: 'COLMO', categoryCount: 300, categoryActive: 240,
+        categories: [{ name: '高端空调', count: 120, active: 100 }, { name: '高端冰箱', count: 80, active: 70 }, { name: '高端洗衣机', count: 60, active: 50 }, { name: '高端厨电', count: 40, active: 20 }],
+        supplierIds: ['sup-01','sup-02'], status: 'active' },
+      { id: 'B001-2', name: '小天鹅', nameEn: 'Little Swan', categoryCount: 150, categoryActive: 30,
+        categories: [{ name: '洗衣机', count: 100, active: 20 }, { name: '干衣机', count: 50, active: 10 }],
+        supplierIds: ['sup-04','sup-05'], status: 'active' },
+      { id: 'B001-3', name: '华凌', nameEn: 'Hualing', categoryCount: 150, categoryActive: 140,
+        categories: [{ name: '空调', count: 80, active: 80 }, { name: '冰箱', count: 40, active: 35 }, { name: '洗衣机', count: 30, active: 25 }],
+        supplierIds: ['sup-01'], status: 'active' }
+    ]
+  },
+  {
+    id: 'B002', name: '海尔', nameEn: 'Haier',
+    categoryCount: 1000, categoryActive: 850,
+    categories: [{ name: '冰箱', count: 300, active: 260 }, { name: '洗衣机', count: 250, active: 220 }, { name: '空调', count: 200, active: 170 }, { name: '热水器', count: 150, active: 120 }, { name: '厨电', count: 100, active: 80 }],
+    supplierIds: ['sup-06','sup-07','sup-01'], status: 'active',
+    children: [
+      { id: 'B002-1', name: '卡萨帝', nameEn: 'Casarte', categoryCount: 300, categoryActive: 260,
+        categories: [{ name: '高端冰箱', count: 120, active: 110 }, { name: '高端洗衣机', count: 80, active: 70 }, { name: '酒柜', count: 30, active: 25 }, { name: '高端厨电', count: 70, active: 55 }],
+        supplierIds: ['sup-06','sup-07'], status: 'active' },
+      { id: 'B002-2', name: 'Leader', nameEn: 'Leader', categoryCount: 150, categoryActive: 120,
+        categories: [{ name: '冰箱', count: 60, active: 50 }, { name: '洗衣机', count: 40, active: 35 }, { name: '空调', count: 30, active: 20 }, { name: '小家电', count: 20, active: 15 }],
+        supplierIds: ['sup-01'], status: 'active' }
+    ]
+  },
+  {
+    id: 'B003', name: '小米', nameEn: 'Xiaomi',
+    categoryCount: 550, categoryActive: 500,
+    categories: [{ name: '智能手机', count: 300, active: 280 }, { name: '智能电视', count: 120, active: 100 }, { name: '笔记本', count: 80, active: 70 }, { name: '平板', count: 50, active: 50 }],
+    supplierIds: ['sup-01','sup-08','sup-09'], status: 'active',
+    children: [
+      { id: 'B003-1', name: 'Redmi', nameEn: 'Redmi', categoryCount: 200, categoryActive: 180,
+        categories: [{ name: '智能手机', count: 120, active: 110 }, { name: '智能电视', count: 50, active: 45 }, { name: '笔记本', count: 30, active: 25 }],
+        supplierIds: ['sup-01','sup-08'], status: 'active' },
+      { id: 'B003-2', name: '米家', nameEn: 'Mijia', categoryCount: 200, categoryActive: 170,
+        categories: [{ name: '智能清洁', count: 80, active: 70 }, { name: '厨房电器', count: 50, active: 45 }, { name: '环境电器', count: 40, active: 30 }, { name: '安防', count: 30, active: 25 }],
+        supplierIds: ['sup-01','sup-09'], status: 'active' }
+    ]
+  },
+  {
+    id: 'B004', name: '格力', nameEn: 'Gree',
+    categoryCount: 680, categoryActive: 620,
+    categories: [{ name: '家用空调', count: 400, active: 380 }, { name: '中央空调', count: 150, active: 130 }, { name: '生活电器', count: 80, active: 70 }, { name: '工业设备', count: 50, active: 40 }],
+    supplierIds: ['sup-10','sup-01'], status: 'active',
+    children: [
+      { id: 'B004-1', name: '格力中央空调', nameEn: 'Gree Central AC', categoryCount: 280, categoryActive: 260,
+        categories: [{ name: '商用中央空调', count: 180, active: 170 }, { name: '家用中央空调', count: 100, active: 90 }],
+        supplierIds: ['sup-10'], status: 'active' },
+      { id: 'B004-2', name: '晶弘', nameEn: 'Kinghome', categoryCount: 150, categoryActive: 135,
+        categories: [{ name: '冰箱', count: 90, active: 80 }, { name: '冷柜', count: 60, active: 55 }],
+        supplierIds: ['sup-01','sup-10'], status: 'active' }
+    ]
+  },
+  {
+    id: 'B005', name: '华为', nameEn: 'HUAWEI',
+    categoryCount: 890, categoryActive: 820,
+    categories: [{ name: '智能手机', count: 350, active: 330 }, { name: '平板电脑', count: 120, active: 110 }, { name: '可穿戴设备', count: 180, active: 170 }, { name: '智能家居', count: 140, active: 120 }, { name: 'PC及配件', count: 100, active: 90 }],
+    supplierIds: ['sup-11','sup-09','sup-01'], status: 'active',
+    children: [
+      { id: 'B005-1', name: '华为终端', nameEn: 'Huawei Device', categoryCount: 500, categoryActive: 480,
+        categories: [{ name: '智能手机', count: 350, active: 330 }, { name: '可穿戴设备', count: 100, active: 100 }, { name: '平板电脑', count: 50, active: 50 }],
+        supplierIds: ['sup-01','sup-11'], status: 'active' }
+    ]
+  },
+  {
+    id: 'B006', name: '宝洁', nameEn: 'P&G',
+    categoryCount: 3200, categoryActive: 2950,
+    categories: [{ name: '洗发护发', count: 520, active: 480 }, { name: '口腔护理', count: 380, active: 350 }, { name: '织物护理', count: 450, active: 420 }, { name: '个人清洁', count: 380, active: 350 }, { name: '婴儿护理', count: 280, active: 260 }, { name: '女性护理', count: 220, active: 200 }, { name: '男士理容', count: 180, active: 170 }, { name: '家居清洁', count: 340, active: 310 }, { name: '美妆护肤', count: 250, active: 230 }, { name: '剃须护理', count: 200, active: 180 }],
+    supplierIds: ['sup-12','sup-01','sup-08','sup-09'], status: 'active',
+    children: [
+      { id: 'B006-1', name: '海飞丝', nameEn: 'Head & Shoulders', categoryCount: 180, categoryActive: 165, categories: [{ name: '去屑洗发水', count: 100, active: 95 }, { name: '护发素', count: 80, active: 70 }], supplierIds: ['sup-12'], status: 'active' },
+      { id: 'B006-2', name: '飘柔', nameEn: 'Rejoice', categoryCount: 150, categoryActive: 140, categories: [{ name: '柔顺洗发水', count: 90, active: 85 }, { name: '护发素', count: 60, active: 55 }], supplierIds: ['sup-12'], status: 'active' },
+      { id: 'B006-3', name: '潘婷', nameEn: 'Pantene', categoryCount: 190, categoryActive: 175, categories: [{ name: '修护洗发水', count: 110, active: 100 }, { name: '护发精华', count: 80, active: 75 }], supplierIds: ['sup-12'], status: 'active' },
+      { id: 'B006-4', name: '沙宣', nameEn: 'VS Sassoon', categoryCount: 120, categoryActive: 110, categories: [{ name: '造型产品', count: 70, active: 65 }, { name: '专业洗护', count: 50, active: 45 }], supplierIds: ['sup-08'], status: 'active' },
+      { id: 'B006-5', name: '汰渍', nameEn: 'Tide', categoryCount: 200, categoryActive: 185, categories: [{ name: '洗衣液', count: 120, active: 115 }, { name: '洗衣粉', count: 80, active: 70 }], supplierIds: ['sup-01'], status: 'active' },
+      { id: 'B006-6', name: '碧浪', nameEn: 'Ariel', categoryCount: 160, categoryActive: 150, categories: [{ name: '洗衣凝珠', count: 90, active: 85 }, { name: '洗衣液', count: 70, active: 65 }], supplierIds: ['sup-01'], status: 'active' },
+      { id: 'B006-7', name: '舒肤佳', nameEn: 'Safeguard', categoryCount: 200, categoryActive: 190, categories: [{ name: '沐浴露', count: 110, active: 105 }, { name: '洗手液', count: 90, active: 85 }], supplierIds: ['sup-09'], status: 'active' },
+      { id: 'B006-8', name: '佳洁士', nameEn: 'Crest', categoryCount: 220, categoryActive: 200, categories: [{ name: '牙膏', count: 140, active: 130 }, { name: '牙刷', count: 80, active: 70 }], supplierIds: ['sup-09'], status: 'active' },
+      { id: 'B006-9', name: '帮宝适', nameEn: 'Pampers', categoryCount: 180, categoryActive: 165, categories: [{ name: '纸尿裤', count: 120, active: 110 }, { name: '湿巾', count: 60, active: 55 }], supplierIds: ['sup-01'], status: 'active' },
+      { id: 'B006-10', name: '护舒宝', nameEn: 'Whisper', categoryCount: 150, categoryActive: 140, categories: [{ name: '卫生巾', count: 100, active: 95 }, { name: '护垫', count: 50, active: 45 }], supplierIds: ['sup-08'], status: 'active' },
+      { id: 'B006-11', name: '吉列', nameEn: 'Gillette', categoryCount: 130, categoryActive: 120, categories: [{ name: '剃须刀', count: 80, active: 75 }, { name: '剃须泡沫', count: 50, active: 45 }], supplierIds: ['sup-08'], status: 'active' },
+      { id: 'B006-12', name: '欧乐-B', nameEn: 'Oral-B', categoryCount: 160, categoryActive: 145, categories: [{ name: '电动牙刷', count: 100, active: 90 }, { name: '刷头', count: 60, active: 55 }], supplierIds: ['sup-09'], status: 'active' }
+    ]
+  },
+  {
+    id: 'B007', name: '戴森', nameEn: 'Dyson',
+    categoryCount: 120, categoryActive: 110,
+    categories: [{ name: '吸尘器', count: 50, active: 50 }, { name: '空气净化', count: 30, active: 28 }, { name: '个人护理', count: 25, active: 22 }, { name: '照明', count: 15, active: 10 }],
+    supplierIds: ['sup-13'], status: 'active',
+    children: [
+      { id: 'B007-1', name: '戴森中国', nameEn: 'Dyson China', categoryCount: 80, categoryActive: 75,
+        categories: [{ name: '吸尘器', count: 50, active: 50 }, { name: '空气净化', count: 30, active: 25 }],
+        supplierIds: ['sup-13'], status: 'active' }
+    ]
+  },
+  {
+    id: 'B008', name: '三星', nameEn: 'SAMSUNG',
+    categoryCount: 380, categoryActive: 0,
+    categories: [{ name: '智能手机', count: 150, active: 0 }, { name: '平板电脑', count: 80, active: 0 }, { name: '可穿戴', count: 60, active: 0 }, { name: '家电', count: 50, active: 0 }, { name: '显示器', count: 40, active: 0 }],
+    supplierIds: ['sup-14'], status: 'inactive',
+    children: [
+      { id: 'B008-1', name: '三星电子', nameEn: 'Samsung Electronics', categoryCount: 250, categoryActive: 0,
+        categories: [{ name: '智能手机', count: 150, active: 0 }, { name: '平板电脑', count: 60, active: 0 }, { name: '可穿戴', count: 40, active: 0 }],
+        supplierIds: ['sup-14'], status: 'inactive' }
+    ]
+  }
+];
+
+// ========================================
+// SUPPLIER LOOKUP
+// ========================================
+var supplierMap = {
+  'sup-01': '京东物流',
+  'sup-02': '美的制冷设备有限公司',
+  'sup-03': '美智光电科技有限公司',
+  'sup-04': '美的暖通设备有限公司',
+  'sup-05': '小天鹅电器有限公司',
+  'sup-06': '海尔供应链',
+  'sup-07': '日日顺物流',
+  'sup-08': '顺丰供应链',
+  'sup-09': '菜鸟供应链',
+  'sup-10': '格力供应链',
+  'sup-11': '华为终端供应链',
+  'sup-12': '宝洁中国供应链',
+  'sup-13': '戴森贸易有限公司',
+  'sup-14': '三星电子中国'
+};
+
+// ========================================
+// STATE
+// ========================================
+var expandedRows = {};
+var currentFilter = { search: '', supplierId: '', status: '' };
+
+// ========================================
+// SIDEBAR COLLAPSE
+// ========================================
+function toggleSection(label) {
+  var section = label.parentElement;
+  section.classList.toggle('collapsed');
+}
+
+function initSidebar() {
+  // 默认收起所有分组，展开包含 active 的分组
+  var sections = document.querySelectorAll('.nav-section');
+  sections.forEach(function(sec) {
+    sec.classList.add('collapsed');
+  });
+  var activeItem = document.querySelector('.nav-item.active');
+  if (activeItem) {
+    var parentSection = activeItem.closest('.nav-section');
+    if (parentSection) parentSection.classList.remove('collapsed');
+  }
+}
+
+// ========================================
+// INIT
+// ========================================
+function init() {
+  populateSupplierFilter();
+  renderTable();
+}
+
+function populateSupplierFilter() {
+  var select = document.getElementById('supplierFilter');
+  var seen = {};
+  var options = [];
+  brandData.forEach(function(brand) {
+    brand.supplierIds.forEach(function(sid) {
+      if (!seen[sid]) {
+        seen[sid] = true;
+        options.push({ id: sid, name: supplierMap[sid] || sid });
+      }
+    });
+    if (brand.children) {
+      brand.children.forEach(function(child) {
+        child.supplierIds.forEach(function(sid) {
+          if (!seen[sid]) {
+            seen[sid] = true;
+            options.push({ id: sid, name: supplierMap[sid] || sid });
+          }
+        });
+      });
+    }
+  });
+  options.sort(function(a, b) { return a.name.localeCompare(b.name, 'zh'); });
+  options.forEach(function(opt) {
+    var el = document.createElement('option');
+    el.value = opt.id;
+    el.textContent = opt.name;
+    select.appendChild(el);
+  });
+}
+
+// ========================================
+// FILTER
+// ========================================
+function getFilteredBrands() {
+  var search = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  var supplierId = document.getElementById('supplierFilter').value;
+  var status = document.getElementById('statusFilter').value;
+
+  currentFilter.search = search;
+  currentFilter.supplierId = supplierId;
+  currentFilter.status = status;
+
+  return brandData.filter(function(brand) {
+    if (status && brand.status !== status) return false;
+
+    if (supplierId) {
+      var allSupplierIds = brand.supplierIds.slice();
+      if (brand.children) {
+        brand.children.forEach(function(c) {
+          allSupplierIds = allSupplierIds.concat(c.supplierIds);
+        });
+      }
+      if (allSupplierIds.indexOf(supplierId) === -1) return false;
+    }
+
+    if (search) {
+      var matchParent = brand.name.toLowerCase().indexOf(search) !== -1 ||
+                        brand.nameEn.toLowerCase().indexOf(search) !== -1;
+      var matchChild = false;
+      if (brand.children) {
+        matchChild = brand.children.some(function(c) {
+          return c.name.toLowerCase().indexOf(search) !== -1 ||
+                 c.nameEn.toLowerCase().indexOf(search) !== -1;
+        });
+      }
+      if (!matchParent && !matchChild) return false;
+    }
+
+    return true;
+  });
+}
+
+function applyFilter() {
+  renderTable();
+}
+
+function resetFilter() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('supplierFilter').value = '';
+  document.getElementById('statusFilter').value = '';
+  currentFilter = { search: '', supplierId: '', status: '' };
+  renderTable();
+  showToast('info', '筛选条件已重置');
+}
+
+// ========================================
+// RENDER TABLE
+// ========================================
+function renderTable() {
+  var filteredBrands = getFilteredBrands();
+  var tbody = document.getElementById('brandTableBody');
+  var html = '';
+
+  if (filteredBrands.length === 0) {
+    html += '<tr><td colspan="6" style="text-align:center;padding:48px;color:var(--text-muted);">暂无匹配的品牌数据</td></tr>';
+    tbody.innerHTML = html;
+    return;
+  }
+
+  filteredBrands.forEach(function(brand) {
+    var hasChildren = brand.children && brand.children.length > 0;
+    var isExpanded = expandedRows[brand.id] === true;
+
+    // --- Parent row ---
+    html += '<tr class="row-main" data-brand-id="' + brand.id + '" onclick="toggleExpand(\'' + brand.id + '\')">';
+    html += '<td>';
+    html += '<div class="expand-cell">';
+    html += '<span class="expand-arrow' + (isExpanded ? ' expanded' : '') + '">▶</span>';
+    html += '<div class="brand-info">';
+    html += '<div class="brand-logo' + (hasChildren ? ' has-children' : '') + '">' + brand.name.charAt(0) + '</div>';
+    html += '<div class="brand-text">';
+    html += '<div class="brand-name">';
+    html += brand.name + ' <span style="font-size:11px;color:var(--text-muted);">' + brand.nameEn + '</span>';
+    if (hasChildren) {
+      html += '<span class="sub-badge">含' + brand.children.length + '个品牌</span>';
+    }
+    html += '</div></div></div></div>';
+    html += '</td>';
+
+    // Category count
+    html += '<td>';
+    html += '<span style="font-weight:500;cursor:pointer;color:var(--blue);font-family:\'Consolas\',\'Monaco\',monospace;" onclick="event.stopPropagation();showCategories(\'' + brand.id + '\',\'' + escapeHtml(brand.name) + '\')">' + formatNum(brand.categoryActive) + ' / ' + formatNum(brand.categoryCount) + '</span>';
+    html += '</td>';
+
+    // Supplier count
+    var supCount = brand.supplierIds.length;
+    html += '<td>';
+    html += '<span class="supplier-link" onclick="event.stopPropagation();showSuppliers(\'' + brand.id + '\',\'' + escapeHtml(brand.name) + '\')">';
+    html += '<span class="supplier-count">' + supCount + '</span> 家';
+    html += '</span>';
+    html += '</td>';
+
+    // Status
+    html += '<td>';
+    html += '<label class="switch" onclick="event.stopPropagation()"><input type="checkbox" ' + (brand.status === 'active' ? 'checked' : '') + ' onchange="toggleBrandStatus(\'' + brand.id + '\', this.checked)"><span class="slider"></span></label>';
+    html += '<span style="font-size:12px;color:var(--text-muted);margin-left:6px;">' + (brand.status === 'active' ? '显示' : '隐藏') + '</span>';
+    html += '</td>';
+
+    // Updated
+    html += '<td>';
+    html += '<div style="font-size:12px;color:var(--text-secondary);">' + (brand.updatedAt || '2026-05-28 14:30') + '</div>';
+    html += '<div style="font-size:11px;color:var(--text-muted);">' + (brand.updatedBy || '张三（供应链端）') + '</div>';
+    html += '</td>';
+    html += '</tr>';
+
+    // --- Child rows ---
+    if (hasChildren) {
+      brand.children.forEach(function(child) {
+        html += '<tr class="row-child' + (isExpanded ? ' visible' : '') + '" data-parent="' + brand.id + '">';
+        html += '<td>';
+        html += '<div class="brand-info">';
+        html += '<div class="brand-logo">' + child.name.charAt(0) + '</div>';
+        html += '<div class="brand-text">';
+        html += '<div class="brand-name">' + child.name + ' <span style="font-size:10.5px;color:var(--text-muted);">' + child.nameEn + '</span></div>';
+        html += '</div></div>';
+        html += '</td>';
+
+        html += '<td>';
+        html += '<span style="font-weight:500;cursor:pointer;color:var(--blue);font-family:\'Consolas\',\'Monaco\',monospace;font-size:12.5px;" onclick="event.stopPropagation();showCategories(\'' + child.id + '\',\'' + escapeHtml(child.name) + '\')">' + formatNum(child.categoryActive) + ' / ' + formatNum(child.categoryCount) + '</span>';
+        html += '</td>';
+
+        html += '<td>';
+        html += '<span class="supplier-link" onclick="event.stopPropagation();showSuppliers(\'' + child.id + '\',\'' + escapeHtml(child.name) + '\')">';
+        html += '<span class="supplier-count">' + child.supplierIds.length + '</span> 家';
+        html += '</span>';
+        html += '</td>';
+
+        html += '<td><span style="color:var(--text-muted);">—</span></td>';
+        html += '<td><span style="color:var(--text-muted);">—</span></td>';
+        html += '</tr>';
+      });
+    }
+  });
+
+  tbody.innerHTML = html;
+  updateToggleAllButton();
+}
+
+function toggleBrandStatus(brandId, checked) {
+  var found = findBrandById(brandId);
+  if (found) {
+    found.status = checked ? 'active' : 'inactive';
+    renderTable();
+    showToast('success', '「' + found.name + '」已' + (checked ? '显示' : '隐藏'));
+  }
+}
+
+function toggleExpand(brandId) {
+  expandedRows[brandId] = !expandedRows[brandId];
+  renderTable();
+  updateToggleAllButton();
+}
+
+function toggleAllExpand() {
+  var filteredBrands = getFilteredBrands();
+  var hasChildren = filteredBrands.some(function(b) { return b.children && b.children.length > 0; });
+  if (!hasChildren) return;
+
+  var allExpanded = filteredBrands.every(function(b) {
+    if (!b.children || b.children.length === 0) return true;
+    return expandedRows[b.id] === true;
+  });
+
+  filteredBrands.forEach(function(b) {
+    if (b.children && b.children.length > 0) {
+      expandedRows[b.id] = !allExpanded;
+    }
+  });
+
+  renderTable();
+  updateToggleAllButton();
+}
+
+function updateToggleAllButton() {
+  var btn = document.getElementById('btnToggleAll');
+  var filteredBrands = getFilteredBrands();
+  var expandableBrands = filteredBrands.filter(function(b) { return b.children && b.children.length > 0; });
+  if (expandableBrands.length === 0) {
+    btn.textContent = '全部展开';
+    btn.disabled = true;
+    return;
+  }
+  btn.disabled = false;
+  var allExpanded = expandableBrands.every(function(b) { return expandedRows[b.id] === true; });
+  btn.textContent = allExpanded ? '全部收起' : '全部展开';
+}
+
+// ========================================
+// SUPPLIER MODAL
+// ========================================
+function showCategories(brandId, brandName) {
+  var found = findBrandById(brandId);
+  if (!found || !found.categories) return;
+  document.getElementById('categoryModalTitle').textContent = '关联商品明细 - ' + brandName;
+  var cats = found.categories;
+  var totalActive = 0, totalCount = 0;
+  var html = '';
+  cats.forEach(function(c) {
+    totalActive += (c.active || 0);
+    totalCount += c.count;
+    html += '<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-light);font-size:14px;"><span>' + c.name + '</span><span style="font-weight:500;font-family:\'Consolas\',\'Monaco\',monospace;">' + (c.active || 0) + ' / ' + c.count + '</span></div>';
+  });
+  document.getElementById('categoryDetail').innerHTML = html;
+  document.getElementById('categoryCountTotal').textContent = '在售数 ' + totalActive + ' / 总数 ' + totalCount;
+  openModal('categoryModal');
+}
+
+function showSuppliers(brandId, brandName) {
+  var found = findBrandById(brandId);
+  var suppliers = [];
+  if (found) {
+    found.supplierIds.forEach(function(sid) {
+      suppliers.push({ id: sid, name: supplierMap[sid] || sid });
+    });
+  }
+
+  document.getElementById('supplierModalTitle').textContent = '「' + brandName + '」相关授权供应商';
+  var list = document.getElementById('supplierList');
+  var html = '';
+  if (suppliers.length === 0) {
+    html += '<li style="color:var(--text-muted);">暂无相关授权供应商</li>';
+  } else {
+    suppliers.forEach(function(s) {
+      html += '<li><span class="dot"></span>' + s.name + '</li>';
+    });
+  }
+  list.innerHTML = html;
+  openModal('supplierModal');
+}
+
+function findBrandById(id) {
+  for (var i = 0; i < brandData.length; i++) {
+    if (brandData[i].id === id) return brandData[i];
+    if (brandData[i].children) {
+      for (var j = 0; j < brandData[i].children.length; j++) {
+        if (brandData[i].children[j].id === id) return brandData[i].children[j];
+      }
+    }
+  }
+  return null;
+}
+
+// ========================================
+// COMMON UTILS
+// ========================================
+function formatNum(n) {
+  if (n >= 10000) return (n / 10000).toFixed(1) + '万';
+  return n.toLocaleString('zh-CN');
+}
+
+function escapeHtml(str) {
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function showToast(type, msg) {
+  var c = document.getElementById('toastContainer');
+  var t = document.createElement('div');
+  t.className = 'toast ' + type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(function() {
+    t.style.opacity = '0';
+    t.style.transition = 'all .2s ease';
+    setTimeout(function() { t.remove(); }, 200);
+  }, 2000);
+}
+
+// Modal close handlers
+document.querySelectorAll('.modal-overlay').forEach(function(o) {
+  o.addEventListener('click', function(e) { if (e.target === this) closeModal(this.id); });
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(function(m) { m.classList.remove('open'); });
+});
+
+// ========================================
+// BOOT
+// ========================================
+initSidebar();
+init();
+</script>
+</body>
+</html>

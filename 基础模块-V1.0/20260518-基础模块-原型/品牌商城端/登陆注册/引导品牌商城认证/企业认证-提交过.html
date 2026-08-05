@@ -1,0 +1,145 @@
+<!-- 页面2: 企业认证-已提交过 (列表页) -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公司认证 - 一兆链采供应商中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', "PingFang SC", "Microsoft YaHei", sans-serif; background-color: #f5f7fa; }
+        .table-header { background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        .table-row:hover { background-color: #f8fafc; }
+        .status-pending { color: #f59e0b; background-color: #fffbeb; padding: 2px 8px; border-radius: 4px; font-size: 12px; border: 1px solid #fef3c7; }
+    </style>
+</head>
+<body class="text-gray-700">
+
+<!-- 顶部导航 -->
+<nav class="bg-white border-b border-gray-200 fixed w-full z-50 top-0 h-16">
+    <div class="flex items-center justify-between px-6 h-full">
+        <div class="flex items-center gap-2">
+            <span class="text-xl font-semibold text-blue-600">一兆链采供应商中心</span>
+        </div>
+        <div class="flex items-center gap-4 text-gray-500">
+            <button class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <i class="fas fa-redo-alt"></i>
+            </button>
+            <button class="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
+                <i class="fas fa-bell"></i>
+            </button>
+            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 cursor-pointer">
+                <i class="fas fa-user text-sm"></i>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="flex pt-16 min-h-screen">
+    <!-- 左侧边栏 -->
+    <aside class="w-56 bg-white border-r border-gray-200 fixed h-full overflow-y-auto">
+        <div class="py-4 space-y-1">
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-home w-5"></i>
+                <span class="text-sm">首页</span>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-building w-5"></i>
+                <span class="text-sm">公司认证</span>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-cube w-5"></i>
+                <span class="text-sm">商品中心</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-blue-600 bg-blue-50 cursor-pointer transition-colors border-r-2 border-blue-600">
+                <i class="fas fa-clipboard-list w-5"></i>
+                <span class="text-sm font-medium">订单中心</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-shopping-cart w-5"></i>
+                <span class="text-sm">采购管理</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-warehouse w-5"></i>
+                <span class="text-sm">仓库管理</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-cog w-5"></i>
+                <span class="text-sm">设置</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="flex-1 ml-56 p-6">
+        <!-- 新增按钮 -->
+        <div class="mb-4">
+            <button class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm font-medium flex items-center gap-2 shadow-sm transition-all hover:shadow-md">
+                新增企业认证
+            </button>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full text-sm">
+                <thead class="table-header">
+                    <tr class="text-left text-gray-600 font-semibold">
+                        <th class="py-4 px-6 font-semibold w-24">操作</th>
+                        <th class="py-4 px-6 font-semibold">审批编号</th>
+                        <th class="py-4 px-6 font-semibold">企业编号</th>
+                        <th class="py-4 px-6 font-semibold">企业名称</th>
+                        <th class="py-4 px-6 font-semibold">统一社会信用代码</th>
+                        <th class="py-4 px-6 font-semibold">法定代表人</th>
+                        <th class="py-4 px-6 font-semibold">认证状态</th>
+                        <th class="py-4 px-6 font-semibold">更新时间</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <tr class="table-row transition-colors">
+                        <td class="py-4 px-6">
+                            <a href="#" class="text-blue-600 hover:text-blue-800 text-sm font-medium hover:underline">详情</a>
+                        </td>
+                        <td class="py-4 px-6 text-gray-600">HZ-GYS202512300033</td>
+                        <td class="py-4 px-6 text-gray-600">GYS202512300052</td>
+                        <td class="py-4 px-6 text-gray-900">沈阳东软信息技术服务公司</td>
+                        <td class="py-4 px-6 text-gray-600 font-mono text-xs">91210100MA5HASLM8R</td>
+                        <td class="py-4 px-6 text-gray-600">刘积仁</td>
+                        <td class="py-4 px-6">
+                            <span class="status-pending">待审核</span>
+                        </td>
+                        <td class="py-4 px-6 text-gray-500 text-xs">2025-12-30 09:03:16</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- 分页 -->
+            <div class="flex items-center justify-end px-6 py-4 border-t border-gray-100 gap-2">
+                <span class="text-sm text-gray-500 mr-2">第1-1条/总共1条</span>
+                <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 transition-colors disabled:opacity-50" disabled>
+                    <i class="fas fa-chevron-left text-xs"></i>
+                </button>
+                <button class="w-8 h-8 flex items-center justify-center rounded bg-blue-600 text-white text-sm font-medium">1</button>
+                <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 transition-colors disabled:opacity-50" disabled>
+                    <i class="fas fa-chevron-right text-xs"></i>
+                </button>
+                <div class="flex items-center gap-2 ml-2 border-l border-gray-200 pl-4">
+                    <select class="border border-gray-300 rounded px-2 py-1 text-sm text-gray-600 focus:outline-none focus:border-blue-500 bg-white">
+                        <option>10 条/页</option>
+                        <option>20 条/页</option>
+                        <option>50 条/页</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

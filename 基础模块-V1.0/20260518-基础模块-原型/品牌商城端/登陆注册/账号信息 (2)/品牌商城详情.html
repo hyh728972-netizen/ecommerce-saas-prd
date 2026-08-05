@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>品牌商城详情 - 一兆链采供应链平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', "PingFang SC", "Microsoft YaHei", sans-serif; background-color: #f5f7fa; }
+        .tab-active { color: #3b82f6; border-bottom: 2px solid #3b82f6; font-weight: 500; }
+        .tab-inactive { color: #374151; border-bottom: 2px solid transparent; }
+        .tab-inactive:hover { color: #3b82f6; }
+        .required::before { content: "*"; color: #ef4444; margin-right: 4px; }
+        .info-row { display: flex; align-items: flex-start; margin-bottom: 24px; }
+        .info-label { width: 140px; text-align: right; padding-right: 24px; font-size: 14px; color: #374151; flex-shrink: 0; }
+        .info-value { flex: 1; font-size: 14px; color: #111827; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="text-gray-700">
+
+<!-- 顶部导航 -->
+<nav class="bg-white border-b border-gray-200 fixed w-full z-50 top-0 h-16">
+    <div class="flex items-center justify-between px-6 h-full">
+        <div class="flex items-center gap-2">
+            <span class="text-xl font-semibold text-blue-600">一兆链采供应链平台</span>
+        </div>
+        <div class="flex items-center gap-4 text-gray-500">
+            <button class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <i class="fas fa-search text-lg"></i>
+            </button>
+            <button class="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
+                <i class="fas fa-bell text-lg"></i>
+            </button>
+            <div class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-3 py-1.5 rounded-lg transition-colors">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-medium">
+                    <i class="fas fa-user text-xs"></i>
+                </div>
+                <span class="text-sm text-gray-700">客户名</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="flex pt-16 min-h-screen">
+    <!-- 左侧边栏 -->
+    <aside class="w-56 bg-white border-r border-gray-200 fixed h-full overflow-y-auto">
+        <div class="py-4">
+            <div class="px-4 mb-2">
+                <div class="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
+                    <i class="fas fa-home w-5 text-center"></i>
+                    <span class="text-sm font-medium">设置</span>
+                    <i class="fas fa-chevron-up ml-auto text-xs text-gray-400"></i>
+                </div>
+            </div>
+            <div class="px-4">
+                <div class="flex items-center gap-2 px-3 py-2 text-blue-600 bg-blue-50 rounded-lg cursor-pointer transition-colors mb-1">
+                    <span class="text-sm font-medium ml-7">商城列表</span>
+                    <i class="fas fa-chevron-down ml-auto text-xs"></i>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="flex-1 ml-56 p-6">
+        <!-- 面包屑标签 -->
+        <div class="bg-white rounded-t-lg border-b border-gray-200 px-6 py-3 mb-0 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-blue-600 text-sm font-medium">品牌商城详情</span>
+                <button class="text-gray-400 hover:text-gray-600 ml-1"><i class="fas fa-times text-xs"></i></button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-b-lg shadow-sm">
+            <!-- Tab切换 -->
+            <div class="flex border-b border-gray-200 px-6 pt-4">
+                <button onclick="switchTab('enterprise')" id="tab-enterprise" class="tab-active pb-3 px-4 text-sm mr-6 transition-colors">
+                    企业认证
+                </button>
+                <button onclick="switchTab('legal')" id="tab-legal" class="tab-inactive pb-3 px-4 text-sm mr-6 transition-colors">
+                    法人认证
+                </button>
+                <button onclick="switchTab('finance')" id="tab-finance" class="tab-inactive pb-3 px-4 text-sm transition-colors">
+                    财务认证
+                </button>
+            </div>
+
+            <!-- Tab内容 -->
+            <div class="p-8 min-h-[600px]">
+                
+                <!-- 企业认证 -->
+                <div id="content-enterprise" class="fade-in">
+                    <div class="max-w-3xl">
+                        <!-- 企业营业执照 -->
+                        <div class="info-row">
+                            <label class="info-label required">企业营业执照:</label>
+                            <div class="info-value">
+                                <div class="w-64 h-40 bg-gray-100 rounded border border-gray-200 overflow-hidden mb-2">
+                                    <img src="https://via.placeholder.com/256x160/1e40af/ffffff?text=钉钉开发者平台" alt="营业执照" class="w-full h-full object-cover">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 企业名称 -->
+                        <div class="info-row">
+                            <label class="info-label required">企业名称:</label>
+                            <div class="info-value">台积电</div>
+                        </div>
+
+                        <!-- 企业简称 -->
+                        <div class="info-row">
+                            <label class="info-label required">企业简称:</label>
+                            <div class="info-value">台积电</div>
+                        </div>
+
+                        <!-- 统一社会信用代码 -->
+                        <div class="info-row">
+                            <label class="info-label required">统一社会信用代码:</label>
+                            <div class="info-value">1234567890</div>
+                        </div>
+
+                        <!-- 注册地址 -->
+                        <div class="info-row">
+                            <label class="info-label">注册地址:</label>
+                            <div class="info-value">湖北省武汉市江夏区佛祖岭</div>
+                        </div>
+
+                        <!-- 经营地址 -->
+                        <div class="info-row">
+                            <label class="info-label">经营地址:</label>
+                            <div class="info-value">湖北省武汉市江夏区佛祖岭</div>
+                        </div>
+
+                        <!-- 联系人 -->
+                        <div class="info-row">
+                            <label class="info-label required">联系人</label>
+                            <div class="info-value">夏植超</div>
+                        </div>
+
+                        <!-- 联系人电话 -->
+                        <div class="info-row">
+                            <label class="info-label">联系人电话 :</label>
+                            <div class="info-value">18665385307</div>
+                        </div>
+
+                        <!-- 对接业务员 -->
+                        <div class="info-row">
+                            <label class="info-label required">对接业务员</label>
+                            <div class="info-value">张三</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 法人认证 -->
+                <div id="content-legal" class="fade-in hidden">
+                    <div class="max-w-3xl">
+                        <!-- 法人证件照片 -->
+                        <div class="info-row">
+                            <label class="info-label required">法人证件照片:</label>
+                            <div class="info-value">
+                                <div class="space-y-3">
+                                    <div class="w-48 h-32 bg-gray-100 rounded border border-gray-200 overflow-hidden">
+                                        <img src="https://via.placeholder.com/192x128/f3f4f6/6b7280?text=身份证正面" alt="身份证正面" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="w-48 h-32 bg-gray-100 rounded border border-gray-200 overflow-hidden">
+                                        <img src="https://via.placeholder.com/192x128/f3f4f6/6b7280?text=身份证反面" alt="身份证反面" class="w-full h-full object-cover">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 法人姓名 -->
+                        <div class="info-row">
+                            <label class="info-label required">法人姓名:</label>
+                            <div class="info-value">夏植超</div>
+                        </div>
+
+                        <!-- 法人证件号 -->
+                        <div class="info-row">
+                            <label class="info-label required">法人证件号:</label>
+                            <div class="info-value font-mono">420682198411266519</div>
+                        </div>
+
+                        <!-- 法人手机号 -->
+                        <div class="info-row">
+                            <label class="info-label required">法人手机号:</label>
+                            <div class="info-value">18665385307</div>
+                        </div>
+
+                        <!-- 所属公司名称 -->
+                        <div class="info-row">
+                            <label class="info-label required">所属公司名称:</label>
+                            <div class="info-value">台积电</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 财务认证 -->
+                <div id="content-finance" class="fade-in hidden">
+                    <div class="max-w-3xl">
+                        <!-- 复制按钮 -->
+                        <div class="flex justify-end mb-6">
+                            <button onclick="copyAccountInfo()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors shadow-sm">
+                                复制账户信息
+                            </button>
+                        </div>
+
+                        <!-- 开户银行 -->
+                        <div class="info-row">
+                            <label class="info-label required">开户银行:</label>
+                            <div class="info-value">招商银行</div>
+                        </div>
+
+                        <!-- 银行账号 -->
+                        <div class="info-row">
+                            <label class="info-label required">银行账号:</label>
+                            <div class="info-value font-mono">622588776655443321</div>
+                        </div>
+
+                        <!-- 结算币种 -->
+                        <div class="info-row">
+                            <label class="info-label required">结算币种:</label>
+                            <div class="info-value">人民币</div>
+                        </div>
+
+                        <!-- 账户名称 -->
+                        <div class="info-row">
+                            <label class="info-label">账户名称:</label>
+                            <div class="info-value">台积电</div>
+                        </div>
+
+                        <!-- 开户支行名称 -->
+                        <div class="info-row">
+                            <label class="info-label required">开户支行名称:</label>
+                            <div class="info-value">湖北省武汉市洪山区街道口招商银行支行</div>
+                        </div>
+
+                        <!-- 是否默认账户 -->
+                        <div class="info-row">
+                            <label class="info-label required">是否默认账户:</label>
+                            <div class="info-value">是</div>
+                        </div>
+
+                        <!-- 开户支行地址 -->
+                        <div class="info-row">
+                            <label class="info-label">开户支行地址:</label>
+                            <div class="info-value">湖北省武汉市洪山区街道口</div>
+                        </div>
+
+                        <!-- K3渠道编码 -->
+                        <div class="info-row">
+                            <label class="info-label required">K3渠道编码:</label>
+                            <div class="info-value font-mono">(ZD)DFHK</div>
+                        </div>
+
+                        <!-- K3渠道名称 -->
+                        <div class="info-row">
+                            <label class="info-label required">K3渠道名称:</label>
+                            <div class="info-value">(兆点)东方航空</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部修改按钮 -->
+            <div class="px-8 py-4 border-t border-gray-100">
+                <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">修改</button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    function switchTab(tab) {
+        // 重置所有Tab样式
+        document.getElementById('tab-enterprise').className = 'tab-inactive pb-3 px-4 text-sm mr-6 transition-colors';
+        document.getElementById('tab-legal').className = 'tab-inactive pb-3 px-4 text-sm mr-6 transition-colors';
+        document.getElementById('tab-finance').className = 'tab-inactive pb-3 px-4 text-sm transition-colors';
+        
+        // 隐藏所有内容
+        document.getElementById('content-enterprise').classList.add('hidden');
+        document.getElementById('content-legal').classList.add('hidden');
+        document.getElementById('content-finance').classList.add('hidden');
+        
+        // 激活选中Tab
+        document.getElementById(`tab-${tab}`).className = 'tab-active pb-3 px-4 text-sm mr-6 transition-colors';
+        if (tab === 'finance') {
+            document.getElementById('tab-finance').className = 'tab-active pb-3 px-4 text-sm transition-colors';
+        }
+        
+        // 显示对应内容
+        document.getElementById(`content-${tab}`).classList.remove('hidden');
+    }
+
+    function copyAccountInfo() {
+        // 模拟复制功能
+        const accountInfo = `
+开户银行: 招商银行
+银行账号: 622588776655443321
+结算币种: 人民币
+账户名称: 台积电
+开户支行名称: 湖北省武汉市洪山区街道口招商银行支行
+是否默认账户: 是
+开户支行地址: 湖北省武汉市洪山区街道口
+K3渠道编码: (ZD)DFHK
+K3渠道名称: (兆点)东方航空
+        `.trim();
+        
+        navigator.clipboard.writeText(accountInfo).then(() => {
+            alert('账户信息已复制到剪贴板');
+        }).catch(() => {
+            alert('复制失败，请手动复制');
+        });
+    }
+</script>
+
+</body>
+</html>

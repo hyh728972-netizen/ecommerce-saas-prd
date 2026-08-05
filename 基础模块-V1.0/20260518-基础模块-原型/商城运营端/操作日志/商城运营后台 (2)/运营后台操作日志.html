@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兆链采 供应链平台 - 操作日志</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            background-color: #f0f2f5;
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 14px;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            height: 64px;
+            background-color: #fff;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1890ff;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .platform-name {
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 16px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .header-icon {
+            width: 20px;
+            height: 20px;
+            color: rgba(0, 0, 0, 0.65);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .header-icon:hover {
+            color: #1890ff;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #1890ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        /* 左侧菜单栏 */
+        .sidebar {
+            width: 200px;
+            background-color: #fff;
+            border-right: 1px solid #f0f0f0;
+            position: fixed;
+            top: 64px;
+            left: 0;
+            bottom: 0;
+            padding: 16px 0;
+            z-index: 99;
+        }
+
+        .menu-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(0, 0, 0, 0.65);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .menu-item:hover {
+            color: #1890ff;
+        }
+
+        .menu-item.active {
+            color: #1890ff;
+            background-color: #e6f7ff;
+        }
+
+        .menu-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .submenu {
+            padding: 10px 24px 10px 48px;
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .submenu:hover {
+            color: #1890ff;
+        }
+
+        .submenu.active {
+            color: #1890ff;
+            background-color: #e6f7ff;
+        }
+
+        .submenu.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #1890ff;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            margin-left: 200px;
+            margin-top: 64px;
+            padding: 24px;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            margin-bottom: 24px;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1890ff;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .breadcrumb-close {
+            color: rgba(0, 0, 0, 0.25);
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .breadcrumb-close:hover {
+            color: rgba(0, 0, 0, 0.45);
+        }
+
+        /* 搜索筛选区 */
+        .search-section {
+            background-color: #fff;
+            padding: 24px;
+            border-radius: 2px;
+            margin-bottom: 24px;
+        }
+
+        .search-form {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .form-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .form-label {
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .date-range {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            padding: 0 12px;
+            height: 32px;
+            background-color: #fff;
+        }
+
+        .date-input {
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.25);
+            width: 120px;
+            background: transparent;
+        }
+
+        .date-separator {
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .btn {
+            height: 32px;
+            padding: 0 16px;
+            border-radius: 2px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+            font-weight: 400;
+        }
+
+        .btn-primary {
+            background-color: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+
+        .btn-primary:hover {
+            background-color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .btn-default {
+            background-color: #fff;
+            color: rgba(0, 0, 0, 0.65);
+            border-color: #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 操作按钮区 */
+        .action-bar {
+            margin-bottom: 16px;
+        }
+
+        .btn-export {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: #1890ff;
+            color: #fff;
+            border: none;
+            padding: 0 16px;
+            height: 32px;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-export:hover {
+            background-color: #40a9ff;
+        }
+
+        .export-icon {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* 表格区域 */
+        .table-section {
+            background-color: #fff;
+            border-radius: 2px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table th {
+            background-color: #fafafa;
+            color: rgba(0, 0, 0, 0.85);
+            font-weight: 500;
+            text-align: left;
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .data-table tr:hover {
+            background-color: #fafafa;
+        }
+
+        .status-success {
+            color: #52c41a;
+        }
+
+        .status-fail {
+            color: #ff4d4f;
+        }
+
+        .link-view {
+            color: #1890ff;
+            cursor: pointer;
+        }
+
+        .link-view:hover {
+            text-decoration: underline;
+        }
+
+        /* 空数据行 */
+        .empty-row td {
+            height: 48px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 16px 24px;
+            gap: 8px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .pagination-info {
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 14px;
+            margin-right: 16px;
+        }
+
+        .page-btn {
+            min-width: 32px;
+            height: 32px;
+            padding: 0 6px;
+            border: 1px solid #d9d9d9;
+            background-color: #fff;
+            color: rgba(0, 0, 0, 0.65);
+            border-radius: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        .page-btn.active {
+            background-color: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+
+        .page-btn.disabled {
+            color: rgba(0, 0, 0, 0.25);
+            cursor: not-allowed;
+            border-color: #d9d9d9;
+        }
+
+        .page-btn.disabled:hover {
+            color: rgba(0, 0, 0, 0.25);
+            border-color: #d9d9d9;
+        }
+
+        .page-size-select {
+            height: 32px;
+            padding: 0 8px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 14px;
+            margin-left: 16px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        /* 弹窗遮罩 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.45);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        /* 弹窗内容 */
+        .modal {
+            background-color: #fff;
+            border-radius: 2px;
+            width: 600px;
+            max-width: 90%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+        }
+
+        .modal-close {
+            width: 20px;
+            height: 20px;
+            color: rgba(0, 0, 0, 0.45);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: rgba(0, 0, 0, 0.75);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .detail-table th {
+            background-color: #fafafa;
+            color: rgba(0, 0, 0, 0.85);
+            font-weight: 500;
+            padding: 12px 16px;
+            text-align: left;
+            border: 1px solid #f0f0f0;
+        }
+
+        .detail-table td {
+            padding: 12px 16px;
+            border: 1px solid #f0f0f0;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .detail-table tr:hover {
+            background-color: #fafafa;
+        }
+
+        .modal-footer {
+            padding: 10px 16px;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-close {
+            height: 32px;
+            padding: 0 16px;
+            background-color: #1890ff;
+            color: #fff;
+            border: none;
+            border-radius: 2px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-close:hover {
+            background-color: #40a9ff;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="logo-section">
+            <div class="logo">
+                <div class="logo-icon">兆</div>
+                <span>兆链采</span>
+            </div>
+            <span class="platform-name">供应链平台</span>
+        </div>
+        <div class="header-right">
+            <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+            </svg>
+            <div class="user-info">
+                <div class="user-avatar">用</div>
+                <span>用户名</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 左侧菜单 -->
+    <aside class="sidebar">
+        <div class="menu-item active">
+            <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span>设置</span>
+        </div>
+        <div class="submenu active">操作日志</div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div class="breadcrumb">
+                操作日志
+                <span class="breadcrumb-close">×</span>
+            </div>
+        </div>
+
+        <!-- 搜索筛选 - 已移除所属品牌商城 -->
+        <div class="search-section">
+            <div class="search-form">
+                <div class="form-item">
+                    <label class="form-label">操作时间</label>
+                    <div class="date-range">
+                        <input type="text" class="date-input" placeholder="开始时间">
+                        <span class="date-separator">至</span>
+                        <input type="text" class="date-input" placeholder="结束时间">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-primary">查 询</button>
+                    <button class="btn btn-default">重 置</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="action-bar">
+            <button class="btn-export">
+                <svg class="export-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                导出日志
+            </button>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="table-section">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>状态</th>
+                        <th>操作时间</th>
+                        <th>操作人</th>
+                        <th>操作类型</th>
+                        <th>变更记录</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="status-success">成功</td>
+                        <td>2024-01-23 12:34:56</td>
+                        <td>张三</td>
+                        <td>数据修改</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td class="status-fail">失败</td>
+                        <td>2024-01-23 12:34:56</td>
+                        <td>李四</td>
+                        <td>数据修改</td>
+                        <td><span class="link-view" onclick="openModal()">查看</span></td>
+                    </tr>
+                    <!-- 空行填充 -->
+                    <tr class="empty-row"><td colspan="5"></td></tr>
+                    <tr class="empty-row"><td colspan="5"></td></tr>
+                    <tr class="empty-row"><td colspan="5"></td></tr>
+                    <tr class="empty-row"><td colspan="5"></td></tr>
+                    <tr class="empty-row"><td colspan="5"></td></tr>
+                    <tr class="empty-row"><td colspan="5"></td></tr>
+                    <tr class="empty-row"><td colspan="5"></td></tr>
+                    <tr class="empty-row"><td colspan="5"></td></tr>
+                    <tr class="empty-row"><td colspan="5"></td></tr>
+                </tbody>
+            </table>
+
+            <!-- 分页 -->
+            <div class="pagination">
+                <span class="pagination-info">第 1-10 条/总共 100 条</span>
+                <button class="page-btn disabled">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">4</button>
+                <button class="page-btn">5</button>
+                <button class="page-btn">6</button>
+                <button class="page-btn">7</button>
+                <button class="page-btn">8</button>
+                <button class="page-btn">9</button>
+                <button class="page-btn">10</button>
+                <button class="page-btn">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+                <select class="page-size-select">
+                    <option>10 条/页</option>
+                    <option>20 条/页</option>
+                    <option>50 条/页</option>
+                </select>
+            </div>
+        </div>
+    </main>
+
+    <!-- 变更详情弹窗 -->
+    <div class="modal-overlay" id="changeModal" onclick="closeModalOnOverlay(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <span class="modal-title">变更记录详情</span>
+                <svg class="modal-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="closeModal()">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </div>
+            <div class="modal-body">
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>涉及修改原内容</th>
+                            <th>原内容</th>
+                            <th>更新内容</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>商品名称</td>
+                            <td>苹果16</td>
+                            <td>iPhone16旗舰版500T</td>
+                        </tr>
+                        <tr>
+                            <td>商品销售价</td>
+                            <td>5499</td>
+                            <td>999999</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-close" onclick="closeModal()">关 闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('changeModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('changeModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function closeModalOnOverlay(event) {
+            if (event.target === event.currentTarget) {
+                closeModal();
+            }
+        }
+
+        // ESC键关闭弹窗
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

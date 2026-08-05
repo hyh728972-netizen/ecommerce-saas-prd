@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>前台分类管理 - 品牌商城后台</title>
+<style>
+:root {
+  --bg-app: #f4f3f0; --bg-sidebar: #1e1e22; --bg-surface: #ffffff; --bg-hover: #f7f6f4; --bg-input: #f9f8f7;
+  --border: #e6e4e0; --border-light: #f0eeeb; --text-primary: #1a1a1c; --text-secondary: #6b6b70;
+  --text-muted: #99999d; --text-sidebar: #c4c4c9; --text-sidebar-active: #ffffff; --accent: #2d2d33;
+  --accent-soft: #f0eeeb; --red: #da3e3a; --red-bg: #fef4f3; --red-border: #fcd9d7;
+  --orange: #d97706; --orange-bg: #fffbf0; --orange-border: #fde8c4; --blue: #2563eb;
+  --blue-bg: #f5f8ff; --blue-border: #d4e0fc; --green: #16a34a; --green-bg: #f4fdf6;
+  --green-border: #c6f0d4; --gray: #6b7280; --gray-bg: #f8f8f7; --gray-border: #e8e6e3;
+  --dark-gray: #4b4b52; --dark-gray-bg: #f5f4f3; --dark-gray-border: #e0dedb;
+  --radius-sm: 4px; --radius: 8px; --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.04); --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.04); --transition: 160ms ease;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  background: var(--bg-app); color: var(--text-primary); display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+.sidebar { width: 232px; min-width: 232px; background: var(--bg-sidebar); display: flex; flex-direction: column; z-index: 10; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar-brand { padding: 20px 20px 28px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.sidebar-brand .logo { font-size: 17px; font-weight: 600; color: #fff; letter-spacing: -.02em; display: flex; align-items: center; gap: 10px; }
+.sidebar-brand .sub { font-size: 11px; color: var(--text-sidebar); margin-top: 2px; letter-spacing: .02em; }
+.sidebar-brand .mall-name { font-size: 12px; color: rgba(255,255,255,.45); margin-top: 6px; }
+.sidebar-nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; }
+.nav-section-label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.25); padding: 14px 10px 6px; cursor: pointer; user-select: none; display: flex; align-items: center; gap: 4px; }
+.nav-section-label:hover { color: rgba(255,255,255,.45); }
+.section-arrow { font-size: 8px; transition: transform .2s ease; flex-shrink: 0; }
+.nav-section.collapsed .section-arrow { transform: rotate(-90deg); }
+.nav-section.collapsed .nav-section-items { display: none; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 6px; color: var(--text-sidebar); font-size: 13.5px; cursor: pointer; transition: all var(--transition); text-decoration: none; letter-spacing: .01em; }
+.nav-item:hover { background: rgba(255,255,255,.05); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,.10); color: #fff; font-weight: 500; }
+.nav-item .badge { margin-left: auto; background: var(--red); color: #fff; font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 10px; min-width: 20px; text-align: center; line-height: 18px; }
+.nav-icon { width: 18px; height: 18px; opacity: .55; flex-shrink: 0; }
+.nav-item.active .nav-icon { opacity: 1; }
+
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.topbar { height: 52px; min-height: 52px; background: var(--bg-surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; gap: 16px; z-index: 5; }
+.topbar .breadcrumb { font-size: 12.5px; color: var(--text-muted); letter-spacing: .01em; }
+.topbar .breadcrumb span { color: var(--text-primary); font-weight: 500; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+.topbar-right .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: #e6e4e0; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); }
+
+.content { display: flex; flex-direction: column; padding: 20px 24px; flex: 1; }
+.page-header { margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; }
+.page-header h1 { font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
+.page-header p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+.content-body { display: flex; gap: 16px; flex: 1; min-height: 0; }
+
+/* Left Tree Panel */
+.tree-panel { width: 320px; min-width: 320px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); display: flex; flex-direction: column; }
+.tree-panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
+.tree-panel-header .tree-title { color: var(--text-primary); }
+.tree-panel-body { flex: 1; overflow-y: auto; padding: 8px 0; }
+.tree-filter { padding: 6px 8px; display: flex; gap: 4px; }
+.tree-filter-btn { padding: 5px 10px; border-radius: var(--radius-sm); font-size: 12px; cursor: pointer; color: var(--text-secondary); transition: all var(--transition); white-space: nowrap; }
+.tree-filter-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.tree-filter-btn.active { background: var(--accent-soft); color: var(--text-primary); font-weight: 500; }
+.tree-node { padding: 0 12px; }
+.tree-node-item { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: var(--radius-sm); font-size: 12.5px; cursor: pointer; transition: background var(--transition); color: var(--text-primary); }
+.tree-node-item:hover { background: var(--bg-hover); }
+.tree-node-item.active { background: var(--accent-soft); font-weight: 500; }
+.tree-node-item .expand-arrow { width: 16px; font-size: 10px; color: var(--text-muted); flex-shrink: 0; text-align: center; display: inline-block; }
+.tree-node-item .node-icon { width: 16px; height: 16px; border-radius: 3px; flex-shrink: 0; font-size: 9px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; }
+.tree-node-item .node-icon.basic { background: var(--blue); }
+.tree-node-item .node-icon.market { background: var(--orange); }
+.tree-children { padding-left: 20px; }
+.tree-children.collapsed { display: none; }
+.tree-node .tree-badge { font-size:9px; padding:1px 5px; border-radius:3px; margin-left:4px; font-weight:500; }
+.tree-node .tree-badge.basic-dir { background:#f5f8ff; color:#2563eb; }
+.tree-node .tree-badge.basic-system { background:#f5f8ff; color:#2563eb; }
+.tree-node .tree-badge.basic-virtual { background:#f4fdf6; color:#16a34a; }
+.tree-node .tree-badge.market-dir { background:#fffbf0; color:#d97706; }
+.tree-node .tree-badge.market-leaf { background:#fffbf0; color:#d97706; }
+
+/* Right Panel */
+.right-panel { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+.table-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); display: flex; flex-direction: column; flex: 1; }
+
+.action-bar { display: flex; gap: 10px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.action-bar .btn { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: var(--radius-sm); font-size: 12.5px; font-family: inherit; cursor: pointer; border: 1px solid transparent; transition: all var(--transition); white-space: nowrap; font-weight: 500; gap: 5px; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { opacity: .85; }
+.btn-outline { border-color: var(--border); color: var(--text-primary); background: var(--bg-surface); }
+.btn-outline:hover { border-color: var(--text-muted); background: var(--bg-hover); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { opacity: .85; }
+.btn-filter {
+  height: 36px; padding: 0 16px; background: var(--accent); color: #fff; border: none;
+  border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; cursor: pointer; font-weight: 500;
+  transition: opacity var(--transition);
+}
+.btn-filter:hover { opacity: .88; }
+.btn-reset {
+  height: 36px; padding: 0 14px; background: transparent; color: var(--text-secondary);
+  border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px;
+  font-family: inherit; cursor: pointer; transition: all var(--transition);
+}
+.btn-reset:hover { border-color: var(--text-muted); color: var(--text-primary); }
+
+.action-bar .spacer { flex: 1; }
+.action-bar .publish-badge { background: var(--red); color: #fff; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; line-height: 16px; }
+
+.table-scroll { overflow-x: auto; flex: 1; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: auto; min-width: 1100px; }
+thead th { background: #fafaf9; text-align: left; padding: 10px 12px; font-weight: 500; font-size: 12px; color: var(--text-muted); letter-spacing: .02em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+thead th:first-child { padding-left: 20px; }
+tbody td { padding: 11px 12px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
+tbody td:first-child { padding-left: 20px; }
+tbody tr { transition: background var(--transition); }
+tbody tr:hover { background: var(--bg-hover); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr.row-child { background: #fafaf9; }
+tbody tr.row-child td:first-child { padding-left: 40px; }
+tbody tr.row-child:hover { background: #f4f3f0; }
+tbody tr.disabled-row { opacity: .45; }
+tbody tr.disabled-row:hover { opacity: .65; background: var(--bg-hover); }
+
+.tree-indent { display: inline-block; }
+.tree-indent .expand-cell-arrow { display: inline-block; transition: transform var(--transition); font-size: 10px; margin-right: 6px; color: var(--text-muted); cursor: pointer; }
+.tree-indent .expand-cell-arrow.expanded { transform: rotate(90deg); }
+
+/* Tags */
+.tag { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 100px; font-size: 11.5px; font-weight: 500; letter-spacing: .01em; white-space: nowrap; }
+.tag-basic { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.tag-market { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+.tag-source-baseline { background: var(--gray-bg); color: var(--gray); border: 1px solid var(--gray-border); }
+.tag-source-self { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.tag-hidden { background: var(--bg-hover); color: var(--text-muted); border: 1px solid var(--gray-border); }
+
+/* Toggle Switch */
+.toggle { position: relative; display: inline-block; width: 38px; height: 22px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #d1d5db; transition: var(--transition); border-radius: 22px; }
+.toggle .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background: #fff; transition: var(--transition); border-radius: 50%; }
+.toggle input:checked + .slider { background: var(--accent); }
+.toggle input:checked + .slider:before { transform: translateX(16px); }
+.toggle.disabled { opacity: .4; pointer-events: none; }
+
+.price { font-family: "Consolas", "Monaco", monospace; font-size: 12.5px; }
+.cell-stack { display: flex; flex-direction: column; gap: 2px; }
+.cell-stack .secondary { font-size: 11.5px; color: var(--text-muted); }
+.icon-placeholder { width: 32px; height: 32px; border-radius: var(--radius-sm); background: #e8e6e2; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 560px; max-width: 90vw; overflow: hidden; animation: modalIn .18s ease; }
+@keyframes modalIn { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.modal-header h3 { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+.modal-close { width: 28px; height: 28px; border: none; background: none; cursor: pointer; font-size: 18px; color: var(--text-muted); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; transition: all var(--transition); }
+.modal-close:hover { background: var(--bg-hover); color: var(--text-primary); }
+.modal-body { padding: 20px 24px; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+.modal-body .form-group { margin-bottom: 16px; }
+.modal-body .form-group:last-child { margin-bottom: 0; }
+.modal-body label { display: block; font-size: 12.5px; font-weight: 500; margin-bottom: 6px; color: var(--text-secondary); }
+.modal-body input[type="text"], .modal-body select, .modal-body textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; outline: none; transition: border-color var(--transition); background: var(--bg-surface); }
+.modal-body textarea { resize: vertical; min-height: 60px; }
+.modal-body input:focus, .modal-body select:focus, .modal-body textarea:focus { border-color: var(--accent); }
+.modal-body .hint { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+
+/* Parent Tree Selector in modal */
+.parent-tree { border:1px solid var(--border); border-radius:var(--radius-sm); max-height:200px; overflow-y:auto; padding:6px 0; background:var(--bg-surface); }
+.parent-tree-item { display:flex; align-items:center; gap:6px; padding:7px 12px; cursor:pointer; font-size:12.5px; color:var(--text-primary); transition:background var(--transition); }
+.parent-tree-item:hover { background:var(--bg-hover); }
+.parent-tree-item.selected { background:var(--accent-soft); font-weight:500; }
+.parent-tree-item .radio-dot { width:14px; height:14px; border-radius:50%; border:2px solid var(--border); flex-shrink:0; transition:all var(--transition); }
+.parent-tree-item.selected .radio-dot { border-color:var(--accent); background:var(--accent); box-shadow:inset 0 0 0 2px #fff; }
+.parent-tree-item .node-badge { font-size:9px; padding:1px 5px; border-radius:3px; margin-left:4px; font-weight:500; }
+.parent-tree-item .node-badge.l1 { background:#f5f8ff; color:#2563eb; }
+.parent-tree-item .node-badge.l2 { background:#fffbf0; color:#d97706; }
+.parent-tree-empty { padding:16px; text-align:center; color:var(--text-muted); font-size:12px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+.modal-body .warning-box { background: #fff8f7; border: 1px solid #fdd9d5; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 12.5px; color: #b53a35; display: flex; gap: 8px; align-items: flex-start; margin-top: 12px; }
+
+.toast-container { position: fixed; top: 24px; right: 24px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+.toast { background: var(--bg-sidebar); color: #fff; padding: 12px 18px; border-radius: var(--radius); font-size: 13px; box-shadow: var(--shadow-lg); animation: toastIn .25s ease; display: flex; align-items: center; gap: 8px; }
+@keyframes toastIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+.toast.success { border-left: 3px solid #16a34a; }
+.toast.info { border-left: 3px solid var(--blue); }
+
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: .4; }
+.empty-state h3 { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.empty-state p { font-size: 13px; }
+
+/* Drag & Drop */
+.drag-handle { display: inline-block; cursor: grab; color: var(--text-muted); font-size: 14px; margin-right: 4px; user-select: none; padding: 2px 4px; border-radius: 3px; visibility: hidden; vertical-align: middle; }
+tr:hover .drag-handle { visibility: visible; }
+.drag-handle:active { cursor: grabbing; }
+tr.drag-over { outline: 2px dashed var(--blue); outline-offset: -2px; background: var(--blue-bg) !important; }
+tr.drag-source { opacity: .4; }
+.sort-editable { cursor: pointer; border-bottom: 1px dashed var(--text-muted); padding: 1px 3px; border-radius: 2px; transition: all var(--transition); }
+.sort-editable:hover { background: var(--accent-soft); border-bottom-color: var(--accent); }
+.sort-input { width: 50px; padding: 3px 6px; border: 1px solid var(--accent); border-radius: var(--radius-sm); font-size: 12.5px; font-family: "Consolas","Monaco",monospace; text-align: center; outline: none; }
+
+/* Mini-program preview phone frame */
+.phone-frame { width: 300px; height: 620px; background: #1a1a1c; border-radius: 38px; padding: 9px; box-shadow: 0 12px 36px rgba(0,0,0,.28); position: relative; flex-shrink: 0; }
+.phone-frame::before { content: ""; position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 108px; height: 26px; background: #1a1a1c; border-radius: 0 0 16px 16px; z-index: 30; }
+.phone-screen { width: 100%; height: 100%; background: #fff; border-radius: 30px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+.mp-statusbar { height: 30px; display: flex; align-items: center; justify-content: space-between; padding: 6px 22px 0; font-size: 11px; font-weight: 600; color: #1a1a1c; flex-shrink: 0; }
+.mp-statusbar .right { display: flex; gap: 4px; align-items: center; font-size: 10px; }
+.mp-header { display: flex; align-items: center; justify-content: center; height: 38px; position: relative; background: #fff; flex-shrink: 0; }
+.mp-header .mp-title { font-size: 14px; font-weight: 600; color: #1a1a1c; }
+.mp-capsule { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 60px; height: 26px; border-radius: 13px; border: 1px solid #e6e4e0; display: flex; align-items: center; justify-content: center; gap: 14px; background: rgba(0,0,0,.04); }
+.mp-capsule .dot { font-size: 13px; color: #888; line-height: 1; }
+.mp-capsule .div { width: 1px; height: 12px; background: #ddd; }
+.mp-search { margin: 6px 10px 8px; height: 28px; background: #f4f3f0; border-radius: 14px; display: flex; align-items: center; padding: 0 12px; font-size: 10.5px; color: #999; flex-shrink: 0; gap: 4px; }
+.mp-cat-body { flex: 1; display: flex; min-height: 0; }
+.mp-cat-left { width: 70px; background: #f4f3f0; flex-shrink: 0; overflow-y: auto; }
+.mp-cat-item { padding: 9px 4px; text-align: center; font-size: 10.5px; color: #666; border-left: 3px solid transparent; cursor: pointer; line-height: 1.3; }
+.mp-cat-item.active { background: #fff; color: #da3e3a; font-weight: 600; border-left-color: #da3e3a; }
+.mp-cat-right { flex: 1; background: #fff; padding: 8px 10px; overflow-y: auto; }
+.mp-banner { height: 52px; border-radius: 8px; background: linear-gradient(90deg,#da3e3a,#f56c6c); margin-bottom: 8px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 600; letter-spacing: .04em; }
+.mp-grp-title { font-size: 10.5px; font-weight: 600; color: #333; margin: 2px 0 7px; }
+.mp-grid { display: flex; flex-wrap: wrap; gap: 7px; }
+.mp-cell { width: calc(33.333% - 5px); text-align: center; }
+.mp-cell .ic { width: 100%; aspect-ratio: 1; border-radius: 8px; background: linear-gradient(135deg,#fef4f3,#fff5e6); display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 3px; }
+.mp-cell .nm { font-size: 9.5px; color: #666; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.mp-tabbar { height: 44px; border-top: 1px solid #f0eeeb; display: flex; flex-shrink: 0; background: #fff; }
+.mp-tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 9px; color: #999; }
+.mp-tab.active { color: #da3e3a; }
+.mp-tab .ti { font-size: 15px; line-height: 1; }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>品牌商城后台</div>
+    <div class="sub">Brand Mall Admin</div>
+    <div class="mall-name">政企福利商城</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-label" onclick="toggleSection(this)"><span class="section-arrow">▾</span>商品管理</div>
+      <div class="nav-section-items">
+        <a class="nav-item active" href="01.商品中心-分类管理-品牌商城后台原型.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>前台分类管理</a>
+        <a class="nav-item" href="02.商品中心-标签管理-品牌商城后台原型.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>商品标签管理</a>
+        <a class="nav-item" href="04.商品中心-批量映射-品牌商城后台原型.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>商品中心</a>
+      </div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-section-label" onclick="toggleSection(this)"><span class="section-arrow">▾</span>订单与售后</div>
+      <div class="nav-section-items">
+        <a class="nav-item" href="03.订单列表-导入订单-品牌商城后台原型.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>订单列表</a>
+      </div>
+    </div>
+  </nav>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">商品管理 / <span>前台分类管理</span></div>
+    <div class="topbar-right">
+      <span style="font-size:12px;color:var(--text-muted);">商城管理员</span>
+      <div class="user-avatar">王</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;">
+      <div>
+        <h1>前台分类管理</h1>
+      </div>
+      <div style="text-align:right;">
+        <button class="btn btn-primary" id="btnSyncMiniapp" onclick="openSyncModal()" style="padding:8px 18px;font-size:13px;">预览 <span class="publish-badge" id="syncBadge" style="display:none;">!</span></button>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">上次同步时间：<span id="lastSyncTime">2026-06-10 16:45</span></div>
+      </div>
+    </div>
+
+    <div class="content-body">
+      <!-- Left Tree -->
+      <div class="tree-panel">
+        <div class="tree-panel-header">
+          <span class="tree-title">分类树</span>
+        </div>
+        <div class="tree-panel-body">
+          <div class="tree-filter" style="display:flex;gap:4px;padding:4px 8px;">
+            <div class="tree-filter-btn active" data-filter="all" onclick="setTreeFilter('all',this)">全部</div>
+            <div class="tree-filter-btn" data-filter="visible" onclick="setTreeFilter('visible',this)">显示</div>
+          </div>
+          <div id="categoryTree"></div>
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="right-panel">
+        <div class="table-panel">
+          <div class="filter-bar" style="display:flex;gap:10px;align-items:center;padding:8px 16px;border-bottom:1px solid var(--border-light);flex-wrap:wrap;">
+            <input type="text" id="filterName" placeholder="分类名称搜索" style="width:200px;height:32px;padding:0 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;font-family:inherit;outline:none;">
+            <select id="filterType" style="height:32px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;font-family:inherit;background:var(--bg-surface);">
+              <option value="all">分类类型：全部</option><option value="basic">基础分类</option><option value="market">营销分类</option>
+            </select>
+            <select id="filterSource" style="height:32px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;font-family:inherit;background:var(--bg-surface);">
+              <option value="all">来源：全部</option><option value="baseline">平台</option><option value="self">自有</option>
+            </select>
+            <select id="filterVisible" style="height:32px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;font-family:inherit;background:var(--bg-surface);">
+              <option value="all">展示状态：全部</option><option value="show">显示</option><option value="hide">隐藏</option>
+            </select>
+            <button class="btn-filter" onclick="renderTable()">查询</button>
+            <button class="btn-reset" onclick="resetFilters()">重置</button>
+          </div>
+          <div class="action-bar">
+            <button class="btn btn-primary" onclick="openNewMarketModal()">新建营销分类</button>
+            <span class="spacer"></span>
+            <a href="javascript:void(0)" id="btnExpandAll" onclick="toggleExpandAll()" style="color:var(--blue);text-decoration:none;font-size:12px;">全部展开 ▾</a>
+          </div>
+          <div class="table-scroll">
+            <table id="mainTable">
+              <thead id="tableHead"></thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+            <div class="empty-state" id="emptyState" style="display:none;">
+              <div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/></svg></div>
+              <h3 id="emptyTitle">暂无数据</h3>
+              <p id="emptyDesc"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: 新建营销分类 -->
+<div class="modal-overlay" id="newMarketModal">
+  <div class="modal">
+    <div class="modal-header"><h3>新建营销分类</h3><button class="modal-close" onclick="closeModal('newMarketModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>分类名称 <span style="color:var(--red);">*</span></label><input type="text" id="newCatName" placeholder="例如：年中大促专区" maxlength="50" oninput="checkCategoryDup()" onfocus="checkCategoryDup()"><div class="hint">限制50字以内；分类名称全局唯一，平台与自有分类之间、自有分类之间均不可重名</div><div id="catDupWarning" class="warning-box" style="display:none;margin-top:8px;"></div></div>
+      <div class="form-group"><label>所属上级</label>
+        <div class="parent-tree" id="newCatParentTree"></div>
+        <div class="hint">点击选择所属上级；不选则新建为一级分类</div>
+      </div>
+      <div class="form-group"><label>节点类型</label>
+        <div style="padding:8px 12px;background:var(--bg-hover);border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:12.5px;color:var(--text-secondary);" id="newCatTypeDisplay">请先选择所属上级</div>
+        <div class="hint">节点类型由层级自动决定：一二级为目录，第三级为节点（可关联商品）</div>
+      </div>
+      <div class="form-group" id="newCatIconGroup" style="display:none;"><label>分类图标</label><div style="display:flex;align-items:center;gap:10px;"><div class="icon-placeholder" id="newCatIconPreview" style="width:40px;height:40px;">图标</div><a href="javascript:void(0)" onclick="alert('上传图标(演示)')" style="color:var(--blue);text-decoration:none;font-size:12px;">上传</a></div><div class="hint" style="color:var(--text-muted);">仅第三级节点可上传图标</div></div>
+    </div>
+    <div class="modal-footer"><a href="javascript:void(0)" onclick="closeModal('newMarketModal')" style="color:var(--text-secondary);text-decoration:none;font-size:13px;">取消</a><a href="javascript:void(0)" onclick="saveNewMarket()" style="color:var(--accent);text-decoration:none;font-size:13px;font-weight:500;">保存</a></div>
+  </div>
+</div>
+
+<!-- Modal: 编辑平台分类 -->
+<div class="modal-overlay" id="editBaselineModal">
+  <div class="modal">
+    <div class="modal-header"><h3>编辑平台分类</h3><button class="modal-close" onclick="closeModal('editBaselineModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>分类名称 <span style="color:var(--red);">*</span></label><input type="text" id="editBaseName" placeholder="分类名称" maxlength="50" oninput="checkBaselineDup()" onfocus="checkBaselineDup()"><div id="editBaseDupWarning" class="warning-box" style="display:none;margin-top:8px;"></div></div>
+      <div class="form-group"><label>分类图标</label><div style="display:flex;align-items:center;gap:10px;"><div class="icon-placeholder" id="editBaseIconPreview" style="width:40px;height:40px;">图标</div><a href="javascript:void(0)" onclick="alert('上传图标(演示)')" style="color:var(--blue);text-decoration:none;font-size:12px;">上传</a></div></div>
+      <div class="hint" style="margin-top:8px;color:var(--orange);">平台分类仅可修改名称和图标，其他属性由运营平台维护</div>
+    </div>
+    <div class="modal-footer"><a href="javascript:void(0)" onclick="closeModal('editBaselineModal')" style="color:var(--text-secondary);text-decoration:none;font-size:13px;">取消</a><a href="javascript:void(0)" onclick="saveEditBaseline()" style="color:var(--accent);text-decoration:none;font-size:13px;font-weight:500;">保存</a></div>
+  </div>
+</div>
+
+<!-- Modal: 小程序端预览 -->
+<div class="modal-overlay" id="syncModal">
+  <div class="modal" style="width:360px;">
+    <div class="modal-header"><h3>小程序端预览</h3><button class="modal-close" onclick="closeModal('syncModal')">✕</button></div>
+    <div class="modal-body" style="padding:18px;display:flex;justify-content:center;background:#f4f3f0;">
+      <div class="phone-frame"><div class="phone-screen" id="previewScreen"></div></div>
+    </div>
+    <div class="modal-footer" style="justify-content:space-between;align-items:center;">
+      <span style="font-size:11px;color:var(--text-muted);">仅展示已开启C端展示的分类</span>
+      <button class="btn btn-primary" onclick="closeModal('syncModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: 删除确认 -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal" style="width:520px;">
+    <div class="modal-header"><h3>删除确认</h3><button class="modal-close" onclick="closeModal('deleteModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="warning-box"><span style="font-size:18px;">⚠</span><div id="deleteWarningText"></div></div>
+      <div class="hint" id="deleteHint" style="margin-top:8px;">删除后不可恢复，关联商品将被解除关联</div>
+    </div>
+    <div class="modal-footer"><a href="javascript:void(0)" onclick="closeModal('deleteModal')" style="color:var(--text-secondary);text-decoration:none;font-size:13px;">取消</a><a href="javascript:void(0)" id="deleteConfirmBtn" onclick="confirmDelete()" style="color:var(--red);text-decoration:none;font-size:13px;font-weight:500;">确认删除</a></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+function toggleSection(label){label.parentElement.classList.toggle('collapsed');}
+
+// ========================================
+// DATA
+// ========================================
+
+// Combined category data
+// type: 'basic' or 'market'
+// source: 'baseline' (from ops platform) or 'self' (created in brand mall)
+var categories = [
+  // 平台-基础分类（三级结构：一级目录 > 二级目录 > 三级节点）
+  { id:'B1', name:'米面粮油', type:'basic', source:'baseline', icon:'', productCount:'—', sort:1, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-08 10:00', children:[
+    { id:'B1-1', name:'大米', type:'basic', source:'baseline', icon:'', productCount:'—', sort:1, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-08 10:00', children:[
+      { id:'B1-1-1', name:'五常大米', type:'basic', source:'baseline', icon:'', productCount:'45/58', sort:1, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-08 10:00' },
+      { id:'B1-1-2', name:'东北珍珠米', type:'basic', source:'baseline', icon:'', productCount:'32/40', sort:2, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-08 10:00' },
+    ]},
+    { id:'B1-2', name:'食用油', type:'basic', source:'baseline', icon:'', productCount:'—', sort:2, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-08 10:00', children:[
+      { id:'B1-2-1', name:'花生油', type:'basic', source:'baseline', icon:'', productCount:'28/35', sort:1, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-08 10:00' },
+    ]},
+  ]},
+  { id:'B2', name:'酒水饮料', type:'basic', source:'baseline', icon:'', productCount:'—', sort:2, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-08 10:00', children:[
+    { id:'B2-1', name:'白酒', type:'basic', source:'baseline', icon:'', productCount:'—', sort:1, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-08 10:00', children:[
+      { id:'B2-1-1', name:'酱香型白酒', type:'basic', source:'baseline', icon:'', productCount:'55/68', sort:1, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-08 10:00' },
+    ]},
+  ]},
+  // 平台-营销分类（三级结构）
+  { id:'M1', name:'618活动', type:'market', source:'baseline', icon:'', productCount:'—', sort:10, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-05 09:00', children:[
+    { id:'M1-1', name:'3C电子设备', type:'market', source:'baseline', icon:'', productCount:'—', sort:1, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-05 09:15', children:[
+      { id:'M1-1-1', name:'手机通讯', type:'market', source:'baseline', icon:'', productCount:'88/105', sort:1, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-05 09:20' },
+      { id:'M1-1-2', name:'智能穿戴', type:'market', source:'baseline', icon:'', productCount:'42/55', sort:2, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-05 09:25' },
+    ]},
+  ]},
+  // 自有-营销分类（三级结构）
+  { id:'S1', name:'政企团购专区', type:'market', source:'self', icon:'', productCount:'—', sort:20, visible:true, updatedBy:'王管理员', updatedAt:'2026-06-10 11:00', children:[
+    { id:'S1-1', name:'员工福利套餐', type:'market', source:'self', icon:'', productCount:'—', sort:1, visible:true, updatedBy:'王管理员', updatedAt:'2026-06-10 11:10', children:[
+      { id:'S1-1-1', name:'节日礼盒A', type:'market', source:'self', icon:'', productCount:'36/42', sort:1, visible:true, updatedBy:'王管理员', updatedAt:'2026-06-10 11:15' },
+      { id:'S1-1-2', name:'节日礼盒B', type:'market', source:'self', icon:'', productCount:'28/35', sort:2, visible:true, updatedBy:'王管理员', updatedAt:'2026-06-10 11:20' },
+    ]},
+  ]},
+];
+
+// State
+var treeFilterMode = 'all';
+var treeFilterNode = null;
+var deleteTarget = null;
+var editTarget = null;
+var allExpanded = false;
+var expandedNodes = {};
+
+function initExpanded(nodes) { nodes.forEach(function(n) { expandedNodes[n.id] = false; if (n.children) initExpanded(n.children); }); }
+initExpanded(categories);
+
+// ========================================
+// RENDER TREE
+// ========================================
+function renderTree() {
+  var container = document.getElementById('categoryTree');
+  var html = '<div class="tree-node"><div class="tree-node-item' + (treeFilterNode === null ? ' active' : '') + '" onclick="treeNodeClick(null)" style="padding-left:10px;font-weight:600;">全部</div></div>';
+
+  // Render by group: basic first, then market
+  var basicNodes = categories.filter(function(n) { return n.type === 'basic'; });
+  var marketNodes = categories.filter(function(n) { return n.type === 'market'; });
+
+  // Basic group header
+  html += '<div class="tree-node"><div style="padding:8px 10px 4px;font-size:11px;color:var(--blue);font-weight:600;letter-spacing:.02em;">基础分类</div></div>';
+  basicNodes.forEach(function(n) {
+    if (!passTreeFilter(n)) return;
+    html += renderTreeNode(n, 1);
+  });
+
+  // Market group header
+  html += '<div class="tree-node"><div style="padding:10px 10px 4px;font-size:11px;color:var(--orange);font-weight:600;letter-spacing:.02em;">营销分类</div></div>';
+  marketNodes.forEach(function(n) {
+    if (!passTreeFilter(n)) return;
+    html += renderTreeNode(n, 1);
+  });
+
+  container.innerHTML = html;
+}
+
+function passTreeFilter(n) {
+  if (treeFilterMode === 'visible') return n.visible !== false;
+  return true;
+}
+
+function renderTreeNode(node, depth) {
+  var hasChildren = node.children && node.children.length > 0;
+  var filteredChildren = hasChildren ? node.children.filter(function(c) { return passTreeFilter(c); }) : [];
+  var showChildren = hasChildren && filteredChildren.length > 0;
+  var isExp = expandedNodes[node.id];
+  var isBasic = node.type === 'basic';
+  var typeClass = isBasic ? 'basic' : 'market';
+  var badgeHtml = '';
+
+  if (isBasic) {
+    badgeHtml = '<span class="tree-badge basic-dir" style="background:var(--blue-bg);color:var(--blue);">基础</span>';
+  } else {
+    badgeHtml = '<span class="tree-badge market-dir" style="background:var(--orange-bg);color:var(--orange);">营销</span>';
+  }
+
+  var html = '<div class="tree-node">';
+  html += '<div class="tree-node-item' + (treeFilterNode === node.id ? ' active' : '') + '" onclick="treeNodeClick(\'' + node.id + '\')" style="padding-left:' + (10 + depth * 20) + 'px;">';
+  if (showChildren) {
+    html += '<span class="expand-arrow' + (isExp ? ' expanded' : '') + '" onclick="event.stopPropagation();toggleTreeNode(\'' + node.id + '\')">' + (isExp ? '▼' : '▶') + '</span>';
+  } else {
+    html += '<span class="expand-arrow" style="visibility:hidden;">▶</span>';
+  }
+  html += '<span>' + node.name + '</span>' + badgeHtml;
+  if (!showChildren && !hasChildren) {
+    html += '<span style="margin-left:auto;font-size:10px;color:var(--text-muted);">' + (node.productCount || '0/0') + '</span>';
+  }
+  html += '</div>';
+
+  if (showChildren && isExp) {
+    html += '<div class="tree-children">';
+    filteredChildren.forEach(function(child) { html += renderTreeNode(child, depth + 1); });
+    html += '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function toggleTreeNode(id) { expandedNodes[id] = !expandedNodes[id]; renderTree(); }
+
+function treeNodeClick(id) {
+  treeFilterNode = (treeFilterNode === id) ? null : id;
+  // 同步记录选中节点，供新建营销分类时自动填所属上级
+  if (treeFilterNode) {
+    var n = findNode(treeFilterNode);
+    if (n) {
+      tableSelectedNode = n;
+      showToast('info', '已选择「' + n.name + '」，新建时将作为所属上级');
+    }
+  }
+  renderTree(); renderTable();
+}
+
+function setTreeFilter(mode, el) {
+  treeFilterMode = mode;
+  document.querySelectorAll('.tree-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  el.classList.add('active');
+  renderTree();
+}
+
+// ========================================
+// RENDER TABLE
+// ========================================
+function getFilteredData() {
+  var result = [];
+  function walk(nodes, depth) {
+    nodes.forEach(function(node) {
+      var hasCh = node.children && node.children.length > 0;
+      result.push({ node:node, depth:depth, hasChildren:hasCh, isExp:expandedNodes[node.id] });
+      if (hasCh && expandedNodes[node.id]) {
+        walk(node.children, depth + 1);
+      }
+    });
+  }
+
+  // If tree node selected, flatten that subtree
+  if (treeFilterNode) {
+    var target = findNode(treeFilterNode);
+    if (target) {
+      result.push({ node:target, depth:0, hasChildren:target.children && target.children.length > 0, isExp:expandedNodes[target.id] });
+      if (target.children && expandedNodes[target.id]) {
+        walk(target.children, 1);
+      }
+    }
+  } else {
+    walk(categories, 0);
+  }
+
+  // Apply filters
+  var nameFilter = (document.getElementById('filterName')?.value || '').trim().toLowerCase();
+  var typeFilter = document.getElementById('filterType')?.value || 'all';
+  var sourceFilter = document.getElementById('filterSource')?.value || 'all';
+  var visibleFilter = document.getElementById('filterVisible')?.value || 'all';
+
+  if (nameFilter) result = result.filter(function(r) { return r.node.name.toLowerCase().includes(nameFilter); });
+  if (typeFilter !== 'all') result = result.filter(function(r) { return r.node.type === typeFilter; });
+  if (sourceFilter !== 'all') result = result.filter(function(r) { return r.node.source === sourceFilter; });
+  if (visibleFilter === 'show') result = result.filter(function(r) { return r.node.visible !== false; });
+  if (visibleFilter === 'hide') result = result.filter(function(r) { return r.node.visible === false; });
+
+  return result;
+}
+
+function renderTable() {
+  var thead = document.getElementById('tableHead');
+  var tbody = document.getElementById('tableBody');
+  var empty = document.getElementById('emptyState');
+  var data = getFilteredData();
+
+  thead.innerHTML = '<tr>'
+    + '<th style="width:180px;">分类名称</th>'
+    + '<th style="width:90px;">分类类型</th>'
+    + '<th style="width:70px;">来源</th>'
+    + '<th style="width:70px;">图标</th>'
+    + '<th style="width:100px;">关联商品数</th>'
+    + '<th style="width:70px;">排序</th>'
+    + '<th style="width:110px;">C端展示状态</th>'
+    + '<th style="width:130px;">更新人/时间</th>'
+    + '<th style="width:130px;">操作</th>'
+    + '</tr>';
+
+  if (data.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'flex';
+    document.getElementById('emptyTitle').textContent = '暂无数据';
+    document.getElementById('emptyDesc').textContent = '当前筛选条件下无匹配分类';
+    return;
+  }
+  empty.style.display = 'none';
+
+  var html = '';
+  data.forEach(function(item) { html += renderRow(item.node, item.depth, item.hasChildren, item.isExp); });
+  tbody.innerHTML = html;
+}
+
+function renderRow(node, depth, hasChildren, isExp) {
+  var indent = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(depth);
+  var arrow = hasChildren
+    ? '<span class="expand-cell-arrow' + (isExp ? ' expanded' : '') + '" onclick="toggleTableExpand(\'' + node.id + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></polyline></svg></span>'
+    : '<span class="expand-cell-arrow" style="visibility:hidden;">&gt;</span>';
+
+  var typeTag = node.type === 'basic'
+    ? '<span class="tag tag-basic">基础</span>'
+    : '<span class="tag tag-market">营销</span>';
+
+  var sourceTag = node.source === 'baseline'
+    ? '<span class="tag tag-source-baseline">平台</span>'
+    : '<span class="tag tag-source-self">自有</span>';
+
+  var isBaseline = node.source === 'baseline';
+  var rowChildClass = depth > 0 ? ' row-child' : '';
+  var hiddenClass = node.visible === false ? ' disabled-row' : '';
+
+  // Operation links
+  var ops = '';
+  if (isBaseline) {
+    ops += '';
+  } else {
+    ops += '<a href="javascript:void(0)" onclick="openEditSelfModal(\'' + node.id + '\')" style="color:var(--blue);text-decoration:none;font-size:12px;">编辑</a>';
+    ops += ' <a href="javascript:void(0)" onclick="openDeleteModal(\'' + node.id + '\')" style="color:var(--red);text-decoration:none;font-size:12px;margin-left:8px;">删除</a>';
+  }
+
+  return '<tr class="' + rowChildClass + hiddenClass + '" draggable="true" data-node-id="' + node.id + '" data-depth="' + depth + '" onmousedown="selectTableNode(\'' + node.id + '\')"'
+    + ' ondragstart="onDragStart(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" ondragend="onDragEnd(event)"'
+    + '>'
+    + '<td><span class="tree-indent">' + indent + arrow + '</span><span class="drag-handle" title="拖拽排序">⋮⋮</span><span style="font-weight:500;">' + node.name + '</span></td>'
+    + '<td>' + typeTag + '</td>'
+    + '<td>' + sourceTag + '</td>'
+    + '<td><div class="icon-placeholder">' + node.name.charAt(0) + '</div></td>'
+    + '<td>' + (hasChildren ? '<span style="color:var(--text-muted);">—</span>' : '<span style="font-weight:500;">' + node.productCount + '</span>') + '</td>'
+    + '<td><span class="price sort-editable" onclick="startSortEdit(event, \'' + node.id + '\')" title="点击编辑排序权重">' + (node.sort || 99) + '</span></td>'
+    + '<td><div style="display:flex;align-items:center;gap:6px;">'
+    + '<label class="toggle"><input type="checkbox" ' + (node.visible !== false ? 'checked' : '') + ' onchange="toggleVisible(\'' + node.id + '\')"><span class="slider"></span></label><span style="font-size:11px;color:' + (node.visible !== false ? 'var(--green)' : 'var(--text-muted)') + ';white-space:nowrap;">' + (node.visible !== false ? '显示' : '隐藏') + '</span>'
+    + '</div></td>'
+    + '<td><div class="cell-stack"><span>' + node.updatedBy + '</span><span class="secondary">' + node.updatedAt + '</span></div></td>'
+    + '<td style="white-space:nowrap;">' + ops + '</td>'
+    + '</tr>';
+}
+
+function toggleTableExpand(id) { expandedNodes[id] = !expandedNodes[id]; renderTree(); renderTable(); }
+
+function toggleExpandAll() {
+  allExpanded = !allExpanded;
+  categories.forEach(function(n) { setExpandAll(n); });
+  var btn = document.getElementById('btnExpandAll');
+  btn.textContent = allExpanded ? '全部收起 ▴' : '全部展开 ▾';
+  renderTree(); renderTable();
+  function setExpandAll(n) { expandedNodes[n.id] = allExpanded; if (n.children) n.children.forEach(function(c) { setExpandAll(c); }); }
+}
+
+function resetFilters() {
+  document.getElementById('filterName').value = '';
+  document.getElementById('filterType').value = 'all';
+  document.getElementById('filterSource').value = 'all';
+  document.getElementById('filterVisible').value = 'all';
+  treeFilterNode = null;
+  renderTree(); renderTable();
+}
+
+// ========================================
+// FIND / REMOVE NODE
+// ========================================
+function findNode(id) {
+  function search(nodes) { for (var i=0; i<nodes.length; i++) { if (nodes[i].id === id) return nodes[i]; if (nodes[i].children) { var f = search(nodes[i].children); if (f) return f; } } return null; }
+  return search(categories);
+}
+
+function removeNode(id) {
+  function remove(nodes) { for (var i=0; i<nodes.length; i++) { if (nodes[i].id === id) { nodes.splice(i,1); return true; } if (nodes[i].children && remove(nodes[i].children)) return true; } return false; }
+  return remove(categories);
+}
+
+function findParentArray(id) {
+  function search(nodes) { for (var i=0; i<nodes.length; i++) { if (nodes[i].id === id) return nodes; if (nodes[i].children) { var f = search(nodes[i].children); if (f) return f; } } return null; }
+  return search(categories);
+}
+
+// ========================================
+// TOGGLE VISIBLE
+// ========================================
+function toggleVisible(id) {
+  var node = findNode(id);
+  if (node) {
+    node.visible = !node.visible;
+    node.updatedBy = '王管理员';
+    node.updatedAt = nowStr();
+    node._visibleChanged = true;
+    renderTable(); renderTree();
+    document.getElementById('syncBadge').style.display = 'inline-block';
+    showToast('info', node.visible ? '已设为显示' : '已设为隐藏');
+  }
+}
+
+// ========================================
+// MODALS
+// ========================================
+function openSyncModal() {
+  previewSelIdx = 0;
+  renderPreview();
+  openModal('syncModal');
+}
+
+// 小程序端预览：展示当前已开启C端展示的分类
+var previewSelIdx = 0;
+var previewIcons = ['🍚','🍷','📱','👔','🎉','🌊','🏢','🎁','🍵','🧴','🛒','📦'];
+
+function previewVisibleCats() {
+  return categories.filter(function(c) { return c.visible !== false; });
+}
+
+function previewSelect(i) { previewSelIdx = i; renderPreview(); }
+
+function renderPreview() {
+  var cats = previewVisibleCats();
+  var screen = document.getElementById('previewScreen');
+  if (!cats.length) {
+    screen.innerHTML = '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#999;font-size:11px;padding:20px;text-align:center;gap:6px;"><div style="font-size:30px;opacity:.4;">🗂️</div>暂无可见分类<br>请在后台开启分类的C端展示</div>';
+    return;
+  }
+  if (previewSelIdx >= cats.length) previewSelIdx = 0;
+  var active = cats[previewSelIdx];
+  var h = '';
+  // 状态栏
+  h += '<div class="mp-statusbar"><span>9:41</span><span class="right">📶 🔋</span></div>';
+  // 小程序头部 + 胶囊
+  h += '<div class="mp-header"><span class="mp-title">政企福利商城</span>';
+  h += '<div class="mp-capsule"><span class="dot">•••</span><span class="div"></span><span class="dot">⊙</span></div></div>';
+  // 搜索框
+  h += '<div class="mp-search">🔍 搜索商品</div>';
+  // 主体：左分类 + 右内容
+  h += '<div class="mp-cat-body"><div class="mp-cat-left">';
+  cats.forEach(function(c, i) {
+    h += '<div class="mp-cat-item' + (i === previewSelIdx ? ' active' : '') + '" onclick="previewSelect(' + i + ')">' + c.name + '</div>';
+  });
+  h += '</div><div class="mp-cat-right">';
+  // Banner
+  h += '<div class="mp-banner">' + active.name + ' · 精选好物</div>';
+  // 子分类/宫格
+  h += '<div class="mp-grp-title">' + active.name + (active.children && active.children.length ? ' 子分类' : '') + '</div>';
+  h += '<div class="mp-grid">';
+  var subs = (active.children && active.children.length) ? active.children : null;
+  if (subs) {
+    subs.forEach(function(s, i) {
+      h += '<div class="mp-cell"><div class="ic">' + previewIcons[i % previewIcons.length] + '</div><div class="nm">' + s.name + '</div></div>';
+    });
+  } else {
+    var labels = ['全部', '精选', '热销', '新品', '优惠', '套装'];
+    labels.forEach(function(l, i) {
+      h += '<div class="mp-cell"><div class="ic">' + previewIcons[i % previewIcons.length] + '</div><div class="nm">' + l + '</div></div>';
+    });
+  }
+  h += '</div></div></div>';
+  // 底部 Tab
+  h += '<div class="mp-tabbar">';
+  h += '<div class="mp-tab"><span class="ti">🏠</span>首页</div>';
+  h += '<div class="mp-tab active"><span class="ti">📋</span>分类</div>';
+  h += '<div class="mp-tab"><span class="ti">🛒</span>购物车</div>';
+  h += '<div class="mp-tab"><span class="ti">👤</span>我的</div>';
+  h += '</div>';
+  screen.innerHTML = h;
+}
+
+function doSync() {
+  closeModal('syncModal');
+  document.getElementById('syncBadge').style.display = 'none';
+  document.getElementById('lastSyncTime').textContent = nowStr();
+  // 清除变更标记
+  function clearFlags(nodes) { nodes.forEach(function(n) { n._isNew = false; n._sortChanged = false; n._visibleChanged = false; if (n.children) clearFlags(n.children); }); }
+  clearFlags(categories);
+  showToast('success', '同步成功，预计30秒内小程序端生效');
+}
+
+// 全局：记录表格点击选中的分类节点（用于新建时自动填所属上级）
+var tableSelectedNode = null;
+var newParentId = ''; // 新建营销分类时树选中的所属上级
+function getDepth(id){ function d(ns,p){ for(var i=0;i<ns.length;i++){ if(ns[i].id===id) return p; if(ns[i].children){ var r=d(ns[i].children,p+1); if(r>=0) return r; } } return -1; } return d(categories,0); }
+
+function updateNewCatTypeByParent() {
+  var display = document.getElementById('newCatTypeDisplay');
+  var iconGroup = document.getElementById('newCatIconGroup');
+  var pid = newParentId;
+  if (!pid) {
+    // 一级分类 = 目录
+    display.textContent = '目录（一级分类）';
+    iconGroup.style.display = 'none';
+  } else {
+    var parentDepth = getDepth(pid); // 父级深度：0=一级,1=二级
+    if (parentDepth === 0) {
+      // 父是一级 → 新建的是二级 = 目录
+      display.textContent = '目录（二级分类）';
+      iconGroup.style.display = 'none';
+    } else if (parentDepth === 1) {
+      // 父是二级 → 新建的是三级 = 节点
+      display.textContent = '节点（三级分类，可关联商品）';
+      iconGroup.style.display = 'block';
+    } else {
+      // 父是三级 → 不允许再加子级（三级是叶子）
+      display.textContent = '已达最大层级，不可继续添加';
+      iconGroup.style.display = 'none';
+    }
+  }
+}
+
+// 渲染所属上级树（只列一级、二级自有营销分类）
+function renderParentTree() {
+  var container = document.getElementById('newCatParentTree');
+  var html = '';
+  // 一级（无上级）选项
+  html += '<div class="parent-tree-item' + (newParentId === '' ? ' selected' : '') + '" onclick="selectParentNode(\'\')"><span class="radio-dot"></span>一级分类（无上级）</div>';
+  function addTree(nodes, depth) {
+    nodes.forEach(function(n) {
+      if (n.type === 'market' && n.source === 'self') {
+        var d = getDepth(n.id);
+        if (d <= 1) { // 只显示一级、二级
+          var indent = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(d);
+          html += '<div class="parent-tree-item' + (newParentId === n.id ? ' selected' : '') + '" onclick="selectParentNode(\'' + n.id + '\')" style="padding-left:' + (12 + d * 20) + 'px;"><span class="radio-dot"></span>' + n.name + '</div>';
+        }
+        if (n.children) addTree(n.children, depth + 1);
+      }
+    });
+  }
+  addTree(categories, 0);
+  if (html === '<div class="parent-tree-item' + (newParentId === '' ? ' selected' : '') + '" onclick="selectParentNode(\'\')"><span class="radio-dot"></span>一级分类（无上级）</div>') {
+    html += '<div class="parent-tree-empty">暂无可选的上级分类，将新建为一级分类</div>';
+  }
+  container.innerHTML = html;
+}
+
+function selectParentNode(id) {
+  newParentId = id;
+  renderParentTree();
+  updateNewCatTypeByParent();
+}
+
+function openNewMarketModal() {
+  document.getElementById('newCatName').value = '';
+  // 自动填表格选中行（点击表格行后，新建时所属上级自动选中该行）
+  if (tableSelectedNode) {
+    var sd = getDepth(tableSelectedNode.id);
+    if (sd >= 0 && sd <= 1 && tableSelectedNode.type === 'market' && tableSelectedNode.source === 'self') {
+      newParentId = tableSelectedNode.id;
+    } else {
+      newParentId = '';
+    }
+  } else {
+    newParentId = '';
+  }
+  editTarget = null;
+  document.getElementById('catDupWarning').style.display = 'none';
+  renderParentTree();
+  updateNewCatTypeByParent();
+  openModal('newMarketModal');
+}
+
+// ========================================
+// 查重：自有分类名称 不可与 平台分类 同名（自有之间可重名）
+// 忽略大小写、去首尾空格
+// ========================================
+function collectAllNames() {
+  var names = [];
+  (function walk(nodes) {
+    nodes.forEach(function(n) {
+      names.push(n.name);
+      if (n.children) walk(n.children);
+    });
+  })(categories);
+  return names;
+}
+
+function checkCategoryDup() {
+  var input = document.getElementById('newCatName');
+  var warn = document.getElementById('catDupWarning');
+  if (!input || !warn) return true;
+  var val = input.value.trim().toLowerCase();
+  if (!val) { warn.style.display = 'none'; return true; }
+  // 编辑自有时，排除自身
+  var selfName = '';
+  if (editTarget) {
+    var selfNode = findNode(editTarget);
+    if (selfNode) selfName = selfNode.name.trim().toLowerCase();
+  }
+  var hit = null;
+  collectAllNames().forEach(function(raw) {
+    if (raw.trim().toLowerCase() === val && raw.trim().toLowerCase() !== selfName) hit = raw.trim();
+  });
+  if (hit) {
+    warn.style.display = 'flex';
+    warn.innerHTML = '<span style="font-size:18px;">⚠</span><div>分类名称「<strong>' + hit + '</strong>」已存在（平台/自有分类均不可重名），请修改。</div>';
+    return false;
+  }
+  warn.style.display = 'none';
+  return true;
+}
+
+function saveNewMarket() {
+  var name = document.getElementById('newCatName').value.trim();
+  if (!name) { showToast('info', '请输入分类名称'); return; }
+  // 查重：自有新建 不可与 平台分类 同名
+  if (editTarget) {
+    // 编辑自有分类时也查重（自身名除外）
+    if (!checkCategoryDup()) { showToast('info', '分类名称与平台分类重复，请修改'); return; }
+  } else {
+    if (!checkCategoryDup()) { showToast('info', '分类名称与平台分类重复，请修改'); return; }
+  }
+  var parentId = newParentId;
+  // 节点类型由层级自动决定：一二级=目录，三级=节点
+  var nodeType = parentId ? (getDepth(parentId) >= 1 ? 'leaf' : 'dir') : 'dir';
+
+  // 编辑模式
+  if (editTarget) {
+    var node = findNode(editTarget);
+    if (node) {
+      node.name = name;
+      node.updatedBy = '王管理员';
+      node.updatedAt = nowStr();
+    }
+    closeModal('newMarketModal');
+    renderTree(); renderTable();
+    document.getElementById('syncBadge').style.display = 'inline-block';
+    editTarget = null;
+    showToast('success', '营销分类「' + name + '」已更新');
+    return;
+  }
+
+  var newNode = {
+    id: 'S' + Date.now(), name: name, type: 'market', source: 'self', icon: '',
+    productCount: nodeType === 'dir' ? '—' : '0/0',
+    sort: 99, visible: true, updatedBy: '王管理员', updatedAt: nowStr(),
+    children: nodeType === 'dir' ? [] : undefined
+  };
+  if (parentId) {
+    var parent = findNode(parentId);
+    if (parent && parent.children) parent.children.push(newNode);
+    else categories.push(newNode);
+  } else {
+    categories.push(newNode);
+  }
+  expandedNodes[newNode.id] = false;
+  closeModal('newMarketModal');
+  renderTree(); renderTable();
+  newNode._isNew = true;
+  document.getElementById('syncBadge').style.display = 'inline-block';
+  showToast('success', '营销分类「' + name + '」已创建');
+}
+
+function openEditBaselineModal(id) {
+  var node = findNode(id); if (!node) return;
+  editTarget = id;
+  document.getElementById('editBaseName').value = node.name;
+  document.getElementById('editBaseDupWarning').style.display = 'none';
+  openModal('editBaselineModal');
+}
+
+// 查重：编辑平台分类时，改名不得与其它平台分类重名
+function checkBaselineDup() {
+  var input = document.getElementById('editBaseName');
+  var warn = document.getElementById('editBaseDupWarning');
+  if (!input || !warn || !editTarget) return true;
+  var selfNode = findNode(editTarget);
+  if (!selfNode) return true;
+  var val = input.value.trim().toLowerCase();
+  if (!val) { warn.style.display = 'none'; return true; }
+  var selfName = selfNode.name.trim().toLowerCase();
+  if (val === selfName) { warn.style.display = 'none'; return true; } // 未改名
+  var hit = null;
+  collectAllNames().forEach(function(raw) {
+    if (raw.trim().toLowerCase() === val) hit = raw.trim();
+  });
+  if (hit) {
+    warn.style.display = 'flex';
+    warn.innerHTML = '<span style="font-size:18px;">⚠</span><div>分类名称「<strong>' + hit + '</strong>」已存在（平台/自有分类均不可重名），请修改。</div>';
+    return false;
+  }
+  warn.style.display = 'none';
+  return true;
+}
+
+function saveEditBaseline() {
+  var name = document.getElementById('editBaseName').value.trim();
+  if (!name) { showToast('info', '请输入分类名称'); return; }
+  if (!checkBaselineDup()) { showToast('info', '分类名称与平台分类重复，请修改'); return; }
+  var node = findNode(editTarget);
+  if (node) {
+    node.name = name;
+    node.updatedBy = '王管理员';
+    node.updatedAt = nowStr();
+  }
+  closeModal('editBaselineModal');
+  renderTree(); renderTable();
+  document.getElementById('syncBadge').style.display = 'inline-block';
+  showToast('success', '平台分类已更新（名称/图标）');
+}
+
+function selectTableNode(id) {
+  tableSelectedNode = findNode(id);
+  // 高亮选中行
+  document.querySelectorAll('#tableBody tr').forEach(function(tr){
+    tr.style.background = '';
+    if (tr.getAttribute('data-node-id') === id) {
+      tr.style.background = 'var(--accent-soft)';
+    }
+  });
+  if (tableSelectedNode) {
+    showToast('info', '已选择「' + tableSelectedNode.name + '」，新建时将作为所属上级');
+  }
+}
+
+function openEditSelfModal(id) {
+  // Reuse new market modal for editing self-owned categories
+  var node = findNode(id); if (!node) return;
+  editTarget = id;
+  document.getElementById('newCatName').value = node.name;
+  document.querySelector('input[name="newCatType"][value="' + (node.children ? 'dir' : 'leaf') + '"]').checked = true;
+  var sel = document.getElementById('newCatParent');
+  sel.innerHTML = '<option value="">一级分类（无上级）</option>';
+  openModal('newMarketModal');
+  // Override save to edit mode
+}
+
+function openDeleteModal(id) {
+  var node = findNode(id); if (!node) return;
+  deleteTarget = id;
+  var hasChildren = node.children && node.children.length > 0;
+  var warningHtml = '将删除自有分类「<strong>' + node.name + '</strong>」';
+  if (hasChildren) {
+    warningHtml += '及其 <strong>' + node.children.length + '</strong> 个子级分类';
+  }
+  warningHtml += '，并自动解除所有商品关联。';
+  document.getElementById('deleteWarningText').innerHTML = warningHtml;
+  document.getElementById('deleteHint').textContent = hasChildren ? '删除后不可恢复，子级分类将一并删除' : '删除后不可恢复，关联商品将被解除关联';
+  openModal('deleteModal');
+}
+
+function confirmDelete() {
+  if (!deleteTarget) return;
+  var node = findNode(deleteTarget);
+  var name = node ? node.name : '';
+  removeNode(deleteTarget);
+  closeModal('deleteModal');
+  renderTree(); renderTable();
+  showToast('success', '分类「' + name + '」已删除');
+  deleteTarget = null;
+}
+
+function openLinkProductModal(id) {
+  // 「关联商品」入口已移除：商品关联改由「商品中心-批量映射」上传表格自动完成，单个修改在商品中心编辑商品分类字段
+}
+
+// ========================================
+// DRAG & DROP (only for self-owned)
+// ========================================
+var _dragSrcId = null;
+var _dragSrcDepth = null;
+
+function onDragStart(e) {
+  var tr = e.target.closest('tr'); if (!tr) return;
+  _dragSrcId = tr.getAttribute('data-node-id');
+  _dragSrcDepth = parseInt(tr.getAttribute('data-depth') || '0');
+  tr.classList.add('drag-source');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', _dragSrcId);
+}
+function onDragOver(e) {
+  e.preventDefault();
+  var tr = e.target.closest('tr'); if (!tr) return;
+  var targetId = tr.getAttribute('data-node-id');
+  var targetDepth = parseInt(tr.getAttribute('data-depth') || '0');
+  if (targetId === _dragSrcId || targetDepth !== _dragSrcDepth) return;
+  e.dataTransfer.dropEffect = 'move';
+  tr.classList.add('drag-over');
+}
+function onDragLeave(e) { var tr = e.target.closest('tr'); if (tr) tr.classList.remove('drag-over'); }
+function onDrop(e) {
+  e.preventDefault();
+  var tr = e.target.closest('tr'); if (!tr) return;
+  tr.classList.remove('drag-over');
+  var targetId = tr.getAttribute('data-node-id');
+  var targetDepth = parseInt(tr.getAttribute('data-depth') || '0');
+  if (!_dragSrcId || targetId === _dragSrcId || targetDepth !== _dragSrcDepth) return;
+
+  // Find parent arrays
+  var srcArr = findParentArray(_dragSrcId);
+  var tgtArr = findParentArray(targetId);
+  if (!srcArr || !tgtArr || srcArr !== tgtArr) return;
+
+  var srcIdx = -1, tgtIdx = -1;
+  for (var i = 0; i < srcArr.length; i++) {
+    if (srcArr[i].id === _dragSrcId) srcIdx = i;
+    if (srcArr[i].id === targetId) tgtIdx = i;
+  }
+  if (srcIdx < 0 || tgtIdx < 0) return;
+
+  var removed = srcArr.splice(srcIdx, 1)[0];
+  srcArr.splice(tgtIdx, 0, removed);
+  for (var j = 0; j < srcArr.length; j++) { srcArr[j].sort = j + 1; srcArr[j]._sortChanged = true; }
+  renderTree(); renderTable();
+  document.getElementById('syncBadge').style.display = 'inline-block';
+  showToast('info', '排序已更新');
+}
+function onDragEnd(e) {
+  document.querySelectorAll('tr.drag-source,tr.drag-over').forEach(function(r) { r.classList.remove('drag-source','drag-over'); });
+  _dragSrcId = null; _dragSrcDepth = null;
+}
+
+// ========================================
+// INLINE SORT EDIT
+// ========================================
+function startSortEdit(e, nodeId) {
+  e.stopPropagation();
+  var span = e.target;
+  if (span.tagName !== 'SPAN') return;
+  var currentVal = parseInt(span.textContent) || 99;
+  var input = document.createElement('input');
+  input.type = 'number'; input.className = 'sort-input'; input.value = currentVal; input.min = 1; input.max = 999;
+  function commit() {
+    var newVal = parseInt(input.value) || currentVal;
+    if (newVal < 1) newVal = 1;
+    var node = findNode(nodeId);
+    if (node) { node.sort = newVal; node._sortChanged = true; renderTable(); document.getElementById('syncBadge').style.display = 'inline-block'; showToast('info', '排序已更新为 ' + newVal); }
+  }
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', function(ev) { if (ev.key === 'Enter') commit(); if (ev.key === 'Escape') renderTable(); });
+  span.parentNode.replaceChild(input, span);
+  input.focus(); input.select();
+}
+
+// ========================================
+// COMMON
+// ========================================
+function nowStr() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0') + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function showToast(type, msg) {
+  var c = document.getElementById('toastContainer');
+  var t = document.createElement('div'); t.className='toast '+type; t.textContent=msg; c.appendChild(t);
+  setTimeout(function(){t.style.opacity='0';t.style.transform='translateX(20px)';t.style.transition='all .2s ease';setTimeout(function(){t.remove();},200);},2500);
+}
+document.querySelectorAll('.modal-overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===this)closeModal(this.id);});});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){document.querySelectorAll('.modal-overlay.open').forEach(function(m){m.classList.remove('open');});}});
+
+// Init
+renderTree();
+renderTable();
+(function(){
+  var tbody = document.getElementById('tableBody');
+  if (tbody && !tbody._selectBound) {
+    tbody._selectBound = true;
+    tbody.addEventListener('mousedown', function(e){
+      var tr = e.target.closest('tr');
+      if (!tr) return;
+      var nodeId = tr.getAttribute('data-node-id');
+      if (!nodeId) return;
+      selectTableNode(nodeId);
+    });
+  }
+})();
+</script>
+</body>
+</html>

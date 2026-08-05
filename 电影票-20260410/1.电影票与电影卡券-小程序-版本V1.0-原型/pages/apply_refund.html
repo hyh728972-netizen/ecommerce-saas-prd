@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>申请退款 - 苏银豆商城</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+  /* Product card */
+  .product-card {
+    background: #fff;
+    padding: 12px;
+    display: flex;
+    gap: 10px;
+  }
+  .product-card .prod-img {
+    width: 72px;
+    height: 72px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #f8f8f8;
+  }
+  .product-card .prod-img img { width: 100%; height: 100%; object-fit: cover; }
+  .product-card .prod-info { flex: 1; min-width: 0; }
+  .product-card .prod-name {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .product-card .prod-spec {
+    font-size: 12px;
+    color: #999;
+  }
+  .product-card .prod-price {
+    font-size: 14px;
+    color: #ee0a24;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+
+  /* Form section */
+  .form-section {
+    background: #fff;
+    margin-top: 8px;
+    padding: 12px;
+  }
+  .form-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+  }
+
+  /* Refund type */
+  .refund-types {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .refund-type-item {
+    min-width: 0;
+    padding: 10px 8px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  .refund-type-item:active { background: #f8f8f8; }
+  .refund-type-item.selected {
+    border-color: #ff6034;
+    background: #fff5f0;
+  }
+  .refund-type-item .type-name {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .refund-type-item.selected .type-name { color: #ff6034; }
+  .refund-type-item .type-desc {
+    font-size: 11px;
+    color: #999;
+  }
+  .refund-types.refund-only-single {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+  }
+  .refund-type-item.refund-only-locked {
+    cursor: default;
+  }
+  .refund-type-item.refund-only-locked:active {
+    background: #fff5f0;
+  }
+
+  /* Product selection */
+  .products-section {
+    background: #fff;
+    margin-top: 8px;
+    padding: 12px;
+  }
+  .products-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .select-all-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #666;
+    cursor: pointer;
+  }
+  .product-select-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .product-select-item {
+    border: 1px solid #f0f0f0;
+    border-radius: 8px;
+    padding: 10px;
+  }
+  .product-top {
+    display: flex;
+    gap: 8px;
+  }
+  .product-check {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+  .product-check input {
+    width: 16px;
+    height: 16px;
+  }
+  .product-select-item .prod-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #f8f8f8;
+  }
+  .product-select-item .prod-img img { width: 100%; height: 100%; object-fit: cover; }
+  .product-select-item .prod-info { flex: 1; min-width: 0; }
+  .product-select-item .prod-name {
+    font-size: 13px;
+    color: #333;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .product-select-item .prod-spec {
+    font-size: 11px;
+    color: #999;
+    margin-top: 4px;
+  }
+  .product-select-item .prod-price {
+    font-size: 13px;
+    color: #ee0a24;
+    font-weight: 600;
+    margin-top: 6px;
+  }
+  .qty-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+  .qty-row-static {
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #666;
+  }
+  .qty-fixed-label { color: #999; }
+  .qty-fixed-value {
+    min-width: 24px;
+    text-align: center;
+    font-weight: 600;
+    color: #333;
+  }
+  .qty-control {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid #e6e6e6;
+    border-radius: 14px;
+    overflow: hidden;
+    height: 28px;
+  }
+  .qty-btn {
+    width: 28px;
+    height: 28px;
+    border: none;
+    background: #fafafa;
+    color: #666;
+    font-size: 16px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .qty-value {
+    min-width: 28px;
+    text-align: center;
+    font-size: 12px;
+    color: #333;
+  }
+  .products-tip {
+    font-size: 11px;
+    color: #999;
+    margin-top: 8px;
+  }
+
+  /* Form row */
+  .form-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .form-row:last-child { border-bottom: none; }
+  .form-row label {
+    width: 80px;
+    font-size: 14px;
+    color: #333;
+    flex-shrink: 0;
+  }
+  .form-row input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #333;
+    background: transparent;
+  }
+  .form-row input::placeholder { color: #bbb; }
+  .contact-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+  .contact-reset {
+    font-size: 12px;
+    color: #ff6034;
+    cursor: pointer;
+    white-space: nowrap;
+    display: none;
+  }
+  .form-row select {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #333;
+    background: transparent;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .form-row textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #333;
+    background: transparent;
+    resize: none;
+    min-height: 80px;
+    line-height: 1.6;
+  }
+  .form-row textarea::placeholder { color: #bbb; }
+
+  .form-row .arrow {
+    color: #ccc;
+  }
+  .form-row .arrow svg { width: 16px; height: 16px; }
+
+  .form-tip {
+    font-size: 11px;
+    color: #999;
+    margin-top: 8px;
+  }
+
+  /* Amount input */
+  .amount-row {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .amount-row .symbol {
+    font-size: 14px;
+    color: #333;
+  }
+  .max-amount {
+    font-size: 11px;
+    color: #999;
+    margin-top: 4px;
+  }
+  .max-amount b { color: #ff6034; }
+
+  /* Image upload */
+  .upload-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .upload-item {
+    width: 64px;
+    height: 64px;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    background: #f8f8f8;
+  }
+  .upload-item img { width: 100%; height: 100%; object-fit: cover; }
+  .upload-item .delete-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 16px;
+    height: 16px;
+    background: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .upload-item .delete-btn svg { width: 10px; height: 10px; color: #fff; }
+  .upload-add {
+    width: 64px;
+    height: 64px;
+    border-radius: 6px;
+    border: 1px dashed #ddd;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    gap: 2px;
+    color: #999;
+  }
+  .upload-add svg { width: 20px; height: 20px; }
+  .upload-add span { font-size: 10px; }
+
+  /* Submit button */
+  .submit-section {
+    padding: 16px 12px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+  .btn-submit {
+    width: 100%;
+    height: 44px;
+    background: linear-gradient(135deg, #ff6034, #ee0a24);
+    color: #fff;
+    border: none;
+    border-radius: 22px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-submit:active { opacity: 0.85; }
+  .notice-modal-mask {
+    position: fixed;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+  .notice-modal {
+    width: 100%;
+    max-width: 320px;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  }
+  .refund-notice-head {
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid #eee;
+  }
+  .refund-notice-head .refund-notice-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 6px;
+    line-height: 1.35;
+  }
+  .refund-notice-head .refund-notice-sub {
+    font-size: 12px;
+    color: #999;
+    margin: 0;
+    line-height: 1.45;
+  }
+  .refund-notice-section {
+    padding: 14px 16px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .refund-notice-section:last-of-type {
+    border-bottom: none;
+  }
+  .refund-notice-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .refund-notice-icon--cash {
+    background: #e8f5e9;
+    color: #2e7d32;
+  }
+  .refund-notice-icon--cash svg {
+    width: 22px;
+    height: 22px;
+  }
+  .refund-notice-icon--points {
+    background: #ede7f6;
+    color: #5e35b1;
+  }
+  .refund-notice-icon--points svg {
+    width: 20px;
+    height: 20px;
+  }
+  .refund-notice-main {
+    flex: 1;
+    min-width: 0;
+  }
+  .refund-notice-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 6px;
+    line-height: 1.3;
+  }
+  .refund-notice-desc {
+    font-size: 13px;
+    color: #888;
+    line-height: 1.55;
+    margin: 0;
+  }
+  .refund-notice-desc b {
+    font-weight: 700;
+    color: #333;
+  }
+  .refund-notice-warn {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: #ff6f00;
+    line-height: 1.45;
+  }
+  .refund-notice-warn__dot {
+    flex-shrink: 0;
+    width: 14px;
+    height: 14px;
+    margin-top: 1px;
+    border-radius: 50%;
+    background: #fff3e0;
+    border: 1px solid #ffb74d;
+    color: #ff6f00;
+    font-size: 10px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .notice-modal-footer {
+    border-top: 1px solid #eee;
+    padding: 12px 16px 10px;
+  }
+  .notice-modal-footer--dual {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .notice-modal-cancel {
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .notice-modal-cancel:active {
+    opacity: 0.85;
+    background: #fafafa;
+  }
+  .notice-modal-confirm {
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .notice-modal-confirm:active {
+    opacity: 0.85;
+    background: #fafafa;
+  }
+  .refund-notice-service {
+    padding: 0 16px 14px;
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+  }
+  .refund-notice-service a {
+    color: #999;
+    text-decoration: none;
+  }
+  .refund-notice-service .refund-notice-service-link {
+    color: #1989fa;
+  }
+  .refund-notice-service a:active {
+    opacity: 0.75;
+  }
+
+  /* Rules */
+  .rules-section {
+    background: #fff;
+    margin-top: 8px;
+    padding: 12px;
+  }
+  .rules-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+  }
+  .rules-list {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.8;
+  }
+  .rules-list li {
+    position: relative;
+    padding-left: 12px;
+  }
+  .rules-list li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: #999;
+  }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+
+  <!-- Sub-page Navigation -->
+  <div class="sub-nav">
+    <div class="status-bar dark">
+      <span class="time">09:41</span>
+      <div class="icons">
+        <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+      </div>
+    </div>
+    <div class="nav-bar">
+      <div class="back-btn" onclick="history.back()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <span class="nav-title">申请退款</span>
+      <div class="capsule-btn"><img src="../images/icons/小程序按钮.svg" alt=""></div>
+    </div>
+  </div>
+
+  <!-- Scrollable Content -->
+  <div class="page-scroll" style="padding-bottom: 80px;">
+
+    <!-- After-sale Type -->
+    <div class="form-section" id="afterSaleTypeSection">
+      <div class="form-section-title">售后类型</div>
+      <div class="refund-types">
+        <div class="refund-type-item selected" data-type="exchange">
+          <div class="type-name">换货</div>
+          <div class="type-desc">仅支持同款商品换货</div>
+        </div>
+        <div class="refund-type-item" data-type="refund-return">
+          <div class="type-name">退货退款</div>
+          <div class="type-desc">支持全选、多选和数量</div>
+        </div>
+        <div class="refund-type-item" data-type="refund-only">
+          <div class="type-name">仅退款</div>
+          <div class="type-desc">可选商品，数量不可调</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Products -->
+    <div class="products-section" id="productsSection">
+      <div class="products-header">
+        <div class="form-section-title" style="margin-bottom:0;">选择商品</div>
+        <label class="select-all-label" id="selectAllWrap">
+          <input type="checkbox" id="selectAllProducts">
+          <span>全选</span>
+        </label>
+      </div>
+      <div class="product-select-list" id="productSelectList"></div>
+      <div class="products-tip" id="productsTip">换货仅支持选择 1 件商品，且仅支持同款换货。</div>
+    </div>
+
+    <!-- Refund Info -->
+    <div class="form-section">
+      <div class="form-row">
+        <label id="reasonLabel">退款原因</label>
+        <select id="reasonSelect">
+          <option value="">请选择退款原因</option>
+          <option value="1">不想要了</option>
+          <option value="2">拍错/多拍/不想要</option>
+          <option value="3">商品信息描述不符</option>
+          <option value="4">商品质量问题</option>
+          <option value="5">收到商品损坏</option>
+          <option value="6">其他</option>
+        </select>
+        <span class="arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+      </div>
+      <div class="form-row">
+        <label>联系方式</label>
+        <div class="contact-row">
+          <input id="contactInput" type="text" placeholder="请输入手机号">
+          <span id="resetContactBtn" class="contact-reset">重新输入</span>
+        </div>
+      </div>
+      <div class="form-row" id="refundAmountRow">
+        <label>退款金额</label>
+        <div class="amount-row">
+          <span class="symbol">&yen;</span>
+          <input type="number" id="refundAmount" value="68.00" step="0.01">
+        </div>
+      </div>
+      <div class="form-row" id="refundPointsRow">
+        <label>可退积分</label>
+        <input id="refundPoints" type="text" value="0积分" readonly>
+      </div>
+      <div class="max-amount" id="maxAmountTip">最多可退 <b>&yen;68.00</b></div>
+    </div>
+
+    <!-- Description -->
+    <div class="form-section" id="descriptionSection">
+      <div class="form-section-title">问题描述</div>
+      <div class="form-row" style="flex-direction: column; align-items: flex-start;">
+        <textarea id="description" placeholder="请描述您遇到的问题（选填）" maxlength="200"></textarea>
+      </div>
+      <div class="form-section-title" style="margin-top: 12px;">上传凭证</div>
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-add" id="uploadAdd">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>上传图片</span>
+        </div>
+      </div>
+      <div class="form-tip">最多上传3张图片</div>
+    </div>
+
+    <!-- Rules -->
+    <div class="rules-section" id="rulesSection">
+      <div class="rules-section-title">退款说明</div>
+      <ul class="rules-list">
+        <li>退款金额将原路返回至您的支付账户</li>
+        <li>退款审核通过后，1-3个工作日内到账</li>
+        <li>如有疑问，请联系客服咨询</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Submit Button -->
+  <div class="submit-section">
+    <button class="btn-submit" id="submitBtn">提交申请</button>
+  </div>
+
+  <div class="notice-modal-mask" id="submitNoticeModal">
+    <div class="notice-modal">
+      <div class="refund-notice-head">
+        <p class="refund-notice-title">退款金额说明</p>
+        <p class="refund-notice-sub">确认后将按以下规则退还</p>
+      </div>
+      <div class="refund-notice-section">
+        <div class="refund-notice-icon refund-notice-icon--cash" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="11" rx="2"/><path d="M7 7V5a2 2 0 012-2h6a2 2 0 012 2v2"/><path d="M7 12h.01M17 12h.01"/></svg>
+        </div>
+        <div class="refund-notice-main">
+          <p class="refund-notice-label">现金</p>
+          <p class="refund-notice-desc">全额退还至原支付账户</p>
+        </div>
+      </div>
+      <div class="refund-notice-section">
+        <div class="refund-notice-icon refund-notice-icon--points" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        </div>
+        <div class="refund-notice-main">
+          <p class="refund-notice-label">积分</p>
+          <p class="refund-notice-desc">退还 <b>800</b> 积分至账户</p>
+          <div class="refund-notice-warn">
+            <span class="refund-notice-warn__dot">!</span>
+            <span>200 积分已过期，无法退还</span>
+          </div>
+        </div>
+      </div>
+      <div class="notice-modal-footer notice-modal-footer--dual">
+        <button type="button" class="notice-modal-cancel" id="submitNoticeCancelBtn">取消</button>
+        <button type="button" class="notice-modal-confirm" id="submitNoticeConfirmBtn">确认退款</button>
+      </div>
+      <div class="refund-notice-service">
+        <a href="customer_service.html" id="refundNoticeServiceLink">有疑问？<span class="refund-notice-service-link">联系客服</span></a>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script src="../js/common.js"></script>
+<script>
+(function() {
+  var pageMode = new URLSearchParams(window.location.search).get('type');
+  var isRefundOnlyMode = pageMode === 'refund-only';
+  var refundType = 'exchange';
+  var uploadedImages = [];
+  var navTitle = document.querySelector('.nav-title');
+  var reasonLabel = document.getElementById('reasonLabel');
+  var reasonSelect = document.getElementById('reasonSelect');
+  var contactInput = document.getElementById('contactInput');
+  var resetContactBtn = document.getElementById('resetContactBtn');
+  var refundAmountRow = document.getElementById('refundAmountRow');
+  var refundPointsRow = document.getElementById('refundPointsRow');
+  var refundPointsInput = document.getElementById('refundPoints');
+  var maxAmountTip = document.getElementById('maxAmountTip');
+  var afterSaleTypeSection = document.getElementById('afterSaleTypeSection');
+  var productsSection = document.getElementById('productsSection');
+  var descriptionSection = document.getElementById('descriptionSection');
+  var rulesSection = document.getElementById('rulesSection');
+  var submitBtn = document.getElementById('submitBtn');
+  var submitNoticeModal = document.getElementById('submitNoticeModal');
+  var submitNoticeCancelBtn = document.getElementById('submitNoticeCancelBtn');
+  var submitNoticeConfirmBtn = document.getElementById('submitNoticeConfirmBtn');
+  var defaultContactPhone = '13812345678';
+  var refundReasons = [
+    { value: '1', text: '不想要了' },
+    { value: '2', text: '拍错/多拍/不想要' },
+    { value: '3', text: '商品信息描述不符' },
+    { value: '4', text: '商品质量问题' },
+    { value: '5', text: '收到商品损坏' },
+    { value: '6', text: '其他' }
+  ];
+  var exchangeReasons = [
+    { value: 'e1', text: '7天无理由' },
+    { value: 'e2', text: '商品与页面描述不符' },
+    { value: 'e3', text: '少发/发错/未收到货' },
+    { value: 'e4', text: '质量问题/故障' },
+    { value: 'e5', text: '商品破损/包装问题' },
+    { value: 'e6', text: '其他' }
+  ];
+  var orderProducts = [
+    { id: 'sku1', name: '日本进口保温杯 不锈钢真空便携水杯500ml 大容量男女通用', spec: '白色 500ml', price: 68.00, refundCash: 0.00, refundPoints: 68, maxQty: 2, img: '../images/unsplash/1602143407151-7111542de6e8.jpg', selected: true, qty: 1 },
+    { id: 'sku2', name: '潮流太阳眼镜 防紫外线偏光墨镜', spec: '黑色', price: 79.00, refundCash: 79.00, refundPoints: 0, maxQty: 1, img: '../images/unsplash/1572635196237-14b3f281503f.jpg', selected: false, qty: 1 },
+    { id: 'sku3', name: '纯棉短袖T恤男女款 夏季宽松百搭潮流', spec: '白色 L码', price: 39.90, refundCash: 39.90, refundPoints: 0, maxQty: 3, img: '../images/unsplash/1521572163474-6864f9cf17ab.jpg', selected: false, qty: 1 }
+  ];
+
+  /**
+   * 渲染商品选择区域，按售后类型切换交互能力。
+   */
+  function renderProducts() {
+    var listEl = document.getElementById('productSelectList');
+    var selectAllWrap = document.getElementById('selectAllWrap');
+    var selectAllInput = document.getElementById('selectAllProducts');
+    var productsTip = document.getElementById('productsTip');
+    var isExchange = refundType === 'exchange';
+    var showQtyStepper = refundType === 'refund-return';
+
+    if (isExchange) {
+      selectAllWrap.style.display = 'none';
+      productsTip.textContent = '换货仅支持选择 1 件商品，且仅支持同款换货。';
+    } else {
+      selectAllWrap.style.display = 'flex';
+      if (refundType === 'refund-only') {
+        productsTip.textContent = '仅退款支持全选、多选；退款数量以订单为准，不可在此调整。';
+      } else {
+        productsTip.textContent = '退货退款支持全选、多选，并可调整每件商品退款数量。';
+      }
+    }
+
+    var html = '';
+    orderProducts.forEach(function(prod) {
+      html += '<div class="product-select-item">' +
+        '<div class="product-top">' +
+          '<div class="product-check">' +
+            '<input type="checkbox" class="product-checkbox" data-id="' + prod.id + '"' + (prod.selected ? ' checked' : '') + '>' +
+          '</div>' +
+          '<div class="prod-img"><img src="' + prod.img + '" alt=""></div>' +
+          '<div class="prod-info">' +
+            '<div class="prod-name">' + prod.name + '</div>' +
+            '<div class="prod-spec">' + prod.spec + '</div>' +
+            '<div class="prod-price">&yen;' + prod.price.toFixed(2) + '</div>' +
+          '</div>' +
+        '</div>';
+      if (showQtyStepper && prod.selected) {
+        html += '<div class="qty-row">' +
+          '<div class="qty-control">' +
+            '<button class="qty-btn" data-op="minus" data-id="' + prod.id + '">-</button>' +
+            '<span class="qty-value">' + prod.qty + '</span>' +
+            '<button class="qty-btn" data-op="plus" data-id="' + prod.id + '">+</button>' +
+          '</div>' +
+        '</div>';
+      } else if (refundType === 'refund-only' && prod.selected) {
+        html += '<div class="qty-row qty-row-static"><span class="qty-fixed-label">退款数量</span><span class="qty-fixed-value">' + prod.qty + '</span></div>';
+      }
+      html += '</div>';
+    });
+    listEl.innerHTML = html;
+
+    if (!isExchange) {
+      var allSelected = orderProducts.length > 0 && orderProducts.every(function(item) { return item.selected; });
+      selectAllInput.checked = allSelected;
+    } else {
+      selectAllInput.checked = false;
+    }
+
+    bindProductEvents();
+    if (refundType === 'refund-return' || refundType === 'refund-only') {
+      updateRefundAmount();
+    }
+  }
+
+  /**
+   * 绑定商品选择和数量变更事件。
+   */
+  function bindProductEvents() {
+    document.querySelectorAll('.product-checkbox').forEach(function(checkbox) {
+      checkbox.addEventListener('change', function() {
+        var id = this.dataset.id;
+        if (refundType === 'exchange') {
+          orderProducts.forEach(function(item) { item.selected = item.id === id; });
+        } else {
+          orderProducts.forEach(function(item) {
+            if (item.id === id) {
+              item.selected = !!checkbox.checked;
+              if (!item.selected) item.qty = 1;
+              if (refundType === 'refund-only' && item.selected) item.qty = 1;
+            }
+          });
+        }
+        renderProducts();
+      });
+    });
+
+    document.querySelectorAll('.qty-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (refundType !== 'refund-return') return;
+        var id = this.dataset.id;
+        var op = this.dataset.op;
+        orderProducts.forEach(function(item) {
+          if (item.id !== id) return;
+          if (op === 'minus') item.qty = Math.max(1, item.qty - 1);
+          if (op === 'plus') item.qty = Math.min(item.maxQty, item.qty + 1);
+        });
+        renderProducts();
+      });
+    });
+  }
+
+  /**
+   * 计算并更新退款金额展示。
+   */
+  function updateRefundAmount() {
+    var total = 0;
+    var totalPoints = 0;
+    if (refundType === 'refund-return' || refundType === 'refund-only') {
+      orderProducts.forEach(function(item) {
+        if (item.selected) {
+          total += (item.refundCash || 0) * item.qty;
+          totalPoints += (item.refundPoints || 0) * item.qty;
+        }
+      });
+    }
+    document.getElementById('refundAmount').value = total.toFixed(2);
+    refundPointsInput.value = totalPoints + '积分';
+    var maxAmountEl = document.querySelector('.max-amount b');
+    if (maxAmountEl) {
+      maxAmountEl.textContent = '¥' + total.toFixed(2);
+    }
+  }
+
+  /**
+   * 根据售后类型刷新原因选项和金额区展示。
+   */
+  function renderTypeDependentFields() {
+    var options;
+    var placeholder;
+    var label;
+    if (refundType === 'exchange') {
+      options = exchangeReasons;
+      placeholder = '请选择换货原因';
+      label = '换货原因';
+      productsSection.style.display = 'block';
+      descriptionSection.style.display = 'block';
+      rulesSection.style.display = 'block';
+      refundAmountRow.style.display = 'none';
+      refundPointsRow.style.display = 'none';
+      maxAmountTip.style.display = 'none';
+    } else {
+      options = refundReasons;
+      placeholder = '请选择退款原因';
+      label = '退款原因';
+      productsSection.style.display = 'block';
+      descriptionSection.style.display = 'block';
+      rulesSection.style.display = 'block';
+      refundAmountRow.style.display = 'flex';
+      refundPointsRow.style.display = 'flex';
+      maxAmountTip.style.display = 'block';
+      updateRefundAmount();
+    }
+
+    reasonLabel.textContent = label;
+    reasonSelect.innerHTML = '<option value="">' + placeholder + '</option>';
+    options.forEach(function(item) {
+      reasonSelect.innerHTML += '<option value="' + item.value + '">' + item.text + '</option>';
+    });
+  }
+
+  /**
+   * URL 带 type=refund-only 时：售后类型区仅展示「仅退款」，隐藏换货/退货退款；表单能力与站内「仅退款」一致。
+   */
+  function setupRefundOnlyMode() {
+    if (!isRefundOnlyMode) return;
+    refundType = 'refund-only';
+    navTitle.textContent = '申请退款';
+    submitBtn.textContent = '提交申请';
+    afterSaleTypeSection.style.display = 'block';
+    var refundTypesGrid = document.querySelector('.refund-types');
+    if (refundTypesGrid) {
+      refundTypesGrid.classList.add('refund-only-single');
+    }
+    document.querySelectorAll('.refund-type-item[data-type="exchange"], .refund-type-item[data-type="refund-return"]').forEach(function(el) {
+      el.style.display = 'none';
+    });
+    document.querySelectorAll('.refund-type-item').forEach(function(el) {
+      el.classList.remove('selected');
+    });
+    var onlyCard = document.querySelector('.refund-type-item[data-type="refund-only"]');
+    if (onlyCard) {
+      onlyCard.style.display = '';
+      onlyCard.classList.add('selected', 'refund-only-locked');
+    }
+    productsSection.style.display = 'block';
+    descriptionSection.style.display = 'block';
+    rulesSection.style.display = 'block';
+    orderProducts.forEach(function(prod) { prod.qty = 1; });
+    renderProducts();
+    renderTypeDependentFields();
+    contactInput.value = defaultContactPhone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+    resetContactBtn.style.display = 'inline';
+  }
+
+  // Refund type selection
+  var typeItems = document.querySelectorAll('.refund-type-item');
+  typeItems.forEach(function(item) {
+    item.addEventListener('click', function() {
+      if (isRefundOnlyMode) return;
+      typeItems.forEach(function(t) { t.classList.remove('selected'); });
+      this.classList.add('selected');
+      refundType = this.dataset.type;
+      if (refundType === 'exchange') {
+        var firstSelectedId = '';
+        orderProducts.forEach(function(prod) {
+          if (prod.selected && !firstSelectedId) firstSelectedId = prod.id;
+        });
+        if (!firstSelectedId && orderProducts[0]) firstSelectedId = orderProducts[0].id;
+        orderProducts.forEach(function(prod) { prod.selected = prod.id === firstSelectedId; prod.qty = 1; });
+      }
+      if (refundType === 'refund-return') {
+        orderProducts.forEach(function(prod) {
+          if (!prod.selected) prod.qty = 1;
+        });
+      }
+      if (refundType === 'refund-only') {
+        orderProducts.forEach(function(prod) { prod.qty = 1; });
+      }
+      renderProducts();
+      renderTypeDependentFields();
+    });
+  });
+
+  document.getElementById('selectAllProducts').addEventListener('change', function() {
+    if (refundType !== 'refund-return' && refundType !== 'refund-only') return;
+    var checked = !!this.checked;
+    orderProducts.forEach(function(item) {
+      item.selected = checked;
+      if (!checked) item.qty = 1;
+      if (refundType === 'refund-only' && checked) item.qty = 1;
+    });
+    renderProducts();
+  });
+
+  // Image upload simulation
+  var uploadArea = document.getElementById('uploadArea');
+  var uploadAdd = document.getElementById('uploadAdd');
+  var sampleImages = [
+    '../images/unsplash/1602143407151-7111542de6e8.jpg'
+  ];
+
+  uploadAdd.addEventListener('click', function() {
+    if (uploadedImages.length >= 3) {
+      alert('最多上传3张图片');
+      return;
+    }
+    uploadedImages.push(sampleImages[0]);
+    renderImages();
+  });
+
+  function renderImages() {
+    var html = '';
+    uploadedImages.forEach(function(src, idx) {
+      html += '<div class="upload-item">' +
+        '<img src="' + src + '" alt="">' +
+        '<div class="delete-btn" data-idx="' + idx + '">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' +
+        '</div>' +
+      '</div>';
+    });
+    html += '<div class="upload-add" id="uploadAdd">' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>' +
+      '<span>上传图片</span>' +
+    '</div>';
+    uploadArea.innerHTML = html;
+
+    document.getElementById('uploadAdd').addEventListener('click', function() {
+      if (uploadedImages.length >= 3) {
+        alert('最多上传3张图片');
+        return;
+      }
+      uploadedImages.push(sampleImages[0]);
+      renderImages();
+    });
+
+    document.querySelectorAll('.delete-btn').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var idx = parseInt(this.dataset.idx);
+        uploadedImages.splice(idx, 1);
+        renderImages();
+      });
+    });
+  }
+
+  function submitAfterNotice() {
+    var reason = document.getElementById('reasonSelect').value;
+    if (!reason) {
+      alert(refundType === 'exchange' ? '请选择换货原因' : '请选择退款原因');
+      return;
+    }
+    if (!contactInput.value.trim()) {
+      alert('请输入联系人方式');
+      return;
+    }
+    if (isRefundOnlyMode) {
+      var selectedRefundOnly = orderProducts.filter(function(item) { return item.selected; });
+      if (selectedRefundOnly.length === 0) {
+        alert('请先选择售后商品');
+        return;
+      }
+      alert('退款申请已提交，请等待审核');
+      location.href = 'refund.html';
+      return;
+    }
+    var selectedProducts = orderProducts.filter(function(item) { return item.selected; });
+    if (selectedProducts.length === 0) {
+      alert('请先选择售后商品');
+      return;
+    }
+    if (refundType === 'exchange') {
+      alert('换货申请已提交，请等待审核');
+    } else if (refundType === 'refund-only') {
+      alert('退款申请已提交，请等待审核');
+    } else {
+      alert('售后申请已提交，请等待审核');
+    }
+    location.href = 'refund.html';
+  }
+
+  // Submit
+  submitBtn.addEventListener('click', function() {
+    submitNoticeModal.style.display = 'flex';
+  });
+
+  submitNoticeCancelBtn.addEventListener('click', function() {
+    submitNoticeModal.style.display = 'none';
+  });
+
+  submitNoticeConfirmBtn.addEventListener('click', function() {
+    submitNoticeModal.style.display = 'none';
+    submitAfterNotice();
+  });
+
+  resetContactBtn.addEventListener('click', function() {
+    contactInput.value = '';
+    contactInput.focus();
+  });
+
+  setupRefundOnlyMode();
+  if (isRefundOnlyMode) return;
+  renderProducts();
+  renderTypeDependentFields();
+})();
+</script>
+</body>
+</html>

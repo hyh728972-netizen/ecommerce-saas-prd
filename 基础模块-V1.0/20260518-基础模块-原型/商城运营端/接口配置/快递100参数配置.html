@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兆链采 供应链平台 - 快递100配置</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            background-color: #f0f2f5;
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 14px;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            height: 64px;
+            background-color: #fff;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1890ff;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .platform-name {
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 16px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .header-icon {
+            width: 20px;
+            height: 20px;
+            color: rgba(0, 0, 0, 0.65);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .header-icon:hover {
+            color: #1890ff;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #1890ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        /* 左侧菜单栏 */
+        .sidebar {
+            width: 200px;
+            background-color: #fff;
+            border-right: 1px solid #f0f0f0;
+            position: fixed;
+            top: 64px;
+            left: 0;
+            bottom: 0;
+            padding: 16px 0;
+            z-index: 99;
+        }
+
+        .menu-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(0, 0, 0, 0.65);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .menu-item:hover {
+            color: #1890ff;
+        }
+
+        .menu-item.active {
+            color: #1890ff;
+            background-color: #e6f7ff;
+        }
+
+        .menu-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .submenu {
+            padding: 10px 24px 10px 48px;
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .submenu:hover {
+            color: #1890ff;
+        }
+
+        .submenu.active {
+            color: #1890ff;
+            background-color: #e6f7ff;
+        }
+
+        .submenu.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #1890ff;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            margin-left: 200px;
+            margin-top: 64px;
+            padding: 24px;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* 页面标题 */
+        .page-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+            margin-bottom: 32px;
+        }
+
+        /* 表单容器 */
+        .form-container {
+            background-color: #fff;
+            padding: 32px;
+            border-radius: 2px;
+            max-width: 800px;
+        }
+
+        /* 表单项 */
+        .form-item {
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .form-label {
+            width: 120px;
+            text-align: right;
+            padding-right: 16px;
+            padding-top: 5px;
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .form-label .required {
+            color: #ff4d4f;
+            margin-right: 4px;
+        }
+
+        .form-label .sub-label {
+            display: block;
+            color: rgba(0, 0, 0, 0.45);
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .form-control {
+            flex: 1;
+            max-width: 600px;
+        }
+
+        /* 单选按钮组 */
+        .radio-group {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 8px;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .radio-input {
+            width: 16px;
+            height: 16px;
+            accent-color: #1890ff;
+            cursor: pointer;
+        }
+
+        .radio-label {
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 14px;
+        }
+
+        /* 提示文本 */
+        .form-tip {
+            color: rgba(0, 0, 0, 0.45);
+            font-size: 14px;
+            line-height: 1.5;
+            padding: 8px 12px;
+            background-color: #f6ffed;
+            border: 1px solid #b7eb8f;
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        /* 文本域 */
+        .textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            font-family: inherit;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .textarea:hover {
+            border-color: #40a9ff;
+        }
+
+        .textarea:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .textarea::placeholder {
+            color: rgba(0, 0, 0, 0.25);
+        }
+
+        /* 底部按钮 */
+        .form-footer {
+            position: fixed;
+            bottom: 0;
+            left: 200px;
+            right: 0;
+            padding: 16px 24px;
+            background-color: #fff;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            z-index: 99;
+        }
+
+        .btn {
+            height: 32px;
+            padding: 0 16px;
+            border-radius: 2px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+            font-weight: 400;
+        }
+
+        .btn-primary {
+            background-color: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+
+        .btn-primary:hover {
+            background-color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .btn-default {
+            background-color: #fff;
+            color: rgba(0, 0, 0, 0.65);
+            border-color: #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        /* 内容区底部留白，避免被固定按钮遮挡 */
+        .content-spacer {
+            height: 80px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="logo-section">
+            <div class="logo">
+                <div class="logo-icon">兆</div>
+                <span>兆链采</span>
+            </div>
+            <span class="platform-name">供应链平台</span>
+        </div>
+        <div class="header-right">
+            <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+            </svg>
+            <div class="user-info">
+                <div class="user-avatar">用</div>
+                <span>用户名</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 左侧菜单 -->
+    <aside class="sidebar">
+        <div class="menu-item active">
+            <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"></circle>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            <span>设置</span>
+        </div>
+        <div class="submenu active">快递100</div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <h1 class="page-title">快递100配置</h1>
+        
+        <div class="form-container">
+            <!-- 实时查询接口 -->
+            <div class="form-item">
+                <label class="form-label">
+                    <span class="required">*</span>实时查询接口
+                </label>
+                <div class="form-control">
+                    <div class="radio-group">
+                        <label class="radio-item">
+                            <input type="radio" name="realtime" class="radio-input" checked>
+                            <span class="radio-label">开</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="realtime" class="radio-input">
+                            <span class="radio-label">关</span>
+                        </label>
+                    </div>
+                    <div class="form-tip">启用后在用户主动查询时才会调用接口</div>
+                </div>
+            </div>
+
+            <!-- 公司编号 -->
+            <div class="form-item">
+                <label class="form-label">
+                    <span class="required">*</span>公司编号
+                    <span class="sub-label">customerKey</span>
+                </label>
+                <div class="form-control">
+                    <textarea class="textarea" placeholder="请输入"></textarea>
+                </div>
+            </div>
+
+            <!-- 授权密钥key -->
+            <div class="form-item">
+                <label class="form-label">
+                    <span class="required">*</span>授权密钥key
+                    <span class="sub-label">deliveryKey</span>
+                </label>
+                <div class="form-control">
+                    <textarea class="textarea" placeholder="请输入"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部留白 -->
+        <div class="content-spacer"></div>
+    </main>
+
+    <!-- 底部固定按钮 -->
+    <div class="form-footer">
+        <button class="btn btn-default">取消</button>
+        <button class="btn btn-primary">保存</button>
+    </div>
+</body>
+</html>

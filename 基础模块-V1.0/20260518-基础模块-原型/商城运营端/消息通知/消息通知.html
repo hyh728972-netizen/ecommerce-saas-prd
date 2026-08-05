@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兆链采供应链平台 - 消息通知系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: #f5f7fa;
+        }
+        
+        .sidebar-item {
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-item:hover {
+            background-color: #e6f7ff;
+            color: #1890ff;
+        }
+        
+        .sidebar-item.active {
+            background-color: #e6f7ff;
+            color: #1890ff;
+            border-right: 3px solid #1890ff;
+        }
+        
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(2px);
+        }
+        
+        .table-row:hover {
+            background-color: #fafafa;
+        }
+        
+        .btn-primary {
+            background-color: #1890ff;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: #40a9ff;
+        }
+        
+        .btn-danger {
+            background-color: #ff4d4f;
+            transition: all 0.3s;
+        }
+        
+        .btn-danger:hover {
+            background-color: #ff7875;
+        }
+        
+        .btn-success {
+            background-color: #52c41a;
+            transition: all 0.3s;
+        }
+        
+        .btn-success:hover {
+            background-color: #73d13d;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 22px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #1890ff;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+        
+        .tree-node {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .tree-node:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .countdown-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .countdown-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: rgba(255,255,255,0.5);
+            animation: countdown 5s linear forwards;
+        }
+        
+        @keyframes countdown {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden">
+
+    <!-- 顶部导航栏 -->
+    <header class="bg-white h-16 border-b border-gray-200 flex items-center justify-between px-6 fixed top-0 left-0 right-0 z-50">
+        <div class="flex items-center gap-2">
+            <div class="text-2xl font-bold text-blue-600 flex items-center gap-2">
+                <i class="fas fa-link"></i>
+                <span>兆链采</span>
+            </div>
+            <span class="text-gray-500 text-lg">供应链平台</span>
+        </div>
+        
+        <div class="flex items-center gap-6">
+            <button class="text-gray-500 hover:text-gray-700 transition">
+                <i class="fas fa-search text-lg"></i>
+            </button>
+            <button onclick="showNotificationBell()" class="relative text-gray-500 hover:text-blue-600 transition">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">2</span>
+            </button>
+            <div class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-3 py-1 rounded-lg transition">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span class="text-gray-700 text-sm">用户名</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex pt-16 h-full">
+        <!-- 左侧侧边栏 -->
+        <aside class="w-64 bg-white border-r border-gray-200 h-full overflow-y-auto">
+            <div class="p-4">
+                <div class="flex items-center gap-2 text-gray-700 mb-4 cursor-pointer hover:text-blue-600 transition">
+                    <i class="fas fa-chevron-down text-xs"></i>
+                    <i class="fas fa-home text-gray-400"></i>
+                    <span class="font-medium">设置</span>
+                </div>
+                
+                <div class="ml-2">
+                    <div class="flex items-center gap-2 text-gray-700 mb-2 cursor-pointer hover:text-blue-600 transition">
+                        <i class="fas fa-chevron-down text-xs"></i>
+                        <span class="font-medium">消息通知</span>
+                    </div>
+                    
+                    <div class="ml-4 space-y-1">
+                        <div onclick="switchTab('template')" id="nav-template" class="sidebar-item active px-4 py-2 rounded-lg cursor-pointer text-sm flex items-center gap-2">
+                            <span>通知模板</span>
+                        </div>
+                        <div onclick="switchTab('records')" id="nav-records" class="sidebar-item px-4 py-2 rounded-lg cursor-pointer text-sm flex items-center gap-2 text-gray-600">
+                            <span>通知记录</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="flex-1 overflow-auto bg-gray-50 p-6">
+            
+            <!-- 通知模板页面 -->
+            <div id="page-template" class="fade-in">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <!-- 页面标题 -->
+                    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-lg font-medium text-gray-800">通知模板</h1>
+                            <button class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 搜索区域 -->
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="grid grid-cols-4 gap-4 mb-4">
+                            <div class="flex items-center gap-2">
+                                <label class="text-gray-600 text-sm whitespace-nowrap">模板名称:</label>
+                                <input type="text" placeholder="模糊搜索" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-gray-600 text-sm whitespace-nowrap">模板标题:</label>
+                                <input type="text" placeholder="模糊搜索" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-gray-600 text-sm whitespace-nowrap">模板正文:</label>
+                                <input type="text" placeholder="模糊搜索" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-gray-600 text-sm whitespace-nowrap">状态:</label>
+                                <select class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500">
+                                    <option>全部</option>
+                                    <option>启用</option>
+                                    <option>停用</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-4 gap-4 mb-4">
+                            <div class="flex items-center gap-2">
+                                <label class="text-gray-600 text-sm whitespace-nowrap">通知渠道:</label>
+                                <select class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500">
+                                    <option>全部</option>
+                                    <option>企微通知</option>
+                                    <option>邮件通知</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-gray-600 text-sm whitespace-nowrap">模板类型:</label>
+                                <select class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500">
+                                    <option>全部</option>
+                                    <option>通知</option>
+                                    <option>公告</option>
+                                </select>
+                            </div>
+                            <div class="col-span-2 flex justify-end gap-2">
+                                <button onclick="searchTemplates()" class="btn-primary text-white px-6 py-1.5 rounded text-sm font-medium">
+                                    <i class="fas fa-search mr-1"></i>查询
+                                </button>
+                                <button onclick="resetSearch()" class="border border-gray-300 text-gray-600 px-6 py-1.5 rounded text-sm font-medium hover:border-gray-400 transition">
+                                    重置
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 操作按钮 -->
+                    <div class="px-6 py-3 flex gap-3 border-b border-gray-200">
+                        <button onclick="openAddModal()" class="btn-primary text-white px-4 py-1.5 rounded text-sm flex items-center gap-1">
+                            <i class="fas fa-plus"></i>新增
+                        </button>
+                        <button onclick="confirmBatchDelete()" class="btn-danger text-white px-4 py-1.5 rounded text-sm flex items-center gap-1">
+                            <i class="fas fa-times"></i>删除
+                        </button>
+                        <button onclick="openQuickSendModal()" class="btn-success text-white px-4 py-1.5 rounded text-sm flex items-center gap-1">
+                            <i class="fas fa-paper-plane"></i>快捷发送
+                        </button>
+                    </div>
+
+                    <!-- 表格 -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="w-10 px-4 py-3 text-left">
+                                        <input type="checkbox" class="rounded border-gray-300" onchange="toggleSelectAll(this)">
+                                    </th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">模板名称</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">模板编码</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">通知类型</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">模板标题</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">模板正文</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">模板类型</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">启用状态</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">创建人</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">创建时间</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">修改人</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">修改时间</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="templateTableBody" class="divide-y divide-gray-100">
+                                <tr class="table-row border-b border-gray-100">
+                                    <td class="px-4 py-3">
+                                        <input type="checkbox" class="rounded border-gray-300 row-checkbox">
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">订单出现异常</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">TZMB00001</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">企微通知</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">-</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700 max-w-xs truncate">订单{订单变量}...</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">通知</td>
+                                    <td class="px-4 py-3">
+                                        <label class="switch">
+                                            <input type="checkbox" checked onchange="toggleStatus(this)">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="text-xs text-gray-500 ml-1 status-text">启用</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">李盛</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">2024-01-23 12:34:56</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">李盛</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">2024-01-23 12:34:56</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button onclick="openEditModal('TZMB00001')" class="text-blue-600 hover:text-blue-800 mr-2">编辑模板</button>
+                                        <button onclick="openPersonList()" class="text-blue-600 hover:text-blue-800 mr-2">通知人员列表</button>
+                                        <button onclick="confirmDelete('TZMB00001')" class="text-blue-600 hover:text-blue-800">删除</button>
+                                    </td>
+                                </tr>
+                                <tr class="table-row border-b border-gray-100">
+                                    <td class="px-4 py-3">
+                                        <input type="checkbox" class="rounded border-gray-300 row-checkbox">
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">订单超时未发货</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">TZMB00002</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">邮件通知</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">订单出现异常<br>{订单号变量}</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700 max-w-xs truncate">订单{订单变量}...</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">公告</td>
+                                    <td class="px-4 py-3">
+                                        <label class="switch">
+                                            <input type="checkbox" checked onchange="toggleStatus(this)">
+                                            <span class="slider"></span>
+                                        </label>
+                                        <span class="text-xs text-gray-500 ml-1 status-text">启用</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">李盛</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">2024-01-23 12:34:56</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">李盛</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">2024-01-23 12:34:56</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button onclick="openEditModal('TZMB00002')" class="text-blue-600 hover:text-blue-800 mr-2">编辑模板</button>
+                                        <button onclick="openPersonList()" class="text-blue-600 hover:text-blue-800 mr-2">通知人员列表</button>
+                                        <button onclick="confirmDelete('TZMB00002')" class="text-blue-600 hover:text-blue-800">删除</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                        <span class="text-sm text-gray-600">第 1-10 条/总共 100 条</span>
+                        <div class="flex items-center gap-2">
+                            <button class="px-2 py-1 border border-gray-300 rounded text-sm hover:border-gray-400 disabled:opacity-50" disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="px-3 py-1 border border-blue-500 bg-blue-50 text-blue-600 rounded text-sm">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:border-gray-400">2</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:border-gray-400">3</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:border-gray-400">4</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:border-gray-400">5</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:border-gray-400">6</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:border-gray-400">7</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:border-gray-400">8</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:border-gray-400">9</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm hover:border-gray-400">10</button>
+                            <button class="px-2 py-1 border border-gray-300 rounded text-sm hover:border-gray-400">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                            <select class="border border-gray-300 rounded px-2 py-1 text-sm ml-2">
+                                <option>10 条/页</option>
+                                <option>20 条/页</option>
+                                <option>50 条/页</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 通知记录页面 -->
+            <div id="page-records" class="hidden fade-in">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h1 class="text-lg font-medium text-gray-800">通知发送记录</h1>
+                    </div>
+                    
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="grid grid-cols-5 gap-4">
+                            <div class="flex items-center gap-2">
+                                <label class="text-gray-600 text-sm whitespace-nowrap">模板名称:</label>
+                                <input type="text" placeholder="模糊搜索" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-gray-600 text-sm whitespace-nowrap">通知标题:</label>
+                                <input type="text" placeholder="模糊搜索" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-gray-600 text-sm whitespace-nowrap">通知正文:</label>
+                                <input type="text" placeholder="模糊搜索" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-gray-600 text-sm whitespace-nowrap">发送时间:</label>
+                                <div class="flex items-center gap-1 flex-1">
+                                    <input type="text" placeholder="开始时间" class="flex-1 border border-gray-300 rounded px-2 py-1.5 text-sm w-20">
+                                    <span class="text-gray-400">至</span>
+                                    <input type="text" placeholder="结束时间" class="flex-1 border border-gray-300 rounded px-2 py-1.5 text-sm w-20">
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-gray-600 text-sm whitespace-nowrap">通知类型:</label>
+                                <select class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm">
+                                    <option>全部</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex gap-2">
+                            <button class="btn-primary text-white px-6 py-1.5 rounded text-sm">查询</button>
+                            <button class="border border-gray-300 text-gray-600 px-6 py-1.5 rounded text-sm">重置</button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">模板名称</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">通知类型</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">通知流水号</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">通知标题</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">通知正文</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">发送时间</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">发送/阅读情况</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr class="table-row">
+                                    <td class="px-4 py-3 text-sm text-gray-700">订单出现异常</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">站内信公告</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">TZJLYYYYMMDD000001</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">订单20293481异常</td>
+                                    <td class="px-4 py-3 text-sm text-blue-600 cursor-pointer hover:underline">订单20293481异常...</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">2024-01-23 12:34:56</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button onmouseenter="showReadDetail(this)" onmouseleave="hideReadDetail()" class="text-blue-600 hover:text-blue-800 relative">
+                                            查看
+                                            <div class="read-detail hidden absolute left-full top-0 ml-2 bg-white border border-gray-200 rounded-lg shadow-lg p-3 w-48 z-50">
+                                                <table class="w-full text-xs">
+                                                    <thead>
+                                                        <tr class="bg-gray-100">
+                                                            <th class="px-2 py-1 text-left">阅读情况</th>
+                                                            <th class="px-2 py-1 text-left">收信人</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr><td class="px-2 py-1">已读</td><td class="px-2 py-1">张三</td></tr>
+                                                        <tr><td class="px-2 py-1">已读</td><td class="px-2 py-1">李四</td></tr>
+                                                        <tr><td class="px-2 py-1">未读</td><td class="px-2 py-1">王五</td></tr>
+                                                        <tr><td class="px-2 py-1">未读</td><td class="px-2 py-1">老六</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr class="table-row">
+                                    <td class="px-4 py-3 text-sm text-gray-700">订单出现异常</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">站内信通知</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">TZJL260129000002</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">订单20293481异常</td>
+                                    <td class="px-4 py-3 text-sm text-blue-600 cursor-pointer hover:underline">TZJL260129000002</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">2024-01-23 12:34:56</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button class="text-blue-600 hover:text-blue-800">查看</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                        <span class="text-sm text-gray-600">第 1-10 条/总共 100 条</span>
+                        <div class="flex items-center gap-2">
+                            <button class="px-2 py-1 border border-gray-300 rounded text-sm" disabled><i class="fas fa-chevron-left"></i></button>
+                            <button class="px-3 py-1 border border-blue-500 bg-blue-50 text-blue-600 rounded text-sm">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm">2</button>
+                            <button class="px-2 py-1 border border-gray-300 rounded text-sm"><i class="fas fa-chevron-right"></i></button>
+                            <select class="border border-gray-300 rounded px-2 py-1 text-sm ml-2">
+                                <option>10 条/页</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 站内信页面 -->
+            <div id="page-station" class="hidden fade-in">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-lg font-medium text-gray-800">站内信</h1>
+                            <button onclick="closeStationMessage()" class="text-gray-400 hover:text-gray-600">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-2">
+                                <label class="text-gray-600 text-sm">通知标题:</label>
+                                <input type="text" placeholder="模糊搜索" class="border border-gray-300 rounded px-3 py-1.5 text-sm w-48">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-gray-600 text-sm">通知正文:</label>
+                                <input type="text" placeholder="模糊搜索" class="border border-gray-300 rounded px-3 py-1.5 text-sm w-48">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-gray-600 text-sm">状态:</label>
+                                <select class="border border-gray-300 rounded px-3 py-1.5 text-sm w-32">
+                                    <option>全部</option>
+                                    <option>已读</option>
+                                    <option>未读</option>
+                                </select>
+                            </div>
+                            <button class="btn-primary text-white px-6 py-1.5 rounded text-sm">查询</button>
+                            <button class="border border-gray-300 text-gray-600 px-6 py-1.5 rounded text-sm">重置</button>
+                        </div>
+                        <div class="mt-4">
+                            <button onclick="clearUnread()" class="btn-success text-white px-4 py-1.5 rounded text-sm flex items-center gap-1">
+                                <i class="fas fa-check-double"></i>清除未读
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50 border-b border-gray-200">
+                                <tr>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">通知流水号</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">通知标题</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">通知正文</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">发送时间</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">首次已读时间</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">阅读状态</th>
+                                    <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr class="table-row">
+                                    <td class="px-4 py-3 text-sm text-gray-700">TZJLYYYYMMDD000001</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">订单20293481异常</td>
+                                    <td class="px-4 py-3 text-sm text-blue-600 cursor-pointer hover:underline">订单20293481异常...</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">2024-01-23 12:34:56</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">2024-01-23 12:34:56</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">已读</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button onclick="openAnnouncement()" class="text-blue-600 hover:text-blue-800">阅读</button>
+                                    </td>
+                                </tr>
+                                <tr class="table-row bg-blue-50">
+                                    <td class="px-4 py-3 text-sm text-gray-700">TZJL260129000002</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700 font-medium">订单20293481异常</td>
+                                    <td class="px-4 py-3 text-sm text-blue-600 cursor-pointer hover:underline font-medium">TZJL260129000002</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">2024-01-23 12:34:56</td>
+                                    <td class="px-4 py-3 text-sm text-gray-700">2024-01-23 12:34:56</td>
+                                    <td class="px-4 py-3 text-sm text-orange-600 font-medium">未读</td>
+                                    <td class="px-4 py-3 text-sm">
+                                        <button onclick="openAnnouncement()" class="text-blue-600 hover:text-blue-800 font-medium">阅读</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                        <span class="text-sm text-gray-600">第 1-10 条/总共 100 条</span>
+                        <div class="flex items-center gap-2">
+                            <button class="px-2 py-1 border border-gray-300 rounded text-sm" disabled><i class="fas fa-chevron-left"></i></button>
+                            <button class="px-3 py-1 border border-blue-500 bg-blue-50 text-blue-600 rounded text-sm">1</button>
+                            <button class="px-3 py-1 border border-gray-300 rounded text-sm">2</button>
+                            <button class="px-2 py-1 border border-gray-300 rounded text-sm"><i class="fas fa-chevron-right"></i></button>
+                            <select class="border border-gray-300 rounded px-2 py-1 text-sm ml-2">
+                                <option>10 条/页</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 新增/编辑模板弹窗 -->
+    <div id="modal-edit" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl w-[600px] max-h-[90vh] overflow-auto slide-in">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-800" id="modal-title">新增\编辑模板</h3>
+                <button onclick="closeModal('modal-edit')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex items-center gap-4">
+                    <label class="w-24 text-right text-sm text-gray-600"><span class="text-red-500">*</span>模板名称:</label>
+                    <div class="flex-1 relative">
+                        <input type="text" id="template-name" placeholder="请输入" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                        <span class="absolute right-3 top-2 text-xs text-gray-400">0/20</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <label class="w-24 text-right text-sm text-gray-600">模板编码:</label>
+                    <input type="text" disabled value="编辑状态不可修改" class="flex-1 bg-gray-100 border border-gray-300 rounded px-3 py-2 text-sm text-gray-500">
+                </div>
+                <div class="flex items-center gap-4">
+                    <label class="w-24 text-right text-sm text-gray-600"><span class="text-red-500">*</span>通知类型:</label>
+                    <select disabled class="flex-1 bg-gray-100 border border-gray-300 rounded px-3 py-2 text-sm text-gray-500">
+                        <option>编辑状态不可修改</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-4">
+                    <label class="w-24 text-right text-sm text-gray-600"><span class="text-red-500">*</span>发送类型:</label>
+                    <select disabled class="flex-1 bg-gray-100 border border-gray-300 rounded px-3 py-2 text-sm text-gray-500">
+                        <option>编辑状态不可修改</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-4">
+                    <label class="w-24 text-right text-sm text-gray-600"><span class="text-red-500">*</span>模板标题:</label>
+                    <div class="flex-1 relative">
+                        <input type="text" placeholder="编辑时回显" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                        <span class="absolute right-3 top-2 text-xs text-gray-400">0/50</span>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <label class="w-24 text-right text-sm text-gray-600 mt-2"><span class="text-red-500">*</span>模板正文:</label>
+                    <div class="flex-1 relative">
+                        <textarea rows="4" placeholder="编辑时回显" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 resize-none"></textarea>
+                        <span class="absolute right-3 bottom-2 text-xs text-gray-400">0/100</span>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+                <button onclick="closeModal('modal-edit')" class="border border-gray-300 text-gray-600 px-6 py-2 rounded text-sm hover:border-gray-400 transition">取消</button>
+                <button onclick="saveTemplate()" class="btn-primary text-white px-6 py-2 rounded text-sm">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快捷发送弹窗 -->
+    <div id="modal-quick-send" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl w-[500px] slide-in">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-800">快捷发送</h3>
+                <button onclick="closeModal('modal-quick-send')" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex items-center gap-4">
+                    <label class="w-24 text-right text-sm text-gray-600"><span class="text-red-500">*</span>发送类型:</label>
+                    <select class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                        <option>请选择</option>
+                        <option>站内信</option>
+                        <option>邮件</option>
+                        <option>企微</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-4">
+                    <label class="w-24 text-right text-sm text-gray-600"><span class="text-red-500">*</span>通知类型:</label>
+                    <select class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                        <option>请选择</option>
+                        <option>通知</option>
+                        <option>公告</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-4">
+                    <label class="w-24 text-right text-sm text-gray-600"><span class="text-red-500">*</span>通知人员:</label>
+                    <button onclick="openPersonSelector()" class="text-blue-600 text-sm hover:underline">选择通知人员</button>
+                </div>
+                <div class="flex items-center gap-4">
+                    <label class="w-24 text-right text-sm text-gray-600"><span class="text-red-500">*</span>通知标题:</label>
+                    <div class="flex-1 relative">
+                        <input type="text" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                        <span class="absolute right-3 top-2 text-xs text-gray-400">0/50</span>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <label class="w-24 text-right text-sm text-gray-600 mt-2"><span class="text-red-500">*</span>通知正文:</label>
+                    <div class="flex-1 relative">
+                        <textarea rows="4" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 resize-none"></textarea>
+                        <span class="absolute right-3 bottom-2 text-xs text-gray-400">0/100</span>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+                <button onclick="closeModal('modal-quick-send')" class="border border-gray-300 text-gray-600 px-6 py-2 rounded text-sm hover:border-gray-400 transition">取消</button>
+                <button onclick="sendQuickMessage()" class="btn-primary text-white px-6 py-2 rounded text-sm">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 人员选择弹窗 -->
+    <div id="modal-person" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl w-[700px] h-[500px] slide-in flex flex-col">
+            <div class="p-4 border-b border-gray-200 flex items-center gap-2">
+                <select class="border border-gray-300 rounded px-3 py-1.5 text-sm w-32">
+                    <option>张</option>
+                </select>
+                <button class="btn-primary text-white px-4 py-1.5 rounded text-sm">
+                    <i class="fas fa-search mr-1"></i>搜索
+                </button>
+            </div>
+            <div class="flex-1 flex overflow-hidden">
+                <div class="w-1/2 border-r border-gray-200 p-4 overflow-y-auto">
+                    <div class="space-y-2">
+                        <div class="tree-node flex items-center gap-2 p-2 rounded hover:bg-gray-50">
+                            <i class="fas fa-caret-down text-gray-400"></i>
+                            <i class="fas fa-sitemap text-green-500"></i>
+                            <span class="text-sm text-gray-700">宏兆集团</span>
+                        </div>
+                        <div class="ml-6 space-y-2">
+                            <div class="tree-node flex items-center gap-2 p-2 rounded hover:bg-gray-50">
+                                <i class="fas fa-caret-right text-gray-400"></i>
+                                <i class="fas fa-sitemap text-green-500"></i>
+                                <span class="text-sm text-gray-700">集团数字化中心</span>
+                            </div>
+                            <div class="tree-node flex items-center gap-2 p-2 rounded hover:bg-gray-50">
+                                <i class="fas fa-caret-right text-gray-400"></i>
+                                <i class="fas fa-sitemap text-green-500"></i>
+                                <span class="text-sm text-gray-700">科技事业部</span>
+                            </div>
+                            <div class="tree-node flex items-center gap-2 p-2 rounded hover:bg-gray-50">
+                                <i class="fas fa-caret-right text-gray-400"></i>
+                                <i class="fas fa-sitemap text-green-500"></i>
+                                <span class="text-sm text-gray-700">投资事业部</span>
+                            </div>
+                            <div class="tree-node flex items-center gap-2 p-2 rounded hover:bg-gray-50">
+                                <i class="fas fa-caret-right text-gray-400"></i>
+                                <i class="fas fa-sitemap text-green-500"></i>
+                                <span class="text-sm text-gray-700">集团职能中心总办综合部</span>
+                            </div>
+                            <div class="tree-node flex items-center gap-2 p-2 rounded hover:bg-gray-50">
+                                <i class="fas fa-caret-right text-gray-400"></i>
+                                <i class="fas fa-sitemap text-green-500"></i>
+                                <span class="text-sm text-gray-700">集团职能中心人力资源部</span>
+                            </div>
+                            <div class="tree-node flex items-center gap-2 p-2 rounded hover:bg-gray-50">
+                                <i class="fas fa-caret-right text-gray-400"></i>
+                                <i class="fas fa-sitemap text-green-500"></i>
+                                <span class="text-sm text-gray-700">集团职能中心三</span>
+                            </div>
+                            <div class="ml-6 space-y-2">
+                                <div class="tree-node flex items-center gap-2 p-2 rounded hover:bg-gray-50">
+                                    <i class="fas fa-sitemap text-green-500"></i>
+                                    <span class="text-sm text-gray-700">数据与AI事业部</span>
+                                </div>
+                                <div class="tree-node flex items-center gap-2 p-2 rounded hover:bg-gray-50">
+                                    <i class="fas fa-sitemap text-green-500"></i>
+                                    <span class="text-sm text-gray-700">上海分公司</span>
+                                </div>
+                                <div class="tree-node flex items-center gap-2 p-2 rounded hover:bg-gray-50">
+                                    <i class="fas fa-sitemap text-green-500"></i>
+                                    <span class="text-sm text-gray-700">香港分公司</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="w-1/2 p-4">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span class="text-sm text-gray-700">张三</span>
+                            <button class="text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span class="text-sm text-gray-700">李四</span>
+                            <button class="text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span class="text-sm text-gray-700">王五</span>
+                            <button class="text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span class="text-sm text-gray-700">老六</span>
+                            <button class="text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+                <button onclick="closeModal('modal-person')" class="border border-gray-300 text-gray-600 px-6 py-2 rounded text-sm hover:border-gray-400 transition">取消</button>
+                <button onclick="confirmPersonSelection()" class="btn-primary text-white px-6 py-2 rounded text-sm">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除确认弹窗 -->
+    <div id="modal-delete" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl w-[400px] slide-in">
+            <div class="p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
+                    <span class="text-lg font-medium text-gray-800">提示</span>
+                </div>
+                <p class="text-gray-600 mb-6 ml-8">确定要删除通知模板吗?</p>
+                <div class="flex justify-end gap-3">
+                    <button onclick="closeModal('modal-delete')" class="border border-gray-300 text-gray-600 px-6 py-2 rounded text-sm hover:border-gray-400 transition">取消</button>
+                    <button onclick="executeDelete()" class="btn-primary text-white px-6 py-2 rounded text-sm">确认</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 公告弹窗（带倒计时） -->
+    <div id="modal-announcement" class="fixed inset-0 modal-overlay hidden z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl w-[500px] slide-in">
+            <div class="p-6">
+                <div class="flex items-center gap-3 mb-6">
+                    <i class="fas fa-exclamation-circle text-red-500 text-xl"></i>
+                    <span class="text-lg font-medium text-gray-800">提示</span>
+                </div>
+                <h4 class="text-center text-lg font-medium text-gray-800 mb-4">消息标题</h4>
+                <div class="space-y-2 mb-8 px-4">
+                    <p class="text-gray-600 text-sm leading-relaxed">消息正文XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</p>
+                    <p class="text-gray-600 text-sm leading-relaxed">消息正文XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</p>
+                    <p class="text-gray-600 text-sm leading-relaxed">消息正文XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</p>
+                    <p class="text-gray-600 text-sm leading-relaxed">消息正文XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</p>
+                    <p class="text-gray-600 text-sm leading-relaxed">消息正文XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</p>
+                </div>
+                <div class="flex justify-center">
+                    <button id="countdown-btn" onclick="closeAnnouncement()" class="countdown-btn btn-primary text-white px-8 py-2 rounded text-sm relative">
+                        (5秒) 确认
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 提示 -->
+    <div id="toast" class="fixed top-20 right-6 bg-white border-l-4 border-green-500 shadow-lg rounded-lg px-6 py-4 hidden z-50 transform transition-all duration-300 translate-x-full">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-check-circle text-green-500"></i>
+            <span class="text-gray-800 font-medium" id="toast-message">操作成功</span>
+        </div>
+    </div>
+
+    <script>
+        let currentDeleteId = null;
+        let countdownInterval = null;
+
+        // 页面切换
+        function switchTab(tab) {
+            document.querySelectorAll('[id^="page-"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.sidebar-item').forEach(el => {
+                el.classList.remove('active');
+                el.classList.add('text-gray-600');
+            });
+            
+            if (tab === 'template') {
+                document.getElementById('page-template').classList.remove('hidden');
+                document.getElementById('nav-template').classList.add('active');
+                document.getElementById('nav-template').classList.remove('text-gray-600');
+            } else if (tab === 'records') {
+                document.getElementById('page-records').classList.remove('hidden');
+                document.getElementById('nav-records').classList.add('active');
+                document.getElementById('nav-records').classList.remove('text-gray-600');
+            }
+        }
+
+        // 显示站内信（点击铃铛）
+        function showNotificationBell() {
+            document.querySelectorAll('[id^="page-"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById('page-station').classList.remove('hidden');
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+        }
+
+        // 关闭站内信返回模板页
+        function closeStationMessage() {
+            switchTab('template');
+        }
+
+        // 弹窗控制
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 新增模板
+        function openAddModal() {
+            document.getElementById('modal-title').textContent = '新增\\编辑模板';
+            document.getElementById('template-name').value = '';
+            openModal('modal-edit');
+        }
+
+        // 编辑模板
+        function openEditModal(code) {
+            document.getElementById('modal-title').textContent = '新增\\编辑模板';
+            document.getElementById('template-name').value = '订单出现异常';
+            openModal('modal-edit');
+        }
+
+        // 保存模板
+        function saveTemplate() {
+            closeModal('modal-edit');
+            showToast('保存成功');
+        }
+
+        // 快捷发送
+        function openQuickSendModal() {
+            openModal('modal-quick-send');
+        }
+
+        function sendQuickMessage() {
+            closeModal('modal-quick-send');
+            showToast('发送成功');
+        }
+
+        // 人员选择
+        function openPersonSelector() {
+            openModal('modal-person');
+        }
+
+        function openPersonList() {
+            openModal('modal-person');
+        }
+
+        function confirmPersonSelection() {
+            closeModal('modal-person');
+        }
+
+        // 删除确认
+        function confirmDelete(id) {
+            currentDeleteId = id;
+            openModal('modal-delete');
+        }
+
+        function confirmBatchDelete() {
+            const checked = document.querySelectorAll('.row-checkbox:checked').length;
+            if (checked === 0) {
+                showToast('请选择要删除的模板', 'warning');
+                return;
+            }
+            openModal('modal-delete');
+        }
+
+        function executeDelete() {
+            closeModal('modal-delete');
+            showToast('删除成功');
+            if (currentDeleteId) {
+                // 实际删除逻辑
+                currentDeleteId = null;
+            }
+        }
+
+        // 公告弹窗（带倒计时）
+        function openAnnouncement() {
+            openModal('modal-announcement');
+            let seconds = 5;
+            const btn = document.getElementById('countdown-btn');
+            btn.disabled = true;
+            btn.textContent = `(${seconds}秒) 确认`;
+            
+            countdownInterval = setInterval(() => {
+                seconds--;
+                if (seconds > 0) {
+                    btn.textContent = `(${seconds}秒) 确认`;
+                } else {
+                    clearInterval(countdownInterval);
+                    btn.disabled = false;
+                    btn.textContent = '确认';
+                    btn.classList.remove('countdown-btn');
+                }
+            }, 1000);
+        }
+
+        function closeAnnouncement() {
+            const btn = document.getElementById('countdown-btn');
+            if (btn.disabled) return;
+            clearInterval(countdownInterval);
+            btn.classList.add('countdown-btn');
+            closeModal('modal-announcement');
+        }
+
+        // 表格功能
+        function toggleSelectAll(checkbox) {
+            document.querySelectorAll('.row-checkbox').forEach(cb => {
+                cb.checked = checkbox.checked;
+            });
+        }
+
+        function toggleStatus(checkbox) {
+            const row = checkbox.closest('tr');
+            const statusText = row.querySelector('.status-text');
+            statusText.textContent = checkbox.checked ? '启用' : '停用';
+            statusText.className = checkbox.checked ? 'text-xs text-gray-500 ml-1 status-text' : 'text-xs text-red-500 ml-1 status-text';
+        }
+
+        // 阅读详情悬浮框
+        function showReadDetail(btn) {
+            const detail = btn.querySelector('.read-detail');
+            if (detail) detail.classList.remove('hidden');
+        }
+
+        function hideReadDetail() {
+            document.querySelectorAll('.read-detail').forEach(el => el.classList.add('hidden'));
+        }
+
+        // 清除未读
+        function clearUnread() {
+            showToast('已清除所有未读消息');
+            document.querySelectorAll('tr.bg-blue-50').forEach(row => {
+                row.classList.remove('bg-blue-50');
+                row.querySelector('.text-orange-600')?.classList.remove('text-orange-600', 'font-medium');
+                const statusCell = row.querySelector('td:nth-child(6)');
+                if (statusCell) {
+                    statusCell.textContent = '已读';
+                    statusCell.classList.remove('text-orange-600', 'font-medium');
+                }
+            });
+        }
+
+        // 搜索和重置
+        function searchTemplates() {
+            showToast('查询成功');
+        }
+
+        function resetSearch() {
+            document.querySelectorAll('input[type="text"]').forEach(input => input.value = '');
+            document.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+            showToast('已重置');
+        }
+
+        // Toast 提示
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            const icon = toast.querySelector('i');
+            
+            toastMessage.textContent = message;
+            
+            if (type === 'warning') {
+                toast.classList.remove('border-green-500');
+                toast.classList.add('border-orange-500');
+                icon.className = 'fas fa-exclamation-circle text-orange-500';
+            } else {
+                toast.classList.remove('border-orange-500');
+                toast.classList.add('border-green-500');
+                icon.className = 'fas fa-check-circle text-green-500';
+            }
+            
+            toast.classList.remove('hidden', 'translate-x-full');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+
+        // 点击遮罩关闭弹窗
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    // 如果是公告弹窗且正在倒计时，不关闭
+                    if (this.id === 'modal-announcement') {
+                        const btn = document.getElementById('countdown-btn');
+                        if (btn.disabled) return;
+                    }
+                    closeModal(this.id);
+                }
+            });
+        });
+
+        // 输入框字数统计
+        document.querySelectorAll('input[maxlength], textarea[maxlength]').forEach(input => {
+            input.addEventListener('input', function() {
+                const max = this.getAttribute('maxlength') || 100;
+                const current = this.value.length;
+                const counter = this.parentElement.querySelector('.text-xs.text-gray-400');
+                if (counter) {
+                    counter.textContent = `${current}/${max}`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

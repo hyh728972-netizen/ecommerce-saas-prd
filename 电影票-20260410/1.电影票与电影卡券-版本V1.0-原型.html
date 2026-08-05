@@ -1,0 +1,2382 @@
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>电影票次卡 - 运营端原型</title>
+		<style>
+			* { box-sizing: border-box; }
+			body {
+				margin: 0;
+				font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+				background: #f5f7fa;
+				color: #303133;
+			}
+			.top-bar {
+				height: 56px;
+				background: #fff;
+				border-bottom: 1px solid #ebeef5;
+				display: flex;
+				align-items: center;
+				padding: 0 20px;
+				justify-content: space-between;
+			}
+			.logo { font-weight: 700; color: #409eff; }
+			.top-nav { display: flex; gap: 24px; color: #606266; }
+			.top-nav .active { color: #409eff; border-bottom: 2px solid #409eff; padding-bottom: 15px; }
+			.user { font-size: 14px; color: #909399; }
+
+			.layout {
+				display: flex;
+				height: calc(100vh - 56px);
+			}
+			.sidebar {
+				width: 210px;
+				background: #fff;
+				border-right: 1px solid #ebeef5;
+				padding-top: 12px;
+			}
+			.side-title {
+				padding: 10px 18px;
+				font-size: 14px;
+				color: #303133;
+				font-weight: 600;
+			}
+			.side-item {
+				padding: 12px 18px;
+				cursor: pointer;
+				color: #606266;
+				border-left: 3px solid transparent;
+			}
+			.side-item.active {
+				color: #409eff;
+				background: #ecf5ff;
+				border-left-color: #409eff;
+			}
+
+			.main {
+				flex: 1;
+				padding: 16px;
+				overflow: auto;
+			}
+			.page {
+				display: none;
+				background: #fff;
+				border: 1px solid #ebeef5;
+				border-radius: 4px;
+				padding: 18px;
+			}
+			.page.active { display: block; }
+			.breadcrumb {
+				font-size: 12px;
+				color: #909399;
+				margin-bottom: 10px;
+			}
+			.page-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 14px;
+			}
+			.page-title {
+				font-size: 18px;
+				font-weight: 600;
+				color: #303133;
+			}
+			.btn {
+				border: 1px solid #dcdfe6;
+				background: #fff;
+				color: #606266;
+				padding: 8px 14px;
+				border-radius: 4px;
+				cursor: pointer;
+				font-size: 13px;
+			}
+			.btn.primary {
+				background: #409eff;
+				border-color: #409eff;
+				color: #fff;
+			}
+			.filters {
+				padding: 12px;
+				background: #fafafa;
+				border: 1px solid #ebeef5;
+				border-radius: 4px;
+				margin-bottom: 14px;
+				display: flex;
+				gap: 10px;
+				flex-wrap: wrap;
+				align-items: center;
+			}
+			.input, .select, .date {
+				height: 34px;
+				border: 1px solid #dcdfe6;
+				border-radius: 4px;
+				padding: 0 10px;
+				font-size: 13px;
+				background: #fff;
+				color: #606266;
+				min-width: 130px;
+			}
+			.table {
+				width: 100%;
+				border-collapse: collapse;
+				font-size: 13px;
+			}
+			.table th, .table td {
+				border-bottom: 1px solid #ebeef5;
+				padding: 12px 8px;
+				text-align: left;
+				color: #606266;
+			}
+			.table th {
+				background: #fafafa;
+				color: #909399;
+				font-weight: 600;
+			}
+			.tag {
+				padding: 2px 8px;
+				border-radius: 10px;
+				font-size: 12px;
+				display: inline-block;
+			}
+			.tag.success { background: #f0f9eb; color: #67c23a; }
+			.tag.warn { background: #fdf6ec; color: #e6a23c; }
+			.tag.info { background: #f4f4f5; color: #909399; }
+			.tag.danger { background: #fef0f0; color: #f56c6c; }
+			.link {
+				color: #409eff;
+				cursor: pointer;
+				margin-right: 10px;
+				text-decoration: none;
+			}
+
+			.form-wrap {
+				border: 1px solid #ebeef5;
+				border-radius: 4px;
+				padding: 16px;
+			}
+			.section-title {
+				font-size: 14px;
+				font-weight: 600;
+				margin-bottom: 12px;
+				color: #303133;
+			}
+			.form-grid {
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 12px 14px;
+				margin-bottom: 16px;
+			}
+			.form-grid.three {
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+			}
+			.form-item label {
+				display: block;
+				font-size: 13px;
+				color: #606266;
+				margin-bottom: 8px;
+			}
+			.form-item .req-star {
+				color: #f56c6c;
+			}
+			.tip {
+				padding: 10px 12px;
+				background: #fffbe6;
+				border: 1px solid #ffe58f;
+				color: #d48806;
+				font-size: 13px;
+				margin-bottom: 14px;
+				border-radius: 4px;
+			}
+			.radio-row {
+				display: flex;
+				gap: 20px;
+				font-size: 13px;
+				color: #606266;
+			}
+			.footer-actions {
+				display: flex;
+				justify-content: flex-end;
+				gap: 10px;
+				margin-top: 24px;
+			}
+			.pagination {
+				margin-top: 12px;
+				text-align: right;
+				color: #909399;
+				font-size: 12px;
+			}
+			.modal-mask {
+				position: fixed;
+				inset: 0;
+				background: rgba(0, 0, 0, 0.45);
+				display: none;
+				align-items: center;
+				justify-content: center;
+				z-index: 999;
+			}
+			.modal-mask.show { display: flex; }
+			.modal-card {
+				width: 680px;
+				max-width: calc(100vw - 40px);
+				background: #fff;
+				border-radius: 6px;
+				box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+				overflow: hidden;
+			}
+			.modal-header {
+				padding: 14px 16px;
+				border-bottom: 1px solid #ebeef5;
+				font-size: 16px;
+				font-weight: 600;
+			}
+			.modal-body {
+				padding: 16px;
+				max-height: 60vh;
+				overflow: auto;
+				font-size: 13px;
+				color: #606266;
+			}
+			.modal-grid {
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 10px 14px;
+			}
+			.modal-item span {
+				color: #909399;
+				margin-right: 6px;
+			}
+			.modal-footer {
+				padding: 12px 16px;
+				border-top: 1px solid #ebeef5;
+				display: flex;
+				justify-content: flex-end;
+				gap: 10px;
+			}
+			.modal-close {
+				float: right;
+				cursor: pointer;
+				font-size: 18px;
+				color: #909399;
+				line-height: 1;
+			}
+			.key-code-box {
+				margin-top: 8px;
+				padding: 10px 12px;
+				background: #f5f7fa;
+				border: 1px dashed #dcdfe6;
+				border-radius: 4px;
+				font-family: Consolas, "Courier New", monospace;
+				word-break: break-all;
+			}
+			.copy-tip {
+				font-size: 12px;
+				color: #67c23a;
+				margin-top: 8px;
+				min-height: 18px;
+			}
+			.export-wrap {
+				position: relative;
+				display: inline-block;
+			}
+			.export-menu {
+				position: absolute;
+				top: 36px;
+				right: 0;
+				min-width: 220px;
+				background: #fff;
+				border: 1px solid #ebeef5;
+				border-radius: 4px;
+				box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+				display: none;
+				z-index: 20;
+			}
+			.export-menu.show {
+				display: block;
+			}
+			.export-item {
+				display: block;
+				width: 100%;
+				padding: 8px 12px;
+				border: 0;
+				background: #fff;
+				text-align: left;
+				cursor: pointer;
+				color: #606266;
+			}
+			.export-item:hover {
+				background: #f5f7fa;
+			}
+			.btn-dropdown-trigger {
+				display: inline-flex;
+				align-items: center;
+				gap: 4px;
+			}
+			.btn-dropdown-trigger .dropdown-caret-icon {
+				display: block;
+				flex-shrink: 0;
+				opacity: 0.7;
+			}
+			.batch-op-info {
+				display: flex;
+				gap: 10px;
+				padding: 12px 14px;
+				background: #ecf5ff;
+				border: 1px solid #b3d8ff;
+				border-radius: 4px;
+				margin-bottom: 20px;
+				font-size: 13px;
+				color: #606266;
+				line-height: 1.65;
+			}
+			.batch-op-info__icon {
+				flex-shrink: 0;
+				width: 18px;
+				height: 18px;
+				border-radius: 50%;
+				background: #409eff;
+				color: #fff;
+				font-size: 12px;
+				font-weight: 700;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				line-height: 1;
+				margin-top: 2px;
+			}
+			.batch-op-info__title {
+				font-weight: 600;
+				color: #303133;
+				margin-bottom: 6px;
+			}
+			.batch-op-info ol {
+				margin: 0;
+				padding-left: 18px;
+			}
+			.batch-op-info li {
+				margin-bottom: 4px;
+			}
+			.batch-op-info li:last-child {
+				margin-bottom: 0;
+			}
+			.batch-op-stepper {
+				display: flex;
+				align-items: flex-start;
+				justify-content: center;
+				gap: 0;
+				margin: 28px 0 32px;
+				padding: 0 8px;
+			}
+			.batch-op-stepper__item {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				max-width: 200px;
+				text-align: center;
+			}
+			.batch-op-circle {
+				width: 28px;
+				height: 28px;
+				border-radius: 50%;
+				font-size: 14px;
+				font-weight: 600;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				margin-bottom: 8px;
+				background: #f0f2f5;
+				color: #909399;
+				border: 2px solid #e4e7ed;
+			}
+			.batch-op-circle.is-active {
+				background: #409eff;
+				border-color: #409eff;
+				color: #fff;
+			}
+			.batch-op-circle.is-done {
+				background: #409eff;
+				border-color: #409eff;
+				color: #fff;
+				font-size: 12px;
+			}
+			.batch-op-circle.is-wait {
+				background: #fff;
+				border-color: #dcdfe6;
+				color: #c0c4cc;
+			}
+			.batch-op-stepper__label {
+				font-size: 13px;
+				color: #606266;
+				line-height: 1.35;
+			}
+			.batch-op-stepper__line {
+				flex: 1;
+				min-width: 40px;
+				max-width: 120px;
+				height: 2px;
+				background: #e4e7ed;
+				margin-top: 13px;
+				align-self: flex-start;
+			}
+			.batch-op-stepper__line.is-done {
+				background: #409eff;
+			}
+			.batch-op-panel {
+				display: none;
+				max-width: 640px;
+				margin: 0 auto 24px;
+			}
+			.batch-op-panel.is-visible {
+				display: block;
+			}
+			.batch-op-actions {
+				display: flex;
+				justify-content: center;
+				gap: 12px;
+				flex-wrap: wrap;
+				margin-top: 8px;
+			}
+			.batch-op-upload {
+				border: 1px dashed #dcdfe6;
+				border-radius: 4px;
+				background: #fafafa;
+				padding: 36px 24px;
+				text-align: center;
+				color: #606266;
+				cursor: pointer;
+			}
+			.batch-op-upload__icon {
+				color: #409eff;
+				margin-bottom: 10px;
+			}
+			.batch-op-upload__title {
+				font-size: 14px;
+				margin-bottom: 8px;
+				color: #303133;
+			}
+			.batch-op-upload__hint {
+				font-size: 12px;
+				color: #909399;
+			}
+			.batch-op-done {
+				text-align: center;
+				padding: 24px 16px;
+				font-size: 14px;
+				color: #606266;
+			}
+			.batch-op-done__ok {
+				color: #67c23a;
+				font-size: 40px;
+				line-height: 1;
+				margin-bottom: 12px;
+			}
+			#batch-batch-op-wizard[hidden] {
+				display: none !important;
+			}
+		</style>
+	</head>
+	<body>
+		<header class="top-bar">
+			<div style="display:flex;align-items:center;gap:28px;">
+				<div class="logo">SAAS后台</div>
+				<div class="top-nav">
+					<div>首页</div>
+					<div class="active">次卡管理</div>
+				</div>
+			</div>
+			<div class="user">张伟</div>
+		</header>
+
+		<div class="layout">
+			<aside class="sidebar">
+				<div class="side-title" id="side-title-batch">次卡管理</div>
+				<div class="side-item active" data-page="batch-list">批次管理</div>
+				<div class="side-item" data-page="batch-create">新增批次</div>
+				<div class="side-item" data-page="batch-detail">批次列表明细</div>
+				<div class="side-item" data-page="batch-batch-op">批量操作</div>
+			</aside>
+
+			<main class="main">
+				<section class="page active" id="batch-list">
+					<div class="breadcrumb">首页 / 次卡管理 / 批次管理</div>
+					<div class="page-header">
+						<div class="page-title">次卡批次管理</div>
+						<button class="btn primary" data-jump="batch-create">+ 新增批次卡</button>
+					</div>
+					<div class="filters">
+						<span>批次号：</span>
+						<input class="input" placeholder="请输入批次号" />
+						<span>批次名称：</span>
+						<input class="input" placeholder="请输入批次名称" />
+						<span>状态：</span>
+						<select class="select">
+							<option>全部状态</option>
+							<option>正常</option>
+							<option>作废</option>
+						</select>
+						<span>面值：</span>
+						<input class="input" placeholder="请输入面值" />
+						<span>单次使用上限金额：</span>
+						<input class="input" placeholder="请输入单次使用上限金额" />
+						<span>客户名称：</span>
+						<input class="input" placeholder="请输入客户名称" />
+						<span>渠道名称：</span>
+						<input class="input" placeholder="请输入渠道名称" />
+						<span>有效期时间：</span>
+						<input class="date" type="datetime-local" step="1" value="2026-04-01T00:00:00" />
+						<span>~</span>
+						<input class="date" type="datetime-local" step="1" value="2026-12-31T23:59:59" />
+						<button class="btn primary">查询</button>
+						<button class="btn">重置</button>
+					</div>
+
+					<table class="table">
+						<thead>
+							<tr>
+								<th>批次号</th>
+								<th>批次名称</th>
+								<th>面值</th>
+								<th>次数</th>
+								<th>数量</th>
+								<th>单次使用上限金额</th>
+								<th>客户名称</th>
+								<th>渠道名称</th>
+								<th>有效期时间</th>
+								<th>状态</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody id="batch-list-tbody">
+							<tr class="batch-row">
+								<td>DYP-20260401</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>100元</td>
+								<td>3次</td>
+								<td>500张</td>
+								<td>80元</td>
+								<td>深圳某科技有限公司</td>
+								<td>猫眼商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-12-31 23:59:59</td>
+								<td><span class="tag success">正常</span></td>
+								<td>
+									<a class="link action-batch-detail" href="javascript:void(0)" data-batch-no="DYP-20260401">批次明细</a>
+									<a class="link action-invalid" href="javascript:void(0)" data-batch-no="DYP-20260401">作废</a>
+								</td>
+							</tr>
+							<tr class="batch-row">
+								<td>DYP-20260402</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>50元</td>
+								<td>1次</td>
+								<td>1000张</td>
+								<td>50元</td>
+								<td>广州联合传媒有限公司</td>
+								<td>美团商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-06-30 23:59:59</td>
+								<td><span class="tag success">正常</span></td>
+								<td>
+									<a class="link action-batch-detail" href="javascript:void(0)" data-batch-no="DYP-20260402">批次明细</a>
+									<a class="link action-invalid" href="javascript:void(0)" data-batch-no="DYP-20260402">作废</a>
+								</td>
+							</tr>
+							<tr class="batch-row">
+								<td>DYP-20260403</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>200元</td>
+								<td>5次</td>
+								<td>200张</td>
+								<td>100元</td>
+								<td>北京某集团客户部</td>
+								<td>抖音商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-12-31 23:59:59</td>
+								<td><span class="tag danger">作废</span></td>
+								<td><a class="link action-batch-detail" href="javascript:void(0)" data-batch-no="DYP-20260403">批次明细</a></td>
+							</tr>
+							<tr class="batch-row">
+								<td>DYP-20260315</td>
+								<td>2026年3月客户电影票次卡</td>
+								<td>100元</td>
+								<td>3次</td>
+								<td>300张</td>
+								<td>80元</td>
+								<td>上海市场活动中心</td>
+								<td>微信商城端</td>
+								<td>2026-03-01 00:00:00 ~ 2026-03-31 23:59:59</td>
+								<td><span class="tag success">正常</span></td>
+								<td>
+									<a class="link action-batch-detail" href="javascript:void(0)" data-batch-no="DYP-20260315">批次明细</a>
+									<a class="link action-invalid" href="javascript:void(0)" data-batch-no="DYP-20260315">作废</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="pagination" id="batch-pagination">
+						<span id="batch-total-text">共 0 条</span>
+						<span id="batch-page-text">第 1 / 1 页</span>
+						<button class="btn" id="batch-prev-btn" type="button">上一页</button>
+						<button class="btn" id="batch-next-btn" type="button">下一页</button>
+						<span>跳转到</span>
+						<input class="input" id="batch-page-input" type="number" min="1" style="width:70px;height:30px;" />
+						<button class="btn" id="batch-jump-btn" type="button">跳转</button>
+						<span>每页</span>
+						<select class="select" id="batch-page-size" style="width:90px;height:30px;">
+							<option value="2">2条</option>
+							<option value="5" selected>5条</option>
+							<option value="10">10条</option>
+							<option value="20">20条</option>
+						</select>
+					</div>
+				</section>
+
+				<section class="page" id="batch-create">
+					<div class="breadcrumb">首页 / 次卡管理 / 新增批次</div>
+					<div class="page-header">
+						<div class="page-title">新建发卡批次</div>
+					</div>
+
+					<div class="form-wrap">
+						<div class="section-title">基本信息</div>
+						<div class="form-grid">
+							<div class="form-item">
+								<label>批次号（自动生成）<span class="req-star">*</span></label>
+								<input class="input" id="create-batch-no" style="width:100%;" readonly />
+							</div>
+							<div class="form-item">
+								<label>批次名称 <span class="req-star">*</span></label>
+								<input class="input" style="width:100%;" placeholder="例如：2026年4月客户电影票次卡" />
+							</div>
+							<div class="form-item">
+								<label>客户名称</label>
+								<input class="input" style="width:100%;" placeholder="例如：深圳某科技有限公司" />
+							</div>
+							<div class="form-item">
+								<label>渠道名称 <span class="req-star">*</span></label>
+								<select class="select" style="width:100%;">
+									<option>请选择渠道</option>
+									<option>猫眼商城端</option>
+									<option>美团商城端</option>
+									<option>抖音商城端</option>
+									<option>微信商城端</option>
+								</select>
+							</div>
+							<div class="form-item" style="grid-column: 1 / -1;">
+								<label>备注</label>
+								<input class="input" style="width:100%;" placeholder="请输入备注信息（选填）" />
+							</div>
+						</div>
+
+						<div class="section-title">次卡规格</div>
+						<div class="form-grid three">
+							<div class="form-item">
+								<label>次数 <span class="req-star">*</span></label>
+								<input class="input" id="create-times" type="number" min="1" value="3" style="width:100%;" />
+							</div>
+							<div class="form-item">
+								<label>单次使用上限金额（元）<span class="req-star">*</span></label>
+								<input class="input" id="create-single-limit" type="number" min="1" value="80" style="width:100%;" />
+							</div>
+							<div class="form-item">
+								<label>面值（自动生成）<span class="req-star">*</span></label>
+								<input class="input" id="create-face-value" style="width:100%;" readonly />
+							</div>
+							<div class="form-item">
+								<label>数量 <span class="req-star">*</span></label>
+								<input class="input" style="width:100%;" value="500" />
+							</div>
+						</div>
+
+						<div class="section-title">有效期设置</div>
+						<div class="form-grid">
+							<div class="form-item">
+								<label>有效期起始 <span class="req-star">*</span></label>
+								<input class="input" id="create-start-date" type="datetime-local" step="1" style="width:100%;" />
+							</div>
+							<div class="form-item">
+								<label>有效期截止 <span class="req-star">*</span></label>
+								<input class="input" id="create-end-date" type="datetime-local" step="1" style="width:100%;" />
+							</div>
+							<div class="form-item" style="grid-column: 1 / -1;">
+								<label>快速设置</label>
+								<div style="display:flex;gap:8px;flex-wrap:wrap;">
+									<button class="btn" type="button" data-range-days="7">近7天</button>
+									<button class="btn" type="button" data-range-days="30">近30天</button>
+									<button class="btn" type="button" data-range-days="90">近90天</button>
+									<button class="btn" type="button" data-range-days="180">近180天</button>
+								</div>
+							</div>
+						</div>
+
+						<div class="footer-actions">
+							<button class="btn" data-jump="batch-list">取消</button>
+							<button class="btn primary" data-jump="batch-list">提交批次</button>
+						</div>
+					</div>
+				</section>
+
+				<section class="page" id="batch-detail">
+					<div class="breadcrumb">首页 / 次卡管理 / 批次列表明细</div>
+					<div class="page-header">
+						<div>
+							<div class="page-title">批次列表明细</div>
+							<div id="detail-view-mode-text" style="font-size:12px;color:#909399;margin-top:4px;">当前视图：批次明细</div>
+						</div>
+						<button class="btn" data-jump="batch-list">返回批次管理</button>
+					</div>
+					<div class="filters">
+						<span>批次号：</span>
+						<input class="input" id="detail-search-batch-no" placeholder="请输入批次号" value="DYP-20260401" />
+						<span>批次名称：</span>
+						<input class="input" id="detail-search-batch-name" placeholder="请输入批次名称" />
+						<span>批次明细编号：</span>
+						<input class="input" id="detail-search-detail-no" placeholder="请输入批次明细编号" />
+						<span>使用人账号：</span>
+						<input class="input" id="detail-search-user-account" placeholder="请输入使用人账号" />
+						<span>使用人手机号：</span>
+						<input class="input" id="detail-search-user-phone" placeholder="请输入使用人手机号" />
+						<span>状态：</span>
+						<select class="select" id="detail-status-select">
+							<option>全部状态</option>
+							<option>已激活</option>
+							<option>作废</option>
+							<option>未激活</option>
+						</select>
+						<button class="btn primary" id="detail-search-btn" type="button">查询</button>
+						<div class="export-wrap" id="detail-batch-actions-wrap">
+							<button class="btn btn-dropdown-trigger" id="detail-batch-actions-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+								批量操作
+								<svg class="dropdown-caret-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+									<path d="M2.5 4.25L6 7.75L9.5 4.25" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+								</svg>
+							</button>
+							<div id="detail-batch-actions-menu" class="export-menu" role="menu" aria-hidden="true">
+								<button type="button" class="export-item" id="detail-batch-activate-btn" role="menuitem">批量激活</button>
+								<button type="button" class="export-item" id="detail-batch-invalid-btn" role="menuitem">批量作废</button>
+							</div>
+						</div>
+						<div class="export-wrap" id="detail-export-wrap">
+							<button class="btn btn-dropdown-trigger" id="detail-export-btn" type="button" aria-haspopup="true" aria-expanded="false">
+								导出
+								<svg class="dropdown-caret-icon" width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+									<path d="M2.5 4.25L6 7.75L9.5 4.25" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+								</svg>
+							</button>
+							<div id="detail-export-menu" class="export-menu" role="menu" aria-hidden="true">
+								<button type="button" class="export-item" id="detail-export-without-key" data-export-key="without" role="menuitem">
+									导出（不含次卡密钥）
+								</button>
+								<button type="button" class="export-item" id="detail-export-with-key" data-export-key="with" role="menuitem">
+									导出（包含次卡密钥）
+								</button>
+							</div>
+						</div>
+					</div>
+
+					<table class="table">
+						<thead>
+							<tr>
+								<th><input type="checkbox" id="detail-select-all" /></th>
+								<th>批次号</th>
+								<th>批次名称</th>
+								<th>批次明细编号</th>
+								<th>面值</th>
+								<th>单次使用上限金额</th>
+								<th>兑换状态</th>
+								<th>激活状态</th>
+								<th>使用次数/总次数</th>
+								<th>渠道名称</th>
+								<th>有效期</th>
+								<th>使用人账号</th>
+								<th>使用人手机号</th>
+								<th>激活时间</th>
+								<th>次卡激活操作人</th>
+								<th>状态</th>
+								<th>操作</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr class="detail-row" data-batch-no="DYP-20260401" data-status="激活">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260401</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>MX-20260401-001</td>
+								<td>100元</td>
+								<td class="detail-activation-status"><span class="tag success">激活</span></td>
+								<td>1/3</td>
+								<td>猫眼商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-12-31 23:59:59</td>
+								<td>user_a01</td>
+								<td>13800001111</td>
+								<td class="detail-activation-time">2026-04-02 09:12:30</td>
+								<td class="detail-activation-operator">运营A</td>
+								<td class="detail-row-status"><span class="tag success">激活</span></td>
+								<td>
+									<a class="link detail-action-activate" href="javascript:void(0)">激活</a>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+									<a class="link detail-action-key" href="javascript:void(0)">查看次卡密钥</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260401" data-status="未激活">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260401</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>MX-20260401-002</td>
+								<td>100元</td>
+								<td class="detail-activation-status"><span class="tag info">未激活</span></td>
+								<td>0/3</td>
+								<td>猫眼商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-12-31 23:59:59</td>
+								<td>user_b01</td>
+								<td>13800002222</td>
+								<td class="detail-activation-time">-</td>
+								<td class="detail-activation-operator">-</td>
+								<td class="detail-row-status"><span class="tag info">未激活</span></td>
+								<td>
+									<a class="link detail-action-activate" href="javascript:void(0)">激活</a>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+									<a class="link detail-action-key" href="javascript:void(0)">查看次卡密钥</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260402" data-status="作废">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260402</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>MX-20260402-001</td>
+								<td>50元</td>
+								<td class="detail-activation-status"><span class="tag danger">作废</span></td>
+								<td>0/1</td>
+								<td>美团商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-06-30 23:59:59</td>
+								<td>user_c01</td>
+								<td>13800003333</td>
+								<td class="detail-activation-time">-</td>
+								<td class="detail-activation-operator">-</td>
+								<td class="detail-row-status"><span class="tag danger">作废</span></td>
+								<td>
+									<a class="link detail-action-activate" href="javascript:void(0)">激活</a>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+									<a class="link detail-action-key" href="javascript:void(0)">查看次卡密钥</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260315" data-status="激活">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260315</td>
+								<td>2026年3月客户电影票次卡</td>
+								<td>MX-20260315-001</td>
+								<td>100元</td>
+								<td class="detail-activation-status"><span class="tag success">激活</span></td>
+								<td>3/3</td>
+								<td>微信商城端</td>
+								<td>2026-03-01 00:00:00 ~ 2026-03-31 23:59:59</td>
+								<td>user_d01</td>
+								<td>13800004444</td>
+								<td class="detail-activation-time">2026-03-01 08:10:09</td>
+								<td class="detail-activation-operator">运营B</td>
+								<td class="detail-row-status"><span class="tag success">激活</span></td>
+								<td>
+									<a class="link detail-action-activate" href="javascript:void(0)">激活</a>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+									<a class="link detail-action-key" href="javascript:void(0)">查看次卡密钥</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260401" data-status="未激活">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260401</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>MX-20260401-003</td>
+								<td>100元</td>
+								<td class="detail-activation-status"><span class="tag info">未激活</span></td>
+								<td>0/3</td>
+								<td>猫眼商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-12-31 23:59:59</td>
+								<td>user_e01</td>
+								<td>13800005555</td>
+								<td class="detail-activation-time">-</td>
+								<td class="detail-activation-operator">-</td>
+								<td class="detail-row-status"><span class="tag info">未激活</span></td>
+								<td>
+									<a class="link detail-action-activate" href="javascript:void(0)">激活</a>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+									<a class="link detail-action-key" href="javascript:void(0)">查看次卡密钥</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260401" data-status="激活">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260401</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>MX-20260401-004</td>
+								<td>100元</td>
+								<td class="detail-activation-status"><span class="tag success">激活</span></td>
+								<td>2/3</td>
+								<td>猫眼商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-12-31 23:59:59</td>
+								<td>user_f01</td>
+								<td>13800006666</td>
+								<td class="detail-activation-time">2026-04-05 10:22:18</td>
+								<td class="detail-activation-operator">运营C</td>
+								<td class="detail-row-status"><span class="tag success">激活</span></td>
+								<td>
+									<a class="link detail-action-activate" href="javascript:void(0)">激活</a>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+									<a class="link detail-action-key" href="javascript:void(0)">查看次卡密钥</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260402" data-status="未激活">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260402</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>MX-20260402-002</td>
+								<td>50元</td>
+								<td class="detail-activation-status"><span class="tag info">未激活</span></td>
+								<td>0/1</td>
+								<td>美团商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-06-30 23:59:59</td>
+								<td>user_g01</td>
+								<td>13800007777</td>
+								<td class="detail-activation-time">-</td>
+								<td class="detail-activation-operator">-</td>
+								<td class="detail-row-status"><span class="tag info">未激活</span></td>
+								<td>
+									<a class="link detail-action-activate" href="javascript:void(0)">激活</a>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+									<a class="link detail-action-key" href="javascript:void(0)">查看次卡密钥</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260402" data-status="激活">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260402</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>MX-20260402-003</td>
+								<td>50元</td>
+								<td class="detail-activation-status"><span class="tag success">激活</span></td>
+								<td>1/1</td>
+								<td>美团商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-06-30 23:59:59</td>
+								<td>user_h01</td>
+								<td>13800008888</td>
+								<td class="detail-activation-time">2026-04-18 13:01:45</td>
+								<td class="detail-activation-operator">运营D</td>
+								<td class="detail-row-status"><span class="tag success">激活</span></td>
+								<td>
+									<a class="link detail-action-activate" href="javascript:void(0)">激活</a>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+									<a class="link detail-action-key" href="javascript:void(0)">查看次卡密钥</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260403" data-status="作废">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260403</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>MX-20260403-001</td>
+								<td>200元</td>
+								<td class="detail-activation-status"><span class="tag danger">作废</span></td>
+								<td>0/5</td>
+								<td>抖音商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-12-31 23:59:59</td>
+								<td>user_i01</td>
+								<td>13800009999</td>
+								<td class="detail-activation-time">-</td>
+								<td class="detail-activation-operator">-</td>
+								<td class="detail-row-status"><span class="tag danger">作废</span></td>
+								<td>
+									<a class="link detail-action-activate" href="javascript:void(0)">激活</a>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+									<a class="link detail-action-key" href="javascript:void(0)">查看次卡密钥</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260315" data-status="未激活">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260315</td>
+								<td>2026年3月客户电影票次卡</td>
+								<td>MX-20260315-002</td>
+								<td>100元</td>
+								<td class="detail-activation-status"><span class="tag info">未激活</span></td>
+								<td>0/3</td>
+								<td>微信商城端</td>
+								<td>2026-03-01 00:00:00 ~ 2026-03-31 23:59:59</td>
+								<td>user_j01</td>
+								<td>13800001010</td>
+								<td class="detail-activation-time">-</td>
+								<td class="detail-activation-operator">-</td>
+								<td class="detail-row-status"><span class="tag info">未激活</span></td>
+								<td>
+									<a class="link detail-action-activate" href="javascript:void(0)">激活</a>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+									<a class="link detail-action-key" href="javascript:void(0)">查看次卡密钥</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260315" data-status="激活">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260315</td>
+								<td>2026年3月客户电影票次卡</td>
+								<td>MX-20260315-003</td>
+								<td>100元</td>
+								<td class="detail-activation-status"><span class="tag success">激活</span></td>
+								<td>1/3</td>
+								<td>微信商城端</td>
+								<td>2026-03-01 00:00:00 ~ 2026-03-31 23:59:59</td>
+								<td>user_k01</td>
+								<td>13800001112</td>
+								<td class="detail-activation-time">2026-03-06 12:35:22</td>
+								<td class="detail-activation-operator">运营E</td>
+								<td class="detail-row-status"><span class="tag success">激活</span></td>
+								<td>
+									<a class="link detail-action-activate" href="javascript:void(0)">激活</a>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+									<a class="link detail-action-key" href="javascript:void(0)">查看次卡密钥</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260401" data-status="未激活">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260401</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>MX-20260401-005</td>
+								<td>100元</td>
+								<td class="detail-activation-status"><span class="tag info">未激活</span></td>
+								<td>0/3</td>
+								<td>猫眼商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-12-31 23:59:59</td>
+								<td>user_l01</td>
+								<td>13800001212</td>
+								<td class="detail-activation-time">-</td>
+								<td class="detail-activation-operator">-</td>
+								<td class="detail-row-status"><span class="tag info">未激活</span></td>
+								<td>
+									<a class="link detail-action-activate" href="javascript:void(0)">激活</a>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260401" data-status="已激活">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260401</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>MX-20260401-006</td>
+								<td>100元</td>
+								<td class="detail-activation-status"><span class="tag success">已激活</span></td>
+								<td>1/3</td>
+								<td>猫眼商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-12-31 23:59:59</td>
+								<td>user_m01</td>
+								<td>13800001313</td>
+								<td class="detail-activation-time">2026-04-19 11:22:33</td>
+								<td class="detail-activation-operator">运营F</td>
+								<td class="detail-row-status"><span class="tag success">已激活</span></td>
+								<td>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+									<a class="link detail-action-key" href="javascript:void(0)">查看次卡密钥</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260402" data-status="未激活">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260402</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>MX-20260402-004</td>
+								<td>50元</td>
+								<td class="detail-activation-status"><span class="tag info">未激活</span></td>
+								<td>0/1</td>
+								<td>美团商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-06-30 23:59:59</td>
+								<td>user_n01</td>
+								<td>13800001414</td>
+								<td class="detail-activation-time">-</td>
+								<td class="detail-activation-operator">-</td>
+								<td class="detail-row-status"><span class="tag info">未激活</span></td>
+								<td>
+									<a class="link detail-action-activate" href="javascript:void(0)">激活</a>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260402" data-status="已激活">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260402</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>MX-20260402-005</td>
+								<td>50元</td>
+								<td class="detail-activation-status"><span class="tag success">已激活</span></td>
+								<td>1/1</td>
+								<td>美团商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-06-30 23:59:59</td>
+								<td>user_o01</td>
+								<td>13800001515</td>
+								<td class="detail-activation-time">2026-04-20 15:06:10</td>
+								<td class="detail-activation-operator">运营G</td>
+								<td class="detail-row-status"><span class="tag success">已激活</span></td>
+								<td>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+									<a class="link detail-action-key" href="javascript:void(0)">查看次卡密钥</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260403" data-status="作废">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260403</td>
+								<td>2026年4月客户电影票次卡</td>
+								<td>MX-20260403-002</td>
+								<td>200元</td>
+								<td class="detail-activation-status"><span class="tag danger">作废</span></td>
+								<td>0/5</td>
+								<td>抖音商城端</td>
+								<td>2026-04-01 00:00:00 ~ 2026-12-31 23:59:59</td>
+								<td>user_p01</td>
+								<td>13800001616</td>
+								<td class="detail-activation-time">-</td>
+								<td class="detail-activation-operator">-</td>
+								<td class="detail-row-status"><span class="tag danger">作废</span></td>
+								<td>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260315" data-status="已激活">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260315</td>
+								<td>2026年3月客户电影票次卡</td>
+								<td>MX-20260315-004</td>
+								<td>100元</td>
+								<td class="detail-activation-status"><span class="tag success">已激活</span></td>
+								<td>2/3</td>
+								<td>微信商城端</td>
+								<td>2026-03-01 00:00:00 ~ 2026-03-31 23:59:59</td>
+								<td>user_q01</td>
+								<td>13800001717</td>
+								<td class="detail-activation-time">2026-03-10 10:08:18</td>
+								<td class="detail-activation-operator">运营H</td>
+								<td class="detail-row-status"><span class="tag success">已激活</span></td>
+								<td>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+									<a class="link detail-action-key" href="javascript:void(0)">查看次卡密钥</a>
+								</td>
+							</tr>
+							<tr class="detail-row" data-batch-no="DYP-20260315" data-status="未激活">
+								<td><input type="checkbox" class="detail-select-item" /></td>
+								<td>DYP-20260315</td>
+								<td>2026年3月客户电影票次卡</td>
+								<td>MX-20260315-005</td>
+								<td>100元</td>
+								<td class="detail-activation-status"><span class="tag info">未激活</span></td>
+								<td>0/3</td>
+								<td>微信商城端</td>
+								<td>2026-03-01 00:00:00 ~ 2026-03-31 23:59:59</td>
+								<td>user_r01</td>
+								<td>13800001818</td>
+								<td class="detail-activation-time">-</td>
+								<td class="detail-activation-operator">-</td>
+								<td class="detail-row-status"><span class="tag info">未激活</span></td>
+								<td>
+									<a class="link detail-action-activate" href="javascript:void(0)">激活</a>
+									<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+									<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<div class="pagination" id="detail-pagination">
+						<span id="detail-total-text">共 0 条</span>
+						<span id="detail-page-text">第 1 / 1 页</span>
+						<button class="btn" id="detail-prev-btn" type="button">上一页</button>
+						<button class="btn" id="detail-next-btn" type="button">下一页</button>
+						<span>跳转到</span>
+						<input class="input" id="detail-page-input" type="number" min="1" style="width:70px;height:30px;" />
+						<button class="btn" id="detail-jump-btn" type="button">跳转</button>
+						<span>每页</span>
+						<select class="select" id="detail-page-size" style="width:90px;height:30px;">
+							<option value="5" selected>5条</option>
+							<option value="10">10条</option>
+							<option value="20">20条</option>
+						</select>
+					</div>
+				</section>
+
+				<section class="page" id="batch-batch-op">
+					<div class="breadcrumb">首页 / 次卡管理 / 批次列表明细 / 批量操作</div>
+					<div class="page-header">
+						<div class="page-title" id="batch-batch-op-title">批量操作</div>
+						<button class="btn" type="button" data-jump="batch-detail">返回批次列表明细</button>
+					</div>
+					<div class="form-wrap">
+						<div id="batch-batch-op-empty" hidden>
+							<p style="margin:0;color:#606266;font-size:13px;line-height:1.7;">
+								请先在「批次列表明细」中勾选需要操作的数据，再点击筛选栏中的「批量操作」按钮，选择「批量激活」或「批量作废」进入本页。
+							</p>
+						</div>
+						<div id="batch-batch-op-wizard" hidden>
+							<div class="batch-op-info">
+								<div class="batch-op-info__icon" aria-hidden="true">i</div>
+								<div>
+									<div class="batch-op-info__title">操作说明</div>
+									<ol>
+										<li id="batch-op-instruction-1"></li>
+										<li id="batch-op-instruction-2"></li>
+									</ol>
+								</div>
+							</div>
+							<div class="batch-op-stepper">
+								<div class="batch-op-stepper__item">
+									<div class="batch-op-circle is-active" id="batch-op-c1" data-circle="1">1</div>
+									<span class="batch-op-stepper__label" id="batch-op-label-step1">下载导入模板</span>
+								</div>
+								<div class="batch-op-stepper__line" id="batch-op-line-1"></div>
+								<div class="batch-op-stepper__item">
+									<div class="batch-op-circle is-wait" id="batch-op-c2" data-circle="2">2</div>
+									<span class="batch-op-stepper__label">上传数据</span>
+								</div>
+								<div class="batch-op-stepper__line" id="batch-op-line-2"></div>
+								<div class="batch-op-stepper__item">
+									<div class="batch-op-circle is-wait" id="batch-op-c3" data-circle="3">3</div>
+									<span class="batch-op-stepper__label">完成</span>
+								</div>
+							</div>
+							<div class="batch-op-panel is-visible" id="batch-op-panel-1" data-batch-op-panel="1">
+								<div class="batch-op-actions">
+									<button class="btn primary" type="button" id="batch-batch-op-download-btn">
+										<span style="display:inline-flex;align-items:center;gap:6px;">
+											<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+												<path d="M7 1v8M4 6l3 3 3-3M2 12h10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" />
+											</svg>
+											<span id="batch-batch-op-download-btn-text">下载导入模板</span>
+										</span>
+									</button>
+									<button class="btn primary" type="button" id="batch-batch-op-next-btn">下一步</button>
+								</div>
+							</div>
+							<div class="batch-op-panel" id="batch-op-panel-2" data-batch-op-panel="2">
+								<div class="batch-op-upload__title" style="margin-bottom:12px;text-align:center;font-size:13px;color:#606266;">
+									选择文件上传（支持多文件）
+								</div>
+								<div class="batch-op-upload" id="batch-op-upload-zone" role="button" tabindex="0">
+									<div class="batch-op-upload__icon">
+										<svg width="40" height="40" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+											<path d="M12 32l12-16 12 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+											<path d="M24 16v16M8 24h8M32 24h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity="0.35" />
+										</svg>
+									</div>
+									<div style="font-size:14px;color:#303133;margin-bottom:6px;">点击或拖拽文件到此区域上传</div>
+									<div class="batch-op-upload__hint">支持 .xlsx 或 .xls 文件，单个文件大小不超过 2MB</div>
+								</div>
+								<div class="batch-op-actions" style="margin-top:20px;">
+									<button class="btn primary" type="button" id="batch-batch-op-prev-btn">上一步</button>
+									<button class="btn primary" type="button" id="batch-batch-op-upload-btn">上传</button>
+								</div>
+							</div>
+							<div class="batch-op-panel" id="batch-op-panel-3" data-batch-op-panel="3">
+								<div class="batch-op-done">
+									<div class="batch-op-done__ok" aria-hidden="true">✓</div>
+									<div id="batch-batch-op-done-text" style="color:#303133;margin-bottom:8px;">处理完成</div>
+									<div style="font-size:13px;color:#909399;">您可在「批次列表明细」中查看结果</div>
+								</div>
+								<div class="batch-op-actions">
+									<button class="btn primary" type="button" data-jump="batch-detail">返回批次列表明细</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+			</main>
+		</div>
+
+		<div class="modal-mask" id="detail-modal">
+			<div class="modal-card">
+				<div class="modal-header" id="detail-modal-title">批次卡详情</div>
+				<div class="modal-body">
+					<div class="modal-grid" id="detail-content"></div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn" id="detail-close-btn">关闭</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal-mask" id="confirm-modal">
+			<div class="modal-card" style="width: 460px;">
+				<div class="modal-header">提示</div>
+				<div class="modal-body" id="confirm-content"></div>
+				<div class="modal-footer">
+					<button class="btn" id="confirm-cancel-btn">取消</button>
+					<button class="btn primary" id="confirm-ok-btn">确认</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal-mask" id="key-modal">
+			<div class="modal-card" style="width: 520px;">
+				<div class="modal-header">
+					查看次卡密钥
+					<span class="modal-close" id="key-modal-close-x">×</span>
+				</div>
+				<div class="modal-body">
+					<div id="key-modal-batch-info"></div>
+					<div class="key-code-box" id="key-modal-code"></div>
+					<div style="margin-top: 10px;">
+						<button class="btn" id="key-copy-btn" type="button">复制次卡密钥</button>
+					</div>
+					<div class="copy-tip" id="key-copy-tip"></div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn primary" id="key-modal-confirm-btn">确认关闭</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal-mask" id="export-modal">
+			<div class="modal-card" style="width: 520px;">
+				<div class="modal-header">
+					导出数据
+					<span class="modal-close" id="export-modal-close-x">×</span>
+				</div>
+				<div class="modal-body">
+					<label style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+						<input type="radio" name="export-mode" value="selected" checked />
+						<span>导出选中的数据</span>
+					</label>
+					<label style="display:flex;align-items:center;gap:8px;">
+						<input type="radio" name="export-mode" value="filtered" />
+						<span>导出所有筛选的数据</span>
+					</label>
+				</div>
+				<div class="modal-footer">
+					<button class="btn" id="export-cancel-btn">取消</button>
+					<button class="btn primary" id="export-confirm-btn">确认导出</button>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			const sideItems = document.querySelectorAll(".side-item");
+			const jumpButtons = document.querySelectorAll("[data-jump]");
+			const pages = document.querySelectorAll(".page");
+			const batchListSection = document.getElementById("batch-list");
+			const detailModal = document.getElementById("detail-modal");
+			const detailModalTitle = document.getElementById("detail-modal-title");
+			const detailContent = document.getElementById("detail-content");
+			const detailCloseBtn = document.getElementById("detail-close-btn");
+			const confirmModal = document.getElementById("confirm-modal");
+			const confirmContent = document.getElementById("confirm-content");
+			const confirmOkBtn = document.getElementById("confirm-ok-btn");
+			const confirmCancelBtn = document.getElementById("confirm-cancel-btn");
+			const keyModal = document.getElementById("key-modal");
+			const keyModalCloseX = document.getElementById("key-modal-close-x");
+			const keyModalConfirmBtn = document.getElementById("key-modal-confirm-btn");
+			const keyModalCode = document.getElementById("key-modal-code");
+			const keyModalBatchInfo = document.getElementById("key-modal-batch-info");
+			const keyCopyBtn = document.getElementById("key-copy-btn");
+			const keyCopyTip = document.getElementById("key-copy-tip");
+			const exportModal = document.getElementById("export-modal");
+			const exportModalCloseX = document.getElementById("export-modal-close-x");
+			const exportCancelBtn = document.getElementById("export-cancel-btn");
+			const exportConfirmBtn = document.getElementById("export-confirm-btn");
+			const sideTitleBatch = document.getElementById("side-title-batch");
+			const createTimesInput = document.getElementById("create-times");
+			const createSingleLimitInput = document.getElementById("create-single-limit");
+			const createFaceValueInput = document.getElementById("create-face-value");
+			const createBatchNoInput = document.getElementById("create-batch-no");
+			const createStartDateInput = document.getElementById("create-start-date");
+			const createEndDateInput = document.getElementById("create-end-date");
+			const rangeButtons = document.querySelectorAll("[data-range-days]");
+			const batchRows = Array.from(document.querySelectorAll(".batch-row"));
+			const detailRows = Array.from(document.querySelectorAll(".detail-row"));
+			const detailSearchBatchNoInput = document.getElementById("detail-search-batch-no");
+			const detailSearchBatchNameInput = document.getElementById("detail-search-batch-name");
+			const detailSearchDetailNoInput = document.getElementById("detail-search-detail-no");
+			const detailSearchUserAccountInput = document.getElementById("detail-search-user-account");
+			const detailSearchUserPhoneInput = document.getElementById("detail-search-user-phone");
+			const detailSearchBtn = document.getElementById("detail-search-btn");
+			const detailStatusSelect = document.getElementById("detail-status-select");
+			const detailBatchActionsToggle = document.getElementById("detail-batch-actions-toggle");
+			const detailBatchActionsWrap = document.getElementById("detail-batch-actions-wrap");
+			const detailBatchActionsMenu = document.getElementById("detail-batch-actions-menu");
+			const detailBatchActivateBtn = document.getElementById("detail-batch-activate-btn");
+			const detailBatchInvalidBtn = document.getElementById("detail-batch-invalid-btn");
+			const batchBatchOpTitle = document.getElementById("batch-batch-op-title");
+			const batchBatchOpEmpty = document.getElementById("batch-batch-op-empty");
+			const batchBatchOpWizard = document.getElementById("batch-batch-op-wizard");
+			const batchBatchOpDownloadBtn = document.getElementById("batch-batch-op-download-btn");
+			const batchBatchOpNextBtn = document.getElementById("batch-batch-op-next-btn");
+			const batchBatchOpPrevBtn = document.getElementById("batch-batch-op-prev-btn");
+			const batchBatchOpUploadBtn = document.getElementById("batch-batch-op-upload-btn");
+			const batchBatchOpDoneText = document.getElementById("batch-batch-op-done-text");
+			const detailExportBtn = document.getElementById("detail-export-btn");
+			const detailExportWrap = document.getElementById("detail-export-wrap");
+			const detailExportMenu = document.getElementById("detail-export-menu");
+			const detailExportWithoutKeyBtn = document.getElementById("detail-export-without-key");
+			const detailExportWithKeyBtn = document.getElementById("detail-export-with-key");
+			const detailSelectAll = document.getElementById("detail-select-all");
+			const detailViewModeText = document.getElementById("detail-view-mode-text");
+			const detailTotalText = document.getElementById("detail-total-text");
+			const detailPageText = document.getElementById("detail-page-text");
+			const detailPrevBtn = document.getElementById("detail-prev-btn");
+			const detailNextBtn = document.getElementById("detail-next-btn");
+			const detailPageInput = document.getElementById("detail-page-input");
+			const detailJumpBtn = document.getElementById("detail-jump-btn");
+			const detailPageSizeSelect = document.getElementById("detail-page-size");
+			const batchTotalText = document.getElementById("batch-total-text");
+			const batchPageText = document.getElementById("batch-page-text");
+			const batchPrevBtn = document.getElementById("batch-prev-btn");
+			const batchNextBtn = document.getElementById("batch-next-btn");
+			const batchPageInput = document.getElementById("batch-page-input");
+			const batchJumpBtn = document.getElementById("batch-jump-btn");
+			const batchPageSizeSelect = document.getElementById("batch-page-size");
+			let pendingInvalidBtn = null;
+			let pendingDetailRowAction = null;
+			/** @type {"without" | "with"} */
+			let pendingExportKeyMode = "without";
+			/** @type {"activate" | "invalid" | null} */
+			let batchOpMode = null;
+			/** @type {1 | 2 | 3} */
+			let batchOpStep = 1;
+			let currentKeyCode = "";
+			let batchPageNo = 1;
+			let batchPageSize = Number(batchPageSizeSelect?.value || 5);
+			let detailPageNo = 1;
+			let detailPageSize = Number(detailPageSizeSelect?.value || 5);
+
+			function pad(value) {
+				return String(value).padStart(2, "0");
+			}
+
+			function refreshFaceValue() {
+				const times = Number(createTimesInput?.value || 0);
+				const singleLimit = Number(createSingleLimitInput?.value || 0);
+				const total = times * singleLimit;
+				if (createFaceValueInput) {
+					createFaceValueInput.value = total > 0 ? `${total}元` : "";
+				}
+			}
+
+			function initCreateFormDefaults() {
+				const now = new Date();
+				const dateText = `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
+				if (createBatchNoInput) {
+					createBatchNoInput.value = `DYP-${dateText}`;
+				}
+
+				const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+				const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 30, 23, 59, 59);
+				const formatDateTimeLocal = (date) =>
+					`${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+				if (createStartDateInput) {
+					createStartDateInput.value = formatDateTimeLocal(startDate);
+				}
+				if (createEndDateInput) {
+					createEndDateInput.value = formatDateTimeLocal(endDate);
+				}
+				refreshFaceValue();
+			}
+
+			function setDateRange(days) {
+				const now = new Date();
+				const startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+				const endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + days, 23, 59, 59);
+				const formatDateTimeLocal = (date) =>
+					`${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+				if (createStartDateInput) {
+					createStartDateInput.value = formatDateTimeLocal(startDate);
+				}
+				if (createEndDateInput) {
+					createEndDateInput.value = formatDateTimeLocal(endDate);
+				}
+			}
+
+			function getBatchExtraInfo(batchNo) {
+				const extraInfoMap = {
+					"DYP-20260401": {
+						remark: "重点客户活动批次，优先保障库存",
+						activationCount: "100/500",
+						usageStats: "已使用 62 张，未使用 438 张，使用率 12.4%"
+					},
+					"DYP-20260402": {
+						remark: "区域代理渠道首发批次",
+						activationCount: "100/500",
+						usageStats: "已使用 28 张，未使用 972 张，使用率 2.8%"
+					},
+					"DYP-20260403": {
+						remark: "历史批次，已作废，仅供查询",
+						activationCount: "100/500",
+						usageStats: "已使用 200 张，未使用 0 张，使用率 100%"
+					},
+					"DYP-20260315": {
+						remark: "3月营销活动批次",
+						activationCount: "100/500",
+						usageStats: "已使用 300 张，未使用 0 张，使用率 100%"
+					}
+				};
+				return (
+					extraInfoMap[batchNo] || {
+						remark: "-",
+						activationCount: "100/500",
+						usageStats: "-"
+					}
+				);
+			}
+
+			function renderBatchPagination() {
+				const total = batchRows.length;
+				const totalPage = Math.max(1, Math.ceil(total / batchPageSize));
+				if (batchPageNo > totalPage) {
+					batchPageNo = totalPage;
+				}
+				const startIndex = (batchPageNo - 1) * batchPageSize;
+				const endIndex = startIndex + batchPageSize;
+				batchRows.forEach((row, index) => {
+					row.style.display = index >= startIndex && index < endIndex ? "" : "none";
+				});
+				if (batchTotalText) {
+					batchTotalText.textContent = `共 ${total} 条`;
+				}
+				if (batchPageText) {
+					batchPageText.textContent = `第 ${batchPageNo} / ${totalPage} 页`;
+				}
+				if (batchPrevBtn) {
+					batchPrevBtn.disabled = batchPageNo <= 1;
+				}
+				if (batchNextBtn) {
+					batchNextBtn.disabled = batchPageNo >= totalPage;
+				}
+			}
+
+			function getNowDateTimeText() {
+				const now = new Date();
+				return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+			}
+
+			function normalizeDetailTableColumns() {
+				const detailTable = document.querySelector("#batch-detail .table");
+				if (!detailTable) return;
+				const headerRow = detailTable.querySelector("thead tr");
+				if (headerRow) {
+					const statusHeader = Array.from(headerRow.children).find((th) => th.textContent.trim() === "状态");
+					const activationHeader = Array.from(headerRow.children).find((th) => th.textContent.trim() === "激活状态");
+					const faceValueHeader = Array.from(headerRow.children).find((th) => th.textContent.trim() === "面值");
+					if (statusHeader && faceValueHeader) {
+						headerRow.insertBefore(statusHeader, faceValueHeader);
+					}
+					activationHeader?.remove();
+				}
+				detailRows.forEach((row) => {
+					const statusCell = row.querySelector(".detail-row-status");
+					const activationCell = row.querySelector(".detail-activation-status");
+					const faceValueCell = row.children[4];
+					if (statusCell && faceValueCell) {
+						row.insertBefore(statusCell, faceValueCell);
+					}
+					activationCell?.remove();
+					const currentUsage = row.children[6]?.textContent?.trim() || "0/0";
+					const usedCount = Number.parseInt(currentUsage.split("/")[0], 10) || 0;
+					const redemptionStatusText = usedCount > 0 ? "已兑换" : "未兑换";
+					const redemptionStatusClass = usedCount > 0 ? "success" : "info";
+					const singleLimitText = row.children[5]?.textContent?.trim() || "-";
+					if (!row.querySelector(".detail-single-limit")) {
+						const singleLimitCell = document.createElement("td");
+						singleLimitCell.className = "detail-single-limit";
+						singleLimitCell.textContent = singleLimitText;
+						row.insertBefore(singleLimitCell, row.children[6] || null);
+					}
+					if (!row.querySelector(".detail-redemption-status")) {
+						const redemptionStatusCell = document.createElement("td");
+						redemptionStatusCell.className = "detail-redemption-status";
+						redemptionStatusCell.innerHTML = `<span class="tag ${redemptionStatusClass}">${redemptionStatusText}</span>`;
+						row.insertBefore(redemptionStatusCell, row.children[7] || null);
+					}
+				});
+			}
+
+			function applyDetailRowStatus(row, status) {
+				row.setAttribute("data-status", status);
+				const rowStatusCell = row.querySelector(".detail-row-status");
+				const activationTimeCell = row.querySelector(".detail-activation-time");
+				const activationOperatorCell = row.querySelector(".detail-activation-operator");
+				if (status === "已激活") {
+					if (rowStatusCell) rowStatusCell.innerHTML = '<span class="tag success">已激活</span>';
+					if (activationTimeCell && activationTimeCell.textContent.trim() === "-") {
+						activationTimeCell.textContent = getNowDateTimeText();
+					}
+					if (activationOperatorCell && activationOperatorCell.textContent.trim() === "-") {
+						activationOperatorCell.textContent = "运营系统";
+					}
+				}
+				if (status === "作废") {
+					if (rowStatusCell) rowStatusCell.innerHTML = '<span class="tag danger">作废</span>';
+				}
+				if (status === "未激活") {
+					if (rowStatusCell) rowStatusCell.innerHTML = '<span class="tag info">未激活</span>';
+				}
+				renderDetailRowActions(row, status);
+			}
+
+			function renderDetailRowActions(row, status) {
+				const actionCell = row.children[15];
+				if (!actionCell) return;
+				if (status === "已激活") {
+					actionCell.innerHTML = `
+						<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+						<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+						<a class="link detail-action-key" href="javascript:void(0)">查看次卡密钥</a>
+					`;
+					return;
+				}
+				if (status === "未激活") {
+					actionCell.innerHTML = `
+						<a class="link detail-action-activate" href="javascript:void(0)">激活</a>
+						<a class="link detail-action-invalid" href="javascript:void(0)">作废</a>
+						<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+					`;
+					return;
+				}
+				actionCell.innerHTML = `
+					<a class="link detail-action-view" href="javascript:void(0)">详情</a>
+				`;
+			}
+
+			/**
+			 * 组装批次明细导出行数据。
+			 *
+			 * @param {HTMLElement[]} rows - 表格行节点列表。
+			 * @param {boolean} [includeCardKey=false] - 为 true 时增加「卡密」列（原型示例值）。
+			 * @returns {Record<string, string>[]}
+			 */
+			function buildDetailExportData(rows, includeCardKey) {
+				const withKey = Boolean(includeCardKey);
+				return rows.map((row) => {
+					const detailNo = row.children[3]?.textContent?.trim() || "";
+					const base = {
+						批次号: row.children[1]?.textContent?.trim() || "",
+						批次名称: row.children[2]?.textContent?.trim() || "",
+						批次明细编号: detailNo,
+						状态: row.querySelector(".detail-row-status")?.textContent?.trim() || "",
+						面值: row.children[5]?.textContent?.trim() || "",
+						单次使用上限金额: row.children[6]?.textContent?.trim() || "",
+						兑换状态: row.querySelector(".detail-redemption-status")?.textContent?.trim() || "",
+						"使用次数/总次数": row.children[8]?.textContent?.trim() || "",
+						渠道名称: row.children[9]?.textContent?.trim() || "",
+						有效期: row.children[10]?.textContent?.trim() || "",
+						使用人账号: row.children[11]?.textContent?.trim() || "",
+						使用人手机号: row.children[12]?.textContent?.trim() || "",
+						激活时间: row.children[13]?.textContent?.trim() || "",
+						次卡激活操作人: row.children[14]?.textContent?.trim() || ""
+					};
+					if (withKey) {
+						base["卡密"] = `KEY-${detailNo || "未知"}`;
+					}
+					return base;
+				});
+			}
+
+			function downloadCsv(filename, rows) {
+				if (!rows.length) {
+					alert("暂无可导出数据");
+					return;
+				}
+				const headers = Object.keys(rows[0]);
+				const csv = [
+					headers.join(","),
+					...rows.map((row) =>
+						headers
+							.map((key) => `"${String(row[key] ?? "").replaceAll('"', '""')}"`)
+							.join(",")
+					)
+				].join("\n");
+				const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+				const url = URL.createObjectURL(blob);
+				const link = document.createElement("a");
+				link.href = url;
+				link.download = filename;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
+				URL.revokeObjectURL(url);
+			}
+
+			function filterDetailRows() {
+				const batchNoKeyword = (detailSearchBatchNoInput?.value || "").trim();
+				const batchNameKeyword = (detailSearchBatchNameInput?.value || "").trim();
+				const detailNoKeyword = (detailSearchDetailNoInput?.value || "").trim();
+				const userAccountKeyword = (detailSearchUserAccountInput?.value || "").trim();
+				const userPhoneKeyword = (detailSearchUserPhoneInput?.value || "").trim();
+				const status = (detailStatusSelect?.value || "全部状态").trim();
+				detailRows.forEach((row) => {
+					const rowBatchNo = row.getAttribute("data-batch-no") || "";
+					const rowBatchName = row.children[2] ? row.children[2].textContent.trim() : "";
+					const rowDetailNo = row.children[3] ? row.children[3].textContent.trim() : "";
+					const rowAccount = row.children[11] ? row.children[11].textContent.trim() : "";
+					const rowPhone = row.children[12] ? row.children[12].textContent.trim() : "";
+					const rowStatus = row.getAttribute("data-status") || "";
+					const matchBatchNo = batchNoKeyword ? rowBatchNo.includes(batchNoKeyword) : true;
+					const matchBatchName = batchNameKeyword ? rowBatchName.includes(batchNameKeyword) : true;
+					const matchDetailNo = detailNoKeyword ? rowDetailNo.includes(detailNoKeyword) : true;
+					const matchUserAccount = userAccountKeyword ? rowAccount.includes(userAccountKeyword) : true;
+					const matchUserPhone = userPhoneKeyword ? rowPhone.includes(userPhoneKeyword) : true;
+					const matchStatus = status === "全部状态" ? true : rowStatus === status;
+					row.setAttribute(
+						"data-detail-match",
+						matchBatchNo && matchBatchName && matchDetailNo && matchUserAccount && matchUserPhone && matchStatus ? "1" : "0"
+					);
+				});
+				detailPageNo = 1;
+				renderDetailPagination();
+			}
+
+			function renderDetailPagination() {
+				const matchedRows = detailRows.filter((row) => row.getAttribute("data-detail-match") !== "0");
+				const total = matchedRows.length;
+				const totalPage = Math.max(1, Math.ceil(total / detailPageSize));
+				if (detailPageNo > totalPage) {
+					detailPageNo = totalPage;
+				}
+				detailRows.forEach((row) => {
+					row.style.display = "none";
+				});
+				const startIndex = (detailPageNo - 1) * detailPageSize;
+				const endIndex = startIndex + detailPageSize;
+				matchedRows.slice(startIndex, endIndex).forEach((row) => {
+					row.style.display = "";
+				});
+				if (detailTotalText) {
+					detailTotalText.textContent = `共 ${total} 条`;
+				}
+				if (detailPageText) {
+					detailPageText.textContent = `第 ${detailPageNo} / ${totalPage} 页`;
+				}
+				if (detailPrevBtn) {
+					detailPrevBtn.disabled = detailPageNo <= 1;
+				}
+				if (detailNextBtn) {
+					detailNextBtn.disabled = detailPageNo >= totalPage;
+				}
+				if (detailSelectAll instanceof HTMLInputElement) {
+					detailSelectAll.checked = false;
+				}
+			}
+
+			function goToBatchDetailByBatchNo(batchNo, modeText) {
+				switchPage("batch-detail");
+				if (detailSearchBatchNoInput) {
+					detailSearchBatchNoInput.value = batchNo;
+				}
+				if (detailSearchBatchNameInput) {
+					detailSearchBatchNameInput.value = "";
+				}
+				if (detailSearchDetailNoInput) {
+					detailSearchDetailNoInput.value = "";
+				}
+				if (detailSearchUserAccountInput) {
+					detailSearchUserAccountInput.value = "";
+				}
+				if (detailSearchUserPhoneInput) {
+					detailSearchUserPhoneInput.value = "";
+				}
+				if (detailStatusSelect) {
+					detailStatusSelect.value = "全部状态";
+				}
+				if (detailViewModeText) {
+					detailViewModeText.textContent = `当前视图：${modeText}`;
+				}
+				filterDetailRows();
+			}
+
+			/**
+			 * 关闭批次明细「批量操作」下拉菜单。
+			 *
+			 * @returns {void}
+			 */
+			function closeDetailBatchActionsMenu() {
+				detailBatchActionsMenu?.classList.remove("show");
+				detailBatchActionsToggle?.setAttribute("aria-expanded", "false");
+				detailBatchActionsMenu?.setAttribute("aria-hidden", "true");
+			}
+
+			/**
+			 * 打开批量激活确认弹窗（与列表勾选联动）。
+			 *
+			 * @returns {void}
+			 */
+			function openBatchActivateConfirmModal() {
+				const checkedRows = detailRows.filter((row) => {
+					const checkbox = row.querySelector(".detail-select-item");
+					return checkbox instanceof HTMLInputElement && checkbox.checked && row.style.display !== "none";
+				});
+				const pendingActivateRows = checkedRows.filter((row) => (row.getAttribute("data-status") || "") === "未激活");
+				const activatedRows = checkedRows.filter((row) => (row.getAttribute("data-status") || "") === "已激活");
+				const invalidRows = checkedRows.filter((row) => (row.getAttribute("data-status") || "") === "作废");
+				pendingDetailRowAction = {
+					type: "batchActivate",
+					rows: pendingActivateRows,
+					checkedRows
+				};
+				confirmContent.innerHTML = `
+					<div>本次勾选：<b>${checkedRows.length}</b> 张</div>
+					<div>未激活可激活：<b>${pendingActivateRows.length}</b> 张</div>
+					<div style="margin-top:6px;color:#909399;">提示：作废（${invalidRows.length}）和已激活（${activatedRows.length}）不会重复激活。</div>
+					<div style="margin-top:8px;">是否确认批量激活？</div>
+				`;
+				confirmModal.classList.add("show");
+			}
+
+			/**
+			 * 打开批量作废确认弹窗（与列表勾选联动）。
+			 *
+			 * @returns {void}
+			 */
+			function openBatchInvalidConfirmModal() {
+				const checkedRows = detailRows.filter((row) => {
+					const checkbox = row.querySelector(".detail-select-item");
+					return checkbox instanceof HTMLInputElement && checkbox.checked && row.style.display !== "none";
+				});
+				const pendingInvalidRows = checkedRows.filter((row) => (row.getAttribute("data-status") || "") !== "作废");
+				const alreadyInvalidRows = checkedRows.filter((row) => (row.getAttribute("data-status") || "") === "作废");
+				pendingDetailRowAction = {
+					type: "batchInvalid",
+					rows: pendingInvalidRows,
+					checkedRows
+				};
+				confirmContent.innerHTML = `
+					<div>本次勾选：<b>${checkedRows.length}</b> 张</div>
+					<div>可作废：<b>${pendingInvalidRows.length}</b> 张</div>
+					<div style="margin-top:6px;color:#909399;">提示：已是作废状态（${alreadyInvalidRows.length}）的不会重复作废。</div>
+					<div style="margin-top:8px;">是否确认批量作废？</div>
+				`;
+				confirmModal.classList.add("show");
+			}
+
+			/**
+			 * 根据当前步骤刷新批量操作向导的步骤条与面板显示。
+			 *
+			 * @returns {void}
+			 */
+			function applyBatchOpStepUI() {
+				const step = batchOpStep;
+				for (let i = 1; i <= 3; i += 1) {
+					const panel = document.getElementById(`batch-op-panel-${i}`);
+					if (panel) {
+						panel.classList.toggle("is-visible", i === step);
+					}
+				}
+				const c1 = document.getElementById("batch-op-c1");
+				const c2 = document.getElementById("batch-op-c2");
+				const c3 = document.getElementById("batch-op-c3");
+				const line1 = document.getElementById("batch-op-line-1");
+				const line2 = document.getElementById("batch-op-line-2");
+				/**
+				 * @param {HTMLElement | null} el
+				 * @param {number} idx
+				 * @param {"active" | "done" | "wait"} state
+				 * @returns {void}
+				 */
+				const setCircle = (el, idx, state) => {
+					if (!el) return;
+					el.classList.remove("is-active", "is-done", "is-wait");
+					if (state === "done") {
+						el.classList.add("is-done");
+						el.textContent = "✓";
+					} else if (state === "active") {
+						el.classList.add("is-active");
+						el.textContent = String(idx);
+					} else {
+						el.classList.add("is-wait");
+						el.textContent = String(idx);
+					}
+				};
+				if (step === 1) {
+					setCircle(c1, 1, "active");
+					setCircle(c2, 2, "wait");
+					setCircle(c3, 3, "wait");
+					line1?.classList.remove("is-done");
+					line2?.classList.remove("is-done");
+				} else if (step === 2) {
+					setCircle(c1, 1, "done");
+					setCircle(c2, 2, "active");
+					setCircle(c3, 3, "wait");
+					line1?.classList.add("is-done");
+					line2?.classList.remove("is-done");
+				} else {
+					setCircle(c1, 1, "done");
+					setCircle(c2, 2, "done");
+					setCircle(c3, 3, "active");
+					line1?.classList.add("is-done");
+					line2?.classList.add("is-done");
+				}
+			}
+
+			/**
+			 * 切换批量操作向导与空状态展示，并按模式写入设计稿文案。
+			 *
+			 * @returns {void}
+			 */
+			function renderBatchOpPage() {
+				if (!batchBatchOpTitle) return;
+				const ins1 = document.getElementById("batch-op-instruction-1");
+				const ins2 = document.getElementById("batch-op-instruction-2");
+				const labelStep1 = document.getElementById("batch-op-label-step1");
+				const downloadBtnText = document.getElementById("batch-batch-op-download-btn-text");
+				const instructionCommon =
+					"为保证效率，每次最多支持导入1000条记录，如需导入更多，请更换筛选条件后再次导入。";
+				if (batchOpMode === "activate") {
+					batchBatchOpTitle.textContent = "批量激活";
+					if (ins1) ins1.textContent = instructionCommon;
+					if (ins2) ins2.textContent = "若不填激活时间，则默认为此刻激活。";
+					if (labelStep1) labelStep1.textContent = "下载导入激活模板";
+					if (downloadBtnText) downloadBtnText.textContent = "下载导入激活模板";
+					if (batchBatchOpDoneText) batchBatchOpDoneText.textContent = "批量激活已提交";
+					if (batchBatchOpEmpty) batchBatchOpEmpty.hidden = true;
+					if (batchBatchOpWizard) batchBatchOpWizard.hidden = false;
+					batchOpStep = 1;
+					applyBatchOpStepUI();
+					return;
+				}
+				if (batchOpMode === "invalid") {
+					batchBatchOpTitle.textContent = "批量作废";
+					if (ins1) ins1.textContent = instructionCommon;
+					if (ins2) ins2.textContent = "作废后数据不可恢复，请谨慎操作。";
+					if (labelStep1) labelStep1.textContent = "下载导入作废模板";
+					if (downloadBtnText) downloadBtnText.textContent = "下载导入作废模板";
+					if (batchBatchOpDoneText) batchBatchOpDoneText.textContent = "批量作废已提交";
+					if (batchBatchOpEmpty) batchBatchOpEmpty.hidden = true;
+					if (batchBatchOpWizard) batchBatchOpWizard.hidden = false;
+					batchOpStep = 1;
+					applyBatchOpStepUI();
+					return;
+				}
+				batchBatchOpTitle.textContent = "批量操作";
+				if (batchBatchOpEmpty) batchBatchOpEmpty.hidden = false;
+				if (batchBatchOpWizard) batchBatchOpWizard.hidden = true;
+			}
+
+			/**
+			 * 切换原型页面显示。
+			 *
+			 * @param {string} pageId - 页面容器 id。
+			 * @returns {void}
+			 */
+			function switchPage(pageId) {
+				if (pageId === "batch-detail" || pageId === "batch-list" || pageId === "batch-create") {
+					batchOpMode = null;
+				}
+				sideItems.forEach((item) => {
+					item.classList.toggle("active", item.getAttribute("data-page") === pageId);
+				});
+				pages.forEach((page) => {
+					page.classList.toggle("active", page.id === pageId);
+				});
+				if (pageId === "batch-batch-op") {
+					renderBatchOpPage();
+				}
+			}
+
+			sideItems.forEach((item) => {
+				item.addEventListener("click", () => {
+					switchPage(item.getAttribute("data-page"));
+				});
+			});
+
+			jumpButtons.forEach((button) => {
+				button.addEventListener("click", () => {
+					switchPage(button.getAttribute("data-jump"));
+				});
+			});
+
+			sideTitleBatch?.addEventListener("click", () => {
+				switchPage("batch-list");
+			});
+
+			batchListSection?.addEventListener("click", (event) => {
+				const target = event.target;
+				if (!(target instanceof HTMLElement)) return;
+
+				if (target.classList.contains("action-batch-detail")) {
+					const batchNo = target.getAttribute("data-batch-no") || "";
+					goToBatchDetailByBatchNo(batchNo, "批次明细");
+					return;
+				}
+
+				if (target.classList.contains("action-usage")) {
+					const batchNo = target.getAttribute("data-batch-no") || "";
+					goToBatchDetailByBatchNo(batchNo, "整批次使用情况");
+					return;
+				}
+
+				if (target.classList.contains("action-invalid")) {
+					const batchNo = target.getAttribute("data-batch-no");
+					pendingInvalidBtn = target;
+					confirmContent.textContent = `是否确认作废这个批次号卡（${batchNo}）？`;
+					confirmModal.classList.add("show");
+				}
+			});
+
+			document.getElementById("batch-detail")?.addEventListener("click", (event) => {
+				const target = event.target;
+				if (!(target instanceof HTMLElement)) return;
+				const row = target.closest("tr.detail-row");
+				if (!row) return;
+				const batchNo = row.getAttribute("data-batch-no") || "-";
+				const detailNo = row.children[3] ? row.children[3].textContent.trim() : "-";
+				const userAccount = row.children[11] ? row.children[11].textContent.trim() : "-";
+				const userPhone = row.children[12] ? row.children[12].textContent.trim() : "-";
+				const usageSummary = row.children[8] ? row.children[8].textContent.trim() : "-";
+				const activationTime = row.children[13] ? row.children[13].textContent.trim() : "-";
+
+				if (target.classList.contains("detail-action-view")) {
+					if (detailModalTitle) {
+						detailModalTitle.textContent = "次卡使用情况详情";
+					}
+					const usageRecordMap = {
+						"MX-20260401-001": [
+							{ cinemaName: "万达影城（国贸店）", movieName: "流浪地球3", session: "2026-04-10 09:00", price: "45元", useTime: "2026-04-10 09:22:11" },
+							{ cinemaName: "博纳国际影城（朝阳门店）", movieName: "哪吒之魔童闹海", session: "2026-04-12 14:00", price: "50元", useTime: "2026-04-12 14:08:20" }
+						],
+						"MX-20260401-002": [{ cinemaName: "-", movieName: "-", session: "-", price: "-", useTime: "-" }],
+						"MX-20260402-001": [{ cinemaName: "-", movieName: "-", session: "-", price: "-", useTime: "-" }],
+						"MX-20260315-001": [
+							{ cinemaName: "CGV影城（中关村店）", movieName: "封神第二部", session: "2026-03-08 10:45", price: "42元", useTime: "2026-03-08 11:01:09" },
+							{ cinemaName: "英皇电影城（西单店）", movieName: "熊出没·时空冒险", session: "2026-03-15 19:00", price: "38元", useTime: "2026-03-15 19:20:33" },
+							{ cinemaName: "卢米埃影城（望京店）", movieName: "速度与激情11", session: "2026-03-20 16:30", price: "55元", useTime: "2026-03-20 16:45:08" }
+						]
+					};
+					const records = usageRecordMap[detailNo] || [];
+					const recordRowsHtml = records
+						.map(
+							(record, index) =>
+								`<tr><td>${index + 1}</td><td>${record.cinemaName}</td><td>${record.movieName}</td><td>${record.session}</td><td>${record.price}</td><td>${record.useTime}</td></tr>`
+						)
+						.join("");
+					detailContent.innerHTML = `
+						<div class="modal-item"><span>批次号：</span>${batchNo}</div>
+						<div class="modal-item"><span>批次明细编号：</span>${detailNo}</div>
+						<div class="modal-item"><span>使用情况：</span>${usageSummary}</div>
+						<div class="modal-item"><span>激活时间：</span>${activationTime}</div>
+						<div class="modal-item"><span>使用人账号：</span>${userAccount}</div>
+						<div class="modal-item"><span>使用账号：</span>${userAccount}</div>
+						<div class="modal-item"><span>使用人手机号：</span>${userPhone}</div>
+						<div style="grid-column: 1 / -1; margin-top: 8px;">
+							<div style="margin-bottom:6px;color:#909399;">使用记录（可能多条）</div>
+							<table class="table" style="font-size:12px;">
+								<thead><tr><th>#</th><th>电影院名称</th><th>电影票名称</th><th>场次</th><th>价格</th><th>购买时间</th></tr></thead>
+								<tbody>${recordRowsHtml || '<tr><td colspan="6">暂无记录</td></tr>'}</tbody>
+							</table>
+						</div>
+					`;
+					detailModal.classList.add("show");
+					return;
+				}
+				if (target.classList.contains("detail-action-key")) {
+					currentKeyCode = `KEY-${detailNo.replaceAll("-", "")}-A1B2`;
+					if (keyModalBatchInfo) {
+						keyModalBatchInfo.textContent = `批次号：${batchNo}  |  批次明细编号：${detailNo}`;
+					}
+					if (keyModalCode) {
+						keyModalCode.textContent = currentKeyCode;
+					}
+					if (keyCopyTip) {
+						keyCopyTip.textContent = "";
+					}
+					keyModal?.classList.add("show");
+					return;
+				}
+				if (target.classList.contains("detail-action-activate")) {
+					pendingDetailRowAction = { type: "activate", row };
+					confirmContent.textContent = `是否确认激活该次卡明细（${detailNo}）？`;
+					confirmModal.classList.add("show");
+					return;
+				}
+				if (target.classList.contains("detail-action-invalid")) {
+					pendingDetailRowAction = { type: "invalid", row };
+					confirmContent.textContent = `是否确认作废该次卡明细（${detailNo}）？`;
+					confirmModal.classList.add("show");
+				}
+			});
+
+			detailCloseBtn.addEventListener("click", () => {
+				detailModal.classList.remove("show");
+			});
+			keyModalCloseX?.addEventListener("click", () => {
+				keyModal?.classList.remove("show");
+			});
+			keyModalConfirmBtn?.addEventListener("click", () => {
+				keyModal?.classList.remove("show");
+			});
+			keyCopyBtn?.addEventListener("click", async () => {
+				if (!currentKeyCode) return;
+				try {
+					await navigator.clipboard.writeText(currentKeyCode);
+					if (keyCopyTip) {
+						keyCopyTip.textContent = "已复制到剪贴板";
+					}
+				} catch (error) {
+					if (keyCopyTip) {
+						keyCopyTip.textContent = "复制失败，请手动复制";
+					}
+				}
+			});
+
+			confirmCancelBtn.addEventListener("click", () => {
+				confirmModal.classList.remove("show");
+				pendingInvalidBtn = null;
+				pendingDetailRowAction = null;
+			});
+
+			confirmOkBtn.addEventListener("click", () => {
+				if (pendingInvalidBtn) {
+					const row = pendingInvalidBtn.closest("tr");
+					const statusCell = row ? row.children[9] : null;
+					const actionCell = row ? row.children[10] : null;
+					if (statusCell) {
+						statusCell.innerHTML = '<span class="tag danger">作废</span>';
+					}
+					if (actionCell) {
+						const batchNo = row && row.children[0] ? row.children[0].textContent.trim() : "";
+						actionCell.innerHTML = `
+							<a class="link action-batch-detail" href="javascript:void(0)" data-batch-no="${batchNo}">批次明细</a>
+							<a class="link action-usage" href="javascript:void(0)" data-batch-no="${batchNo}">使用情况</a>
+						`;
+					}
+				}
+				if (pendingDetailRowAction) {
+					const finishedBatchOpType = pendingDetailRowAction.type;
+					if (pendingDetailRowAction.type === "activate") {
+						applyDetailRowStatus(pendingDetailRowAction.row, "已激活");
+					}
+					if (pendingDetailRowAction.type === "invalid") {
+						applyDetailRowStatus(pendingDetailRowAction.row, "作废");
+					}
+					if (pendingDetailRowAction.type === "batchActivate") {
+						(pendingDetailRowAction.rows || []).forEach((row) => {
+							applyDetailRowStatus(row, "已激活");
+						});
+						(pendingDetailRowAction.checkedRows || []).forEach((row) => {
+							const checkbox = row.querySelector(".detail-select-item");
+							if (checkbox instanceof HTMLInputElement) {
+								checkbox.checked = false;
+							}
+						});
+						if (detailSelectAll instanceof HTMLInputElement) {
+							detailSelectAll.checked = false;
+						}
+					}
+					if (pendingDetailRowAction.type === "batchInvalid") {
+						(pendingDetailRowAction.rows || []).forEach((row) => {
+							applyDetailRowStatus(row, "作废");
+						});
+						(pendingDetailRowAction.checkedRows || []).forEach((row) => {
+							const checkbox = row.querySelector(".detail-select-item");
+							if (checkbox instanceof HTMLInputElement) {
+								checkbox.checked = false;
+							}
+						});
+						if (detailSelectAll instanceof HTMLInputElement) {
+							detailSelectAll.checked = false;
+						}
+					}
+					filterDetailRows();
+					if (finishedBatchOpType === "batchActivate" || finishedBatchOpType === "batchInvalid") {
+						switchPage("batch-detail");
+					}
+				}
+				confirmModal.classList.remove("show");
+				pendingInvalidBtn = null;
+				pendingDetailRowAction = null;
+			});
+
+			createTimesInput?.addEventListener("input", refreshFaceValue);
+			createSingleLimitInput?.addEventListener("input", refreshFaceValue);
+			rangeButtons.forEach((button) => {
+				button.addEventListener("click", () => {
+					const days = Number(button.getAttribute("data-range-days") || 30);
+					setDateRange(days);
+				});
+			});
+			batchPrevBtn?.addEventListener("click", () => {
+				if (batchPageNo > 1) {
+					batchPageNo -= 1;
+					renderBatchPagination();
+				}
+			});
+			batchNextBtn?.addEventListener("click", () => {
+				const totalPage = Math.max(1, Math.ceil(batchRows.length / batchPageSize));
+				if (batchPageNo < totalPage) {
+					batchPageNo += 1;
+					renderBatchPagination();
+				}
+			});
+			batchJumpBtn?.addEventListener("click", () => {
+				const totalPage = Math.max(1, Math.ceil(batchRows.length / batchPageSize));
+				const targetPage = Number(batchPageInput?.value || 1);
+				if (!Number.isNaN(targetPage)) {
+					batchPageNo = Math.min(Math.max(1, targetPage), totalPage);
+					renderBatchPagination();
+				}
+			});
+			batchPageSizeSelect?.addEventListener("change", () => {
+				batchPageSize = Number(batchPageSizeSelect.value || 5);
+				batchPageNo = 1;
+				renderBatchPagination();
+			});
+			detailSearchBtn?.addEventListener("click", () => {
+				filterDetailRows();
+			});
+			detailStatusSelect?.addEventListener("change", () => {
+				filterDetailRows();
+			});
+			detailPrevBtn?.addEventListener("click", () => {
+				if (detailPageNo > 1) {
+					detailPageNo -= 1;
+					renderDetailPagination();
+				}
+			});
+			detailNextBtn?.addEventListener("click", () => {
+				const totalPage = Math.max(1, Math.ceil(detailRows.filter((row) => row.getAttribute("data-detail-match") !== "0").length / detailPageSize));
+				if (detailPageNo < totalPage) {
+					detailPageNo += 1;
+					renderDetailPagination();
+				}
+			});
+			detailJumpBtn?.addEventListener("click", () => {
+				const totalPage = Math.max(1, Math.ceil(detailRows.filter((row) => row.getAttribute("data-detail-match") !== "0").length / detailPageSize));
+				const targetPage = Number(detailPageInput?.value || 1);
+				if (!Number.isNaN(targetPage)) {
+					detailPageNo = Math.min(Math.max(1, targetPage), totalPage);
+					renderDetailPagination();
+				}
+			});
+			detailPageSizeSelect?.addEventListener("change", () => {
+				detailPageSize = Number(detailPageSizeSelect.value || 5);
+				detailPageNo = 1;
+				renderDetailPagination();
+			});
+			detailSelectAll?.addEventListener("change", () => {
+				const isChecked = Boolean(detailSelectAll.checked);
+				detailRows.forEach((row) => {
+					if (row.style.display === "none") return;
+					const checkbox = row.querySelector(".detail-select-item");
+					if (checkbox instanceof HTMLInputElement) {
+						checkbox.checked = isChecked;
+					}
+				});
+			});
+			detailBatchActionsToggle?.addEventListener("click", (e) => {
+				e.stopPropagation();
+				detailBatchActionsMenu?.classList.toggle("show");
+				const isOpen = Boolean(detailBatchActionsMenu?.classList.contains("show"));
+				detailBatchActionsToggle?.setAttribute("aria-expanded", isOpen ? "true" : "false");
+				detailBatchActionsMenu?.setAttribute("aria-hidden", isOpen ? "false" : "true");
+			});
+
+			document.addEventListener("click", (e) => {
+				if (!detailBatchActionsWrap || detailBatchActionsWrap.contains(e.target)) return;
+				closeDetailBatchActionsMenu();
+			});
+
+			detailBatchActivateBtn?.addEventListener("click", (e) => {
+				e.stopPropagation();
+				batchOpMode = "activate";
+				closeDetailBatchActionsMenu();
+				switchPage("batch-batch-op");
+			});
+
+			detailBatchInvalidBtn?.addEventListener("click", (e) => {
+				e.stopPropagation();
+				batchOpMode = "invalid";
+				closeDetailBatchActionsMenu();
+				switchPage("batch-batch-op");
+			});
+
+			batchBatchOpDownloadBtn?.addEventListener("click", () => {
+				alert("原型：已模拟下载导入模板文件。");
+			});
+			batchBatchOpNextBtn?.addEventListener("click", () => {
+				batchOpStep = 2;
+				applyBatchOpStepUI();
+			});
+			batchBatchOpPrevBtn?.addEventListener("click", () => {
+				batchOpStep = 1;
+				applyBatchOpStepUI();
+			});
+			batchBatchOpUploadBtn?.addEventListener("click", () => {
+				batchOpStep = 3;
+				applyBatchOpStepUI();
+			});
+			/**
+			 * 选择卡密导出方式后，关闭下拉并打开「导出数据」弹窗。
+			 *
+			 * @param {"without" | "with"} keyMode - 不含卡密或包含卡密。
+			 * @returns {void}
+			 */
+			function openDetailExportModalAfterKeyChoice(keyMode) {
+				pendingExportKeyMode = keyMode;
+				detailExportMenu?.classList.remove("show");
+				detailExportMenu?.setAttribute("aria-hidden", "true");
+				detailExportBtn?.setAttribute("aria-expanded", "false");
+				exportModal?.classList.add("show");
+			}
+
+			detailExportBtn?.addEventListener("click", (e) => {
+				e.stopPropagation();
+				detailExportMenu?.classList.toggle("show");
+				const isOpen = Boolean(detailExportMenu?.classList.contains("show"));
+				detailExportBtn?.setAttribute("aria-expanded", isOpen ? "true" : "false");
+				detailExportMenu?.setAttribute("aria-hidden", isOpen ? "false" : "true");
+			});
+
+			document.addEventListener("click", (e) => {
+				if (!detailExportWrap || detailExportWrap.contains(e.target)) return;
+				detailExportMenu?.classList.remove("show");
+				detailExportBtn?.setAttribute("aria-expanded", "false");
+				detailExportMenu?.setAttribute("aria-hidden", "true");
+			});
+
+			detailExportWithoutKeyBtn?.addEventListener("click", (e) => {
+				e.stopPropagation();
+				openDetailExportModalAfterKeyChoice("without");
+			});
+			detailExportWithKeyBtn?.addEventListener("click", (e) => {
+				e.stopPropagation();
+				openDetailExportModalAfterKeyChoice("with");
+			});
+
+			exportModalCloseX?.addEventListener("click", () => {
+				exportModal?.classList.remove("show");
+			});
+			exportCancelBtn?.addEventListener("click", () => {
+				exportModal?.classList.remove("show");
+			});
+			exportConfirmBtn?.addEventListener("click", () => {
+				const modeInput = document.querySelector('input[name="export-mode"]:checked');
+				const mode = modeInput instanceof HTMLInputElement ? modeInput.value : "selected";
+				const includeCardKey = pendingExportKeyMode === "with";
+				const keySuffix = includeCardKey ? "含卡密" : "不含卡密";
+				if (mode === "selected") {
+					const selectedRows = detailRows.filter((row) => {
+						const checkbox = row.querySelector(".detail-select-item");
+						return checkbox instanceof HTMLInputElement && checkbox.checked;
+					});
+					const exportData = buildDetailExportData(selectedRows, includeCardKey);
+					downloadCsv(`批次列表明细-选中导出-${keySuffix}.csv`, exportData);
+				} else {
+					const filteredRows = detailRows.filter((row) => row.getAttribute("data-detail-match") !== "0");
+					const exportData = buildDetailExportData(filteredRows, includeCardKey);
+					downloadCsv(`批次列表明细-筛选导出-${keySuffix}.csv`, exportData);
+				}
+				exportModal?.classList.remove("show");
+			});
+			normalizeDetailTableColumns();
+			detailRows.forEach((row) => {
+				const rawStatus = row.getAttribute("data-status") || "未激活";
+				const normalizedStatus = rawStatus === "激活" ? "已激活" : rawStatus;
+				applyDetailRowStatus(row, normalizedStatus);
+			});
+			initCreateFormDefaults();
+			renderBatchPagination();
+			filterDetailRows();
+		</script>
+	</body>
+</html>

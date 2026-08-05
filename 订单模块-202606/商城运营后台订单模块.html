@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商城运营后台 - 订单管理中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: #f5f5f5; }
+        .sidebar-item:hover { background-color: #e6f7ff; color: #1890ff; }
+        .sidebar-item.active { background-color: #e6f7ff; color: #1890ff; font-weight: 500; }
+        .sidebar-submenu-item:hover { background-color: #f5f5f5; color: #1890ff; }
+        .sidebar-submenu-item.active { color: #1890ff; background-color: #e6f7ff; }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.45); }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .slide-in { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        
+        .status-tag { padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+        .status-pending { background-color: #fff7e6; color: #fa8c16; }
+        .status-paid { background-color: #e6f7ff; color: #1890ff; }
+        .status-shipped { background-color: #f6ffed; color: #52c41a; }
+        .status-completed { background-color: #f6ffed; color: #52c41a; }
+        .status-cancelled { background-color: #fff1f0; color: #ff4d4f; }
+        .status-processing { background-color: #e6f7ff; color: #1890ff; }
+        .status-success { background-color: #f6ffed; color: #52c41a; }
+        .status-rejected { background-color: #fff1f0; color: #ff4d4f; }
+        .status-waiting { background-color: #f9f0ff; color: #722ed1; }
+        .status-partial-ship { background-color: #e6f7ff; color: #1890ff; }
+        
+        .after-sale-tag { padding: 2px 8px; border-radius: 4px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
+        .after-sale-none { background-color: #f5f5f5; color: #8c8c8c; }
+        .after-sale-refund-applying { background-color: #fff7e6; color: #fa8c16; }
+        .after-sale-refund-auditing { background-color: #e6f7ff; color: #1890ff; }
+        .after-sale-refund-success { background-color: #f6ffed; color: #52c41a; }
+        .after-sale-refund-failed { background-color: #fff1f0; color: #ff4d4f; }
+        .after-sale-exchange-applying { background-color: #f9f0ff; color: #722ed1; }
+        .after-sale-exchange-auditing { background-color: #e6fffb; color: #13c2c2; }
+        .after-sale-exchange-processing { background-color: #fff7e6; color: #fa8c16; }
+        .after-sale-exchange-completed { background-color: #f6ffed; color: #52c41a; }
+        .after-sale-exchange-failed { background-color: #fff1f0; color: #ff4d4f; }
+        
+        .exception-tag { padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+        .exception-timeout-ship { background-color: #fff1f0; color: #ff4d4f; }
+        .exception-logistics { background-color: #f9f0ff; color: #722ed1; }
+        .exception-other { background-color: #f5f5f5; color: #8c8c8c; }
+        
+        .refund-type-tag { padding: 1px 6px; border-radius: 2px; font-size: 11px; }
+        .refund-type-refund { background-color: #fff1f0; color: #ff4d4f; }
+        .refund-type-return { background-color: #e6f7ff; color: #1890ff; }
+        .refund-type-exchange { background-color: #f6ffed; color: #52c41a; }
+        
+        .menu-arrow { transition: transform 0.3s; }
+        .menu-arrow.open { transform: rotate(90deg); }
+        .submenu { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .submenu.open { max-height: 500px; }
+        
+        .dropdown-menu { display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #e5e7eb; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 10; min-width: 120px; }
+        .dropdown-menu.show { display: block; }
+        .dropdown-item { padding: 8px 12px; cursor: pointer; font-size: 13px; color: #333; }
+        .dropdown-item:hover { background-color: #f5f5f5; }
+        
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+        
+        .logistics-tab { padding: 6px 12px; cursor: pointer; border: 1px solid #d9d9d9; border-radius: 4px; transition: all 0.3s; font-size: 12px; }
+        .logistics-tab:hover { border-color: #1890ff; color: #1890ff; }
+        .logistics-tab.active { background-color: #1890ff; color: white; border-color: #1890ff; }
+        
+        .multi-select-dropdown { position: relative; }
+        .multi-select-dropdown .dropdown-content { display: none; position: absolute; top: 100%; left: 0; background: white; border: 1px solid #d9d9d9; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 100; min-width: 200px; max-height: 300px; overflow-y: auto; }
+        .multi-select-dropdown .dropdown-content.show { display: block; }
+        .multi-select-dropdown .dropdown-item { padding: 8px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .multi-select-dropdown .dropdown-item:hover { background-color: #f5f5f5; }
+        .multi-select-dropdown .dropdown-item input { width: 16px; height: 16px; }
+        
+        .freeze-table { position: relative; }
+        .freeze-col { position: sticky; left: 0; z-index: 10; background-color: white; }
+        .freeze-col::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(to right, rgba(0,0,0,0.1), transparent); pointer-events: none; }
+        .freeze-col-header { position: sticky; left: 0; z-index: 11; background-color: #f9fafb; }
+        .freeze-col-header::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(to right, rgba(0,0,0,0.1), transparent); pointer-events: none; }
+        .freeze-shadow { box-shadow: 4px 0 8px rgba(0,0,0,0.1); }
+    </style>
+<base target="_blank">
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+    <header class="bg-white shadow-sm h-16 flex items-center justify-between px-6 z-20">
+        <div class="flex items-center gap-2">
+            <div class="text-blue-600 font-bold text-lg">商城运营后台</div>
+            <div class="text-gray-400 text-xs mt-1">订单管理系统</div>
+        </div>
+        <div class="flex items-center gap-6 text-gray-600">
+            <button class="hover:text-blue-600 transition" title="刷新" onclick="location.reload()">
+                <i class="fas fa-sync-alt text-lg"></i>
+            </button>
+            <button class="hover:text-blue-600 transition relative">
+                <i class="fas fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <div class="flex items-center gap-2 cursor-pointer hover:text-blue-600">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
+                    <i class="fas fa-user"></i>
+                </div>
+                <span class="text-sm">管理员</span>
+                <i class="fas fa-chevron-down text-xs"></i>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <aside class="w-52 bg-white shadow-md flex flex-col border-r border-gray-100">
+            <div class="flex-1 py-2">
+                <div class="sidebar-item flex items-center gap-3 px-5 py-3 cursor-pointer transition text-sm text-gray-700" onclick="switchMenu('home')">
+                    <i class="fas fa-home w-4 text-center"></i>
+                    <span>首页</span>
+                </div>
+                
+                <div class="menu-group">
+                    <div class="sidebar-item active flex items-center justify-between px-5 py-3 cursor-pointer transition text-sm" onclick="toggleSubmenu(this)">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-shopping-cart w-4 text-center"></i>
+                            <span>订单管理</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-xs menu-arrow open text-gray-400"></i>
+                    </div>
+                    <div class="submenu open bg-gray-50">
+                        <div class="sidebar-submenu-item active flex items-center gap-3 px-5 py-2.5 cursor-pointer text-sm pl-10" onclick="switchSection('orderList', this)">
+                            <span>全商城订单</span>
+                        </div>
+                        <div class="sidebar-submenu-item flex items-center gap-3 px-5 py-2.5 cursor-pointer text-sm text-gray-600 pl-10" onclick="switchSection('exceptionOrder', this)">
+                            <span>异常订单</span>
+                        </div>
+                        <div class="sidebar-submenu-item flex items-center gap-3 px-5 py-2.5 cursor-pointer text-sm text-gray-600 pl-10" onclick="switchSection('afterSale', this)">
+                            <span>售后订单</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="menu-group">
+                    <div class="sidebar-item flex items-center justify-between px-5 py-3 cursor-pointer transition text-sm text-gray-700" onclick="toggleSubmenu(this)">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-store w-4 text-center"></i>
+                            <span>商品中心</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-xs menu-arrow text-gray-400"></i>
+                    </div>
+                    <div class="submenu bg-gray-50">
+                        <div class="sidebar-submenu-item flex items-center gap-3 px-5 py-2.5 cursor-pointer text-sm text-gray-600 pl-10">
+                            <span>商品列表</span>
+                        </div>
+                        <div class="sidebar-submenu-item flex items-center gap-3 px-5 py-2.5 cursor-pointer text-sm text-gray-600 pl-10">
+                            <span>商品品牌</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-item flex items-center gap-3 px-5 py-3 cursor-pointer transition text-sm text-gray-700">
+                    <i class="fas fa-users w-4 text-center"></i>
+                    <span>客户管理</span>
+                </div>
+                
+                <div class="sidebar-item flex items-center gap-3 px-5 py-3 cursor-pointer transition text-sm text-gray-700">
+                    <i class="fas fa-chart-bar w-4 text-center"></i>
+                    <span>数据统计</span>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-auto bg-gray-50 p-5">
+            
+            <div id="orderList" class="content-section active">
+                <div class="bg-white rounded-lg shadow-sm">
+                    <div class="p-5 border-b border-gray-100">
+                        <div class="grid grid-cols-4 gap-4">
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm text-gray-600 whitespace-nowrap w-24">主订单号:</label>
+                                <input type="text" placeholder="请输入主订单号" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm text-gray-600 whitespace-nowrap w-24">子订单号:</label>
+                                <input type="text" placeholder="请输入子订单号" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm text-gray-600 whitespace-nowrap w-24">供应商名称:</label>
+                                <input type="text" placeholder="请输入供应商名称" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm text-gray-600 whitespace-nowrap w-24">商品名称:</label>
+                                <input type="text" placeholder="请输入商品名称" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm text-gray-600 whitespace-nowrap w-24">SKU物流编码:</label>
+                                <input type="text" placeholder="请输入SKU物流编码" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-4 gap-4 mt-4">
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm text-gray-600 whitespace-nowrap w-24">收货人手机号:</label>
+                                <input type="text" placeholder="请输入手机号" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm text-gray-600 whitespace-nowrap w-24">订单状态:</label>
+                                <div class="multi-select-dropdown flex-1">
+                                    <div class="border border-gray-300 rounded px-3 py-1.5 text-sm cursor-pointer flex items-center justify-between bg-white" onclick="toggleStatusDropdown()">
+                                        <span id="statusSelectText">请选择订单状态</span>
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                    <div id="statusDropdown" class="dropdown-content">
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="status-all" onchange="updateStatusSelect()">
+                                            <label for="status-all">全部</label>
+                                        </div>
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="status-pending" onchange="updateStatusSelect()">
+                                            <label for="status-pending">待付款</label>
+                                        </div>
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="status-paid" onchange="updateStatusSelect()">
+                                            <label for="status-paid">待发货</label>
+                                        </div>
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="status-partial-ship" onchange="updateStatusSelect()">
+                                            <label for="status-partial-ship">部分发货</label>
+                                        </div>
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="status-shipped" onchange="updateStatusSelect()">
+                                            <label for="status-shipped">已发货</label>
+                                        </div>
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="status-completed" onchange="updateStatusSelect()">
+                                            <label for="status-completed">已完成</label>
+                                        </div>
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="status-cancelled" onchange="updateStatusSelect()">
+                                            <label for="status-cancelled">已关闭</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm text-gray-600 whitespace-nowrap w-24">售后状态:</label>
+                                <div class="multi-select-dropdown flex-1" id="afterSaleDropdownContainer">
+                                    <div class="border border-gray-300 rounded px-3 py-1.5 text-sm cursor-pointer flex items-center justify-between bg-white" onclick="toggleAfterSaleDropdown()">
+                                        <span id="afterSaleSelectText">请选择售后状态</span>
+                                        <i class="fas fa-chevron-down text-gray-400"></i>
+                                    </div>
+                                    <div id="afterSaleDropdown" class="dropdown-content">
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="after-sale-none" onchange="updateAfterSaleSelect()">
+                                            <label for="after-sale-none">无售后</label>
+                                        </div>
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="after-sale-refund-applying" onchange="updateAfterSaleSelect()">
+                                            <label for="after-sale-refund-applying">退款申请中</label>
+                                        </div>
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="after-sale-refund-auditing" onchange="updateAfterSaleSelect()">
+                                            <label for="after-sale-refund-auditing">退款审核中</label>
+                                        </div>
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="after-sale-refund-success" onchange="updateAfterSaleSelect()">
+                                            <label for="after-sale-refund-success">退款成功</label>
+                                        </div>
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="after-sale-refund-failed" onchange="updateAfterSaleSelect()">
+                                            <label for="after-sale-refund-failed">退款失败</label>
+                                        </div>
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="after-sale-exchange-applying" onchange="updateAfterSaleSelect()">
+                                            <label for="after-sale-exchange-applying">换货申请中</label>
+                                        </div>
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="after-sale-exchange-auditing" onchange="updateAfterSaleSelect()">
+                                            <label for="after-sale-exchange-auditing">换货审核中</label>
+                                        </div>
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="after-sale-exchange-processing" onchange="updateAfterSaleSelect()">
+                                            <label for="after-sale-exchange-processing">换货处理中</label>
+                                        </div>
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="after-sale-exchange-completed" onchange="updateAfterSaleSelect()">
+                                            <label for="after-sale-exchange-completed">换货完成</label>
+                                        </div>
+                                        <div class="dropdown-item" onclick="event.stopPropagation()">
+                                            <input type="checkbox" id="after-sale-exchange-failed" onchange="updateAfterSaleSelect()">
+                                            <label for="after-sale-exchange-failed">换货失败</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm text-gray-600 whitespace-nowrap w-24">所属商城:</label>
+                                <select class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
+                                    <option>全部（支持打字搜索）</option>
+                                    <option>农行商城</option>
+                                    <option>东航商城</option>
+                                    <option>华为商城</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm text-gray-600 whitespace-nowrap w-24">供应商:</label>
+                                <select class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition bg-white">
+                                    <option>全部（支持打字搜索）</option>
+                                    <option>华为终端有限公司</option>
+                                    <option>华为技术服务有限公司</option>
+                                    <option>华为软件技术有限公司</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-4 gap-4 mt-4">
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm text-gray-600 whitespace-nowrap w-24">收货人:</label>
+                                <input type="text" placeholder="请输入收货人姓名" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm text-gray-600 whitespace-nowrap w-24">下单时间:</label>
+                                <input type="date" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                                <span class="text-gray-400">至</span>
+                                <input type="date" class="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 transition">
+                            </div>
+                            <div class="flex justify-end gap-2 col-span-2">
+                                <button class="bg-blue-600 text-white px-6 py-1.5 rounded text-sm hover:bg-blue-700 transition">
+                                    <i class="fas fa-search mr-1"></i>查询
+                                </button>
+                                <button class="border border-gray-300 px-6 py-1.5 rounded text-sm hover:border-gray-400 transition bg-white">
+                                    <i class="fas fa-redo mr-1"></i>重置
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="selectAll" class="w-4 h-4" onchange="toggleSelectAll()">
+                                    <span class="text-sm text-gray-600">全选</span>
+                                </label>
+                                <button onclick="exportSelectedOrders()" class="bg-blue-600 text-white px-4 py-2 rounded text-sm flex items-center gap-1 hover:bg-blue-700 transition">
+                                    <i class="fas fa-download text-xs"></i>导出订单
+                                </button>
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                共 <span class="text-blue-600 font-medium">1,234</span> 条记录
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto border border-gray-200 rounded-lg freeze-table">
+                            <table class="w-full text-sm">
+                                <thead class="bg-gray-50 text-gray-600">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left font-medium w-10 freeze-col-header freeze-shadow"></th>
+                                        <th class="px-4 py-3 text-left font-medium">主订单号</th>
+                                        <th class="px-4 py-3 text-left font-medium">子订单号</th>
+                                        <th class="px-4 py-3 text-left font-medium">商品信息</th>
+                                        <th class="px-4 py-3 text-left font-medium">SKU物流编码</th>
+                                        <th class="px-4 py-3 text-left font-medium">所属商城</th>
+                                        <th class="px-4 py-3 text-left font-medium">供应商</th>
+                                        <th class="px-4 py-3 text-left font-medium">下单时间</th>
+                                        <th class="px-4 py-3 text-left font-medium">客户信息</th>
+                                        <th class="px-4 py-3 text-left font-medium">销售单价</th>
+                                        <th class="px-4 py-3 text-left font-medium">商品数量</th>
+                                        <th class="px-4 py-3 text-left font-medium">订单总金额</th>
+                                        <th class="px-4 py-3 text-left font-medium">运费（预留隐藏）</th>
+                                        <th class="px-4 py-3 text-left font-medium">支付积分</th>
+                                        <th class="px-4 py-3 text-left font-medium">订单状态</th>
+                                        <th class="px-4 py-3 text-left font-medium">售后状态</th>
+                                        <th class="px-4 py-3 text-left font-medium">订单备注</th>
+                                        <th class="px-4 py-3 text-left font-medium">操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <tr class="hover:bg-blue-50/50 transition bg-white">
+                                        <td class="px-4 py-4 border-b border-gray-100 freeze-col freeze-shadow" rowspan="3">
+                                            <input type="checkbox" class="order-checkbox w-4 h-4" data-order-id="ORD20240323001">
+                                        </td>
+                                        <td class="px-4 py-4 border-b border-gray-100" rowspan="3">
+                                            <span class="text-blue-600 cursor-pointer hover:underline"><a href="商城运营后台订单详情.html">ORD20240323001</a></span>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100">
+                                            <span class="text-gray-600 text-sm">ORD20240323001</span>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100">
+                                            <div class="flex items-center gap-2">
+                                                <img src="https://via.placeholder.com/40x40/f0f0f0/666666?text=商品" class="w-10 h-10 rounded object-cover">
+                                                <div>
+                                                    <div class="text-gray-800 truncate max-w-[150px]">华为Mate 60 Pro 5G手机</div>
+                                                    <div class="text-gray-400 text-xs">x1</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100">
+                                            <span class="text-gray-500 text-sm">SKU-HW-M60P-001</span>
+                                        </td>
+                                        <td class="px-4 py-4 border-b border-gray-100" rowspan="3">
+                                            <span class="text-gray-800">农行商城</span>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100">
+                                            <span class="text-gray-600 text-sm">华为终端有限公司</span>
+                                        </td>
+                                        <td class="px-4 py-4 border-b border-gray-100" rowspan="3">
+                                            <span class="text-gray-400 text-sm">2024-03-23 14:30:25</span>
+                                        </td>
+                                        <td class="px-4 py-4 border-b border-gray-100" rowspan="3">
+                                            <div>
+                                                <div class="text-gray-800">张三</div>
+                                                <div class="text-gray-400 text-xs">138****8888</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100">
+                                            <span class="text-orange-500 font-medium">¥6,999.00</span>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100 text-center">
+                                            <span class="text-gray-600">1</span>
+                                        </td>
+                                        <td class="px-4 py-4 border-b border-gray-100 text-center" rowspan="3">
+                                            <span class="text-red-500 font-bold">¥9,996.00</span>
+                                        </td>
+                                        <td class="px-4 py-4 border-b border-gray-100" rowspan="3">
+                                            <span class="text-gray-600">¥10.00</span>
+                                        </td>
+                                        <td class="px-4 py-4 border-b border-gray-100" rowspan="3">
+                                            <span class="text-gray-600">1,000</span>
+                                        </td>
+                                        <td class="px-4 py-4 border-b border-gray-100" rowspan="3"><span class="status-tag status-paid">待发货</span></td>
+                                        <td class="px-4 py-4 border-b border-gray-100" rowspan="3"><span class="after-sale-tag after-sale-none"><i class="fas fa-minus-circle"></i>无售后</span></td>
+                                        <td class="px-4 py-4 border-b border-gray-100" rowspan="3" title="请尽快发货，谢谢">
+                                            <span class="text-gray-600 text-sm truncate block max-w-[100px]">请尽快发货，谢谢</span>
+                                        </td>
+                                        <td class="px-4 py-4 border-b border-gray-100" rowspan="3">
+                                            <div class="flex items-center gap-2">
+                                                <a href="商城运营后台订单详情.html" class="text-blue-600 hover:underline text-sm">详情</a>
+                                                <div class="relative">
+                                                    <button onclick="toggleActionMenu(this)" class="text-blue-600 hover:underline text-sm flex items-center gap-1">
+                                                        更多<i class="fas fa-chevron-down text-xs"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        <div class="dropdown-item" onclick="showLogisticsModal()">物流跟踪</div>
+                                                        <div class="dropdown-item" onclick="showRemarkModal()">修改备注</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-50/50 transition bg-white">
+                                        <td class="px-4 py-3 border-b border-gray-100">
+                                            <span class="text-gray-600 text-sm">ORD2024032300101</span>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100">
+                                            <div class="flex items-center gap-2">
+                                                <img src="https://via.placeholder.com/40x40/f0f0f0/666666?text=商品" class="w-10 h-10 rounded object-cover">
+                                                <div>
+                                                    <div class="text-gray-800 truncate max-w-[150px]">华为FreeBuds Pro 3</div>
+                                                    <div class="text-gray-400 text-xs">x1</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100">
+                                            <span class="text-gray-500 text-sm">SKU-HW-FB3-001</span>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100">
+                                            <span class="text-gray-600 text-sm">华为终端有限公司</span>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100">
+                                            <span class="text-orange-500 font-medium">¥1,499.00</span>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100 text-center">
+                                            <span class="text-gray-600">1</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-50/50 transition bg-white">
+                                        <td class="px-4 py-3 border-b border-gray-100">
+                                            <span class="text-gray-600 text-sm">ORD2024032300102</span>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100">
+                                            <div class="flex items-center gap-2">
+                                                <img src="https://via.placeholder.com/40x40/f0f0f0/666666?text=商品" class="w-10 h-10 rounded object-cover">
+                                                <div>
+                                                    <div class="text-gray-800 truncate max-w-[150px]">华为Watch GT 4</div>
+                                                    <div class="text-gray-400 text-xs">x1</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100">
+                                            <span class="text-gray-500 text-sm">SKU-HW-GT4-001</span>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100">
+                                            <span class="text-gray-600 text-sm">华为终端有限公司</span>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100">
+                                            <span class="text-orange-500 font-medium">¥1,488.00</span>
+                                        </td>
+                                        <td class="px-4 py-3 border-b border-gray-100 text-center">
+                                            <span class="text-gray-600">1</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50 transition bg-gray-50/50">
+                                        <td class="px-4 py-4 freeze-col freeze-shadow">
+                                            <input type="checkbox" class="order-checkbox w-4 h-4" data-order-id="ORD20240323002">
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-blue-600 cursor-pointer hover:underline">ORD20240323002</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600 text-sm">ORD20240323002</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <img src="https://via.placeholder.com/40x40/f0f0f0/666666?text=商品" class="w-10 h-10 rounded object-cover">
+                                                <div>
+                                                    <div class="text-gray-800 truncate max-w-[150px]">华为FreeBuds Pro 3</div>
+                                                    <div class="text-gray-400 text-xs">x2</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-500 text-sm">SKU-HW-FB3-001</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-800">东航商城</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600 text-sm">华为技术服务有限公司</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-400 text-sm">2024-03-22 15:45:00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div>
+                                                <div class="text-gray-800">李四</div>
+                                                <div class="text-gray-400 text-xs">139****9999</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-orange-500 font-medium">¥2,998.00</span>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <span class="text-red-500 font-bold">¥2,998.00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600">¥0.00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600">500</span>
+                                        </td>
+                                        <td class="px-4 py-4"><span class="status-tag status-shipped">已发货</span></td>
+                                        <td class="px-4 py-4"><span class="after-sale-tag after-sale-none"><i class="fas fa-minus-circle"></i>无售后</span></td>
+                                        <td class="px-4 py-4" title="送朋友的生日礼物">
+                                            <span class="text-gray-600 text-sm truncate block max-w-[100px]">送朋友的生日礼物</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <a href="商城运营后台订单详情.html" class="text-blue-600 hover:underline text-sm">详情</a>
+                                                <div class="relative">
+                                                    <button onclick="toggleActionMenu(this)" class="text-blue-600 hover:underline text-sm flex items-center gap-1">
+                                                        更多<i class="fas fa-chevron-down text-xs"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        <div class="dropdown-item" onclick="showLogisticsModal()">物流跟踪</div>
+                                                        <div class="dropdown-item" onclick="showRemarkModal()">修改备注</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-50/50 transition bg-white">
+                                        <td class="px-4 py-4 freeze-col freeze-shadow">
+                                            <input type="checkbox" class="order-checkbox w-4 h-4" data-order-id="ORD20240323003">
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-blue-600 cursor-pointer hover:underline">ORD20240323003</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600 text-sm">ORD20240323003</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <img src="https://via.placeholder.com/40x40/f0f0f0/666666?text=商品" class="w-10 h-10 rounded object-cover">
+                                                <div>
+                                                    <div class="text-gray-800 truncate max-w-[150px]">华为Watch GT 4</div>
+                                                    <div class="text-gray-400 text-xs">x1</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-500 text-sm">SKU-HW-GT4-001</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-800">华为商城</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600 text-sm">华为软件技术有限公司</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-400 text-sm">2024-03-23 09:15:00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div>
+                                                <div class="text-gray-800">王五</div>
+                                                <div class="text-gray-400 text-xs">137****7777</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-orange-500 font-medium">¥1,488.00</span>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <span class="text-red-500 font-bold">¥1,488.00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600">¥0.00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600">200</span>
+                                        </td>
+                                        <td class="px-4 py-4"><span class="status-tag status-pending">待付款</span></td>
+                                        <td class="px-4 py-4"><span class="after-sale-tag after-sale-none"><i class="fas fa-minus-circle"></i>无售后</span></td>
+                                        <td class="px-4 py-4" title="无">
+                                            <span class="text-gray-400 text-sm">-</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <a href="商城运营后台订单详情.html" class="text-blue-600 hover:underline text-sm">详情</a>
+                                                <div class="relative">
+                                                    <button onclick="toggleActionMenu(this)" class="text-blue-600 hover:underline text-sm flex items-center gap-1">
+                                                        更多<i class="fas fa-chevron-down text-xs"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        <div class="dropdown-item" onclick="showLogisticsModal()">物流跟踪</div>
+                                                        <div class="dropdown-item" onclick="showRemarkModal()">修改备注</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50 transition bg-gray-50/50">
+                                        <td class="px-4 py-4 freeze-col freeze-shadow">
+                                            <input type="checkbox" class="order-checkbox w-4 h-4" data-order-id="ORD20240323004">
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-blue-600 cursor-pointer hover:underline">ORD20240323004</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600 text-sm">ORD20240323004</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <img src="https://via.placeholder.com/40x40/f0f0f0/666666?text=商品" class="w-10 h-10 rounded object-cover">
+                                                <div>
+                                                    <div class="text-gray-800 truncate max-w-[150px]">华为MatePad Pro</div>
+                                                    <div class="text-gray-400 text-xs">x1</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-500 text-sm">SKU-HW-MPP-001</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-800">农行商城</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600 text-sm">华为终端有限公司</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-400 text-sm">2024-03-22 16:30:00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div>
+                                                <div class="text-gray-800">赵六</div>
+                                                <div class="text-gray-400 text-xs">136****6666</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-orange-500 font-medium">¥4,999.00</span>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <span class="text-red-500 font-bold">¥5,014.00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600">¥15.00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600">800</span>
+                                        </td>
+                                        <td class="px-4 py-4"><span class="status-tag status-partial-ship">部分发货</span></td>
+                                        <td class="px-4 py-4"><span class="after-sale-tag after-sale-none"><i class="fas fa-minus-circle"></i>无售后</span></td>
+                                        <td class="px-4 py-4" title="发票抬头：华为技术有限公司">
+                                            <span class="text-gray-600 text-sm truncate block max-w-[100px]">发票抬头：华为技术有限公司</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <a href="商城运营后台订单详情.html" class="text-blue-600 hover:underline text-sm">详情</a>
+                                                <div class="relative">
+                                                    <button onclick="toggleActionMenu(this)" class="text-blue-600 hover:underline text-sm flex items-center gap-1">
+                                                        更多<i class="fas fa-chevron-down text-xs"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        <div class="dropdown-item" onclick="showLogisticsModal()">物流跟踪</div>
+                                                        <div class="dropdown-item" onclick="showRemarkModal()">修改备注</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-50/50 transition bg-white">
+                                        <td class="px-4 py-4 freeze-col freeze-shadow">
+                                            <input type="checkbox" class="order-checkbox w-4 h-4" data-order-id="ORD20240323005">
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-blue-600 cursor-pointer hover:underline">ORD20240323005</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600 text-sm">ORD20240323005</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <img src="https://via.placeholder.com/40x40/f0f0f0/666666?text=商品" class="w-10 h-10 rounded object-cover">
+                                                <div>
+                                                    <div class="text-gray-800 truncate max-w-[150px]">华为智慧屏V75</div>
+                                                    <div class="text-gray-400 text-xs">x1</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-500 text-sm">SKU-HW-V75-001</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-800">东航商城</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600 text-sm">华为技术服务有限公司</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-400 text-sm">2024-03-20 11:30:00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div>
+                                                <div class="text-gray-800">孙七</div>
+                                                <div class="text-gray-400 text-xs">135****5555</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-orange-500 font-medium">¥9,999.00</span>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <span class="text-red-500 font-bold">¥10,049.00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600">¥50.00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600">2,000</span>
+                                        </td>
+                                        <td class="px-4 py-4"><span class="status-tag status-completed">已完成</span></td>
+                                        <td class="px-4 py-4"><span class="after-sale-tag after-sale-refund-success"><i class="fas fa-check-circle"></i>退款成功</span></td>
+                                        <td class="px-4 py-4" title="无">
+                                            <span class="text-gray-400 text-sm">-</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <a href="商城运营后台订单详情.html" class="text-blue-600 hover:underline text-sm">详情</a>
+                                                <div class="relative">
+                                                    <button onclick="toggleActionMenu(this)" class="text-blue-600 hover:underline text-sm flex items-center gap-1">
+                                                        更多<i class="fas fa-chevron-down text-xs"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        <div class="dropdown-item" onclick="showLogisticsModal()">物流跟踪</div>
+                                                        <div class="dropdown-item" onclick="showRemarkModal()">修改备注</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50 transition bg-gray-50/50">
+                                        <td class="px-4 py-4 freeze-col freeze-shadow">
+                                            <input type="checkbox" class="order-checkbox w-4 h-4" data-order-id="ORD20240323006">
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-blue-600 cursor-pointer hover:underline">ORD20240323006</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600 text-sm">ORD20240323006</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <img src="https://via.placeholder.com/40x40/f0f0f0/666666?text=商品" class="w-10 h-10 rounded object-cover">
+                                                <div>
+                                                    <div class="text-gray-800 truncate max-w-[150px]">华为路由器AX3</div>
+                                                    <div class="text-gray-400 text-xs">x2</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-500 text-sm">SKU-HW-AX3-001</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-800">华为商城</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600 text-sm">华为软件技术有限公司</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-400 text-sm">2024-03-19 14:20:00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div>
+                                                <div class="text-gray-800">周八</div>
+                                                <div class="text-gray-400 text-xs">134****4444</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-orange-500 font-medium">¥598.00</span>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <span class="text-red-500 font-bold">¥598.00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600">¥0.00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600">100</span>
+                                        </td>
+                                        <td class="px-4 py-4"><span class="status-tag status-completed">已完成</span></td>
+                                        <td class="px-4 py-4"><span class="after-sale-tag after-sale-refund-success"><i class="fas fa-check-circle"></i>退款成功</span></td>
+                                        <td class="px-4 py-4" title="质量问题申请退款">
+                                            <span class="text-gray-600 text-sm truncate block max-w-[100px]">质量问题申请退款</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <a href="商城运营后台订单详情.html" class="text-blue-600 hover:underline text-sm">详情</a>
+                                                <div class="relative">
+                                                    <button onclick="toggleActionMenu(this)" class="text-blue-600 hover:underline text-sm flex items-center gap-1">
+                                                        更多<i class="fas fa-chevron-down text-xs"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        <div class="dropdown-item" onclick="showLogisticsModal()">物流跟踪</div>
+                                                        <div class="dropdown-item" onclick="showRemarkModal()">修改备注</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-blue-50/50 transition bg-white">
+                                        <td class="px-4 py-4 freeze-col freeze-shadow">
+                                            <input type="checkbox" class="order-checkbox w-4 h-4" data-order-id="ORD20240323007">
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-blue-600 cursor-pointer hover:underline">ORD20240323007</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600 text-sm">ORD20240323007</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <img src="https://via.placeholder.com/40x40/f0f0f0/666666?text=商品" class="w-10 h-10 rounded object-cover">
+                                                <div>
+                                                    <div class="text-gray-800 truncate max-w-[150px]">华为手环9</div>
+                                                    <div class="text-gray-400 text-xs">x1</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-500 text-sm">SKU-HW-B9-001</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-800">农行商城</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600 text-sm">华为终端有限公司</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-400 text-sm">2024-03-18 10:15:00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div>
+                                                <div class="text-gray-800">吴九</div>
+                                                <div class="text-gray-400 text-xs">133****3333</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-orange-500 font-medium">¥299.00</span>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <span class="text-red-500 font-bold">¥299.00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600">¥0.00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600">50</span>
+                                        </td>
+                                        <td class="px-4 py-4"><span class="status-tag status-completed">已完成</span></td>
+                                        <td class="px-4 py-4"><span class="after-sale-tag after-sale-exchange-completed"><i class="fas fa-check-circle"></i>换货完成</span></td>
+                                        <td class="px-4 py-4" title="尺码不合适，申请换货">
+                                            <span class="text-gray-600 text-sm truncate block max-w-[100px]">尺码不合适，申请换货</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <a href="商城运营后台订单详情.html" class="text-blue-600 hover:underline text-sm">详情</a>
+                                                <div class="relative">
+                                                    <button onclick="toggleActionMenu(this)" class="text-blue-600 hover:underline text-sm flex items-center gap-1">
+                                                        更多<i class="fas fa-chevron-down text-xs"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        <div class="dropdown-item" onclick="showLogisticsModal()">物流跟踪</div>
+                                                        <div class="dropdown-item" onclick="showRemarkModal()">修改备注</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50 transition bg-gray-50/50">
+                                        <td class="px-4 py-4 freeze-col freeze-shadow">
+                                            <input type="checkbox" class="order-checkbox w-4 h-4" data-order-id="ORD20240323008">
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-blue-600 cursor-pointer hover:underline">ORD20240323008</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600 text-sm">ORD20240323008</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <img src="https://via.placeholder.com/40x40/f0f0f0/666666?text=商品" class="w-10 h-10 rounded object-cover">
+                                                <div>
+                                                    <div class="text-gray-800 truncate max-w-[150px]">华为充电器</div>
+                                                    <div class="text-gray-400 text-xs">x3</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-500 text-sm">SKU-HW-CG-001</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-800">东航商城</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600 text-sm">华为技术服务有限公司</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-400 text-sm">2024-03-17 17:55:00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div>
+                                                <div class="text-gray-800">郑十</div>
+                                                <div class="text-gray-400 text-xs">132****2222</div>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-orange-500 font-medium">¥447.00</span>
+                                        </td>
+                                        <td class="px-4 py-4 text-center">
+                                            <span class="text-red-500 font-bold">¥447.00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600">¥0.00</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="text-gray-600">80</span>
+                                        </td>
+                                        <td class="px-4 py-4"><span class="status-tag status-completed">已完成</span></td>
+                                        <td class="px-4 py-4"><span class="after-sale-tag after-sale-exchange-processing"><i class="fas fa-sync-alt"></i>换货处理中</span></td>
+                                        <td class="px-4 py-4" title="无">
+                                            <span class="text-gray-400 text-sm">-</span>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex items-center gap-2">
+                                                <a href="商城运营后台订单详情.html" class="text-blue-600 hover:underline text-sm">详情</a>
+                                                <div class="relative">
+                                                    <button onclick="toggleActionMenu(this)" class="text-blue-600 hover:underline text-sm flex items-center gap-1">
+                                                        更多<i class="fas fa-chevron-down text-xs"></i>
+                                                    </button>
+                                                    <div class="dropdown-menu">
+                                                        <div class="dropdown-item" onclick="showLogisticsModal()">物流跟踪</div>
+                                                        <div class="dropdown-item" onclick="showRemarkModal()">修改备注</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                                <tfoot class="bg-gray-50 border-t-2 border-gray-200">
+                                    <tr>
+                                        <td colspan="8" class="px-4 py-3 text-right font-medium text-gray-700">
+                                            汇总统计：
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <div class="text-orange-500 font-bold">交易金额汇总: ¥26,828.00</div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <div class="text-red-500 font-bold">退款金额汇总: ¥598.00</div>
+                                        </td>
+                                        <td colspan="8"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <div class="flex items-center justify-between mt-4 text-sm text-gray-600">
+                            <div>第 1-8 条/总共 1,234 条</div>
+                            <div class="flex items-center gap-2">
+                                <button class="px-3 py-1.5 border border-gray-300 rounded hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 transition">
+                                    <i class="fas fa-chevron-left text-xs"></i>
+                                </button>
+                                <button class="px-3 py-1.5 bg-blue-600 text-white rounded">1</button>
+                                <button class="px-3 py-1.5 border border-gray-300 rounded hover:border-blue-500 hover:text-blue-600 transition">2</button>
+                                <button class="px-3 py-1.5 border border-gray-300 rounded hover:border-blue-500 hover:text-blue-600 transition">3</button>
+                                <button class="px-3 py-1.5 border border-gray-300 rounded hover:border-blue-500 hover:text-blue-600 transition">...</button>
+                                <button class="px-3 py-1.5 border border-gray-300 rounded hover:border-blue-500 hover:text-blue-600 transition">155</button>
+                                <button class="px-3 py-1.5 border border-gray-300 rounded hover:border-blue-500 hover:text-blue-600 transition">
+                                    <i class="fas fa-chevron-right text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="exceptionOrder" class="content-section">
+                <div class="bg-white rounded-lg shadow-sm p-5">
+                    <div class="text-center text-gray-500 py-20">
+                        <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                        <p>异常订单模块</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="afterSale" class="content-section">
+                <div class="bg-white rounded-lg shadow-sm p-5">
+                    <div class="text-center text-gray-500 py-20">
+                        <i class="fas fa-undo text-4xl mb-4"></i>
+                        <p>售后订单模块</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="logisticsModal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+        <div class="modal-overlay absolute inset-0" onclick="closeLogisticsModal()"></div>
+        <div class="relative bg-white rounded-lg shadow-xl w-[650px] fade-in">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-800">物流跟踪</h3>
+                <button onclick="closeLogisticsModal()" class="text-gray-400 hover:text-gray-600 transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <div class="text-sm text-gray-600 mb-2">该订单包含多个物流单号，请选择查看：</div>
+                    <div class="flex items-center gap-2 flex-wrap" id="logisticsTabs">
+                        <div class="logistics-tab active" onclick="switchLogistics(this, 'SF1234567890')">
+                            <span>顺丰速运</span>
+                            <span class="text-xs opacity-70">SF1234567890</span>
+                        </div>
+                        <div class="logistics-tab" onclick="switchLogistics(this, 'ZT9876543210')">
+                            <span>中通快递</span>
+                            <span class="text-xs opacity-70">ZT9876543210</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-4 flex items-center gap-4 bg-gray-50 p-3 rounded">
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-500 text-sm">物流公司:</span>
+                        <span class="text-gray-800" id="currentLogisticsCompany">顺丰速运</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-500 text-sm">物流单号:</span>
+                        <span class="text-gray-800" id="currentLogisticsNo">SF1234567890</span>
+                        <button class="text-blue-600 text-sm hover:underline" onclick="copyLogisticsNo()">复制</button>
+                    </div>
+                </div>
+                <div class="mb-4 bg-blue-50 p-3 rounded">
+                    <div class="text-sm text-gray-600 mb-2 font-medium">
+                        <i class="fas fa-box text-blue-500 mr-1"></i>本物流包裹商品：
+                    </div>
+                    <div class="space-y-2" id="logisticsProducts">
+                        <div class="flex items-center gap-3 bg-white p-2 rounded">
+                            <img src="https://via.placeholder.com/40x40/f0f0f0/666666?text=商品" class="w-10 h-10 rounded object-cover">
+                            <div class="flex-1">
+                                <div class="text-gray-800 text-sm">华为Mate 60 Pro</div>
+                                <div class="text-gray-400 text-xs">颜色: 雅丹黑 / 存储: 512GB</div>
+                            </div>
+                            <div class="text-gray-600 text-sm">x1</div>
+                        </div>
+                        <div class="flex items-center gap-3 bg-white p-2 rounded">
+                            <img src="https://via.placeholder.com/40x40/f0f0f0/666666?text=商品" class="w-10 h-10 rounded object-cover">
+                            <div class="flex-1">
+                                <div class="text-gray-800 text-sm">华为FreeBuds Pro 3</div>
+                                <div class="text-gray-400 text-xs">颜色: 星空黑</div>
+                            </div>
+                            <div class="text-gray-600 text-sm">x1</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t border-gray-100 pt-4" id="logisticsContent">
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="flex flex-col items-center">
+                                <div class="w-3 h-3 rounded-full bg-blue-600"></div>
+                                <div class="w-0.5 h-12 bg-gray-200"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-gray-800 font-medium">派送中</div>
+                                <div class="text-gray-500 text-sm mt-1">快递员正在派送中，请保持电话畅通</div>
+                                <div class="text-gray-400 text-xs mt-1">2024-03-23 14:30:00</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="flex flex-col items-center">
+                                <div class="w-3 h-3 rounded-full bg-gray-300"></div>
+                                <div class="w-0.5 h-12 bg-gray-200"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-gray-600">到达北京朝阳区营业点</div>
+                                <div class="text-gray-400 text-xs mt-1">2024-03-23 08:15:00</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="flex flex-col items-center">
+                                <div class="w-3 h-3 rounded-full bg-gray-300"></div>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-gray-600">商家已发货</div>
+                                <div class="text-gray-400 text-xs mt-1">2024-03-22 15:30:00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="remarkModal" class="fixed inset-0 z-50 hidden flex items-center justify-center">
+        <div class="modal-overlay absolute inset-0" onclick="closeRemarkModal()"></div>
+        <div class="relative bg-white rounded-lg shadow-xl w-[480px] fade-in">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-800">修改备注</h3>
+                <button onclick="closeRemarkModal()" class="text-gray-400 hover:text-gray-600 transition"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6">
+                <div class="mb-4">
+                    <label class="block text-sm text-gray-600 mb-2">订单备注</label>
+                    <textarea rows="4" placeholder="请输入备注内容" class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 transition resize-none"></textarea>
+                </div>
+                <div class="flex justify-end gap-3">
+                    <button onclick="closeRemarkModal()" class="px-6 py-2 border border-gray-300 rounded text-sm hover:border-gray-400 transition bg-white">取消</button>
+                    <button class="px-6 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition">保存</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSubmenu(element) {
+            const menuGroup = element.closest('.menu-group');
+            const submenu = menuGroup.querySelector('.submenu');
+            const arrow = element.querySelector('.menu-arrow');
+            if (submenu.classList.contains('open')) {
+                submenu.classList.remove('open');
+                arrow.classList.remove('open');
+            } else {
+                submenu.classList.add('open');
+                arrow.classList.add('open');
+            }
+        }
+
+        function switchSection(sectionId, element) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+            document.querySelectorAll('.sidebar-submenu-item').forEach(item => item.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function showLogisticsModal() {
+            document.getElementById('logisticsModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLogisticsModal() {
+            document.getElementById('logisticsModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function showRemarkModal() {
+            document.getElementById('remarkModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeRemarkModal() {
+            document.getElementById('remarkModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function toggleActionMenu(btn) {
+            const menu = btn.nextElementSibling;
+            document.querySelectorAll('.dropdown-menu').forEach(m => {
+                if (m !== menu) m.classList.remove('show');
+            });
+            menu.classList.toggle('show');
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.relative')) {
+                document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+            }
+        });
+
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.order-checkbox');
+            checkboxes.forEach(cb => { cb.checked = selectAll.checked; });
+        }
+
+        function exportSelectedOrders() {
+            const selectedOrders = [];
+            document.querySelectorAll('.order-checkbox:checked').forEach(cb => {
+                selectedOrders.push(cb.dataset.orderId);
+            });
+            if (selectedOrders.length === 0) {
+                alert('请先选择要导出的订单');
+                return;
+            }
+            alert('已选择导出 ' + selectedOrders.length + ' 个订单：\n' + selectedOrders.join('\n'));
+        }
+
+        function toggleStatusDropdown() {
+            const dropdown = document.getElementById('statusDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function updateStatusSelect() {
+            const checkboxes = document.querySelectorAll('#statusDropdown input[type="checkbox"]:not(#status-all)');
+            const allCheckbox = document.getElementById('status-all');
+            const selectedText = document.getElementById('statusSelectText');
+            const selected = [];
+            checkboxes.forEach(cb => {
+                if (cb.checked) { selected.push(cb.nextElementSibling.textContent); }
+            });
+            if (selected.length === 0) {
+                selectedText.textContent = '请选择订单状态';
+            } else if (selected.length === checkboxes.length) {
+                selectedText.textContent = '全部';
+                allCheckbox.checked = true;
+            } else {
+                selectedText.textContent = '已选 ' + selected.length + ' 项';
+                allCheckbox.checked = false;
+            }
+        }
+
+        document.getElementById('status-all').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('#statusDropdown input[type="checkbox"]:not(#status-all)');
+            checkboxes.forEach(cb => { cb.checked = this.checked; });
+            updateStatusSelect();
+        });
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.multi-select-dropdown')) {
+                document.getElementById('statusDropdown').classList.remove('show');
+                const afterSaleDropdown = document.getElementById('afterSaleDropdown');
+                if (afterSaleDropdown) {
+                    afterSaleDropdown.classList.remove('show');
+                }
+            }
+        });
+
+        function toggleAfterSaleDropdown() {
+            const dropdown = document.getElementById('afterSaleDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function updateAfterSaleSelect() {
+            const checkboxes = document.querySelectorAll('#afterSaleDropdown input[type="checkbox"]');
+            const selectedText = document.getElementById('afterSaleSelectText');
+            const selected = [];
+            checkboxes.forEach(cb => {
+                if (cb.checked) { selected.push(cb.nextElementSibling.textContent); }
+            });
+            if (selected.length === 0) {
+                selectedText.textContent = '请选择售后状态';
+            } else if (selected.length === checkboxes.length) {
+                selectedText.textContent = '全部';
+            } else {
+                selectedText.textContent = '已选 ' + selected.length + ' 项';
+            }
+        }
+
+        function switchLogistics(element, trackingNo) {
+            document.querySelectorAll('.logistics-tab').forEach(tab => { tab.classList.remove('active'); });
+            element.classList.add('active');
+            const logisticsData = {
+                'SF1234567890': { company: '顺丰速运', no: 'SF1234567890' },
+                'ZT9876543210': { company: '中通快递', no: 'ZT9876543210' }
+            };
+            const data = logisticsData[trackingNo];
+            document.getElementById('currentLogisticsCompany').textContent = data.company;
+            document.getElementById('currentLogisticsNo').textContent = data.no;
+        }
+
+        function copyLogisticsNo() {
+            const no = document.getElementById('currentLogisticsNo').textContent;
+            navigator.clipboard.writeText(no).then(() => { alert('物流单号已复制: ' + no); });
+        }
+    </script>
+</body>
+</html>

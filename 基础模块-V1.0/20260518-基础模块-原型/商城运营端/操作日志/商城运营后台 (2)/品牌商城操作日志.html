@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兆链采供应链平台 - 操作日志</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f7fa;
+        }
+        
+        .sidebar-item {
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar-item:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+        }
+        
+        .sidebar-item.active {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border-right: 3px solid #3b82f6;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        
+        .table-row {
+            transition: all 0.2s ease;
+        }
+        
+        .table-row:hover {
+            background-color: #f8fafc;
+            transform: translateX(4px);
+        }
+        
+        .modal-enter {
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        
+        .status-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .status-fail {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        
+        .date-input {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            background-size: 16px;
+        }
+    </style>
+</head>
+<body class="text-gray-700 h-screen overflow-hidden">
+
+    <!-- 顶部导航栏 -->
+    <header class="glass-effect border-b border-gray-200 h-16 flex items-center justify-between px-6 fixed top-0 left-0 right-0 z-40">
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 text-blue-600">
+                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                <span class="text-xl font-bold tracking-tight">兆链采</span>
+            </div>
+            <span class="text-gray-400">|</span>
+            <span class="text-gray-600 font-medium">供应链平台</span>
+        </div>
+        
+        <div class="flex items-center gap-6">
+            <button class="text-gray-500 hover:text-blue-600 transition-colors">
+                <i class="fas fa-search text-lg"></i>
+            </button>
+            <button class="text-gray-500 hover:text-blue-600 transition-colors relative">
+                <i class="far fa-bell text-lg"></i>
+                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <div class="flex items-center gap-3 pl-4 border-l border-gray-200">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-medium">
+                    用
+                </div>
+                <span class="text-sm font-medium text-gray-700">用户名</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex h-full pt-16">
+        <!-- 侧边栏 -->
+        <aside class="w-64 bg-white border-r border-gray-200 flex flex-col overflow-y-auto custom-scrollbar">
+            <nav class="p-4 space-y-1">
+                <div class="sidebar-item active flex items-center gap-3 px-4 py-3 rounded-lg cursor-pointer text-sm font-medium">
+                    <i class="fas fa-cog w-5"></i>
+                    <span>设置</span>
+                    <i class="fas fa-chevron-up ml-auto text-xs"></i>
+                </div>
+                
+                <div class="ml-4 space-y-1">
+                    <div class="sidebar-item flex items-center gap-3 px-4 py-2.5 rounded-lg cursor-pointer text-sm text-blue-600 bg-blue-50 font-medium border-r-2 border-blue-600">
+                        <span class="w-5"></span>
+                        <span>操作日志</span>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="flex-1 overflow-y-auto custom-scrollbar bg-gray-50 p-6">
+            <div class="max-w-7xl mx-auto fade-in">
+                <!-- 页面标题 -->
+                <div class="flex items-center gap-2 mb-6">
+                    <h1 class="text-xl font-semibold text-blue-600">操作日志</h1>
+                    <button class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- 搜索筛选区域 -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5 mb-4">
+                    <div class="flex flex-wrap items-end gap-6">
+                        <!-- 操作时间 -->
+                        <div class="flex items-center gap-3">
+                            <label class="text-sm font-medium text-gray-700 whitespace-nowrap">操作时间</label>
+                            <div class="flex items-center gap-2">
+                                <div class="relative">
+                                    <input type="text" placeholder="开始时间" class="date-input w-36 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                                <span class="text-gray-500 text-sm">至</span>
+                                <div class="relative">
+                                    <input type="text" placeholder="结束时间" class="date-input w-36 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 所属品牌商城 -->
+                        <div class="flex items-center gap-3">
+                            <label class="text-sm font-medium text-gray-700 whitespace-nowrap">所属品牌商城：</label>
+                            <span class="text-sm text-gray-900 font-medium bg-gray-100 px-3 py-1.5 rounded-md">东方航空</span>
+                        </div>
+
+                        <!-- 按钮组 -->
+                        <div class="flex gap-3 ml-auto">
+                            <button class="btn-primary text-white px-6 py-2 rounded-md text-sm font-medium flex items-center gap-2">
+                                查 询
+                            </button>
+                            <button class="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+                                重 置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 操作按钮 -->
+                <div class="mb-4">
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center gap-2 transition-colors shadow-sm">
+                        <i class="fas fa-download text-xs"></i>
+                        导出日志
+                    </button>
+                </div>
+
+                <!-- 数据表格 -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-gray-50 text-gray-700 font-medium border-b border-gray-200">
+                                <tr>
+                                    <th class="px-6 py-4 whitespace-nowrap">状态</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">操作时间</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">操作人</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">操作类型</th>
+                                    <th class="px-6 py-4 whitespace-nowrap">变更记录</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100" id="tableBody">
+                                <!-- 数据行将通过JS生成 -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 分页 -->
+                    <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-white">
+                        <div class="text-sm text-gray-600">
+                            第 <span class="font-medium text-gray-900">1-10</span> 条/总共 <span class="font-medium text-gray-900">100</span> 条
+                        </div>
+                        
+                        <div class="flex items-center gap-2">
+                            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-500 hover:bg-gray-50 disabled:opacity-50" disabled>
+                                <i class="fas fa-chevron-left text-xs"></i>
+                            </button>
+                            
+                            <button class="w-8 h-8 flex items-center justify-center rounded bg-blue-600 text-white text-sm font-medium">1</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium">2</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium">3</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium">4</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium">5</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium">6</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium">7</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium">8</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium">9</button>
+                            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-700 hover:bg-gray-50 text-sm font-medium">10</button>
+                            
+                            <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-300 text-gray-500 hover:bg-gray-50">
+                                <i class="fas fa-chevron-right text-xs"></i>
+                            </button>
+                            
+                            <div class="relative ml-2">
+                                <select class="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                                    <option>10 条/页</option>
+                                    <option>20 条/页</option>
+                                    <option>50 条/页</option>
+                                </select>
+                                <i class="fas fa-chevron-down absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-gray-500 pointer-events-none"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 变更详情弹窗 -->
+    <div id="changeModal" class="fixed inset-0 z-50 hidden">
+        <!-- 遮罩层 -->
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm transition-opacity" onclick="closeModal()"></div>
+        
+        <!-- 弹窗内容 -->
+        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl pointer-events-auto modal-enter transform transition-all">
+                <!-- 弹窗头部 -->
+                <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                    <h3 class="text-lg font-semibold text-gray-900">变更详情</h3>
+                    <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- 弹窗内容 -->
+                <div class="p-6">
+                    <div class="bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-100 text-gray-700 font-medium">
+                                <tr>
+                                    <th class="px-4 py-3 text-left border-b border-gray-200">涉及修改原内容</th>
+                                    <th class="px-4 py-3 text-left border-b border-gray-200">原内容</th>
+                                    <th class="px-4 py-3 text-left border-b border-gray-200">更新内容</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalTableBody" class="divide-y divide-gray-200 bg-white">
+                                <!-- 动态内容 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- 操作信息 -->
+                    <div class="mt-4 flex items-center gap-6 text-sm text-gray-600 bg-blue-50 p-4 rounded-lg">
+                        <div>
+                            <span class="text-gray-500">操作人：</span>
+                            <span class="font-medium text-gray-900" id="modalOperator">-</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">操作时间：</span>
+                            <span class="font-medium text-gray-900" id="modalTime">-</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">状态：</span>
+                            <span id="modalStatus">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 弹窗底部 -->
+                <div class="px-6 py-4 border-t border-gray-100 flex justify-end">
+                    <button onclick="closeModal()" class="px-6 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm font-medium transition-colors">
+                        关闭
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟数据
+        const tableData = [
+            {
+                id: 1,
+                status: 'success',
+                statusText: '成功',
+                time: '2024-01-23 12:34:56',
+                operator: '张三',
+                type: '商品数据修改',
+                hasChange: false,
+                changes: []
+            },
+            {
+                id: 2,
+                status: 'fail',
+                statusText: '失败',
+                time: '2024-01-23 12:34:56',
+                operator: '李四',
+                type: '商品数据修改',
+                hasChange: true,
+                changes: [
+                    { field: '商品名称', oldValue: '苹果16', newValue: 'iPhone16旗舰版500T' },
+                    { field: '商品销售价', oldValue: '5499', newValue: '999999' }
+                ]
+            },
+            {
+                id: 3,
+                status: 'success',
+                statusText: '成功',
+                time: '2024-01-23 10:22:15',
+                operator: '王五',
+                type: '库存数据修改',
+                hasChange: true,
+                changes: [
+                    { field: '库存数量', oldValue: '100', newValue: '150' }
+                ]
+            },
+            {
+                id: 4,
+                status: 'success',
+                statusText: '成功',
+                time: '2024-01-23 09:15:33',
+                operator: '赵六',
+                type: '用户信息修改',
+                hasChange: true,
+                changes: [
+                    { field: '联系电话', oldValue: '13800138000', newValue: '13900139000' },
+                    { field: '邮箱地址', oldValue: 'old@example.com', newValue: 'new@example.com' }
+                ]
+            },
+            {
+                id: 5,
+                status: 'fail',
+                statusText: '失败',
+                time: '2024-01-22 16:45:22',
+                operator: '张三',
+                type: '订单状态修改',
+                hasChange: false,
+                changes: []
+            }
+        ];
+
+        // 渲染表格
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = tableData.map(row => `
+                <tr class="table-row border-b border-gray-50 last:border-b-0">
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${row.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                            <span class="w-1.5 h-1.5 rounded-full ${row.status === 'success' ? 'bg-green-500' : 'bg-red-500'} mr-1.5"></span>
+                            ${row.statusText}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-gray-900 font-medium">${row.time}</td>
+                    <td class="px-6 py-4 text-gray-700">${row.operator}</td>
+                    <td class="px-6 py-4 text-gray-700">${row.type}</td>
+                    <td class="px-6 py-4">
+                        ${row.hasChange ? `
+                            <button onclick="openModal(${row.id})" class="text-blue-600 hover:text-blue-800 font-medium text-sm inline-flex items-center gap-1 hover:underline transition-all">
+                                查看
+                                <i class="fas fa-external-link-alt text-xs"></i>
+                            </button>
+                        ` : '<span class="text-gray-400">-</span>'}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 打开弹窗
+        function openModal(id) {
+            const data = tableData.find(item => item.id === id);
+            if (!data) return;
+
+            const modal = document.getElementById('changeModal');
+            const tbody = document.getElementById('modalTableBody');
+            
+            // 填充变更记录
+            tbody.innerHTML = data.changes.map(change => `
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-4 py-3 font-medium text-gray-900">${change.field}</td>
+                    <td class="px-4 py-3 text-gray-600 line-through decoration-red-400 decoration-2">${change.oldValue}</td>
+                    <td class="px-4 py-3 text-blue-600 font-medium bg-blue-50/50">${change.newValue}</td>
+                </tr>
+            `).join('');
+
+            // 填充操作信息
+            document.getElementById('modalOperator').textContent = data.operator;
+            document.getElementById('modalTime').textContent = data.time;
+            document.getElementById('modalStatus').innerHTML = `
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${data.status === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                    ${data.statusText}
+                </span>
+            `;
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            const modal = document.getElementById('changeModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        // 键盘事件
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        // 初始化
+        renderTable();
+
+        // 添加一些交互动画
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (!this.onclick) {
+                    // 简单的点击反馈
+                    this.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 100);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

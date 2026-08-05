@@ -1,0 +1,248 @@
+<!-- 页面1: 批量导入客户 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>批量导入员工 - 兆链采供应链平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', "PingFang SC", "Microsoft YaHei", sans-serif; }
+        .step-line { height: 2px; background: #e5e7eb; flex: 1; margin: 0 1rem; }
+        .step-line.active { background: #3b82f6; }
+        .step-circle { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+        .upload-area { border: 2px dashed #d1d5db; transition: all 0.3s; }
+        .upload-area:hover { border-color: #3b82f6; background: #eff6ff; }
+        .fade-in { animation: fadeIn 0.4s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- 顶部导航 -->
+<nav class="bg-white border-b border-gray-200 fixed w-full z-50 top-0">
+    <div class="flex items-center justify-between px-6 h-16">
+        <div class="flex items-center gap-8">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">兆</div>
+                <span class="text-lg font-semibold text-gray-900">兆链采供应链平台</span>
+            </div>
+        </div>
+        <div class="flex items-center gap-4 text-gray-600">
+            <button class="p-2 hover:bg-gray-100 rounded-full"><i class="fas fa-search"></i></button>
+            <button class="p-2 hover:bg-gray-100 rounded-full relative">
+                <i class="fas fa-bell"></i>
+                <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+            </button>
+            <div class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-3 py-1.5 rounded-lg">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm">用</div>
+                <span class="text-sm">用户名</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="flex pt-16 min-h-screen">
+    <!-- 左侧边栏 -->
+    <aside class="w-64 bg-white border-r border-gray-200 fixed h-full overflow-y-auto">
+        <div class="p-4">
+            <div class="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg cursor-pointer mb-1">
+                <i class="fas fa-cog w-5"></i>
+                <span class="text-sm font-medium">设置</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="ml-4 mt-1 space-y-1">
+                <div class="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg cursor-pointer text-sm">
+                    <span>组织架构</span>
+                </div>
+                <div class="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg cursor-pointer text-sm">
+                    <span>员工列表</span>
+                </div>
+                <div class="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg cursor-pointer text-sm">
+                    <span>部门管理</span>
+                </div>
+                <div class="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg cursor-pointer text-sm">
+                    <span>角色管理</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="flex-1 ml-64 p-6">
+        <!-- 面包屑 -->
+        <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
+            <span>设置</span>
+            <i class="fas fa-chevron-right text-xs"></i>
+            <span>员工列表</span>
+            <i class="fas fa-chevron-right text-xs"></i>
+            <span class="text-gray-900 font-medium">批量导入员工</span>
+            <button class="ml-auto text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+        </div>
+
+        <h1 class="text-xl font-semibold mb-6">员工导入</h1>
+
+        <!-- 操作说明 -->
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-8 text-sm text-gray-600">
+            <p class="font-medium text-gray-700 mb-2">操作说明：</p>
+            <p class="mb-1">1、请先下载客户导入模板，并按照批注中的要求填写数据，未按要求填写将会导致导入失败。</p>
+            <p>2、请选择 .xlsx 或 .xls文件，文件大小≤2M，每次只能导入一个文件，建议每次导入不超过1000条数据。</p>
+        </div>
+
+        <!-- 步骤条 -->
+        <div class="max-w-4xl mx-auto mb-10">
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center flex-1">
+                    <div class="flex flex-col items-center">
+                        <div class="step-circle bg-blue-600 text-white">
+                            <i class="fas fa-check text-sm"></i>
+                        </div>
+                        <span class="mt-2 text-sm font-medium text-gray-900">下载客户导入模板</span>
+                    </div>
+                    <div class="step-line active"></div>
+                    <div class="flex flex-col items-center">
+                        <div class="step-circle bg-blue-600 text-white" id="step2-circle">2</div>
+                        <span class="mt-2 text-sm font-medium text-gray-900" id="step2-text">上传数据</span>
+                    </div>
+                    <div class="step-line" id="step2-line"></div>
+                    <div class="flex flex-col items-center">
+                        <div class="step-circle bg-gray-200 text-gray-500" id="step3-circle">3</div>
+                        <span class="mt-2 text-sm text-gray-500" id="step3-text">完成</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 步骤1内容：下载模板 -->
+            <div id="step1-content" class="hidden bg-white border border-gray-200 rounded-lg p-12 text-center">
+                <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors mb-4 shadow-sm">
+                    下载客户导入模板
+                </button>
+                <div class="mt-6">
+                    <button onclick="nextStep(2)" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                        下一步
+                    </button>
+                </div>
+            </div>
+
+            <!-- 步骤2内容：上传数据 -->
+            <div id="step2-content" class="bg-white border border-gray-200 rounded-lg p-8">
+                <!-- 上传区域 -->
+                <div id="upload-area" class="upload-area rounded-lg p-12 text-center cursor-pointer bg-gray-50" onclick="document.getElementById('file-input').click()">
+                    <input type="file" id="file-input" class="hidden" accept=".xlsx,.xls" onchange="handleFileSelect(this)">
+                    <div class="text-gray-400 mb-3">
+                        <i class="fas fa-cloud-upload-alt text-4xl"></i>
+                    </div>
+                    <p class="text-gray-600 font-medium mb-1">选择文件上传</p>
+                </div>
+
+                <!-- 文件已选择状态 -->
+                <div id="file-selected" class="hidden mt-6 text-center fade-in">
+                    <p class="text-gray-800 font-medium mb-2">新建 XLSX 工作表.xlsx</p>
+                    <p class="text-gray-500 text-sm mb-6">请选择 .xlsx 或 .xls文件，文件大小≤2M，每次只能导入一个文件，建议每次导入不超过500条数据。</p>
+                    <div class="flex gap-3 justify-center">
+                        <button onclick="confirmImport()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                            确认导入
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 上传成功提示（模拟） -->
+                <div id="upload-success" class="hidden mt-4 bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2 text-sm text-green-700 fade-in">
+                    <i class="fas fa-check-circle"></i>
+                    <span>客户导入模板.xlsx 上传成功</span>
+                </div>
+
+                <!-- 错误提示（模拟） -->
+                <div id="upload-error" class="hidden mt-4 text-center fade-in">
+                    <div class="text-red-500 mb-2 font-medium">导入失败！您可以下载错误表格，查看错误原因，修改后重新导入。</div>
+                    <p class="text-gray-400 text-xs mb-4">请选择 .xlsx 或 .xls文件，文件大小≤2M，每次只能导入一个文件，建议每次导入不超过500条数据。</p>
+                    <button onclick="resetUpload()" class="border border-gray-300 hover:bg-gray-50 text-gray-700 px-6 py-2 rounded-lg text-sm font-medium transition-colors">
+                        重新导入
+                    </button>
+                </div>
+            </div>
+
+            <!-- 步骤3内容：完成 -->
+            <div id="step3-content" class="hidden bg-white border border-gray-200 rounded-lg p-12 text-center fade-in">
+                <div class="text-blue-600 mb-4">
+                    <i class="fas fa-check-circle text-5xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">导入成功！</h3>
+                <p class="text-gray-500 text-sm mb-6">您可以前往员工列表查看已导入的客户，或是继续导入。</p>
+                <button onclick="resetAll()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors shadow-sm">
+                    继续导入
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    let currentStep = 1;
+
+    function nextStep(step) {
+        document.getElementById('step1-content').classList.add('hidden');
+        document.getElementById('step2-content').classList.remove('hidden');
+        currentStep = 2;
+    }
+
+    function handleFileSelect(input) {
+        if (input.files && input.files[0]) {
+            document.getElementById('upload-area').classList.add('hidden');
+            document.getElementById('file-selected').classList.remove('hidden');
+        }
+    }
+
+    function confirmImport() {
+        // 模拟随机成功或失败
+        const isSuccess = Math.random() > 0.3;
+        
+        document.getElementById('file-selected').classList.add('hidden');
+        
+        if (isSuccess) {
+            document.getElementById('upload-success').classList.remove('hidden');
+            setTimeout(() => {
+                showStep3();
+            }, 800);
+        } else {
+            document.getElementById('upload-error').classList.remove('hidden');
+        }
+    }
+
+    function showStep3() {
+        document.getElementById('step2-content').classList.add('hidden');
+        document.getElementById('step3-content').classList.remove('hidden');
+        
+        document.getElementById('step2-circle').innerHTML = '<i class="fas fa-check text-sm"></i>';
+        document.getElementById('step2-line').classList.add('active');
+        document.getElementById('step3-circle').classList.remove('bg-gray-200', 'text-gray-500');
+        document.getElementById('step3-circle').classList.add('bg-blue-600', 'text-white');
+        document.getElementById('step3-text').classList.remove('text-gray-500');
+        document.getElementById('step3-text').classList.add('text-gray-900', 'font-medium');
+    }
+
+    function resetUpload() {
+        document.getElementById('upload-error').classList.add('hidden');
+        document.getElementById('upload-area').classList.remove('hidden');
+        document.getElementById('file-input').value = '';
+    }
+
+    function resetAll() {
+        currentStep = 1;
+        document.getElementById('step3-content').classList.add('hidden');
+        document.getElementById('step2-content').classList.remove('hidden');
+        resetUpload();
+        
+        document.getElementById('step2-circle').textContent = '2';
+        document.getElementById('step2-line').classList.remove('active');
+        document.getElementById('step3-circle').classList.remove('bg-blue-600', 'text-white');
+        document.getElementById('step3-circle').classList.add('bg-gray-200', 'text-gray-500');
+        document.getElementById('step3-text').classList.add('text-gray-500');
+        document.getElementById('step3-text').classList.remove('text-gray-900', 'font-medium');
+    }
+</script>
+
+</body>
+</html>

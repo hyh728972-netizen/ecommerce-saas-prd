@@ -1,0 +1,29 @@
+{
+  "accessToken": "YOUR_FIGMA_PERSONAL_ACCESS_TOKEN",
+  "fileKey": "YOUR_FIGMA_FILE_KEY",
+  "projectId": "YOUR_FIGMA_PROJECT_ID",
+  "syncOptions": {
+    "materialLibrary": true,
+    "pageDecoration": true,
+    "createComponents": true,
+    "updateExisting": true,
+    "dryRun": false
+  },
+  "componentMapping": {
+    "MaterialLibrary": {
+      "enabled": true,
+      "frameName": "物料库组件",
+      "columns": 5,
+      "itemWidth": 300,
+      "itemHeight": 220,
+      "gap": 20
+    },
+    "PageDecoration": {
+      "enabled": true,
+      "frameName": "页面装饰组件",
+      "itemWidth": 375,
+      "itemHeight": 120,
+      "gap": 16
+    }
+  }
+}

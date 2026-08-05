@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修改注册手机</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', "PingFang SC", "Microsoft YaHei", sans-serif; background-color: #f5f7fa; }
+        .step-circle { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
+        .step-active { background-color: #ef4444; color: white; }
+        .step-completed { background-color: #10b981; color: white; }
+        .step-pending { background-color: #e5e7eb; color: #9ca3af; }
+        .step-line { height: 2px; flex: 1; background-color: #e5e7eb; margin: 0 8px; }
+        .step-line-completed { background-color: #10b981; }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(2px); }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body class="text-gray-700 min-h-screen flex items-center justify-center p-4">
+
+<!-- 演示控制按钮 -->
+<div class="fixed top-4 left-4 space-y-2 z-50">
+    <button onclick="showStep(1)" class="bg-white px-4 py-2 rounded shadow text-sm hover:bg-gray-50 border border-gray-200">
+        显示步骤1：验证原手机
+    </button>
+    <button onclick="showStep(2)" class="bg-white px-4 py-2 rounded shadow text-sm hover:bg-gray-50 border border-gray-200">
+        显示步骤2：绑定新手机
+    </button>
+</div>
+
+<!-- 模态框 -->
+<div id="phoneModal" class="fixed inset-0 z-40 flex items-center justify-center">
+    <div class="modal-overlay absolute inset-0" onclick="closeModal()"></div>
+    
+    <div class="bg-white rounded-lg w-full max-w-md relative fade-in shadow-2xl">
+        <!-- 关闭按钮 -->
+        <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+            <i class="fas fa-times text-lg"></i>
+        </button>
+
+        <!-- 标题 -->
+        <div class="text-center pt-6 pb-4">
+            <h3 class="text-lg font-medium text-gray-800">修改注册手机</h3>
+        </div>
+
+        <!-- 步骤条 -->
+        <div class="px-8 mb-8">
+            <div class="flex items-center justify-center">
+                <!-- 步骤1 -->
+                <div class="flex items-center">
+                    <div class="step-circle step-active" id="step1-circle">1</div>
+                    <span class="ml-2 text-sm text-red-500 font-medium" id="step1-text">验证原手机</span>
+                </div>
+                
+                <!-- 连接线 -->
+                <div class="step-line w-16 mx-4" id="step-line"></div>
+                
+                <!-- 步骤2 -->
+                <div class="flex items-center">
+                    <div class="step-circle step-pending" id="step2-circle">2</div>
+                    <span class="ml-2 text-sm text-gray-400" id="step2-text">绑定新手机</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 步骤1内容：验证原手机 -->
+        <div id="step1-content" class="px-8 pb-8">
+            <form class="space-y-5" onsubmit="event.preventDefault(); goToStep2();">
+                <!-- 手机号码 -->
+                <div class="flex items-center gap-4">
+                    <label class="text-sm text-gray-600 w-20 text-right">手机号码:</label>
+                    <input type="text" value="186****6600" readonly 
+                        class="flex-1 bg-gray-50 border border-gray-200 rounded px-3 py-2.5 text-sm text-gray-500 cursor-not-allowed">
+                </div>
+
+                <!-- 短信验证码 -->
+                <div class="flex items-center gap-4">
+                    <label class="text-sm text-gray-600 w-20 text-right">短信验证码:</label>
+                    <div class="flex-1 flex gap-3">
+                        <input type="text" placeholder="" 
+                            class="flex-1 border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        <button type="button" onclick="getCode(this)" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors whitespace-nowrap min-w-[80px]">
+                            点击获取
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 下一步按钮 -->
+                <div class="flex justify-center pt-6">
+                    <button type="submit" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-12 py-2.5 rounded text-sm font-medium transition-colors shadow-sm min-w-[120px]">
+                        下一步
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 步骤2内容：绑定新手机 -->
+        <div id="step2-content" class="px-8 pb-8 hidden">
+            <form class="space-y-5" onsubmit="event.preventDefault(); submitNewPhone();">
+                <!-- 手机号码 -->
+                <div class="flex items-center gap-4">
+                    <label class="text-sm text-gray-600 w-20 text-right">手机号码:</label>
+                    <input type="tel" placeholder="" 
+                        class="flex-1 border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+
+                <!-- 短信验证码 -->
+                <div class="flex items-center gap-4">
+                    <label class="text-sm text-gray-600 w-20 text-right">短信验证码:</label>
+                    <div class="flex-1 flex gap-3">
+                        <input type="text" placeholder="" 
+                            class="flex-1 border border-gray-300 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        <button type="button" onclick="getCode(this)" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors whitespace-nowrap min-w-[80px]">
+                            点击获取
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 提交按钮 -->
+                <div class="flex justify-center pt-6">
+                    <button type="submit" 
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-12 py-2.5 rounded text-sm font-medium transition-colors shadow-sm min-w-[120px]">
+                        提交
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentStep = 1;
+    let countdown = 0;
+
+    // 显示指定步骤
+    function showStep(step) {
+        currentStep = step;
+        
+        // 重置步骤条样式
+        const step1Circle = document.getElementById('step1-circle');
+        const step2Circle = document.getElementById('step2-circle');
+        const step1Text = document.getElementById('step1-text');
+        const step2Text = document.getElementById('step2-text');
+        const stepLine = document.getElementById('step-line');
+
+        if (step === 1) {
+            // 步骤1样式
+            step1Circle.className = 'step-circle step-active';
+            step1Circle.textContent = '1';
+            step1Text.className = 'ml-2 text-sm text-red-500 font-medium';
+            
+            step2Circle.className = 'step-circle step-pending';
+            step2Circle.textContent = '2';
+            step2Text.className = 'ml-2 text-sm text-gray-400';
+            
+            stepLine.className = 'step-line w-16 mx-4';
+            
+            // 显示内容
+            document.getElementById('step1-content').classList.remove('hidden');
+            document.getElementById('step2-content').classList.add('hidden');
+        } else {
+            // 步骤2样式
+            step1Circle.className = 'step-circle step-completed';
+            step1Circle.innerHTML = '<i class="fas fa-check text-xs"></i>';
+            step1Text.className = 'ml-2 text-sm text-green-600 font-medium';
+            
+            step2Circle.className = 'step-circle step-active';
+            step2Circle.textContent = '2';
+            step2Text.className = 'ml-2 text-sm text-red-500 font-medium';
+            
+            stepLine.className = 'step-line step-line-completed w-16 mx-4';
+            
+            // 显示内容
+            document.getElementById('step1-content').classList.add('hidden');
+            document.getElementById('step2-content').classList.remove('hidden');
+        }
+    }
+
+    // 进入步骤2
+    function goToStep2() {
+        showStep(2);
+    }
+
+    // 提交新手机号
+    function submitNewPhone() {
+        alert('手机号修改成功！');
+        closeModal();
+        // 重置到步骤1
+        setTimeout(() => showStep(1), 300);
+    }
+
+    // 获取验证码
+    function getCode(btn) {
+        if (countdown > 0) return;
+        
+        // 模拟发送验证码
+        btn.textContent = '60s';
+        btn.classList.add('bg-gray-400', 'cursor-not-allowed');
+        btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+        
+        countdown = 60;
+        const timer = setInterval(() => {
+            countdown--;
+            if (countdown <= 0) {
+                clearInterval(timer);
+                btn.textContent = '点击获取';
+                btn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+            } else {
+                btn.textContent = countdown + 's';
+            }
+        }, 1000);
+    }
+
+    // 关闭模态框
+    function closeModal() {
+        document.getElementById('phoneModal').style.display = 'none';
+    }
+
+    // 页面加载时显示步骤1
+    window.onload = function() {
+        showStep(1);
+    };
+</script>
+
+</body>
+</html>

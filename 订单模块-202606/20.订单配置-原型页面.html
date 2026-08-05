@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>订单配置 - 商城运营平台</title>
+<style>
+:root {
+  --bg-app:#f4f3f0; --bg-sidebar:#1e1e22; --bg-surface:#ffffff; --bg-hover:#f7f6f4; --bg-input:#f9f8f7;
+  --border:#e6e4e0; --border-light:#f0eeeb;
+  --text-primary:#1a1a1c; --text-secondary:#6b6b70; --text-muted:#99999d; --text-sidebar:#c4c4c9;
+  --accent:#2d2d33; --accent-soft:#f0eeeb;
+  --blue:#2563eb; --blue-bg:#f5f8ff;
+  --red:#da3e3a;
+  --radius-sm:4px; --radius:8px; --radius-lg:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.06);
+  --transition:160ms ease;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;background:var(--bg-app);color:var(--text-primary);display:flex;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.sidebar{width:232px;min-width:232px;background:var(--bg-sidebar);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:10;}
+.sidebar-brand{padding:20px 20px 28px;border-bottom:1px solid rgba(255,255,255,.06);}
+.sidebar-brand .logo{font-size:17px;font-weight:600;color:#fff;letter-spacing:-.02em;display:flex;align-items:center;gap:10px;}
+.sidebar-brand .sub{font-size:11px;color:var(--text-sidebar);margin-top:2px;}
+.sidebar-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px;}
+.nav-section-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.25);padding:14px 10px 6px;display:flex;align-items:center;gap:4px;cursor:pointer;user-select:none;}
+.nav-section-label:hover{color:rgba(255,255,255,.45);}
+.section-arrow{font-size:8px;transition:transform .2s ease;flex-shrink:0;}
+.nav-section.collapsed .section-arrow{transform:rotate(-90deg);}
+.nav-section.collapsed .nav-section-items{display:none;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;color:var(--text-sidebar);font-size:13.5px;cursor:pointer;transition:all var(--transition);text-decoration:none;letter-spacing:.01em;}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#fff;}
+.nav-item.active{background:rgba(255,255,255,.10);color:#fff;font-weight:500;}
+.nav-icon{width:18px;height:18px;opacity:.55;flex-shrink:0;}
+.nav-item.active .nav-icon{opacity:1;}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{height:52px;min-height:52px;background:var(--bg-surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;z-index:5;}
+.topbar .breadcrumb{font-size:12.5px;color:var(--text-muted);letter-spacing:.01em;}
+.topbar .breadcrumb span{color:var(--text-primary);font-weight:500;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:16px;}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:#e6e4e0;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);}
+.content{flex:1;padding:24px 28px 40px;max-width:920px;}
+.page-header{margin-bottom:20px;}
+.page-header h1{font-size:22px;font-weight:600;letter-spacing:-.02em;}
+.page-header p{font-size:13px;color:var(--text-muted);margin-top:4px;}
+.config-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px 24px 18px;margin-bottom:16px;box-shadow:var(--shadow);}
+.config-card-title{font-size:15px;font-weight:600;margin-bottom:18px;color:var(--text-primary);}
+.rule-list{display:flex;flex-direction:column;gap:20px;}
+.rule-item{display:flex;flex-direction:column;gap:6px;}
+.rule-row{display:flex;align-items:center;flex-wrap:wrap;column-gap:8px;row-gap:6px;font-size:14px;color:var(--text-primary);line-height:1.6;}
+.rule-row .req{color:var(--red);font-weight:600;}
+.rule-input{width:72px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;text-align:center;background:var(--bg-surface);outline:none;transition:border-color var(--transition);flex-shrink:0;}
+.rule-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-bg);}
+.rule-input.invalid{border-color:var(--red);box-shadow:0 0 0 2px #fef4f3;}
+.rule-text-input{width:168px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;background:var(--bg-surface);outline:none;transition:border-color var(--transition);}
+.rule-text-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-bg);}
+.rule-text-input.invalid,.rule-date-input.invalid{border-color:var(--red);box-shadow:0 0 0 2px #fef4f3;}
+.rule-date-input{width:148px;height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;background:var(--bg-surface);outline:none;transition:border-color var(--transition);color:var(--text-primary);}
+.rule-date-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-bg);}
+.rule-check-row{padding-left:18px;margin-top:2px;}
+.rule-check{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;color:var(--text-primary);user-select:none;}
+.rule-check input{width:16px;height:16px;cursor:pointer;accent-color:var(--blue);}
+.rule-exempt-panel{margin-top:2px;padding:14px 16px;background:var(--blue-bg);border:1px solid #dbeafe;border-radius:var(--radius);}
+.holiday-periods-list{display:flex;flex-direction:column;gap:12px;}
+.holiday-period-card{border:1px solid #bfdbfe;border-radius:var(--radius-sm);padding:12px 14px;background:#fff;display:flex;flex-direction:column;gap:10px;}
+.holiday-period-head{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.holiday-period-label{font-size:13px;font-weight:600;color:var(--text-secondary);}
+.btn-link{border:none;background:none;color:var(--red);font-size:12px;cursor:pointer;padding:0;font-family:inherit;}
+.btn-link:hover{text-decoration:underline;}
+.btn-link:disabled{color:var(--text-muted);cursor:not-allowed;text-decoration:none;}
+.holiday-add-row{margin-top:4px;}
+.btn-text{display:inline-flex;align-items:center;padding:4px 0;font-size:13px;color:var(--blue);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:500;}
+.btn-text:hover{text-decoration:underline;}
+.rule-exempt-panel[hidden]{display:none;}
+.rule-sublist{display:flex;flex-direction:column;gap:12px;padding-left:18px;}
+.rule-sublist .rule-hint{padding-left:0;}
+.rule-logic-hint{font-size:12px;color:var(--text-muted);padding-left:18px;line-height:1.5;}
+.rule-hint{font-size:12px;color:var(--text-muted);padding-left:18px;line-height:1.5;}
+.rule-group{display:flex;flex-direction:column;gap:12px;}
+.rule-group-title{font-size:13px;font-weight:600;color:var(--text-secondary);margin:0;padding-bottom:6px;border-bottom:1px dashed var(--border-light);}
+.rule-row-static{font-size:14px;color:var(--text-primary);line-height:1.6;}
+.rule-row-static .tag-type{display:inline-block;padding:1px 8px;margin:0 2px;border-radius:var(--radius-sm);background:var(--accent-soft);font-size:12.5px;font-weight:500;}
+.rule-tip{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;border:1px solid var(--border);font-size:11px;color:var(--text-muted);cursor:help;position:relative;flex-shrink:0;}
+.rule-tip:hover{color:var(--blue);border-color:var(--blue);}
+.rule-tip[data-tip]:hover::after{content:attr(data-tip);position:absolute;left:50%;bottom:calc(100% + 8px);transform:translateX(-50%);width:max-content;max-width:260px;padding:8px 10px;background:#1e1e22;color:#fff;font-size:12px;font-weight:400;line-height:1.45;border-radius:6px;white-space:normal;z-index:20;pointer-events:none;}
+.card-actions{display:flex;align-items:center;gap:8px;margin-top:22px;padding-top:16px;border-top:1px solid var(--border-light);}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:6px 18px;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;cursor:pointer;border:1px solid transparent;transition:all var(--transition);font-weight:500;white-space:nowrap;}
+.btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+.btn-primary:hover{opacity:.9;}
+.btn-outline{background:var(--bg-surface);color:var(--text-primary);border-color:var(--border);}
+.btn-outline:hover{border-color:var(--text-muted);background:var(--bg-hover);}
+.toast-container{position:fixed;top:20px;right:20px;z-index:500;display:flex;flex-direction:column;gap:8px;}
+.toast{padding:10px 16px;border-radius:var(--radius-sm);font-size:13px;color:#fff;background:#1e1e22;box-shadow:var(--shadow);animation:toastIn .2s ease;max-width:380px;line-height:1.45;}
+.toast.success{background:var(--accent);}
+.toast.info{background:var(--blue);}
+.save-status{font-size:12px;color:var(--text-muted);line-height:1.5;margin-top:10px;padding-top:2px;}
+@keyframes toastIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="app-sidebar"></aside>
+<script src="./assets/common-sidebar.js"></script>
+
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">订单监控 / <span>订单配置</span></div>
+    <div class="topbar-right">
+      <span style="font-size:12px;color:var(--text-muted);">运营专员</span>
+      <div class="user-avatar">李</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <h1>订单配置</h1>
+      <p>配置平台级订单履约、支付超时与售后申请规则；保存后于下一个小时整点对新订单生效，已有订单按快照值执行。</p>
+    </div>
+
+    <div class="config-card">
+      <div class="config-card-title">订单规则</div>
+      <div class="rule-list">
+        <div class="rule-item">
+          <div class="rule-row">
+            <span class="req">*</span>
+            <span>承诺发货时效</span>
+            <span class="rule-tip" data-tip="用于列表/详情「剩余发货时间」、超时预警与催办判定；为平台对买家的履约承诺线，非物流物理截止。变更仅对新生成子订单生效。">ⓘ</span>
+            <span>：买家支付后</span>
+            <input type="number" class="rule-input" id="shipPromiseHours" min="1" max="168" step="1" value="24">
+            <span>小时内未完成发货，视为超时。</span>
+          </div>
+          <div class="rule-hint" data-hint-field="shipPromiseHours"></div>
+          <div class="rule-row rule-check-row">
+            <label class="rule-check">
+              <input type="checkbox" id="holidayModeEnabled" onchange="toggleHolidayMode()">
+              <span>开启节假日/活动模式</span>
+            </label>
+            <span class="rule-tip" data-tip="春节、国庆、双11 等高峰时段可配置多个延长窗口，避免大规模误报超时；下单时间命中任一时段即按对应延长时效执行，时段外仍按常规时效。">ⓘ</span>
+          </div>
+          <div class="rule-exempt-panel" id="holidayModePanel" hidden>
+            <div class="holiday-periods-list" id="holidayPeriodsList"></div>
+            <div class="holiday-add-row">
+              <button type="button" class="btn-text" onclick="addHolidayPeriod()">+ 添加活动时段</button>
+            </div>
+            <div class="rule-hint" style="padding-left:0;margin-top:8px;">可配置多个活动时段；下单时间命中任一时段即按对应延长时效计超时，时段外仍按常规时效。保存时将校验时段不可重叠。</div>
+          </div>
+          <div class="rule-logic-hint" id="holidayModeSummary">常规时效 24 小时；未开启节假日/活动模式。</div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-row">
+            <span class="req">*</span>
+            <span>自动确认收货</span>
+            <span class="rule-tip" data-tip="物流状态联动：订阅快递轨迹，识别「已签收」后按 X 天倒计时；轨迹长期未更新时，自发货日起 Y 天兜底。两条路径取先到者；买家手动确认优先。">ⓘ</span>
+          </div>
+          <div class="rule-sublist">
+            <div class="rule-item">
+              <div class="rule-row">
+                <span>物流轨迹显示【已签收】后</span>
+                <input type="number" class="rule-input" id="confirmReceiptAfterSignedDays" min="0" max="30" step="1" value="3">
+                <span>天，自动确认收货。</span>
+              </div>
+              <div class="rule-hint" data-hint-field="confirmReceiptAfterSignedDays"></div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-row">
+                <span>发货后</span>
+                <input type="number" class="rule-input" id="confirmReceiptAfterShipDays" min="1" max="30" step="1" value="7">
+                <span>天，自动确认收货。</span>
+              </div>
+              <div class="rule-hint" data-hint-field="confirmReceiptAfterShipDays"></div>
+            </div>
+          </div>
+          <div class="rule-logic-hint">执行逻辑：已签收路径与发货兜底路径并行计时，任一先到即触发；买家手动确认收货始终优先于系统自动确认。</div>
+        </div>
+        <div class="rule-item">
+          <div class="rule-row">
+            <span class="req">*</span>
+            <span>未支付超过</span>
+            <input type="number" class="rule-input" id="unpaidCancelMinutes" min="1" max="4320" step="1" value="15">
+            <span>分钟，自动取消订单。</span>
+          </div>
+          <div class="rule-hint" data-hint-field="unpaidCancelMinutes" data-hint-extra="不可为空、0 或超出范围，避免误立即取消或无效超长配置"></div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button type="button" class="btn btn-outline" onclick="resetOrderRules()">重置</button>
+        <button type="button" class="btn btn-primary" onclick="saveOrderRules()">保存</button>
+      </div>
+      <div class="save-status" id="orderRulesSaveStatus"></div>
+    </div>
+
+    <div class="config-card">
+      <div class="config-card-title">售后规则</div>
+      <div class="rule-list">
+        <div class="rule-group">
+          <div class="rule-group-title">待发货</div>
+          <div class="rule-row-static">子订单处于待发货状态时，买家仅可申请 <span class="tag-type">仅退款</span> 取消订单；<strong>不可</strong>申请退货退款、换货。</div>
+        </div>
+        <div class="rule-group">
+          <div class="rule-group-title">发货后</div>
+          <div class="rule-row-static">子订单已发货后，<strong>不可</strong>申请仅退款；仅支持售后申请 <span class="tag-type">退货退款</span>、<span class="tag-type">换货</span>。</div>
+          <div class="rule-item">
+            <div class="rule-row">
+              <span class="req">*</span>
+              <span>确认收货后可申请「退货退款」</span>
+              <span class="rule-tip" data-tip="发货后买家需寄回商品方可退款；超期后入口关闭。">ⓘ</span>
+              <span>：</span>
+              <input type="number" class="rule-input" id="returnRefundDays" min="1" max="365" step="1" value="15">
+              <span>天</span>
+            </div>
+            <div class="rule-hint" data-hint-field="returnRefundDays"></div>
+          </div>
+          <div class="rule-item">
+            <div class="rule-row">
+              <span class="req">*</span>
+              <span>确认收货后可申请「换货」</span>
+              <span class="rule-tip" data-tip="发货后商品存在质量问题等场景，买家可申请换货；超期后入口关闭。">ⓘ</span>
+              <span>：</span>
+              <input type="number" class="rule-input" id="exchangeDays" min="1" max="365" step="1" value="15">
+              <span>天</span>
+            </div>
+            <div class="rule-hint" data-hint-field="exchangeDays"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <button type="button" class="btn btn-outline" onclick="resetAfterSaleRules()">重置</button>
+        <button type="button" class="btn btn-primary" onclick="saveAfterSaleRules()">保存</button>
+      </div>
+      <div class="save-status" id="afterSaleRulesSaveStatus"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+var FIELD_LIMITS={
+  shipPromiseHours:{min:1,max:168,label:'承诺发货时效',unit:'小时'},
+  holidayShipPromiseHours:{min:1,max:168,label:'活动延长发货时效',unit:'小时'},
+  confirmReceiptAfterSignedDays:{min:0,max:30,label:'签收后自动确认',unit:'天',allowZero:true},
+  confirmReceiptAfterShipDays:{min:1,max:30,label:'发货兜底自动确认',unit:'天'},
+  unpaidCancelMinutes:{min:1,max:4320,label:'未支付取消',unit:'分钟'},
+  returnRefundDays:{min:1,max:365,label:'退货退款售后',unit:'天'},
+  exchangeDays:{min:1,max:365,label:'换货售后',unit:'天'}
+};
+var DEFAULT_ORDER_RULES={
+  shipPromiseHours:24,
+  holidayModeEnabled:false,
+  holidayPeriods:[],
+  confirmReceiptAfterSignedDays:3,
+  confirmReceiptAfterShipDays:7,
+  unpaidCancelMinutes:15
+};
+var HOLIDAY_HOURS_DEFAULT=72;
+var holidayPeriodSeq=0;
+var DEFAULT_AFTER_SALE={returnRefundDays:15,exchangeDays:15};
+var CURRENT_OPERATOR='张三';
+var SAVE_STORAGE_KEYS={order:'mall-order-config-order-save',afterSale:'mall-order-config-aftersale-save'};
+var savedOrderRules=Object.assign({},DEFAULT_ORDER_RULES,{holidayPeriods:[]});
+var savedAfterSale=Object.assign({},DEFAULT_AFTER_SALE);
+
+function loadSaveMeta(key,fallback){
+  try{
+    var raw=localStorage.getItem(key);
+    if(raw)return JSON.parse(raw);
+  }catch(e){}
+  return fallback;
+}
+function buildDemoSaveMeta(){
+  var savedAt=new Date(Date.now()-30*60*1000);
+  return {
+    savedAt:formatDateTime(savedAt),
+    effectiveAt:formatDateTime(getConfigEffectiveTime(savedAt)),
+    operator:CURRENT_OPERATOR
+  };
+}
+var lastOrderRulesSave=loadSaveMeta(SAVE_STORAGE_KEYS.order,buildDemoSaveMeta());
+var lastAfterSaleSave=loadSaveMeta(SAVE_STORAGE_KEYS.afterSale,buildDemoSaveMeta());
+
+function getDefaultValue(fieldKey){
+  if(Object.prototype.hasOwnProperty.call(DEFAULT_ORDER_RULES,fieldKey))return DEFAULT_ORDER_RULES[fieldKey];
+  return DEFAULT_AFTER_SALE[fieldKey];
+}
+function renderDefaultHints(){
+  document.querySelectorAll('[data-hint-field]').forEach(function(el){
+    var key=el.getAttribute('data-hint-field');
+    var lim=FIELD_LIMITS[key];
+    if(!lim)return;
+    var val=getDefaultValue(key);
+    var text='可填范围 '+lim.min+'–'+lim.max+' '+lim.unit+'；默认值：'+val+' '+lim.unit;
+    var extra=el.getAttribute('data-hint-extra');
+    if(extra)text+='；'+extra;
+    el.textContent=text;
+  });
+}
+
+function showToast(type,msg,duration){
+  var c=document.getElementById('toastContainer');
+  var t=document.createElement('div');
+  t.className='toast '+(type||'info');
+  t.textContent=msg;
+  c.appendChild(t);
+  setTimeout(function(){t.remove();},duration||2800);
+}
+function padTimePart(n){return n<10?'0'+n:''+n;}
+function formatDateTime(d){
+  return d.getFullYear()+'-'+padTimePart(d.getMonth()+1)+'-'+padTimePart(d.getDate())+' '+padTimePart(d.getHours())+':'+padTimePart(d.getMinutes())+':'+padTimePart(d.getSeconds());
+}
+function getConfigEffectiveTime(fromDate){
+  var base=fromDate?new Date(fromDate.getTime()):new Date();
+  return new Date(base.getFullYear(),base.getMonth(),base.getDate(),base.getHours()+1,0,0,0);
+}
+function formatSaveStatusText(label,meta){
+  return label+' · 最近更新 '+meta.savedAt+' · 配置已保存，将于 '+meta.effectiveAt+' 对新订单生效，操作人：'+meta.operator;
+}
+function renderSaveStatus(statusElId,label,meta){
+  var el=document.getElementById(statusElId);
+  if(!el||!meta)return;
+  el.textContent=formatSaveStatusText(label,meta);
+}
+function recordSaveSuccess(label,statusElId,storageKey){
+  var now=new Date();
+  var meta={
+    savedAt:formatDateTime(now),
+    effectiveAt:formatDateTime(getConfigEffectiveTime()),
+    operator:CURRENT_OPERATOR
+  };
+  try{localStorage.setItem(storageKey,JSON.stringify(meta));}catch(e){}
+  if(storageKey===SAVE_STORAGE_KEYS.order)lastOrderRulesSave=meta;
+  else lastAfterSaleSave=meta;
+  renderSaveStatus(statusElId,label,meta);
+  showToast('success','配置已保存，将于 '+meta.effectiveAt+' 对新订单生效',4500);
+}
+function parseRuleInt(id){
+  var el=document.getElementById(id);
+  if(!el)return {ok:false,el:el,msg:FIELD_LIMITS[id].label+'不可为空'};
+  var raw=el.value.trim();
+  if(raw==='')return {ok:false,el:el,msg:FIELD_LIMITS[id].label+'不可为空'};
+  var v=parseInt(raw,10);
+  if(isNaN(v))return {ok:false,el:el,msg:FIELD_LIMITS[id].label+'不可为无效值'};
+  var lim=FIELD_LIMITS[id];
+  if(lim.allowZero){
+    if(v<0)return {ok:false,el:el,msg:lim.label+'不可小于 0'};
+  }else if(v<=0){
+    return {ok:false,el:el,msg:lim.label+'不可为 0 或无效值'};
+  }
+  if(v<lim.min||v>lim.max)return {ok:false,el:el,msg:lim.label+'须在 '+lim.min+'–'+lim.max+' '+lim.unit+'之间'};
+  return {ok:true,el:el,value:v};
+}
+function clearInvalid(){
+  document.querySelectorAll('.rule-input.invalid,.rule-date-input.invalid,.rule-text-input.invalid').forEach(function(el){el.classList.remove('invalid');});
+}
+function markInvalid(result){
+  if(result.el)result.el.classList.add('invalid');
+}
+function parseRuleDateEl(el,label){
+  if(!el)return {ok:false,el:el,msg:(label||'生效时段')+'不可为空'};
+  var raw=el.value.trim();
+  if(!raw)return {ok:false,el:el,msg:(label||'生效时段')+'不可为空'};
+  return {ok:true,el:el,value:raw};
+}
+function parseRuleDate(id,label){
+  return parseRuleDateEl(document.getElementById(id),label);
+}
+function nextHolidayPeriodId(){
+  holidayPeriodSeq+=1;
+  return 'hp_'+holidayPeriodSeq;
+}
+function createHolidayPeriod(overrides){
+  return Object.assign({
+    id:nextHolidayPeriodId(),
+    name:'',
+    startDate:'',
+    endDate:'',
+    shipPromiseHours:HOLIDAY_HOURS_DEFAULT
+  },overrides||{});
+}
+function normalizeHolidayPeriods(data){
+  if(data.holidayPeriods&&data.holidayPeriods.length)return data.holidayPeriods.map(function(p){
+    return createHolidayPeriod(p);
+  });
+  if(data.holidayStartDate||data.holidayEndDate||data.holidayPeriodName){
+    return [createHolidayPeriod({
+      name:data.holidayPeriodName||'',
+      startDate:data.holidayStartDate||'',
+      endDate:data.holidayEndDate||'',
+      shipPromiseHours:data.holidayShipPromiseHours||HOLIDAY_HOURS_DEFAULT
+    })];
+  }
+  return [];
+}
+function appendHolidayFieldRow(card,label,input){
+  var item=document.createElement('div');
+  item.className='rule-item';
+  var row=document.createElement('div');
+  row.className='rule-row';
+  var labelEl=document.createElement('span');
+  labelEl.textContent=label;
+  row.appendChild(labelEl);
+  row.appendChild(input);
+  item.appendChild(row);
+  card.appendChild(item);
+  return item;
+}
+function renderHolidayPeriods(periods){
+  var list=document.getElementById('holidayPeriodsList');
+  if(!list)return;
+  list.innerHTML='';
+  (periods||[]).forEach(function(p,idx){
+    if(p.id)holidayPeriodSeq=Math.max(holidayPeriodSeq,parseInt(String(p.id).replace(/\D/g,''),10)||0);
+    var card=document.createElement('div');
+    card.className='holiday-period-card';
+    card.setAttribute('data-period-id',p.id||nextHolidayPeriodId());
+    var head=document.createElement('div');
+    head.className='holiday-period-head';
+    var title=document.createElement('span');
+    title.className='holiday-period-label';
+    title.textContent='活动时段 '+(idx+1);
+    var delBtn=document.createElement('button');
+    delBtn.type='button';
+    delBtn.className='btn-link';
+    delBtn.textContent='删除';
+    delBtn.onclick=function(){removeHolidayPeriod(card.getAttribute('data-period-id'));};
+    head.appendChild(title);
+    head.appendChild(delBtn);
+    card.appendChild(head);
+    var nameInput=document.createElement('input');
+    nameInput.type='text';
+    nameInput.className='rule-text-input';
+    nameInput.setAttribute('data-field','name');
+    nameInput.placeholder='如：2026 春节';
+    nameInput.maxLength=30;
+    nameInput.value=p.name||'';
+    appendHolidayFieldRow(card,'活动名称',nameInput);
+    var dateRow=document.createElement('div');
+    dateRow.className='rule-item';
+    var dateLine=document.createElement('div');
+    dateLine.className='rule-row';
+    ['生效时段'].forEach(function(t){
+      var s=document.createElement('span');
+      s.textContent=t;
+      dateLine.appendChild(s);
+    });
+    var startInput=document.createElement('input');
+    startInput.type='date';
+    startInput.className='rule-date-input';
+    startInput.setAttribute('data-field','startDate');
+    startInput.value=p.startDate||'';
+    var mid=document.createElement('span');
+    mid.textContent='至';
+    var endInput=document.createElement('input');
+    endInput.type='date';
+    endInput.className='rule-date-input';
+    endInput.setAttribute('data-field','endDate');
+    endInput.value=p.endDate||'';
+    dateLine.appendChild(startInput);
+    dateLine.appendChild(mid);
+    dateLine.appendChild(endInput);
+    dateRow.appendChild(dateLine);
+    var dateHint=document.createElement('div');
+    dateHint.className='rule-hint';
+    dateHint.style.paddingLeft='0';
+    dateHint.textContent='买家下单时间落在该时段内的子订单，按下方延长时效计超时';
+    dateRow.appendChild(dateHint);
+    card.appendChild(dateRow);
+    var hoursRow=document.createElement('div');
+    hoursRow.className='rule-item';
+    var hoursLine=document.createElement('div');
+    hoursLine.className='rule-row';
+    var hLabel=document.createElement('span');
+    hLabel.textContent='统一延长至';
+    var hoursInput=document.createElement('input');
+    hoursInput.type='number';
+    hoursInput.className='rule-input';
+    hoursInput.setAttribute('data-field','shipPromiseHours');
+    hoursInput.min='1';
+    hoursInput.max='168';
+    hoursInput.step='1';
+    hoursInput.value=p.shipPromiseHours!=null?p.shipPromiseHours:HOLIDAY_HOURS_DEFAULT;
+    var hSuffix=document.createElement('span');
+    hSuffix.textContent='小时内未完成发货，视为超时。';
+    hoursLine.appendChild(hLabel);
+    hoursLine.appendChild(hoursInput);
+    hoursLine.appendChild(hSuffix);
+    hoursRow.appendChild(hoursLine);
+    var hoursHint=document.createElement('div');
+    hoursHint.className='rule-hint';
+    hoursHint.style.paddingLeft='0';
+    hoursHint.textContent='可填范围 1–168 小时；默认值：'+HOLIDAY_HOURS_DEFAULT+' 小时；须不低于常规承诺发货时效';
+    hoursRow.appendChild(hoursHint);
+    card.appendChild(hoursRow);
+    list.appendChild(card);
+  });
+  bindHolidayPeriodInputs();
+  updateHolidayDeleteButtons();
+}
+function bindHolidayPeriodInputs(){
+  document.querySelectorAll('#holidayPeriodsList input').forEach(function(el){
+    el.oninput=updateHolidaySummary;
+  });
+}
+function updateHolidayDeleteButtons(){
+  var cards=document.querySelectorAll('#holidayPeriodsList .holiday-period-card');
+  var onlyOne=cards.length<=1;
+  cards.forEach(function(card){
+    var btn=card.querySelector('.btn-link');
+    if(!btn)return;
+    btn.disabled=onlyOne;
+    btn.title=onlyOne?'至少保留一个活动时段':'';
+  });
+}
+function readHolidayPeriodsFromDom(){
+  var periods=[];
+  document.querySelectorAll('#holidayPeriodsList .holiday-period-card').forEach(function(card){
+    var hoursRaw=card.querySelector('[data-field="shipPromiseHours"]').value.trim();
+    periods.push({
+      id:card.getAttribute('data-period-id'),
+      name:card.querySelector('[data-field="name"]').value.trim(),
+      startDate:card.querySelector('[data-field="startDate"]').value,
+      endDate:card.querySelector('[data-field="endDate"]').value,
+      shipPromiseHours:hoursRaw===''?NaN:parseInt(hoursRaw,10)
+    });
+  });
+  return periods;
+}
+function addHolidayPeriod(){
+  var periods=readHolidayPeriodsFromDom();
+  periods.push(createHolidayPeriod());
+  renderHolidayPeriods(periods);
+  updateHolidaySummary();
+}
+function removeHolidayPeriod(id){
+  var periods=readHolidayPeriodsFromDom();
+  if(periods.length<=1){
+    showToast('info','至少保留一个活动时段');
+    return;
+  }
+  periods=periods.filter(function(p){return p.id!==id;});
+  renderHolidayPeriods(periods);
+  updateHolidaySummary();
+}
+function validateHolidayPeriods(periods,baseHours){
+  if(!periods.length)return {ok:false,msg:'请至少添加一个活动时段'};
+  for(var i=0;i<periods.length;i++){
+    var p=periods[i];
+    var tag=p.name||('活动时段 '+(i+1));
+    if(!p.startDate||!p.endDate){
+      var missEl=document.querySelector('#holidayPeriodsList .holiday-period-card[data-period-id="'+p.id+'"] [data-field="'+(p.startDate?'endDate':'startDate')+'"]');
+      return {ok:false,el:missEl,msg:tag+' 的生效时段不可为空'};
+    }
+    if(p.startDate>p.endDate){
+      return {ok:false,el:document.querySelector('#holidayPeriodsList .holiday-period-card[data-period-id="'+p.id+'"] [data-field="endDate"]'),msg:tag+' 的结束日期不能早于开始日期'};
+    }
+    if(isNaN(p.shipPromiseHours)||p.shipPromiseHours<=0){
+      return {ok:false,el:document.querySelector('#holidayPeriodsList .holiday-period-card[data-period-id="'+p.id+'"] [data-field="shipPromiseHours"]'),msg:tag+' 的延长时效不可为空或 0'};
+    }
+    var lim=FIELD_LIMITS.holidayShipPromiseHours;
+    if(p.shipPromiseHours<lim.min||p.shipPromiseHours>lim.max){
+      return {ok:false,el:document.querySelector('#holidayPeriodsList .holiday-period-card[data-period-id="'+p.id+'"] [data-field="shipPromiseHours"]'),msg:tag+' 的延长时效须在 '+lim.min+'–'+lim.max+' 小时之间'};
+    }
+    if(p.shipPromiseHours<baseHours){
+      return {ok:false,el:document.querySelector('#holidayPeriodsList .holiday-period-card[data-period-id="'+p.id+'"] [data-field="shipPromiseHours"]'),msg:tag+' 的延长时效不得低于常规承诺发货时效（'+baseHours+' 小时）'};
+    }
+  }
+  for(var a=0;a<periods.length;a++){
+    for(var b=a+1;b<periods.length;b++){
+      if(periods[a].startDate<=periods[b].endDate&&periods[b].startDate<=periods[a].endDate){
+        return {ok:false,msg:(periods[a].name||('活动时段 '+(a+1)))+' 与 '+(periods[b].name||('活动时段 '+(b+1)))+' 的生效时段不可重叠'};
+      }
+    }
+  }
+  return {ok:true};
+}
+function toggleHolidayMode(){
+  var on=document.getElementById('holidayModeEnabled').checked;
+  document.getElementById('holidayModePanel').hidden=!on;
+  if(on&&!readHolidayPeriodsFromDom().length){
+    renderHolidayPeriods([createHolidayPeriod()]);
+  }
+  updateHolidaySummary();
+}
+function updateHolidaySummary(){
+  var el=document.getElementById('holidayModeSummary');
+  if(!el)return;
+  var base=document.getElementById('shipPromiseHours').value||DEFAULT_ORDER_RULES.shipPromiseHours;
+  if(!document.getElementById('holidayModeEnabled').checked){
+    el.textContent='常规时效 '+base+' 小时；未开启节假日/活动模式。';
+    return;
+  }
+  var periods=readHolidayPeriodsFromDom();
+  if(!periods.length){
+    el.textContent='执行逻辑：已开启活动模式，请添加至少一个生效时段；时段外仍按常规 '+base+' 小时。';
+    return;
+  }
+  var parts=periods.map(function(p,idx){
+    var label=p.name||('活动'+(idx+1));
+    var period=p.startDate&&p.endDate?(p.startDate+' 至 '+p.endDate):'待设置时段';
+    var hrs=!isNaN(p.shipPromiseHours)?p.shipPromiseHours:HOLIDAY_HOURS_DEFAULT;
+    return label+'（'+period+' → '+hrs+'h）';
+  });
+  el.textContent='执行逻辑：共 '+periods.length+' 个活动时段 · '+parts.join('；')+'；时段外仍按常规 '+base+' 小时。';
+}
+function readOrderRules(validate){
+  clearInvalid();
+  var fields=['shipPromiseHours','confirmReceiptAfterSignedDays','confirmReceiptAfterShipDays','unpaidCancelMinutes'];
+  var data={};
+  for(var i=0;i<fields.length;i++){
+    var r=parseRuleInt(fields[i]);
+    if(validate&&!r.ok){markInvalid(r);showToast('info',r.msg);return null;}
+    data[fields[i]]=r.ok?r.value:DEFAULT_ORDER_RULES[fields[i]];
+  }
+  data.holidayModeEnabled=document.getElementById('holidayModeEnabled').checked;
+  data.holidayPeriods=readHolidayPeriodsFromDom();
+  if(validate&&data.holidayModeEnabled){
+    var vHoliday=validateHolidayPeriods(data.holidayPeriods,data.shipPromiseHours);
+    if(!vHoliday.ok){
+      if(vHoliday.el)markInvalid({el:vHoliday.el});
+      showToast('info',vHoliday.msg);
+      return null;
+    }
+  }
+  return data;
+}
+function applyOrderRules(data){
+  document.getElementById('shipPromiseHours').value=data.shipPromiseHours;
+  document.getElementById('holidayModeEnabled').checked=!!data.holidayModeEnabled;
+  var periods=normalizeHolidayPeriods(data);
+  if(data.holidayModeEnabled&&!periods.length)periods=[createHolidayPeriod()];
+  renderHolidayPeriods(periods);
+  document.getElementById('confirmReceiptAfterSignedDays').value=data.confirmReceiptAfterSignedDays;
+  document.getElementById('confirmReceiptAfterShipDays').value=data.confirmReceiptAfterShipDays;
+  document.getElementById('unpaidCancelMinutes').value=data.unpaidCancelMinutes;
+  toggleHolidayMode();
+  clearInvalid();
+}
+function readAfterSaleRules(validate){
+  clearInvalid();
+  var r1=parseRuleInt('returnRefundDays');
+  if(validate&&!r1.ok){markInvalid(r1);showToast('info',r1.msg);return null;}
+  var r2=parseRuleInt('exchangeDays');
+  if(validate&&!r2.ok){markInvalid(r2);showToast('info',r2.msg);return null;}
+  return {
+    returnRefundDays:r1.ok?r1.value:DEFAULT_AFTER_SALE.returnRefundDays,
+    exchangeDays:r2.ok?r2.value:DEFAULT_AFTER_SALE.exchangeDays
+  };
+}
+function applyAfterSaleRules(data){
+  document.getElementById('returnRefundDays').value=data.returnRefundDays;
+  document.getElementById('exchangeDays').value=data.exchangeDays;
+  clearInvalid();
+}
+function resetOrderRules(){
+  applyOrderRules(DEFAULT_ORDER_RULES);
+  showToast('info','已恢复为默认订单规则');
+}
+function saveOrderRules(){
+  var data=readOrderRules(true);
+  if(!data)return;
+  savedOrderRules=data;
+  recordSaveSuccess('订单规则','orderRulesSaveStatus',SAVE_STORAGE_KEYS.order);
+}
+function resetAfterSaleRules(){
+  applyAfterSaleRules(DEFAULT_AFTER_SALE);
+  showToast('info','已恢复为默认售后规则');
+}
+function saveAfterSaleRules(){
+  var data=readAfterSaleRules(true);
+  if(!data)return;
+  savedAfterSale=data;
+  recordSaveSuccess('售后规则','afterSaleRulesSaveStatus',SAVE_STORAGE_KEYS.afterSale);
+}
+applyOrderRules(savedOrderRules);
+applyAfterSaleRules(savedAfterSale);
+renderDefaultHints();
+renderSaveStatus('orderRulesSaveStatus','订单规则',lastOrderRulesSave);
+renderSaveStatus('afterSaleRulesSaveStatus','售后规则',lastAfterSaleSave);
+['shipPromiseHours'].forEach(function(id){
+  var el=document.getElementById(id);
+  if(el)el.addEventListener('input',updateHolidaySummary);
+});
+updateHolidaySummary();
+</script>
+</body>
+</html>

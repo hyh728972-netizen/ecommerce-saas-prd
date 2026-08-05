@@ -1,0 +1,191 @@
+<!-- 页面1: 企业认证表单填写页 (公司认证新增) -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公司认证新增 - 一兆链采供应商中心</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', "PingFang SC", "Microsoft YaHei", sans-serif; background-color: #f5f7fa; }
+        .required::before { content: "*"; color: #ef4444; margin-right: 4px; }
+        .upload-box { border: 1px dashed #d1d5db; transition: all 0.3s; }
+        .upload-box:hover { border-color: #3b82f6; background: #eff6ff; }
+        .tab-active { color: #3b82f6; border-bottom: 2px solid #3b82f6; font-weight: 600; }
+        .tab-inactive { color: #6b7280; border-bottom: 2px solid transparent; }
+        .tab-inactive:hover { color: #374151; }
+    </style>
+</head>
+<body class="text-gray-700">
+
+<!-- 顶部导航 -->
+<nav class="bg-white border-b border-gray-200 fixed w-full z-50 top-0 h-16">
+    <div class="flex items-center justify-between px-6 h-full">
+        <div class="flex items-center gap-2">
+            <span class="text-xl font-semibold text-blue-600">一兆链采供应商中心</span>
+        </div>
+        <div class="flex items-center gap-4 text-gray-500">
+            <button class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <i class="fas fa-redo-alt"></i>
+            </button>
+            <button class="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
+                <i class="fas fa-bell"></i>
+            </button>
+            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 cursor-pointer">
+                <i class="fas fa-user text-sm"></i>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="flex pt-16 min-h-screen">
+    <!-- 左侧边栏 -->
+    <aside class="w-56 bg-white border-r border-gray-200 fixed h-full overflow-y-auto">
+        <div class="py-4 space-y-1">
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-home w-5"></i>
+                <span class="text-sm">首页</span>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-blue-600 bg-blue-50 cursor-pointer transition-colors border-r-2 border-blue-600">
+                <i class="fas fa-building w-5"></i>
+                <span class="text-sm font-medium">公司认证</span>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-cube w-5"></i>
+                <span class="text-sm">商品中心</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-clipboard-list w-5"></i>
+                <span class="text-sm">订单中心</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-shopping-cart w-5"></i>
+                <span class="text-sm">采购管理</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-warehouse w-5"></i>
+                <span class="text-sm">仓库管理</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-cog w-5"></i>
+                <span class="text-sm">设置</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="flex-1 ml-56 p-6">
+        <!-- 面包屑/标签 -->
+        <div class="bg-white rounded-t-lg border-b border-gray-200 px-6 py-3 mb-0">
+            <span class="text-blue-600 font-medium text-sm">公司认证新增</span>
+        </div>
+
+        <div class="bg-white rounded-b-lg shadow-sm p-8">
+            <!-- 三级标签 -->
+            <div class="flex border-b border-gray-200 mb-8">
+                <button class="tab-active pb-3 px-4 text-sm mr-6">企业认证</button>
+                <button class="tab-inactive pb-3 px-4 text-sm mr-6 hover:text-gray-900">法人认证</button>
+                <button class="tab-inactive pb-3 px-4 text-sm hover:text-gray-900">财务认证</button>
+            </div>
+
+            <form class="max-w-4xl space-y-6">
+                <!-- 营业执照上传 -->
+                <div class="flex items-start gap-8">
+                    <label class="w-32 text-sm text-gray-600 pt-2 required">企业营业执照:</label>
+                    <div class="flex gap-6">
+                        <div class="upload-box w-32 h-40 rounded-lg flex flex-col items-center justify-center cursor-pointer bg-gray-50 hover:bg-blue-50">
+                            <i class="fas fa-plus text-2xl text-gray-400 mb-2"></i>
+                        </div>
+                        <div class="flex flex-col items-center">
+                            <div class="w-40 h-28 bg-gray-100 rounded border border-gray-200 overflow-hidden mb-2">
+                                <img src="https://via.placeholder.com/160x112/f3f4f6/9ca3af?text=营业执照示例" alt="示例" class="w-full h-full object-cover">
+                            </div>
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">示例</span>
+                        </div>
+                        <div class="flex-1 pt-8">
+                            <p class="text-xs text-gray-400 mt-1">仅限jpg、jpeg、png,大小不超过2M,仅限上传1张</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 品牌商城名称 -->
+                <div class="flex items-center gap-8">
+                    <label class="w-32 text-sm text-gray-600 required">品牌商城名称:</label>
+                    <input type="text" placeholder="请输入品牌商城名称" class="flex-1 max-w-md border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+
+                <!-- 企业名称 -->
+                <div class="flex items-center gap-8">
+                    <label class="w-32 text-sm text-gray-600 required">企业名称:</label>
+                    <input type="text" placeholder="请输入企业名称" class="flex-1 max-w-2xl border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+
+                <!-- 统一社会信用代码 -->
+                <div class="flex items-center gap-8">
+                    <label class="w-32 text-sm text-gray-600 required">统一社会信用代码:</label>
+                    <input type="text" placeholder="请输入统一社会信用代码" class="flex-1 max-w-2xl border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+
+                <!-- 注册地址 -->
+                <div class="flex items-center gap-8">
+                    <label class="w-32 text-sm text-gray-600">注册地址:</label>
+                    <div class="flex gap-3 flex-1 max-w-2xl">
+                        <select class="w-48 border border-gray-300 rounded px-3 py-2 text-sm text-gray-500 focus:outline-none focus:border-blue-500 bg-white">
+                            <option>省/市/区</option>
+                        </select>
+                        <input type="text" placeholder="详细地址" class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <!-- 经营地址 -->
+                <div class="flex items-start gap-8">
+                    <label class="w-32 text-sm text-gray-600 pt-2">经营地址:</label>
+                    <div class="flex-1 max-w-2xl space-y-3">
+                        <div class="flex gap-3">
+                            <select class="w-48 border border-gray-300 rounded px-3 py-2 text-sm text-gray-500 focus:outline-none focus:border-blue-500 bg-white">
+                                <option>省/市/区</option>
+                            </select>
+                            <input type="text" placeholder="详细地址" class="flex-1 border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500">
+                        </div>
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="text-sm text-gray-600">同注册地址一致</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 对接人姓名 -->
+                <div class="flex items-center gap-8">
+                    <label class="w-32 text-sm text-gray-600 required">对接人姓名:</label>
+                    <input type="text" placeholder="请输入对接此系统的联系人姓名,例如当前注册人的姓名" class="flex-1 max-w-2xl border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                </div>
+
+                <!-- 对接人手机号 -->
+                <div class="flex items-center gap-8">
+                    <label class="w-32 text-sm text-gray-600">对接人手机号:</label>
+                    <span class="text-sm text-gray-900">15942001234</span>
+                </div>
+
+                <!-- 底部按钮 -->
+                <div class="flex justify-center gap-4 pt-8 border-t border-gray-100 mt-8">
+                    <button type="button" class="px-8 py-2 border border-gray-300 text-gray-600 rounded text-sm font-medium hover:bg-gray-50 transition-colors bg-white">
+                        保存草稿
+                    </button>
+                    <button type="submit" class="px-8 py-2 bg-blue-600 text-white rounded text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
+                        下一步
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

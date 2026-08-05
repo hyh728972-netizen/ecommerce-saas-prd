@@ -1,0 +1,203 @@
+<!-- 页面2: C端客户列表 -->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客户列表 - 一兆链采供应链平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', "PingFang SC", "Microsoft YaHei", sans-serif; background-color: #f5f7fa; }
+        .table-header { background-color: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+        .table-row:hover { background-color: #f8fafc; }
+        .btn-primary { background-color: #2563eb; }
+        .btn-primary:hover { background-color: #1d4ed8; }
+        .status-disabled { color: #dc2626; background-color: #fef2f2; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+        .status-enabled { color: #16a34a; background-color: #f0fdf4; padding: 2px 8px; border-radius: 4px; font-size: 12px; }
+    </style>
+</head>
+<body class="text-gray-700">
+
+<!-- 顶部导航 -->
+<nav class="bg-white border-b border-gray-200 fixed w-full z-50 top-0 h-16">
+    <div class="flex items-center justify-between px-6 h-full">
+        <div class="flex items-center gap-2">
+            <span class="text-lg font-semibold text-blue-600">一兆链采供应链平台</span>
+        </div>
+        <div class="flex items-center gap-4 text-gray-500">
+            <button class="p-2 hover:bg-gray-100 rounded-full transition-colors"><i class="fas fa-search text-lg"></i></button>
+            <button class="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
+                <i class="fas fa-bell text-lg"></i>
+            </button>
+            <div class="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-3 py-1.5 rounded-lg transition-colors">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-medium">客</div>
+                <span class="text-sm text-gray-700">客户名</span>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="flex pt-16 min-h-screen">
+    <!-- 左侧边栏 -->
+    <aside class="w-56 bg-white border-r border-gray-200 fixed h-full">
+        <div class="py-4">
+            <div class="px-4 py-2">
+                <div class="flex items-center gap-2 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
+                    <i class="fas fa-home w-5 text-center"></i>
+                    <span class="text-sm font-medium">设置</span>
+                    <i class="fas fa-chevron-down ml-auto text-xs text-gray-400"></i>
+                </div>
+                <div class="mt-1 ml-2">
+                    <div class="flex items-center gap-2 px-3 py-2 text-blue-600 bg-blue-50 rounded-lg cursor-pointer text-sm font-medium border-l-2 border-blue-600">
+                        客户列表
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="flex-1 ml-56 p-6">
+        <!-- 面包屑 -->
+        <div class="flex items-center gap-2 text-sm text-gray-500 mb-6">
+            <span class="text-blue-600 font-medium">客户列表</span>
+            <button class="ml-auto text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times"></i></button>
+        </div>
+
+        <!-- 搜索区域 -->
+        <div class="bg-white rounded-lg p-5 mb-4 shadow-sm border border-gray-100">
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <label class="text-sm text-gray-600 whitespace-nowrap">手机号：</label>
+                    <input type="text" placeholder="请输入" class="border border-gray-300 rounded px-3 py-1.5 text-sm w-48 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all">
+                </div>
+                <div class="flex gap-2 ml-auto">
+                    <button class="btn-primary text-white px-5 py-1.5 rounded text-sm font-medium transition-colors shadow-sm hover:shadow-md">
+                        查询
+                    </button>
+                    <button class="border border-gray-300 text-gray-600 px-5 py-1.5 rounded text-sm font-medium hover:bg-gray-50 transition-colors">
+                        重置
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="flex justify-between items-center mb-4">
+            <div class="flex gap-3">
+                <button class="btn-primary text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all">
+                    <i class="fas fa-plus text-xs"></i>
+                    新增客户
+                </button>
+                <div class="relative">
+                    <button class="border border-gray-300 bg-white text-gray-700 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 hover:bg-gray-50 transition-colors">
+                        批量操作
+                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+            <table class="w-full text-sm">
+                <thead class="table-header">
+                    <tr class="text-left text-gray-600 font-medium">
+                        <th class="py-4 px-4 w-10">
+                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        </th>
+                        <th class="py-4 px-4 font-medium">手机号</th>
+                        <th class="py-4 px-4 font-medium">积分余额</th>
+                        <th class="py-4 px-4 font-medium">账号状态</th>
+                        <th class="py-4 px-4 font-medium text-right">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <tr class="table-row transition-colors">
+                        <td class="py-4 px-4">
+                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        </td>
+                        <td class="py-4 px-4 text-gray-900">188****9554</td>
+                        <td class="py-4 px-4 text-gray-600">1</td>
+                        <td class="py-4 px-4">
+                            <span class="status-disabled">禁用</span>
+                        </td>
+                        <td class="py-4 px-4 text-right">
+                            <div class="flex items-center justify-end gap-3 text-blue-600 text-sm">
+                                <button class="hover:text-blue-800 transition-colors">详情</button>
+                                <button class="hover:text-blue-800 transition-colors">编辑</button>
+                                <button class="hover:text-blue-800 transition-colors">禁用</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="table-row transition-colors">
+                        <td class="py-4 px-4">
+                            <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        </td>
+                        <td class="py-4 px-4 text-gray-900">188****9554</td>
+                        <td class="py-4 px-4 text-gray-600">5845</td>
+                        <td class="py-4 px-4">
+                            <span class="status-disabled">禁用</span>
+                        </td>
+                        <td class="py-4 px-4 text-right">
+                            <div class="flex items-center justify-end gap-3 text-blue-600 text-sm">
+                                <button class="hover:text-blue-800 transition-colors">详情</button>
+                                <button class="hover:text-blue-800 transition-colors">编辑</button>
+                                <button class="hover:text-blue-800 transition-colors">启用</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- 空行占位，模拟更多数据 -->
+                    <tr class="h-16">
+                        <td colspan="5" class="px-4"></td>
+                    </tr>
+                    <tr class="h-16">
+                        <td colspan="5" class="px-4"></td>
+                    </tr>
+                    <tr class="h-16">
+                        <td colspan="5" class="px-4"></td>
+                    </tr>
+                    <tr class="h-16">
+                        <td colspan="5" class="px-4"></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- 分页 -->
+            <div class="flex items-center justify-between px-4 py-4 border-t border-gray-100">
+                <div class="text-sm text-gray-500">
+                    第 1-10 条/总共 100 条
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 transition-colors disabled:opacity-50">
+                        <i class="fas fa-chevron-left text-xs"></i>
+                    </button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded bg-blue-600 text-white text-sm font-medium">1</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-600 hover:border-blue-600 hover:text-blue-600 transition-colors text-sm">2</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-600 hover:border-blue-600 hover:text-blue-600 transition-colors text-sm">3</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-600 hover:border-blue-600 hover:text-blue-600 transition-colors text-sm">4</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-600 hover:border-blue-600 hover:text-blue-600 transition-colors text-sm">5</button>
+                    <span class="text-gray-400 px-1">...</span>
+                    <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-600 hover:border-blue-600 hover:text-blue-600 transition-colors text-sm">6</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-600 hover:border-blue-600 hover:text-blue-600 transition-colors text-sm">7</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-600 hover:border-blue-600 hover:text-blue-600 transition-colors text-sm">8</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-600 hover:border-blue-600 hover:text-blue-600 transition-colors text-sm">9</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-600 hover:border-blue-600 hover:text-blue-600 transition-colors text-sm">10</button>
+                    <button class="w-8 h-8 flex items-center justify-center rounded border border-gray-200 text-gray-400 hover:border-gray-300 hover:text-gray-600 transition-colors">
+                        <i class="fas fa-chevron-right text-xs"></i>
+                    </button>
+                    
+                    <div class="flex items-center gap-2 ml-4 border-l border-gray-200 pl-4">
+                        <span class="text-sm text-gray-500">10 条/页</span>
+                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

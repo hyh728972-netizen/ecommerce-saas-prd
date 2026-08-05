@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兆链采 供应链平台 - 微信支付配置</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+            background-color: #f0f2f5;
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 14px;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            height: 64px;
+            background-color: #fff;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1890ff;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .platform-name {
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 16px;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .header-icon {
+            width: 20px;
+            height: 20px;
+            color: rgba(0, 0, 0, 0.65);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .header-icon:hover {
+            color: #1890ff;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #1890ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        /* 左侧菜单栏 */
+        .sidebar {
+            width: 200px;
+            background-color: #fff;
+            border-right: 1px solid #f0f0f0;
+            position: fixed;
+            top: 64px;
+            left: 0;
+            bottom: 0;
+            padding: 16px 0;
+            z-index: 99;
+        }
+
+        .menu-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(0, 0, 0, 0.65);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            font-size: 14px;
+        }
+
+        .menu-item:hover {
+            color: #1890ff;
+        }
+
+        .menu-item.active {
+            color: #1890ff;
+            background-color: #e6f7ff;
+        }
+
+        .menu-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .submenu {
+            padding: 10px 24px 10px 48px;
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .submenu:hover {
+            color: #1890ff;
+        }
+
+        .submenu.active {
+            color: #1890ff;
+            background-color: #e6f7ff;
+        }
+
+        .submenu.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #1890ff;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            margin-left: 200px;
+            margin-top: 64px;
+            padding: 24px;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* 页面标题 */
+        .page-title {
+            font-size: 20px;
+            font-weight: 500;
+            color: rgba(0, 0, 0, 0.85);
+            margin-bottom: 24px;
+        }
+
+        /* 表单容器 */
+        .form-container {
+            background-color: #fff;
+            padding: 32px;
+            border-radius: 2px;
+            max-width: 900px;
+        }
+
+        /* 提示信息框 */
+        .info-alert {
+            background-color: #fff7e6;
+            border: 1px solid #ffd591;
+            border-radius: 2px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .info-alert p {
+            margin: 0;
+        }
+
+        /* 表单项 */
+        .form-item {
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-item.align-top {
+            align-items: flex-start;
+        }
+
+        .form-label {
+            width: 120px;
+            text-align: right;
+            padding-right: 16px;
+            color: rgba(0, 0, 0, 0.85);
+            font-size: 14px;
+            line-height: 1.5;
+            flex-shrink: 0;
+        }
+
+        .form-label .required {
+            color: #ff4d4f;
+            margin-right: 4px;
+        }
+
+        .form-control {
+            flex: 1;
+            max-width: 600px;
+        }
+
+        /* 开关样式 */
+        .switch-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 22px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #bfbfbf;
+            transition: .3s;
+            border-radius: 22px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #1890ff;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+
+        .switch-label {
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.65);
+        }
+
+        /* 输入框 */
+        .input {
+            width: 100%;
+            height: 32px;
+            padding: 0 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 2px;
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.65);
+            transition: all 0.3s;
+        }
+
+        .input:hover {
+            border-color: #40a9ff;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+        }
+
+        .input::placeholder {
+            color: rgba(0, 0, 0, 0.25);
+        }
+
+        /* 文件上传区域 */
+        .upload-area {
+            width: 100%;
+            height: 120px;
+            border: 1px dashed #d9d9d9;
+            border-radius: 2px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: #fafafa;
+        }
+
+        .upload-area:hover {
+            border-color: #1890ff;
+        }
+
+        .upload-icon {
+            font-size: 24px;
+            color: rgba(0, 0, 0, 0.45);
+            margin-bottom: 8px;
+        }
+
+        .upload-text {
+            color: rgba(0, 0, 0, 0.65);
+            font-size: 14px;
+        }
+
+        .upload-hint {
+            color: rgba(0, 0, 0, 0.45);
+            font-size: 12px;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* 底部按钮 */
+        .form-footer {
+            position: fixed;
+            bottom: 0;
+            left: 200px;
+            right: 0;
+            padding: 16px 24px;
+            background-color: #fff;
+            border-top: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            z-index: 99;
+        }
+
+        .btn {
+            height: 32px;
+            padding: 0 16px;
+            border-radius: 2px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+            font-weight: 400;
+        }
+
+        .btn-primary {
+            background-color: #1890ff;
+            color: #fff;
+            border-color: #1890ff;
+        }
+
+        .btn-primary:hover {
+            background-color: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .btn-default {
+            background-color: #fff;
+            color: rgba(0, 0, 0, 0.65);
+            border-color: #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        /* 内容区底部留白 */
+        .content-spacer {
+            height: 80px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="logo-section">
+            <div class="logo">
+                <div class="logo-icon">兆</div>
+                <span>兆链采</span>
+            </div>
+            <span class="platform-name">供应链平台</span>
+        </div>
+        <div class="header-right">
+            <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <svg class="header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
+                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
+            </svg>
+            <div class="user-info">
+                <div class="user-avatar">用</div>
+                <span>用户名</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 左侧菜单 -->
+    <aside class="sidebar">
+        <div class="menu-item active">
+            <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                <line x1="8" y1="21" x2="16" y2="21"></line>
+                <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            <span>支付配置</span>
+        </div>
+        <div class="submenu active">微信支付配置</div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <h1 class="page-title">微信支付配置</h1>
+        
+        <div class="form-container">
+            <!-- 提示信息 -->
+            <div class="info-alert">
+                <p>1、完成微信商户平台注册后，在产品中心开通对应的产品，并将参数配置在下方；</p>
+                <p>2、①JSAPI支付用于微信内H5、微信小程序调用，②APP支付用户App调用，③H5支付用户微信外H5调用，④Native支付用于PC调用(但调用时会使用公众号参数)；</p>
+                <p>3、APIV3密钥，私钥，证书编号适用于商家转账到零钱；</p>
+            </div>
+
+            <!-- 是否启用 -->
+            <div class="form-item">
+                <label class="form-label">
+                    <span class="required">*</span>是否启用:
+                </label>
+                <div class="form-control">
+                    <div class="switch-wrapper">
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="switch-label">开</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 商户号 -->
+            <div class="form-item">
+                <label class="form-label">
+                    <span class="required">*</span>商户号:
+                </label>
+                <div class="form-control">
+                    <input type="text" class="input" placeholder="">
+                </div>
+            </div>
+
+            <!-- API密钥 -->
+            <div class="form-item">
+                <label class="form-label">
+                    <span class="required">*</span>API密钥:
+                </label>
+                <div class="form-control">
+                    <input type="text" class="input" placeholder="">
+                </div>
+            </div>
+
+            <!-- APIV3密钥 -->
+            <div class="form-item">
+                <label class="form-label">APIV3密钥:</label>
+                <div class="form-control">
+                    <input type="text" class="input" placeholder="">
+                </div>
+            </div>
+
+            <!-- 私钥 -->
+            <div class="form-item">
+                <label class="form-label">私钥:</label>
+                <div class="form-control">
+                    <input type="text" class="input" placeholder="">
+                </div>
+            </div>
+
+            <!-- 证书编号 -->
+            <div class="form-item">
+                <label class="form-label">证书编号:</label>
+                <div class="form-control">
+                    <input type="text" class="input" placeholder="">
+                </div>
+            </div>
+
+            <!-- 通知url -->
+            <div class="form-item">
+                <label class="form-label">
+                    <span class="required">*</span>通知url:
+                </label>
+                <div class="form-control">
+                    <input type="text" class="input" placeholder="">
+                </div>
+            </div>
+
+            <!-- 支付证书 -->
+            <div class="form-item align-top">
+                <label class="form-label">支付证书:</label>
+                <div class="form-control">
+                    <div class="upload-area">
+                        <div class="upload-icon">↑</div>
+                        <div class="upload-text">选择文件上传</div>
+                    </div>
+                    <div class="upload-hint">请选择正确的微信支付证书上传（上传成功即替换成功）。</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部留白 -->
+        <div class="content-spacer"></div>
+    </main>
+
+    <!-- 底部固定按钮 -->
+    <div class="form-footer">
+        <button class="btn btn-default">取消</button>
+        <button class="btn btn-primary">保存</button>
+    </div>
+</body>
+</html>

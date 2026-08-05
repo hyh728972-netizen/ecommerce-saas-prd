@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>客服配置 - 兆链采供应链平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        /* 顶部导航栏 */
+        .header {
+            height: 64px;
+            background: #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1890ff;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #1890ff, #36cfc9);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+            color: #666;
+        }
+
+        .icon-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+
+        .user-profile:hover {
+            background: #f5f5f5;
+        }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #1890ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        /* 主体布局 */
+        .container {
+            display: flex;
+            margin-top: 64px;
+            height: calc(100vh - 64px);
+        }
+
+        /* 左侧边栏 */
+        .sidebar {
+            width: 200px;
+            background: #fff;
+            border-right: 1px solid #e8e8e8;
+            padding: 16px 0;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            padding: 12px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .menu-item:hover {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        .menu-item.active {
+            color: #1890ff;
+            background: #e6f7ff;
+            border-right: 3px solid #1890ff;
+        }
+
+        .menu-icon {
+            font-size: 16px;
+        }
+
+        .submenu {
+            padding-left: 48px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            cursor: pointer;
+            color: #666;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .submenu:hover {
+            color: #1890ff;
+        }
+
+        .submenu.active {
+            color: #1890ff;
+            background: #e6f7ff;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .breadcrumb a {
+            color: #666;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: #1890ff;
+        }
+
+        .breadcrumb-separator {
+            color: #999;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 32px;
+            color: #262626;
+        }
+
+        /* 表单样式 */
+        .form-container {
+            background: #fff;
+            padding: 32px;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+            max-width: 600px;
+        }
+
+        .form-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            width: 100px;
+            text-align: right;
+            color: #262626;
+            font-size: 14px;
+        }
+
+        .form-input {
+            flex: 1;
+            max-width: 300px;
+            padding: 8px 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #1890ff;
+            box-shadow: 0 0 0 2px rgba(24,144,255,0.2);
+        }
+
+        .form-input::placeholder {
+            color: #bfbfbf;
+        }
+
+        /* 按钮组 */
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            padding-left: 116px;
+        }
+
+        .btn {
+            padding: 8px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background: #1890ff;
+            color: white;
+            border-color: #1890ff;
+        }
+
+        .btn-primary:hover {
+            background: #40a9ff;
+            border-color: #40a9ff;
+        }
+
+        .btn-default {
+            background: #fff;
+            color: #666;
+            border-color: #d9d9d9;
+        }
+
+        .btn-default:hover {
+            color: #1890ff;
+            border-color: #1890ff;
+        }
+
+        /* 固定在底部的操作栏（截图右下角样式） */
+        .fixed-actions {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            left: 200px;
+            background: #fff;
+            padding: 16px 24px;
+            border-top: 1px solid #e8e8e8;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.02);
+        }
+
+        /* 图标SVG */
+        .icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">兆</div>
+            <span>兆链采 供应链平台</span>
+        </div>
+        <div class="header-right">
+            <div class="icon-btn" title="搜索">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                </svg>
+            </div>
+            <div class="icon-btn" title="消息通知">
+                <svg class="icon" viewBox="0 0 24 24">
+                    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
+                </svg>
+            </div>
+            <div class="user-profile">
+                <div class="avatar">用</div>
+                <span>用户名</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <div class="container">
+        <!-- 左侧菜单 -->
+        <aside class="sidebar">
+            <div class="menu-item active">
+                <span class="menu-icon">🏠</span>
+                <span>设置</span>
+            </div>
+            <div class="submenu active">企业微信配置</div>
+            <div class="submenu">客服配置</div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="breadcrumb">
+                <a href="#">设置</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>客服配置</span>
+            </div>
+
+            <h1 class="page-title">客服配置</h1>
+
+            <div class="form-container">
+                <div class="form-item">
+                    <label class="form-label">客服电话</label>
+                    <input type="text" class="form-input" placeholder="如有填写回显内容" />
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-primary">保存</button>
+                </div>
+            </div>
+
+            <!-- 固定在底部的操作按钮（对应截图右下角） -->
+            <div class="fixed-actions" style="display: none;">
+                <button class="btn btn-default">取消</button>
+                <button class="btn btn-primary">保存</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- 右下角固定按钮（与截图一致） -->
+    <div class="fixed-actions">
+        <button class="btn btn-default">取消</button>
+        <button class="btn btn-primary">保存</button>
+    </div>
+
+    <script>
+        // 简单的交互逻辑
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.textContent === '保存') {
+                    // 模拟保存操作
+                    const originalText = this.textContent;
+                    this.textContent = '保存中...';
+                    this.style.opacity = '0.7';
+                    
+                    setTimeout(() => {
+                        this.textContent = '保存成功';
+                        this.style.background = '#52c41a';
+                        this.style.borderColor = '#52c41a';
+                        
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                            this.style.background = '';
+                            this.style.borderColor = '';
+                            this.style.opacity = '';
+                        }, 1500);
+                    }, 800);
+                } else if (this.textContent === '取消') {
+                    // 重置表单
+                    document.querySelector('.form-input').value = '';
+                }
+            });
+        });
+
+        // 菜单切换
+        document.querySelectorAll('.submenu').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.submenu').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 输入框焦点效果
+        const input = document.querySelector('.form-input');
+        input.addEventListener('focus', function() {
+            this.placeholder = '';
+        });
+        input.addEventListener('blur', function() {
+            if (!this.value) {
+                this.placeholder = '如有填写回显内容';
+            }
+        });
+    </script>
+</body>
+</html>

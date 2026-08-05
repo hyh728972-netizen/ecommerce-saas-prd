@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>前台分类管理 - 商城运营平台管理系统</title>
+<style>
+:root {
+  --bg-app: #f4f3f0; --bg-sidebar: #1e1e22; --bg-surface: #ffffff; --bg-hover: #f7f6f4; --bg-input: #f9f8f7;
+  --border: #e6e4e0; --border-light: #f0eeeb; --text-primary: #1a1a1c; --text-secondary: #6b6b70;
+  --text-muted: #99999d; --text-sidebar: #c4c4c9; --text-sidebar-active: #ffffff; --accent: #2d2d33;
+  --accent-soft: #f0eeeb; --red: #da3e3a; --red-bg: #fef4f3; --red-border: #fcd9d7;
+  --orange: #d97706; --orange-bg: #fffbf0; --orange-border: #fde8c4; --blue: #2563eb;
+  --blue-bg: #f5f8ff; --blue-border: #d4e0fc; --green: #16a34a; --green-bg: #f4fdf6;
+  --green-border: #c6f0d4; --gray: #6b7280; --gray-bg: #f8f8f7; --gray-border: #e8e6e3;
+  --dark-gray: #4b4b52; --dark-gray-bg: #f5f4f3; --dark-gray-border: #e0dedb;
+  --radius-sm: 4px; --radius: 8px; --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.04); --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.04); --transition: 160ms ease;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  background: var(--bg-app); color: var(--text-primary); display: flex; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+.sidebar { width: 232px; min-width: 232px; background: var(--bg-sidebar); display: flex; flex-direction: column; z-index: 10; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+.sidebar-brand { padding: 20px 20px 28px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.sidebar-brand .logo { font-size: 17px; font-weight: 600; color: #fff; letter-spacing: -.02em; display: flex; align-items: center; gap: 10px; }
+.sidebar-brand .sub { font-size: 11px; color: var(--text-sidebar); margin-top: 2px; letter-spacing: .02em; }
+.sidebar-nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; }
+.nav-section-label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.25); padding: 14px 10px 6px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 6px; color: var(--text-sidebar); font-size: 13.5px; cursor: pointer; transition: all var(--transition); text-decoration: none; letter-spacing: .01em; }
+.nav-item:hover { background: rgba(255,255,255,.05); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,.10); color: #fff; font-weight: 500; }
+.nav-item .badge { margin-left: auto; background: var(--red); color: #fff; font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 10px; min-width: 20px; text-align: center; line-height: 18px; }
+.nav-icon { width: 18px; height: 18px; opacity: .55; flex-shrink: 0; }
+.nav-item.active .nav-icon { opacity: 1; }
+
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.topbar { height: 52px; min-height: 52px; background: var(--bg-surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; gap: 16px; z-index: 5; }
+.topbar .breadcrumb { font-size: 12.5px; color: var(--text-muted); letter-spacing: .01em; }
+.topbar .breadcrumb span { color: var(--text-primary); font-weight: 500; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+.topbar-right .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: #e6e4e0; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); }
+
+.content { display: flex; flex-direction: column; padding: 20px 24px; flex: 1; }
+.page-header { margin-bottom: 18px; display: flex; align-items: center; justify-content: space-between; }
+.page-header h1 { font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
+.page-header p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+.content-body { display: flex; gap: 16px; flex: 1; min-height: 0; }
+
+/* Left Tree Panel */
+.tree-panel { width: 320px; min-width: 320px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); display: flex; flex-direction: column; }
+.tree-panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: space-between; }
+.tree-panel-header .tree-title { color: var(--text-primary); }
+.tree-panel-body { flex: 1; overflow-y: auto; padding: 8px 0; }
+.tree-filter { padding: 6px 8px; display: flex; gap: 4px; }
+.tree-filter-btn { padding: 5px 10px; border-radius: var(--radius-sm); font-size: 12px; cursor: pointer; color: var(--text-secondary); transition: all var(--transition); white-space: nowrap; }
+.tree-filter-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.tree-filter-btn.active { background: var(--accent-soft); color: var(--text-primary); font-weight: 500; }
+.tree-node { padding: 0 12px; }
+.tree-node-item { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: var(--radius-sm); font-size: 12.5px; cursor: pointer; transition: background var(--transition); color: var(--text-primary); }
+.tree-node-item:hover { background: var(--bg-hover); }
+.tree-node-item.active { background: var(--accent-soft); font-weight: 500; }
+.tree-node-item .expand-arrow { width: 16px; font-size: 10px; color: var(--text-muted); flex-shrink: 0; text-align: center; display: inline-block; }
+.tree-node-item .node-icon { width: 16px; height: 16px; border-radius: 3px; flex-shrink: 0; font-size: 9px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; }
+.tree-node-item .node-icon.basic { background: var(--blue); }
+.tree-node-item .node-icon.market { background: var(--orange); }
+.tree-children { padding-left: 20px; }
+.tree-children.collapsed { display: none; }
+.tree-node .tree-badge { font-size:9px; padding:1px 5px; border-radius:3px; margin-left:4px; font-weight:500; }
+.tree-node .tree-badge.basic-dir { background:#f5f8ff; color:#2563eb; }
+.tree-node .tree-badge.basic-system { background:#f5f8ff; color:#2563eb; }
+.tree-node .tree-badge.basic-virtual { background:#f4fdf6; color:#16a34a; }
+.tree-node .tree-badge.market-dir { background:#fffbf0; color:#d97706; }
+.tree-node .tree-badge.market-leaf { background:#fffbf0; color:#d97706; }
+
+/* Right Panel */
+.right-panel { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 0; }
+.tab-btn { padding: 10px 18px; font-size: 13.5px; font-weight: 500; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: all var(--transition); font-family: inherit; background: none; border-top: none; border-left: none; border-right: none; }
+.tab-btn.active { color: var(--text-primary); border-bottom-color: var(--accent); }
+.tab-btn:hover:not(.active) { color: var(--text-secondary); }
+
+.table-panel { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 0 0 var(--radius-lg) var(--radius-lg); display: flex; flex-direction: column; flex: 1; border-top: none; }
+
+.action-bar { display: flex; gap: 10px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+.action-bar .btn { display: inline-flex; align-items: center; padding: 6px 14px; border-radius: var(--radius-sm); font-size: 12.5px; font-family: inherit; cursor: pointer; border: 1px solid transparent; transition: all var(--transition); white-space: nowrap; font-weight: 500; gap: 5px; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { opacity: .85; }
+.btn-outline { border-color: var(--border); color: var(--text-primary); background: var(--bg-surface); }
+.btn-outline:hover { border-color: var(--text-muted); background: var(--bg-hover); }
+.btn-danger { background: var(--red); color: #fff; }
+.btn-danger:hover { opacity: .85; }
+.btn-filter {
+  height: 36px; padding: 0 16px; background: var(--accent); color: #fff; border: none;
+  border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; cursor: pointer; font-weight: 500;
+  transition: opacity var(--transition);
+}
+.btn-filter:hover { opacity: .88; }
+.btn-reset {
+  height: 36px; padding: 0 14px; background: transparent; color: var(--text-secondary);
+  border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px;
+  font-family: inherit; cursor: pointer; transition: all var(--transition);
+}
+.btn-reset:hover { border-color: var(--text-muted); color: var(--text-primary); }
+
+.action-bar .spacer { flex: 1; }
+.action-bar .publish-badge { background: var(--red); color: #fff; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 10px; min-width: 18px; text-align: center; line-height: 16px; }
+
+.table-scroll { overflow-x: auto; flex: 1; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: auto; min-width: 1200px; }
+thead th { background: #fafaf9; text-align: left; padding: 10px 12px; font-weight: 500; font-size: 12px; color: var(--text-muted); letter-spacing: .02em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+thead th:first-child { padding-left: 20px; }
+tbody td { padding: 11px 12px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
+tbody td:first-child { padding-left: 20px; }
+tbody tr { transition: background var(--transition); }
+tbody tr:hover { background: var(--bg-hover); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr.row-child { background: #fafaf9; }
+tbody tr.row-child td:first-child { padding-left: 40px; }
+tbody tr.row-child:hover { background: #f4f3f0; }
+tbody tr.disabled-row { opacity: .45; }
+tbody tr.disabled-row:hover { opacity: .65; background: var(--bg-hover); }
+
+.tree-indent { display: inline-block; }
+.tree-indent .expand-cell-arrow { display: inline-block; transition: transform var(--transition); font-size: 10px; margin-right: 6px; color: var(--text-muted); cursor: pointer; }
+.tree-indent .expand-cell-arrow.expanded { transform: rotate(90deg); }
+
+/* Tags */
+.tag { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 100px; font-size: 11.5px; font-weight: 500; letter-spacing: .01em; white-space: nowrap; }
+.tag-sys-dir { background: var(--gray-bg); color: var(--gray); border: 1px solid var(--gray-border); }
+.tag-sys-leaf { background: var(--gray-bg); color: var(--gray); border: 1px solid var(--gray-border); }
+.tag-basic-dir { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.tag-basic-system { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.tag-basic-virtual { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.tag-market-dir { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+.tag-market-leaf { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+.channel-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.channel-tag { padding: 1px 8px; border-radius: 100px; font-size: 11px; background: #eef2ff; color: #4338ca; border: 1px solid #dde3fc; }
+.channel-tag-more { padding: 1px 8px; border-radius: 100px; font-size: 11px; background: var(--bg-hover); color: var(--text-muted); cursor: pointer; }
+
+/* Toggle Switch */
+.toggle { position: relative; display: inline-block; width: 38px; height: 22px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #d1d5db; transition: var(--transition); border-radius: 22px; }
+.toggle .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background: #fff; transition: var(--transition); border-radius: 50%; }
+.toggle input:checked + .slider { background: var(--accent); }
+.toggle input:checked + .slider:before { transform: translateX(16px); }
+.toggle.disabled { opacity: .4; pointer-events: none; }
+
+.price { font-family: "Consolas", "Monaco", monospace; font-size: 12.5px; }
+.product-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; }
+.cell-stack { display: flex; flex-direction: column; gap: 2px; }
+.cell-stack .secondary { font-size: 11.5px; color: var(--text-muted); }
+.icon-placeholder { width: 32px; height: 32px; border-radius: var(--radius-sm); background: #e8e6e2; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 560px; max-width: 90vw; overflow: hidden; animation: modalIn .18s ease; }
+@keyframes modalIn { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.modal-header h3 { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+.modal-close { width: 28px; height: 28px; border: none; background: none; cursor: pointer; font-size: 18px; color: var(--text-muted); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; transition: all var(--transition); }
+.modal-close:hover { background: var(--bg-hover); color: var(--text-primary); }
+.modal-body { padding: 20px 24px; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+.modal-body .form-group { margin-bottom: 16px; }
+.modal-body .form-group:last-child { margin-bottom: 0; }
+.modal-body label { display: block; font-size: 12.5px; font-weight: 500; margin-bottom: 6px; color: var(--text-secondary); }
+.modal-body input[type="text"], .modal-body select, .modal-body textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; outline: none; transition: border-color var(--transition); background: var(--bg-surface); }
+.modal-body textarea { resize: vertical; min-height: 60px; }
+.modal-body input:focus, .modal-body select:focus, .modal-body textarea:focus { border-color: var(--accent); }
+.modal-body .hint { font-size: 11.5px; color: var(--text-muted); margin-top: 4px; }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+.modal-body .warning-box { background: #fff8f7; border: 1px solid #fdd9d5; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 12.5px; color: #b53a35; display: flex; gap: 8px; align-items: flex-start; margin-top: 12px; }
+
+.toast-container { position: fixed; top: 24px; right: 24px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+.toast { background: var(--bg-sidebar); color: #fff; padding: 12px 18px; border-radius: var(--radius); font-size: 13px; box-shadow: var(--shadow-lg); animation: toastIn .25s ease; display: flex; align-items: center; gap: 8px; }
+@keyframes toastIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+.toast.success { border-left: 3px solid #16a34a; }
+.toast.info { border-left: 3px solid var(--blue); }
+
+.diff-section { margin-bottom: 12px; }
+.diff-section .diff-title { font-weight: 600; color: var(--text-primary); font-size: 13px; margin-bottom: 4px; }
+.diff-section .diff-items { font-size: 12.5px; color: var(--text-secondary); padding-left: 12px; }
+.diff-items .diff-add { color: var(--green); }
+.diff-items .diff-remove { color: var(--red); }
+.diff-items .diff-change { color: var(--blue); }
+
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; color: var(--text-muted); }
+.empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: .4; }
+.empty-state h3 { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+.empty-state p { font-size: 13px; }
+.empty-state .empty-action { margin-top: 16px; }
+
+/* Drag & Drop */
+.drag-handle { display: inline-block; cursor: grab; color: var(--text-muted); font-size: 14px; margin-right: 4px; user-select: none; padding: 2px 4px; border-radius: 3px; visibility: hidden; vertical-align: middle; }
+tr:hover .drag-handle { visibility: visible; }
+.drag-handle:active { cursor: grabbing; }
+tr.drag-over { outline: 2px dashed var(--blue); outline-offset: -2px; background: var(--blue-bg) !important; }
+tr.drag-source { opacity: .4; }
+.sort-editable { cursor: pointer; border-bottom: 1px dashed var(--text-muted); padding: 1px 3px; border-radius: 2px; transition: all var(--transition); }
+.sort-editable:hover { background: var(--accent-soft); border-bottom-color: var(--accent); }
+.sort-input { width: 50px; padding: 3px 6px; border: 1px solid var(--accent); border-radius: var(--radius-sm); font-size: 12.5px; font-family: "Consolas","Monaco",monospace; text-align: center; outline: none; }
+
+/* Channel Tag Popup */
+.channel-tag-wrap { position: relative; display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.channel-tag-more-btn { padding: 1px 8px; border-radius: 100px; font-size: 11px; background: var(--bg-hover); color: var(--text-secondary); border: 1px solid var(--border); cursor: default; white-space: nowrap; position: relative; }
+.channel-tag-popup { display: none; position: absolute; bottom: 100%; left: 0; margin-bottom: 6px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-lg); padding: 6px 8px; z-index: 50; white-space: nowrap; min-width: 140px; }
+.channel-tag-more-btn:hover .channel-tag-popup { display: block; }
+.channel-tag-popup .channel-tag { display: block; margin: 2px 0; }
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>商城运营平台</div>
+    <div class="sub">Mall Operations Platform</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">选品管理</div>
+    <a class="nav-item" href="01.供应链商品池-原型页面.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>供应链商品池</a>
+    <a class="nav-item" href="02.选品清单管理-原型页面.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>选品清单管理</a>
+    <a class="nav-item" href="03.待处理选品-原型页面.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg>待处理选品<span class="badge">8</span></a>
+    <a class="nav-item" href="04.渠道商品管理-原型页面.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>渠道商品管理</a>
+    <div class="nav-section-label">运营配置</div>
+    <a class="nav-item active" href="06.前台分类管理-原型页面.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>前台分类管理</a>
+    <a class="nav-item" href="07.商品标签管理-原型页面.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>商品标签管理</a>
+    <a class="nav-item" href="09.商品品牌列表-原型页面.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="8.5" cy="10.5" r="2.5"/><path d="M21 15l-5-5L8.5 18"/></svg>商品品牌列表</a>
+  </nav>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">运营配置 / <span>前台分类管理</span></div>
+    <div class="topbar-right">
+      <span style="font-size:12px;color:var(--text-muted);">运营专员</span>
+      <div class="user-avatar">李</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header" style="display:flex;align-items:flex-start;justify-content:space-between;">
+      <div>
+        <h1>前台分类管理</h1>
+        <p>系统类目由供应链同步（只读），基础分类映射系统类目并编排导航结构，营销分类创建主题活动，发布后推送至品牌商城后台</p>
+      </div>
+      <div style="text-align:right;">
+        <button class="btn btn-primary" id="btnPublishTop" onclick="openPublishModal()" style="padding:8px 18px;font-size:13px;">发布更新 <span class="publish-badge" id="publishBadge" style="display:none;">3</span></button>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">上次发布时间：<span id="lastPublishTime">2026-05-28 14:30</span></div>
+      </div>
+    </div>
+
+    <div class="content-body">
+      <!-- Left Tree: 前台分类树 (only 基础分类 + 营销分类) -->
+      <div class="tree-panel">
+        <div class="tree-panel-header">
+          <span class="tree-title">前台分类树</span>
+        </div>
+        <div class="tree-panel-body">
+          <div class="tree-filter" style="display:flex;gap:4px;padding:4px 8px;">
+            <div class="tree-filter-btn active" data-filter="all" onclick="setTreeFilter('all',this)">全部</div>
+            <div class="tree-filter-btn" data-filter="enabled" onclick="setTreeFilter('enabled',this)">仅启用</div>
+            <div class="tree-filter-btn" data-filter="visible" onclick="setTreeFilter('visible',this)">仅显示</div>
+          </div>
+          <div id="categoryTree"></div>
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="right-panel">
+        <div class="tabs">
+          <div class="tab-btn active" onclick="switchTab('market')">营销分类</div>
+          <div class="tab-btn" onclick="switchTab('basic')">基础分类</div>
+          <div class="tab-btn" onclick="switchTab('system')">系统类目</div>
+        </div>
+
+        <div class="table-panel" id="tablePanel">
+          <div class="action-bar" id="actionBar">
+            <button class="btn btn-primary" id="btnNewCategory" onclick="openNewCategoryModal()">新建基础分类</button>
+            <button class="btn btn-outline" id="btnSyncSystem" onclick="syncSystemToBasic()" title="扫描未映射的系统类目各级，自动在基础分类中建立对应节点" style="margin-left:4px;">同步映射系统类目</button>
+            <span class="spacer"></span>
+            <a href="javascript:void(0)" id="btnExpandAll" onclick="toggleExpandAll()" style="color:var(--blue);text-decoration:none;font-size:12px;">全部展开 ▾</a>
+          </div>
+          <div class="filter-bar" style="display:flex;gap:10px;align-items:center;padding:8px 16px;border-bottom:1px solid var(--border-light);flex-wrap:wrap;">
+            <input type="text" id="filterName" placeholder="分类名称搜索" style="width:200px;height:32px;padding:0 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;font-family:inherit;outline:none;">
+            <select id="filterEnable" style="height:32px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;font-family:inherit;background:var(--bg-surface);">
+              <option value="all">启用状态：全部</option><option value="enabled">仅启用</option><option value="disabled">仅停用</option>
+            </select>
+            <select id="filterVisible" style="height:32px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;font-family:inherit;background:var(--bg-surface);">
+              <option value="all">C端分类页展示状态：全部</option><option value="show">仅显示</option><option value="hide">仅隐藏</option>
+            </select>
+            <select id="filterChannel" style="height:32px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;font-family:inherit;background:var(--bg-surface);">
+              <option value="all">适用渠道：全部</option><option value="C1">政企福利商城</option><option value="C2">航司积分小站</option><option value="C3">商城会员购</option><option value="C4">品牌自营旗舰店</option>
+            </select>
+            <button class="btn-filter" onclick="renderTable()">查询</button>
+            <button class="btn-reset" onclick="resetFilters()">重置</button>
+          </div>
+          <div class="table-scroll">
+            <table id="mainTable">
+              <thead id="tableHead"></thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+            <div class="empty-state" id="emptyState" style="display:none;">
+              <div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/></svg></div>
+              <h3 id="emptyTitle">暂无数据</h3>
+              <p id="emptyDesc"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: New/Edit Basic Category -->
+<div class="modal-overlay" id="categoryModal">
+  <div class="modal">
+    <div class="modal-header"><h3 id="categoryModalTitle">新建基础分类</h3><button class="modal-close" onclick="closeModal('categoryModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>前台分类名称 <span style="color:var(--red);">*</span></label><input type="text" id="catName" placeholder="例如：五常米专区" maxlength="50"><div class="hint">限制50字以内</div></div>
+      <div class="form-group"><label>所属上级</label><select id="catParent" style="width:100%;"><option value="">一级分类（无上级）</option></select></div>
+      <div class="form-group"><label>节点类型 <span style="color:var(--red);">*</span></label>
+        <div style="display:flex;gap:24px;">
+          <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;font-size:13px;color:var(--text-primary);"><input type="radio" name="catType" id="catTypeDir" value="dir" onchange="updateTypeHint()"> 目录</label>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;font-size:13px;color:var(--text-primary);"><input type="radio" name="catType" id="catTypeLeaf" value="leaf" checked onchange="updateTypeHint()"> 节点</label>
+        </div>
+        <div class="hint" id="typeHint">节点：可关联商品；目录：纯导航分组，不可关联商品</div>
+      </div>
+      <div class="form-group"><label>分类图标</label><div style="display:flex;align-items:center;gap:10px;"><div class="icon-placeholder" id="catIconPreview" style="width:40px;height:40px;">图标</div><a href="javascript:void(0)" onclick="alert('上传图标(演示)')" style="color:var(--blue);text-decoration:none;font-size:12px;">上传</a></div></div>
+      <div class="form-group"><label>适用渠道</label>
+        <div style="display:flex;gap:16px;margin-bottom:8px;">
+          <label style="display:flex;align-items:center;gap:4px;font-weight:400;cursor:pointer;font-size:13px;color:var(--text-primary);"><input type="radio" name="channelMode" value="all" checked onchange="toggleChannelMode()"> 全部渠道</label>
+          <label style="display:flex;align-items:center;gap:4px;font-weight:400;cursor:pointer;font-size:13px;color:var(--text-primary);"><input type="radio" name="channelMode" value="spec" onchange="toggleChannelMode()"> 指定渠道</label>
+        </div>
+        <div style="max-height:140px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px;display:none;" id="channelCheckList"></div>
+      </div>
+      <div id="catLinkSection" style="border-top:1px solid var(--border);padding-top:16px;margin-top:4px;">
+        <label style="font-size:12.5px;font-weight:500;color:var(--text-secondary);margin-bottom:10px;display:block;">关联商品</label>
+        <div style="display:flex;gap:24px;margin-bottom:12px;" id="linkModeGroup">
+          <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;font-size:13px;color:var(--text-primary);"><input type="radio" name="linkMode" value="system" checked onchange="toggleLinkMode()"> 映射系统类目</label>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:400;cursor:pointer;font-size:13px;color:var(--text-primary);"><input type="radio" name="linkMode" value="list" onchange="toggleLinkMode()"> 关联选品清单</label>
+        </div>
+        <div class="form-group" id="linkSystemSection">
+          <label id="catLinkCatLabel">关联系统类目</label>
+          <div style="max-height:120px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);padding:4px;" id="catLinkCatList"></div>
+          <div class="hint">可多选，选中类目下全部商品自动纳入</div>
+        </div>
+        <div class="form-group" id="linkListSection" style="display:none;">
+          <label>关联选品清单</label>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="catLinkListSelect" style="flex:1;"><option value="">不关联选品清单</option></select>
+            <button class="btn btn-sm btn-primary" id="catLinkSyncBtn" onclick="syncCatLinkList()" disabled>同步</button>
+          </div>
+          <div class="hint">选择选品清单后点击同步，将清单内商品关联至该分类</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer"><a href="javascript:void(0)" onclick="closeModal('categoryModal')" style="color:var(--text-secondary);text-decoration:none;font-size:13px;">取消</a><a href="javascript:void(0)" onclick="saveCategory()" style="color:var(--accent);text-decoration:none;font-size:13px;font-weight:500;">保存</a></div>
+  </div>
+</div>
+
+<!-- Modal: Publish -->
+<div class="modal-overlay" id="publishModal">
+  <div class="modal" style="width:600px;">
+    <div class="modal-header"><h3>发布更新</h3><button class="modal-close" onclick="closeModal('publishModal')">✕</button></div>
+    <div class="modal-body">
+      <p style="margin-bottom:16px;">以下启用状态的分类变更将推送至对应品牌商城后台，确认发布？</p>
+      <div class="diff-section"><div class="diff-title">政企福利商城</div><div class="diff-items"><div class="diff-add">+ 新增基础分类 2 个</div><div class="diff-change">~ 排序变更 1 处</div><div class="diff-change">~ 显示/隐藏变更 1 处</div></div></div>
+      <div class="diff-section"><div class="diff-title">航司积分小站</div><div class="diff-items"><div class="diff-add">+ 新增基础分类 2 个</div><div class="diff-change">~ 适用渠道变更 2 处</div></div></div>
+      <div class="diff-section"><div class="diff-title">商城会员购</div><div class="diff-items"><div class="diff-add">+ 新增基础分类 2 个</div></div></div>
+      <div class="diff-section"><div class="diff-title">品牌自营旗舰店</div><div class="diff-items"><div class="diff-add">+ 新增基础分类 2 个</div></div></div>
+      <div class="hint" style="margin-top:12px;">提示：发布内容来自系统类目属性变更、基础分类和营销分类的合并草稿</div>
+    </div>
+    <div class="modal-footer"><a href="javascript:void(0)" onclick="closeModal('publishModal')" style="color:var(--text-secondary);text-decoration:none;font-size:13px;">取消</a><a href="javascript:void(0)" onclick="doPublish()" style="color:var(--accent);text-decoration:none;font-size:13px;font-weight:500;">立即发布</a></div>
+  </div>
+</div>
+
+<!-- Modal: Delete -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal" style="width:520px;">
+    <div class="modal-header"><h3 id="deleteModalTitle">删除确认</h3><button class="modal-close" onclick="closeModal('deleteModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="warning-box" id="deleteWarningBox"><span style="font-size:18px;">⚠</span><div id="deleteWarningText"></div></div>
+      <div class="hint" id="deleteHint" style="margin-top:8px;">删除后不可恢复，关联商品将被解除关联</div>
+      <div id="deleteRefCheckSection" style="margin-top:12px;display:none;"></div>
+    </div>
+    <div class="modal-footer"><a href="javascript:void(0)" onclick="closeModal('deleteModal')" style="color:var(--text-secondary);text-decoration:none;font-size:13px;">取消</a><a href="javascript:void(0)" id="deleteConfirmBtn" onclick="confirmDelete()" style="color:var(--red);text-decoration:none;font-size:13px;font-weight:500;">确认删除</a></div>
+  </div>
+</div>
+
+<!-- Modal: 关联商品 -->
+<div class="modal-overlay" id="linkProductModal">
+  <div class="modal" style="width:560px;">
+    <div class="modal-header"><h3 id="linkProductTitle">关联商品</h3><button class="modal-close" onclick="closeModal('linkProductModal')">✕</button></div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;" id="linkProductInfo"></p>
+      <div class="form-group" id="lpSystemSection">
+        <label id="lpCatLabel">关联系统类目</label>
+        <div id="lpCatDisplay" style="border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;min-height:32px;font-size:13px;color:var(--text-muted);line-height:1.8;">
+          <span id="lpCatText">—</span>
+        </div>
+      </div>
+      <div class="form-group" id="lpListGroup" style="display:none;">
+        <label>关联选品清单</label>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="lpListSelect" style="flex:1;" disabled><option value="">未关联选品清单</option></select>
+          <button class="btn btn-sm btn-primary" id="lpSyncBtn" onclick="syncListProducts()" disabled>同步商品</button>
+        </div>
+        <div class="hint">查看态，不可修改关联。仅可手动点击「同步」将选品清单最新商品同步至该分类</div>
+      </div>
+      <div id="lpSyncResult" style="display:none;margin-top:8px;background:#f4fdf6;border:1px solid #c6f0d4;border-radius:var(--radius-sm);padding:8px 12px;font-size:12px;color:#16a34a;"></div>
+    </div>
+    <div class="modal-footer"><a href="javascript:void(0)" onclick="closeModal('linkProductModal')" style="color:var(--text-secondary);text-decoration:none;font-size:13px;">关闭</a></div>
+  </div>
+</div>
+
+<!-- Modal: 查看关联商品明细 -->
+<div class="modal-overlay" id="productDetailModal">
+  <div class="modal" style="width:560px;">
+    <div class="modal-header"><h3 id="productDetailTitle">关联商品明细</h3><button class="modal-close" onclick="closeModal('productDetailModal')">✕</button></div>
+    <div class="modal-body">
+      <div style="padding:8px 0;"><div id="pdDetail" style="font-size:13px;line-height:2;"></div>
+        <div style="text-align:center;margin:16px 0;padding:12px;background:var(--bg-hover);border-radius:var(--radius-sm);"><div style="font-size:11px;color:var(--text-muted);margin-bottom:2px;">合计</div><div style="font-size:22px;font-weight:600;color:var(--text-primary);" id="pdCount">在售数 128 / 总数 156</div></div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;">在售数指关联商品中在渠道处于可售状态的SKU数</div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;">
+        <a href="04.渠道商品管理-原型页面.html?filter=已导入" target="_blank" style="color:var(--blue);text-decoration:none;font-size:13px;">在渠道商品管理中查看（代入筛选）</a>
+        <a href="01.供应链商品池-原型页面.html" target="_blank" style="color:var(--blue);text-decoration:none;font-size:13px;margin-left:16px;">在供应链商品池中查看（代入筛选）</a>
+      </div>
+    </div>
+    <div class="modal-footer"><a href="javascript:void(0)" onclick="closeModal('productDetailModal')" style="color:var(--text-secondary);text-decoration:none;font-size:13px;">关闭</a></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ========================================
+// DATA
+// ========================================
+const channels = [
+  { id:'C1', name:'政企福利商城' }, { id:'C2', name:'航司积分小站' },
+  { id:'C3', name:'商城会员购' }, { id:'C4', name:'品牌自营旗舰店' },
+];
+
+// System categories (read-only, from supply chain)
+const systemCategories = [
+  { id:'S1', name:'米面粮油', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00', children:[
+    { id:'S1-1', name:'米面', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00', children:[
+      { id:'S1-1-1', name:'大米', productCount:'45/58', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+      { id:'S1-1-2', name:'面粉', productCount:'32/40', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+    ]},
+    { id:'S1-2', name:'食用油', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00', children:[
+      { id:'S1-2-1', name:'花生油', productCount:'28/32', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+      { id:'S1-2-2', name:'菜籽油', productCount:'23/26', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+    ]},
+  ]},
+  { id:'S2', name:'酒水饮料', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00', children:[
+    { id:'S2-1', name:'饮料', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00', children:[
+      { id:'S2-1-1', name:'碳酸饮料', productCount:'18/22', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+      { id:'S2-1-2', name:'果汁', productCount:'25/30', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+    ]},
+    { id:'S2-2', name:'酒类', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00', children:[
+      { id:'S2-2-1', name:'白酒', productCount:'30/35', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+      { id:'S2-2-2', name:'啤酒', productCount:'22/23', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+    ]},
+  ]},
+  { id:'S3', name:'男装', sort:3, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00', children:[
+    { id:'S3-1', name:'上装', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00', children:[
+      { id:'S3-1-1', name:'T恤', productCount:'55/68', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+      { id:'S3-1-2', name:'衬衫', productCount:'42/50', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+    ]},
+    { id:'S3-2', name:'下装', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00', children:[
+      { id:'S3-2-1', name:'休闲裤', productCount:'38/45', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+      { id:'S3-2-2', name:'牛仔裤', productCount:'65/82', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+    ]},
+  ]},
+  { id:'S4', name:'数码', sort:4, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00', children:[
+    { id:'S4-1', name:'手机通讯', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00', children:[
+      { id:'S4-1-1', name:'智能手机', productCount:'88/102', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+      { id:'S4-1-2', name:'功能手机', productCount:'12/15', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+    ]},
+    { id:'S4-2', name:'电脑办公', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00', children:[
+      { id:'S4-2-1', name:'笔记本', productCount:'45/55', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+      { id:'S4-2-2', name:'台式机', productCount:'32/40', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+    ]},
+  ]},
+  { id:'S5', name:'家居', sort:5, enabled:false, visible:false, channels:['C1','C2','C3','C4'], updatedBy:'张运营', updatedAt:'2026-05-29 17:00', children:[
+    { id:'S5-1', name:'客厅家具', sort:1, enabled:false, visible:false, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00', children:[
+      { id:'S5-1-1', name:'沙发', productCount:'18/22', sort:1, enabled:false, visible:false, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+      { id:'S5-1-2', name:'茶几', productCount:'15/18', sort:2, enabled:false, visible:false, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+    ]},
+    { id:'S5-2', name:'卧室家具', sort:2, enabled:false, visible:false, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00', children:[
+      { id:'S5-2-1', name:'床', productCount:'22/28', sort:1, enabled:false, visible:false, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+      { id:'S5-2-2', name:'衣柜', productCount:'18/20', sort:2, enabled:false, visible:false, channels:['C1','C2','C3','C4'], updatedBy:'张三', updatedAt:'2026-05-28 09:00' },
+    ]},
+  ]},
+];
+
+// Basic categories (virtual, mapping to system categories)
+const basicCategories = [
+  { id:'B1', name:'米面粮油精选', type:'dir', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张运营', updatedAt:'2026-05-29 11:00', children:[
+    { id:'B1-1', name:'米面专区', type:'dir', source:'system', mappedSystem:'S1-1', mappedSystemName:'米面粮油 > 米面', productCount:'—', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张运营', updatedAt:'2026-05-29 11:00', children:[
+      { id:'B1-1-1', name:'大米精选', type:'leaf', source:'system', mappedSystem:'S1-1-1', mappedSystemName:'米面粮油 > 米面 > 大米', productCount:'35/42', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张运营', updatedAt:'2026-05-29 11:02' },
+      { id:'B1-1-2', name:'面粉专区', type:'leaf', source:'system', mappedSystem:'S1-1-2', mappedSystemName:'米面粮油 > 米面 > 面粉', productCount:'28/33', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张运营', updatedAt:'2026-05-29 11:03' },
+    ]},
+    { id:'B1-2', name:'食用油专区', type:'leaf', source:'system', mappedSystem:'S1-2', mappedSystemName:'米面粮油 > 食用油', productCount:'42/50', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张运营', updatedAt:'2026-05-29 11:05' },
+  ]},
+  { id:'B2', name:'酒水饮料精选', type:'dir', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张运营', updatedAt:'2026-05-29 11:10', children:[
+    { id:'B2-1', name:'酒类优选', type:'leaf', source:'system', mappedSystem:'S2-2', mappedSystemName:'酒水饮料 > 酒类', productCount:'55/68', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张运营', updatedAt:'2026-05-29 11:10' },
+    { id:'B2-2', name:'饮品专区', type:'leaf', source:'virtual', mappedSystem:'', mappedSystemName:'', productCount:'28/30', sort:2, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'王专员', updatedAt:'2026-05-29 10:30' },
+  ]},
+  { id:'B3', name:'数码精选', type:'dir', sort:3, enabled:true, visible:true, channels:['C1','C2','C3'], updatedBy:'李主管', updatedAt:'2026-05-29 15:30', children:[
+    { id:'B3-1', name:'手机特卖', type:'leaf', source:'system', mappedSystem:'S4-1', mappedSystemName:'数码 > 手机通讯', productCount:'88/102', sort:1, enabled:true, visible:true, channels:['C1','C2','C3'], updatedBy:'李主管', updatedAt:'2026-05-27 16:45' },
+    { id:'B3-2', name:'蓝牙设备精选', type:'leaf', source:'virtual', mappedSystem:'', mappedSystemName:'', productCount:'35/42', sort:2, enabled:true, visible:true, channels:['C1','C2','C3'], updatedBy:'李主管', updatedAt:'2026-05-29 16:00' },
+  ]},
+  { id:'B4', name:'五常米专区', type:'leaf', source:'system', mappedSystem:'S1-1-1', mappedSystemName:'米面粮油 > 米面 > 大米', productCount:'35/42', sort:4, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'张运营', updatedAt:'2026-05-28 14:20' },
+  { id:'B5', name:'进口粮油精选', type:'leaf', source:'virtual', mappedSystem:'', mappedSystemName:'', productCount:'18/22', sort:5, enabled:true, visible:true, channels:['C1','C2','C3'], updatedBy:'张运营', updatedAt:'2026-05-28 15:10' },
+];
+
+// Marketing categories
+const marketCategories = [
+  { id:'M1', name:'618活动', type:'dir', icon:'', productCount:'—', sort:10, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'李主管', updatedAt:'2026-05-28 10:00', children:[
+    { id:'M1-1', name:'3C电子设备', type:'leaf', icon:'', productCount:'88/105', sort:1, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'李主管', updatedAt:'2026-05-28 10:15', children:[] },
+    { id:'M1-2', name:'家居生活', type:'leaf', icon:'', productCount:'55/68', sort:2, enabled:true, visible:true, channels:['C1','C2','C3'], updatedBy:'李主管', updatedAt:'2026-05-28 10:20', children:[] },
+  ]},
+  { id:'M2', name:'夏日清凉专区', type:'leaf', icon:'', productCount:'120/150', sort:11, enabled:true, visible:true, channels:['C1','C2','C3','C4'], updatedBy:'王专员', updatedAt:'2026-05-29 09:30', children:[] },
+  { id:'M3', name:'中秋礼盒', type:'dir', icon:'', productCount:'—', sort:12, enabled:true, visible:false, channels:['C1','C2','C3','C4'], updatedBy:'王专员', updatedAt:'2026-05-29 14:00', children:[
+    { id:'M3-1', name:'传统糕点', type:'dir', icon:'', productCount:'—', sort:1, enabled:true, visible:false, channels:['C1','C2','C3','C4'], updatedBy:'王专员', updatedAt:'2026-05-29 14:05', children:[
+      { id:'M3-1-1', name:'月饼精选', type:'leaf', icon:'', productCount:'30/35', sort:1, enabled:true, visible:false, channels:['C1','C2','C3','C4'], updatedBy:'王专员', updatedAt:'2026-05-29 14:10', children:[] },
+      { id:'M3-1-2', name:'粽子礼盒', type:'leaf', icon:'', productCount:'15/20', sort:2, enabled:true, visible:false, channels:['C1','C2','C3','C4'], updatedBy:'王专员', updatedAt:'2026-05-29 14:12', children:[] },
+    ]},
+  ]},
+];
+
+// State
+let currentTab = 'market';
+let treeFilterMode = 'all';
+let treeFilterNode = null;
+let deleteTarget = null;
+let allExpanded = false;
+let expandedNodes = {};
+let lpSelectedSkus = [];
+let linkProductTarget = null;
+let editId = null;
+
+function initExpanded(nodes) { nodes.forEach(function(n) { expandedNodes[n.id] = false; if (n.children) initExpanded(n.children); }); }
+initExpanded(marketCategories);
+initExpanded(systemCategories);
+initExpanded(basicCategories);
+
+// ========================================
+// RENDER TREE (前台分类树: only 基础分类 + 营销分类)
+// ========================================
+function getTreeNodes() {
+  var all = [];
+  // Marketing first, then basic
+  marketCategories.forEach(function(n) { all.push({ node:n, _tab:'market', depth:0 }); });
+  basicCategories.forEach(function(n) { all.push({ node:n, _tab:'basic', depth:0 }); });
+  return all.filter(function(item) {
+    var n = item.node;
+    if (treeFilterMode === 'enabled') return n.enabled !== false;
+    if (treeFilterMode === 'visible') return n.enabled !== false && n.visible !== false;
+    return true;
+  });
+}
+
+function renderTree() {
+  var data = getTreeNodes();
+  var container = document.getElementById('categoryTree');
+  var html = '<div class="tree-node"><div class="tree-node-item' + (treeFilterNode === null ? ' active' : '') + '" onclick="treeNodeClick(null)" style="padding-left:10px;font-weight:600;">全部</div></div>';
+  data.forEach(function(item) {
+    html += renderTreeNode(item.node, 0, item._tab);
+  });
+  container.innerHTML = html;
+}
+
+function renderTreeNode(node, depth, tab) {
+  var isMarket = tab === 'market';
+  var hasChildren = node.children && node.children.length > 0;
+  var filteredChildren = hasChildren ? node.children.filter(function(c) {
+    if (treeFilterMode === 'enabled') return c.enabled !== false;
+    if (treeFilterMode === 'visible') return c.enabled !== false && c.visible !== false;
+    return true;
+  }) : [];
+  var showChildren = hasChildren && filteredChildren.length > 0;
+  var isExp = expandedNodes[node.id];
+  var typeClass = isMarket ? 'market' : 'basic';
+
+  var badgeHtml = '';
+  if (isMarket) {
+    badgeHtml = '<span class="tree-badge ' + (node.type === 'dir' ? 'market-dir' : 'market-leaf') + '">营销-' + (node.type === 'dir' ? '目录' : '节点') + '</span>';
+  } else {
+    var basicBadgeClass, basicBadgeText;
+    if (node.type === 'dir') { basicBadgeClass = 'basic-dir'; basicBadgeText = '基础-目录'; }
+    else if (node.source === 'virtual') { basicBadgeClass = 'basic-virtual'; basicBadgeText = '基础-虚拟'; }
+    else { basicBadgeClass = 'basic-system'; basicBadgeText = '基础-系统'; }
+    badgeHtml = '<span class="tree-badge ' + basicBadgeClass + '">' + basicBadgeText + '</span>';
+  }
+
+  var html = '<div class="tree-node">';
+  html += '<div class="tree-node-item' + (treeFilterNode === node.id ? ' active' : '') + '" onclick="treeNodeClick(\'' + node.id + '\')" style="padding-left:' + (10 + depth * 20) + 'px;">';
+  if (showChildren) {
+    html += '<span class="expand-arrow' + (isExp ? ' expanded' : '') + '" onclick="event.stopPropagation();toggleTreeNode(\'' + node.id + '\')">' + (isExp ? '▼' : '▶') + '</span>';
+  } else {
+    html += '<span class="expand-arrow" style="visibility:hidden;">▶</span>';
+  }
+  html += '<span class="node-icon ' + typeClass + '" style="display:none;"></span>';
+  html += '<span>' + node.name + '</span>' + badgeHtml;
+  if (!showChildren && (node.type === 'leaf' || !isMarket)) {
+    html += '<span style="margin-left:auto;font-size:10px;color:var(--text-muted);">' + (node.productCount || '0/0') + '</span>';
+  }
+  html += '</div>';
+
+  if (showChildren && isExp) {
+    html += '<div class="tree-children">';
+    filteredChildren.forEach(function(child) { html += renderTreeNode(child, depth + 1, tab); });
+    html += '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
+function toggleTreeNode(id) { expandedNodes[id] = !expandedNodes[id]; renderTree(); }
+
+function treeNodeClick(id) {
+  if (id === null) { treeFilterNode = null; renderTree(); renderTable(); return; }
+  treeFilterNode = (treeFilterNode === id) ? null : id;
+  // Find node to determine which tab
+  var node = findNodeInTree(id);
+  if (node && node._tab === 'market' && currentTab !== 'market') { switchTab('market'); }
+  else if (node && node._tab === 'basic' && currentTab !== 'basic') { switchTab('basic'); }
+  renderTree(); renderTable();
+}
+
+function findNodeInTree(id) {
+  for (var i = 0; i < marketCategories.length; i++) {
+    var found = searchNode(marketCategories[i], id, 'market');
+    if (found) return found;
+  }
+  for (var i = 0; i < basicCategories.length; i++) {
+    if (basicCategories[i].id === id) return { node: basicCategories[i], _tab: 'basic' };
+  }
+  return null;
+  function searchNode(n, id, tab) {
+    if (n.id === id) return { node:n, _tab:tab };
+    if (n.children) { for (var j=0; j<n.children.length; j++) { var f = searchNode(n.children[j], id, tab); if (f) return f; } }
+    return null;
+  }
+}
+
+function setTreeFilter(mode, el) {
+  treeFilterMode = mode;
+  document.querySelectorAll('.tree-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  el.classList.add('active');
+  renderTree();
+}
+
+// ========================================
+// RENDER TABLE
+// ========================================
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(function(btn, i) {
+    btn.classList.toggle('active', (i === 0 && tab === 'market') || (i === 1 && tab === 'basic') || (i === 2 && tab === 'system'));
+  });
+  treeFilterNode = null;
+  treeFilterMode = 'all';
+  document.querySelectorAll('.tree-filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  var allBtn = document.querySelector('.tree-filter-btn[data-filter="all"]');
+  if (allBtn) allBtn.classList.add('active');
+  updateActionBar();
+  renderTree();
+  renderTable();
+}
+
+function updateActionBar() {
+  var btn = document.getElementById('btnNewCategory');
+  var syncBtn = document.getElementById('btnSyncSystem');
+  var filterBar = document.querySelector('.filter-bar');
+  if (currentTab === 'system') {
+    btn.textContent = '系统类目由供应链同步';
+    btn.className = 'btn btn-outline';
+    btn.disabled = true;
+    btn.style.cursor = 'not-allowed';
+    syncBtn.style.display = 'none';
+    // Hide filter bar for system tab
+    filterBar.style.display = 'none';
+  } else if (currentTab === 'basic') {
+    btn.textContent = '新建基础分类';
+    btn.className = 'btn btn-primary';
+    btn.disabled = false;
+    btn.style.cursor = 'pointer';
+    btn.onclick = openNewCategoryModal;
+    syncBtn.style.display = 'inline-flex';
+    filterBar.style.display = 'flex';
+  } else {
+    btn.textContent = '新建营销分类';
+    btn.className = 'btn btn-primary';
+    btn.disabled = false;
+    btn.style.cursor = 'pointer';
+    btn.onclick = openNewMarketCategoryModal;
+    syncBtn.style.display = 'none';
+    filterBar.style.display = 'flex';
+  }
+}
+
+// 同步映射系统类目：扫描未映射的系统L1/L3，自动建立基础分类节点
+function syncSystemToBasic() {
+  // Step 1: 收集已映射的系统类目ID
+  var mappedIds = {};
+  function collectMapped(nodes) {
+    nodes.forEach(function(n) {
+      if (n.mappedSystem) {
+        n.mappedSystem.split(',').forEach(function(mid) {
+          mappedIds[mid.trim()] = true;
+        });
+      }
+      if (n.children) collectMapped(n.children);
+    });
+  }
+  collectMapped(basicCategories);
+
+  var created = 0;
+  var skippedDisabled = 0;
+  var now = new Date().toISOString().slice(0,16).replace('T',' ');
+
+  // Helper: 在指定节点列表中递归查找已映射到指定系统类目的基础节点
+  function findBasicBySysId(sysId, nodes) {
+    for (var i = 0; i < nodes.length; i++) {
+      if (nodes[i].mappedSystem) {
+        var mids = nodes[i].mappedSystem.split(',');
+        for (var j = 0; j < mids.length; j++) {
+          if (mids[j].trim() === sysId) return nodes[i];
+        }
+      }
+      if (nodes[i].children && nodes[i].children.length > 0) {
+        var found = findBasicBySysId(sysId, nodes[i].children);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  // Step 2: 遍历系统类目
+  systemCategories.forEach(function(sysL1) {
+    // 跳过停用的系统类目
+    if (sysL1.enabled === false) { skippedDisabled++; return; }
+
+    // 确保基础L1存在（未映射则创建）
+    var basicL1 = findBasicBySysId(sysL1.id, basicCategories);
+    if (!basicL1) {
+      basicL1 = {
+        id: 'B-SYNC-' + sysL1.id,
+        name: sysL1.name,
+        type: 'dir',
+        source: 'system',
+        mappedSystem: sysL1.id,
+        mappedSystemName: sysL1.name,
+        productCount: '—',
+        sort: 999,
+        enabled: true,
+        visible: false,
+        channels: ['C1','C2','C3','C4'],
+        updatedBy: '系统同步',
+        updatedAt: now,
+        children: []
+      };
+      basicCategories.push(basicL1);
+      mappedIds[sysL1.id] = true;
+      created++;
+    }
+
+    // Step 3: 扫描系统L2创建基础L2目录，扫描系统L3创建基础L3节点
+    if (sysL1.children) {
+      sysL1.children.forEach(function(sysL2) {
+        if (sysL2.enabled === false) return;
+        // 系统L2：映射为基础L2目录（未映射则创建）
+        var basicL2 = findBasicBySysId(sysL2.id, basicL1.children);
+        if (!basicL2) {
+          basicL2 = {
+            id: 'B-SYNC-' + sysL2.id,
+            name: sysL2.name,
+            type: 'dir',
+            source: 'system',
+            mappedSystem: sysL2.id,
+            mappedSystemName: sysL1.name + ' > ' + sysL2.name,
+            productCount: '—',
+            sort: 999,
+            enabled: true,
+            visible: false,
+            channels: ['C1','C2','C3','C4'],
+            updatedBy: '系统同步',
+            updatedAt: now,
+            children: []
+          };
+          basicL1.children.push(basicL2);
+          mappedIds[sysL2.id] = true;
+          created++;
+        }
+        // 系统L3：映射为基础L3节点
+        if (sysL2.children) {
+          sysL2.children.forEach(function(sysL3) {
+            if (!mappedIds[sysL3.id]) {
+              var newBasicL3 = {
+                id: 'B-SYNC-' + sysL3.id,
+                name: sysL3.name,
+                type: 'leaf',
+                source: 'system',
+                mappedSystem: sysL3.id,
+                mappedSystemName: sysL1.name + ' > ' + sysL2.name + ' > ' + sysL3.name,
+                productCount: sysL3.productCount || '0/0',
+                sort: 999,
+                enabled: true,
+                visible: false,
+                channels: ['C1','C2','C3','C4'],
+                updatedBy: '系统同步',
+                updatedAt: now,
+              };
+              basicL2.children.push(newBasicL3);
+              mappedIds[sysL3.id] = true;
+              created++;
+            }
+          });
+        }
+      });
+    }
+  });
+
+  // Step 4: 结果反馈
+  if (created > 0) {
+    renderTree(); renderTable();
+    document.getElementById('publishBadge').style.display = 'inline-block';
+    var msg = '同步完成：新增 ' + created + ' 个基础分类（默认启用+隐藏，排序999），名称取系统类目名，可后续编辑';
+    if (skippedDisabled > 0) msg += '；跳过 ' + skippedDisabled + ' 个已停用系统类目';
+    showToast('success', msg);
+  } else {
+    var msg2 = '所有可用系统类目已完成映射，无需同步';
+    if (skippedDisabled > 0) msg2 += '（跳过 ' + skippedDisabled + ' 个已停用类目）';
+    showToast('info', msg2);
+  }
+}
+
+function getFilteredData() {
+  if (currentTab === 'system') {
+    // Flatten 3-level tree for table display
+    var result = [];
+    function flattenSys(nodes, depth) {
+      nodes.forEach(function(n) {
+        var hasCh = n.children && n.children.length > 0;
+        result.push({ node:n, depth:depth, hasChildren:hasCh, isExp:expandedNodes[n.id] });
+        if (hasCh && expandedNodes[n.id]) {
+          flattenSys(n.children, depth + 1);
+        }
+      });
+    }
+    flattenSys(systemCategories, 0);
+    var nameFilter = (document.getElementById('filterName')?.value || '').trim().toLowerCase();
+    if (nameFilter) result = result.filter(function(r) { return r.node.name.toLowerCase().includes(nameFilter); });
+    return result;
+  }
+  var data = currentTab === 'basic' ? basicCategories : marketCategories;
+  var result = treeFilterNode ? flattenData(data, treeFilterNode) : flattenData(data);
+  var elName = document.getElementById('filterName');
+  var elEnable = document.getElementById('filterEnable');
+  var elVisible = document.getElementById('filterVisible');
+  var elChannel = document.getElementById('filterChannel');
+  var nameFilter = (elName?.value || '').trim().toLowerCase();
+  var enableFilter = elEnable?.value || 'all';
+  var visibleFilter = elVisible?.value || 'all';
+  var channelFilter = elChannel?.value || 'all';
+  if (nameFilter) result = result.filter(function(r) { return r.node.name.toLowerCase().includes(nameFilter); });
+  if (enableFilter === 'enabled') result = result.filter(function(r) { return r.node.enabled !== false; });
+  if (enableFilter === 'disabled') result = result.filter(function(r) { return r.node.enabled === false; });
+  if (visibleFilter === 'show') result = result.filter(function(r) { return r.node.visible !== false; });
+  if (visibleFilter === 'hide') result = result.filter(function(r) { return r.node.visible === false; });
+  if (channelFilter !== 'all') result = result.filter(function(r) { return r.node.channels && r.node.channels.indexOf(channelFilter) >= 0; });
+  return result;
+}
+
+function flattenData(nodes, filterId) {
+  var result = [];
+  function walk(list, depth) {
+    list.forEach(function(node) {
+      if (filterId) {
+        if (node.id === filterId) { addNodeAndChildren(node, depth); return; }
+        if (node.children) walk(node.children, depth + 1);
+        return;
+      }
+      result.push({ node:node, depth:depth, hasChildren:node.children && node.children.length > 0, isExp:expandedNodes[node.id] });
+      if (node.children && expandedNodes[node.id]) {
+        node.children.forEach(function(child) {
+          result.push({ node:child, depth:depth + 1, hasChildren:child.children && child.children.length > 0, isExp:expandedNodes[child.id] });
+          if (child.children && expandedNodes[child.id]) {
+            child.children.forEach(function(grandchild) {
+              result.push({ node:grandchild, depth:depth + 2, hasChildren:grandchild.children && grandchild.children.length > 0, isExp:false });
+            });
+          }
+        });
+      }
+    });
+  }
+  function addNodeAndChildren(node, depth) {
+    result.push({ node:node, depth:depth, hasChildren:node.children && node.children.length > 0, isExp:expandedNodes[node.id] });
+    if (node.children && expandedNodes[node.id]) {
+      node.children.forEach(function(child) { addNodeAndChildren(child, depth + 1); });
+    }
+  }
+  walk(nodes, 0);
+  return result;
+}
+
+function toggleExpandAll() {
+  allExpanded = !allExpanded;
+  // Apply to all tree types
+  marketCategories.forEach(function(n) { setExpandAll(n); });
+  systemCategories.forEach(function(n) { setExpandAll(n); });
+  basicCategories.forEach(function(n) { setExpandAll(n); });
+  var btn = document.getElementById('btnExpandAll');
+  btn.textContent = allExpanded ? '全部收起 ▴' : '全部展开 ▾';
+  renderTree(); renderTable();
+  function setExpandAll(n) { expandedNodes[n.id] = allExpanded; if (n.children) n.children.forEach(function(c) { setExpandAll(c); }); }
+}
+
+function resetFilters() {
+  document.getElementById('filterName').value = '';
+  document.getElementById('filterEnable').value = 'all';
+  document.getElementById('filterVisible').value = 'all';
+  document.getElementById('filterChannel').value = 'all';
+  renderTable();
+}
+
+function renderTable() {
+  var thead = document.getElementById('tableHead');
+  var tbody = document.getElementById('tableBody');
+  var empty = document.getElementById('emptyState');
+  var data = getFilteredData();
+
+  if (currentTab === 'system') {
+    thead.innerHTML = '<tr>'
+      + '<th style="width:240px;">系统类目名称</th>'
+      + '<th style="width:70px;">类型</th>'
+      + '<th style="width:130px;">关联供应链SKU数</th>'
+      + '<th style="width:130px;">关联渠道SKU数</th>'
+      + '<th style="width:140px;">更新人/时间</th>'
+      + '</tr>';
+  } else if (currentTab === 'basic') {
+    thead.innerHTML = '<tr>'
+      + '<th style="width:200px;">前台分类名称</th>'
+      + '<th style="width:130px;">映射系统类目</th>'
+      + '<th style="width:70px;">图标</th>'
+      + '<th style="width:110px;">关联商品数</th>'
+      + '<th style="width:70px;">类型</th>'
+      + '<th style="width:70px;">排序</th>'
+      + '<th style="width:80px;">启用状态</th>'
+      + '<th style="width:150px;">适用渠道</th>'
+      + '<th style="width:110px;">C端分类页展示状态</th>'
+      + '<th style="width:130px;">更新人/时间</th>'
+      + '<th style="width:110px;">操作</th>'
+      + '</tr>';
+  } else {
+    thead.innerHTML = '<tr>'
+      + '<th style="width:200px;">营销分类名称</th>'
+      + '<th style="width:80px;">节点类型</th>'
+      + '<th style="width:70px;">图标</th>'
+      + '<th style="width:110px;">关联商品数</th>'
+      + '<th style="width:70px;">排序</th>'
+      + '<th style="width:80px;">启用状态</th>'
+      + '<th style="width:150px;">适用渠道</th>'
+      + '<th style="width:110px;">C端分类页展示状态</th>'
+      + '<th style="width:130px;">更新人/时间</th>'
+      + '<th style="width:110px;">操作</th>'
+      + '</tr>';
+  }
+
+  if (data.length === 0) {
+    tbody.innerHTML = '';
+    empty.style.display = 'flex';
+    if (currentTab === 'system') {
+      document.getElementById('emptyTitle').textContent = '暂无数据';
+      document.getElementById('emptyDesc').innerHTML = '系统类目将在供应链商品入库后自动出现';
+    } else if (currentTab === 'basic') {
+      document.getElementById('emptyTitle').textContent = '暂无数据';
+      document.getElementById('emptyDesc').innerHTML = '点击「新建基础分类」开始创建';
+    } else {
+      document.getElementById('emptyTitle').textContent = '暂无营销分类';
+      document.getElementById('emptyDesc').innerHTML = '暂无营销分类，点击下方按钮创建<span class="empty-action"><a href="javascript:void(0)" onclick="openNewMarketCategoryModal()" style="display:inline-flex;align-items:center;padding:7px 18px;background:var(--accent);color:#fff;border-radius:var(--radius-sm);text-decoration:none;font-size:13px;font-weight:500;">新建营销分类</a></span>';
+    }
+    return;
+  }
+  empty.style.display = 'none';
+
+  var html = '';
+  if (currentTab === 'system') {
+    data.forEach(function(item) { html += renderSystemRow(item.node, item.depth, item.hasChildren, item.isExp); });
+  } else if (currentTab === 'basic') {
+    data.forEach(function(item) { html += renderBasicRow(item.node, item.depth, item.hasChildren, item.isExp); });
+  } else {
+    data.forEach(function(item) { html += renderMarketRow(item.node, item.depth, item.hasChildren, item.isExp); });
+  }
+  tbody.innerHTML = html;
+}
+
+function renderSystemRow(node, depth, hasChildren, isExp) {
+  var levelLabel = hasChildren ? (depth === 0 ? '一级' : '二级') : (depth === 0 ? '一级' : (depth === 1 ? '二级' : '三级'));
+  var typeTag = hasChildren
+    ? '<span class="tag tag-sys-dir">目录</span>'
+    : '<span class="tag tag-sys-leaf">节点</span>';
+  var indent = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(depth);
+  var arrow = hasChildren
+    ? '<span class="expand-cell-arrow' + (isExp ? ' expanded' : '') + '" onclick="toggleTableExpandSys(\'' + node.id + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></polyline></svg></span>'
+    : '<span class="expand-cell-arrow" style="visibility:hidden;">&gt;</span>';
+  // Supply chain SKU count (for leaf nodes)
+  var supplyCount = node.productCount || (hasChildren ? '—' : '0');
+  // Store SKU count (demo: ~80% of supply count for active, slightly more for total)
+  var storeCount = hasChildren ? '—' : (node._storeCount || Math.floor(parseInt(supplyCount) * 0.85) || '—');
+  var rowChildClass = depth > 0 ? ' row-child' : '';
+  var disabledClass = !node.enabled ? ' disabled-row' : '';
+
+  return '<tr class="' + rowChildClass + disabledClass + '">'
+    + '<td><span class="tree-indent">' + indent + arrow + '</span><span style="font-weight:500;">' + node.name + '</span></td>'
+    + '<td>' + typeTag + '</td>'
+    + '<td><span class="price">' + supplyCount + '</span></td>'
+    + '<td><span class="price">' + storeCount + '</span></td>'
+    + '<td><div class="cell-stack"><span>' + node.updatedBy + '</span><span class="secondary">' + node.updatedAt + '</span></div></td>'
+    + '</tr>';
+}
+
+function toggleTableExpandSys(id) { expandedNodes[id] = !expandedNodes[id]; renderTable(); }
+
+function renderBasicRow(node, depth, hasChildren, isExp) {
+  var indent = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(depth);
+  var arrow = hasChildren
+    ? '<span class="expand-cell-arrow' + (isExp ? ' expanded' : '') + '" onclick="toggleTableExpand(\'' + node.id + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></polyline></svg></span>'
+    : '<span class="expand-cell-arrow" style="visibility:hidden;">&gt;</span>';
+  var tagClass, tagText;
+  if (node.type === 'dir') { tagClass = 'tag-basic-dir'; tagText = '基础-目录'; }
+  else if (node.source === 'virtual') { tagClass = 'tag-basic-virtual'; tagText = '基础-虚拟'; }
+  else { tagClass = 'tag-basic-system'; tagText = '基础-系统'; }
+  var typeTag = '<span class="tag ' + tagClass + '">' + tagText + '</span>';
+  var channelTags = renderChannelTags(node.channels);
+  var isRowChild = depth > 0 ? ' row-child' : '';
+  var disabledClass = !node.enabled ? ' disabled-row' : '';
+
+  return '<tr class="' + (isRowChild ? 'row-child' : '') + disabledClass + '" draggable="true" data-node-id="' + node.id + '" data-depth="' + depth + '" data-tab="basic"'
+    + ' ondragstart="onDragStart(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" ondragend="onDragEnd(event)">'
+    + '<td><span class="tree-indent">' + indent + arrow + '</span><span class="drag-handle" title="拖拽排序">⋮⋮</span><span style="font-weight:500;">' + node.name + '</span></td>'
+    + '<td><span style="font-size:12.5px;">' + ((node.source === 'virtual') ? '自定义' : (node.mappedSystemName || '—')) + '</span></td>'
+    + '<td><div class="icon-placeholder">' + node.name.charAt(0) + '</div></td>'
+    + '<td>' + (node.type === 'dir' ? '<span style="color:var(--text-muted);">—</span>' : '<span style="font-weight:500;cursor:pointer;color:var(--blue);" onclick="openProductDetailModal(\'' + node.id + '\')">' + node.productCount + '</span>') + '</td>'
+    + '<td>' + typeTag + '</td>'
+    + '<td><span class="price sort-editable" onclick="startSortEdit(event, \'' + node.id + '\')" title="点击编辑排序权重">' + (node.sort || 99) + '</span></td>'
+    + '<td><label class="toggle"><input type="checkbox" ' + (node.enabled ? 'checked' : '') + ' onchange="toggleEnable(\'' + node.id + '\', this.checked)"><span class="slider"></span></label></td>'
+    + '<td><div class="channel-tags">' + channelTags + '</div></td>'
+    + '<td><div style="display:flex;align-items:center;gap:6px;"><label class="toggle' + (!node.enabled ? ' disabled' : '') + '"><input type="checkbox" ' + (node.visible ? 'checked' : '') + ' ' + (node.enabled ? '' : 'disabled') + ' onchange="toggleVisible(\'' + node.id + '\', this.checked)"><span class="slider"></span></label><span style="font-size:11px;color:' + (node.visible ? 'var(--green)' : 'var(--text-muted)') + ';white-space:nowrap;">' + (node.visible ? '显示' : '隐藏') + '</span></div></td>'
+    + '<td><div class="cell-stack"><span>' + node.updatedBy + '</span><span class="secondary">' + node.updatedAt + '</span></div></td>'
+    + '<td style="white-space:nowrap;">'
+    + '<a href="javascript:void(0)" onclick="openEditModal(\'' + node.id + '\')" style="color:var(--blue);text-decoration:none;font-size:12px;">编辑</a>'
+    + (node.type === 'dir' ? ' <a href="javascript:void(0)" onclick="openNewCategoryModal()" style="color:var(--blue);text-decoration:none;font-size:12px;margin-left:8px;">新建子分类</a>' : '')
+    + (node.type !== 'dir' ? ' <a href="javascript:void(0)" onclick="openLinkProductModal(\'' + node.id + '\')" style="color:var(--blue);text-decoration:none;font-size:12px;margin-left:8px;">关联商品</a>' : '')
+    + ' <a href="javascript:void(0)" onclick="openDeleteModal(\'' + node.id + '\')" style="color:var(--red);text-decoration:none;font-size:12px;margin-left:8px;">删除</a>'
+    + '</td></tr>';
+}
+
+function renderMarketRow(node, depth, hasChildren, isExp) {
+  var indent = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(depth);
+  var arrow = hasChildren
+    ? '<span class="expand-cell-arrow' + (isExp ? ' expanded' : '') + '" onclick="toggleTableExpand(\'' + node.id + '\')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></polyline></svg></span>'
+    : '<span class="expand-cell-arrow" style="visibility:hidden;">&gt;</span>';
+  var typeTag = node.type === 'dir' ? '<span class="tag tag-market-dir">营销-目录</span>' : '<span class="tag tag-market-leaf">营销-节点</span>';
+  var channelTags = renderChannelTags(node.channels);
+  var isRowChild = depth > 0 ? ' row-child' : '';
+  var disabledClass = !node.enabled ? ' disabled-row' : '';
+
+  return '<tr class="' + (isRowChild ? 'row-child' : '') + disabledClass + '" draggable="true" data-node-id="' + node.id + '" data-depth="' + depth + '" data-tab="market"'
+    + ' ondragstart="onDragStart(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" ondragend="onDragEnd(event)">'
+    + '<td><span class="tree-indent">' + indent + arrow + '</span><span class="drag-handle" title="拖拽排序">⋮⋮</span><span style="font-weight:500;">' + node.name + '</span></td>'
+    + '<td>' + typeTag + '</td>'
+    + '<td><div class="icon-placeholder">' + node.name.charAt(0) + '</div></td>'
+    + '<td>' + (node.type === 'dir' ? '<span style="color:var(--text-muted);">—</span>' : '<span style="font-weight:500;cursor:pointer;color:var(--blue);" onclick="openProductDetailModal(\'' + node.id + '\')">' + node.productCount + '</span>') + '</td>'
+    + '<td><span class="price sort-editable" onclick="startSortEdit(event, \'' + node.id + '\')" title="点击编辑排序权重">' + (node.sort || 99) + '</span></td>'
+    + '<td><label class="toggle"><input type="checkbox" ' + (node.enabled ? 'checked' : '') + ' onchange="toggleEnable(\'' + node.id + '\', this.checked)"><span class="slider"></span></label></td>'
+    + '<td><div class="channel-tags">' + channelTags + '</div></td>'
+    + '<td><div style="display:flex;align-items:center;gap:6px;"><label class="toggle' + (!node.enabled ? ' disabled' : '') + '"><input type="checkbox" ' + (node.visible ? 'checked' : '') + ' ' + (node.enabled ? '' : 'disabled') + ' onchange="toggleVisible(\'' + node.id + '\', this.checked)"><span class="slider"></span></label><span style="font-size:11px;color:' + (node.visible ? 'var(--green)' : 'var(--text-muted)') + ';white-space:nowrap;">' + (node.visible ? '显示' : '隐藏') + '</span></div></td>'
+    + '<td><div class="cell-stack"><span>' + node.updatedBy + '</span><span class="secondary">' + node.updatedAt + '</span></div></td>'
+    + '<td style="white-space:nowrap;">'
+    + '<a href="javascript:void(0)" onclick="openEditModal(\'' + node.id + '\')" style="color:var(--blue);text-decoration:none;font-size:12px;">编辑</a>'
+    + (node.type === 'dir' ? ' <a href="javascript:void(0)" onclick="openNewMarketCategoryModal()" style="color:var(--blue);text-decoration:none;font-size:12px;margin-left:8px;">新建子分类</a>' : '')
+    + (node.type === 'leaf' ? ' <a href="javascript:void(0)" onclick="openLinkProductModal(\'' + node.id + '\')" style="color:var(--blue);text-decoration:none;font-size:12px;margin-left:8px;">关联商品</a>' : '')
+    + ' <a href="javascript:void(0)" onclick="openDeleteModal(\'' + node.id + '\')" style="color:var(--red);text-decoration:none;font-size:12px;margin-left:8px;">删除</a>'
+    + '</td></tr>';
+}
+
+function toggleTableExpand(id) { expandedNodes[id] = !expandedNodes[id]; if (currentTab === 'basic') { renderTable(); } else { renderTree(); renderTable(); } }
+
+function renderChannelTags(channelIds) {
+  if (!channelIds || channelIds.length === 0) return '<span style="font-size:12.5px;color:var(--text-muted);">—</span>';
+  // 全部渠道
+  if (channelIds.length === channels.length) return '<span style="font-size:12.5px;color:var(--text-secondary);">全部渠道</span>';
+  var names = channelIds.map(function(cid) { var ch = channels.find(function(c) { return c.id === cid; }); return ch ? ch.name : cid; });
+  if (names.length <= 1) return '<span style="font-size:12.5px;">' + names[0] + '</span>';
+  // 参考供应链商品池风格：首渠道名 + 等N个渠道
+  return '<span style="font-size:12.5px;">' + names[0] + '</span><div style="font-size:10.5px;color:var(--text-muted);">等' + names.length + '个渠道</div>';
+}
+
+// ========================================
+// FIND NODE
+// ========================================
+function findNode(id) {
+  if (currentTab === 'system') {
+    function searchSys(nodes) { for (var i=0; i<nodes.length; i++) { if (nodes[i].id === id) return nodes[i]; if (nodes[i].children) { var f = searchSys(nodes[i].children); if (f) return f; } } return null; }
+    return searchSys(systemCategories);
+  }
+  var all = currentTab === 'basic' ? basicCategories : marketCategories;
+  function search(nodes) { for (var i=0; i<nodes.length; i++) { if (nodes[i].id === id) return nodes[i]; if (nodes[i].children) { var f = search(nodes[i].children); if (f) return f; } } return null; }
+  return search(all);
+}
+
+function removeNode(id) {
+  if (currentTab === 'basic') {
+    for (var i = 0; i < basicCategories.length; i++) { if (basicCategories[i].id === id) { basicCategories.splice(i, 1); return true; } }
+  } else {
+    function remove(nodes) { for (var i=0; i<nodes.length; i++) { if (nodes[i].id === id) { nodes.splice(i,1); return true; } if (nodes[i].children && remove(nodes[i].children)) return true; } return false; }
+    remove(marketCategories);
+  }
+  return false;
+}
+
+function toggleEnable(id, checked) {
+  var node = findNode(id);
+  if (node) { node.enabled = checked; if (!checked) node.visible = false; renderTable(); document.getElementById('publishBadge').style.display = 'inline-block'; showToast('info', checked ? '已启用' : '已停用（C端分类页展示状态强制隐藏）'); }
+}
+function toggleVisible(id, checked) {
+  var node = findNode(id);
+  if (node && node.enabled) { node.visible = checked; renderTable(); document.getElementById('publishBadge').style.display = 'inline-block'; showToast('info', checked ? '已设为显示' : '已设为隐藏'); }
+}
+
+// ========================================
+// MODALS
+// ========================================
+function populateParentOptions() {
+  var sel = document.getElementById('catParent');
+  sel.innerHTML = '<option value="">一级分类（无上级）</option>';
+  if (currentTab === 'basic') {
+    basicCategories.forEach(function(c) {
+      if (c.type === 'dir' && c.enabled) { sel.innerHTML += '<option value="' + c.id + '">' + c.name + '</option>'; }
+    });
+  } else {
+    function addDirs(nodes, prefix) {
+      nodes.forEach(function(n) {
+        if (n.type === 'dir' && n.enabled) { sel.innerHTML += '<option value="' + n.id + '">' + prefix + n.name + '</option>'; }
+        if (n.children) addDirs(n.children, prefix + n.name + ' > ');
+      });
+    }
+    addDirs(marketCategories, '');
+  }
+}
+
+function updateTypeHint() {
+  var val = document.querySelector('input[name="catType"]:checked');
+  var hint = document.getElementById('typeHint');
+  var linkSection = document.getElementById('catLinkSection');
+  if (val && val.value === 'dir') {
+    hint.textContent = '目录：纯导航分组，不可关联商品';
+    linkSection.style.display = 'none';
+  } else {
+    hint.textContent = '节点：可关联商品';
+    linkSection.style.display = 'block';
+  }
+}
+
+function populateCatLinkSection() {
+  var catList = document.getElementById('catLinkCatList');
+  var catLabel = document.getElementById('catLinkCatLabel');
+  var linkModeGroup = document.getElementById('linkModeGroup');
+  var linkSystemSection = document.getElementById('linkSystemSection');
+  var linkListSection = document.getElementById('linkListSection');
+
+  if (currentTab === 'basic') {
+    // 基础分类：二选一，显示单选按钮组
+    linkModeGroup.style.display = 'flex';
+    catLabel.textContent = '关联系统类目';
+    catList.innerHTML = buildLinkCatCheckboxes('system');
+  } else {
+    // 营销分类：可同时关联两者，隐藏单选按钮，两个区域都显示
+    linkModeGroup.style.display = 'none';
+    linkSystemSection.style.display = 'block';
+    linkListSection.style.display = 'block';
+    catLabel.textContent = '关联基础分类';
+    catList.innerHTML = buildLinkCatCheckboxes('basic');
+  }
+  // List dropdown
+  var sel = document.getElementById('catLinkListSelect');
+  sel.innerHTML = '<option value="">不关联选品清单</option>';
+  [{id:'L1',name:'2024-Q2-航司积分选品',count:8},{id:'L2',name:'政企福利-夏季清凉专场',count:12},{id:'L3',name:'商城会员购-数码节点',count:5},{id:'L4',name:'618大促-精选爆品清单',count:16}].forEach(function(l) { sel.innerHTML += '<option value="'+l.id+'">'+l.name+'（'+l.count+'件）</option>'; });
+  sel.value = '';
+  sel.onchange = function() { document.getElementById('catLinkSyncBtn').disabled = !sel.value; };
+  document.getElementById('catLinkSyncBtn').disabled = true;
+}
+
+function buildLinkCatCheckboxes(type) {
+  var html = '';
+  var nodes = type === 'system' ? systemCategories : basicCategories;
+  function add(nodes, prefix) {
+    nodes.forEach(function(n) {
+      var hasCh = n.children && n.children.length > 0;
+      html += '<label style="display:flex;align-items:center;gap:8px;padding:3px 8px;cursor:pointer;font-size:12px;'+(hasCh?'font-weight:500;':'')+'"><input type="checkbox" value="'+n.id+'" style="accent-color:var(--accent);">'+prefix+n.name+'</label>';
+      if (hasCh) add(n.children, prefix+'　');
+    });
+  }
+  add(nodes, '');
+  return html;
+}
+
+function syncCatLinkList() {
+  var sel = document.getElementById('catLinkListSelect');
+  var listName = sel.options[sel.selectedIndex].text;
+  showToast('info','已同步「'+listName+'」的最新商品列表（演示）');
+}
+
+function toggleLinkMode() {
+  var mode = document.querySelector('input[name="linkMode"]:checked').value;
+  document.getElementById('linkSystemSection').style.display = mode === 'system' ? 'block' : 'none';
+  document.getElementById('linkListSection').style.display = mode === 'list' ? 'block' : 'none';
+}
+
+function openNewCategoryModal() {
+  document.getElementById('categoryModalTitle').textContent = '新建基础分类';
+  document.getElementById('catName').value = '';
+  document.querySelector('input[name="catType"][value="leaf"]').checked = true;
+  document.getElementById('catTypeDir').disabled = false;
+  document.getElementById('catTypeLeaf').disabled = false;
+  updateTypeHint();
+  document.getElementById('catParent').disabled = false;
+  document.getElementById('catParent').style.background = '';
+  populateParentOptions();
+  document.getElementById('catParent').value = '';
+  resetChannelSelect();
+  populateCatLinkSection();
+  document.getElementById('catLinkSection').style.display = 'block';
+  document.querySelector('input[name="linkMode"][value="system"]').checked = true;
+  toggleLinkMode();
+  editId = null;
+  openModal('categoryModal');
+}
+
+function openNewMarketCategoryModal() {
+  document.getElementById('categoryModalTitle').textContent = '新建营销分类';
+  document.getElementById('catName').value = '';
+  document.querySelector('input[name="catType"][value="dir"]').checked = true;
+  document.getElementById('catTypeDir').disabled = false;
+  document.getElementById('catTypeLeaf').disabled = false;
+  updateTypeHint();
+  populateParentOptions();
+  document.getElementById('catParent').value = '';
+  resetChannelSelect();
+  populateCatLinkSection();
+  document.getElementById('catLinkSection').style.display = 'block';
+  // 营销分类：两个区域同时可见，无需设置单选
+  editId = null;
+  openModal('categoryModal');
+}
+
+function openEditModal(id) {
+  var node = findNode(id);
+  if (!node) return;
+  editId = id;
+  document.getElementById('categoryModalTitle').textContent = '编辑分类';
+  document.getElementById('catName').value = node.name;
+  // 编辑时锁定节点类型，不可修改
+  document.querySelector('input[name="catType"][value="' + (node.type || 'leaf') + '"]').checked = true;
+  document.getElementById('catTypeDir').disabled = true;
+  document.getElementById('catTypeLeaf').disabled = true;
+  updateTypeHint();
+  populateParentOptions();
+  document.getElementById('catParent').value = '';
+  setChannelSelect(node.channels);
+  populateCatLinkSection();
+  // Pre-populate link data based on existing node
+  if (currentTab === 'basic') {
+    // 基础分类：二选一回填
+    if (node._linkedList) {
+      document.querySelector('input[name="linkMode"][value="list"]').checked = true;
+      toggleLinkMode();
+      var sel = document.getElementById('catLinkListSelect');
+      sel.value = node._linkedList;
+      document.getElementById('catLinkSyncBtn').disabled = false;
+    } else if (node.mappedSystem) {
+      document.querySelector('input[name="linkMode"][value="system"]').checked = true;
+      toggleLinkMode();
+      var ids = node.mappedSystem.split(',');
+      ids.forEach(function(mid) {
+        var cb = document.querySelector('#catLinkCatList input[value="' + mid + '"]');
+        if (cb) cb.checked = true;
+      });
+    } else {
+      document.querySelector('input[name="linkMode"][value="system"]').checked = true;
+      toggleLinkMode();
+    }
+  } else {
+    // 营销分类：同时回填两者
+    if (node.mappedSystem) {
+      var ids = node.mappedSystem.split(',');
+      ids.forEach(function(mid) {
+        var cb = document.querySelector('#catLinkCatList input[value="' + mid + '"]');
+        if (cb) cb.checked = true;
+      });
+    }
+    if (node._linkedList) {
+      var sel = document.getElementById('catLinkListSelect');
+      sel.value = node._linkedList;
+      document.getElementById('catLinkSyncBtn').disabled = false;
+    }
+  }
+  var isDir = (node.type === 'dir');
+  document.getElementById('catLinkSection').style.display = isDir ? 'none' : 'block';
+  openModal('categoryModal');
+}
+
+// Simulated reference data for delete validation
+var _deleteRefChecks = {
+  // marketing category refs: category id -> [{id, name}]
+  marketingRefs: {
+    'B1-1': [{id:'M1', name:'618活动'}, {id:'M2', name:'夏日清凉专区'}],
+    'B3-1': [{id:'M1', name:'618活动'}],
+    'B4': [{id:'M1', name:'618活动'}, {id:'M3', name:'中秋礼盒'}],
+    'B2-1': [{id:'M1', name:'618活动'}],
+    'M1-1': [{id:'', name:'金刚区-首页爆品'}],
+    'M2': [{id:'', name:'金刚区-限时特惠'}],
+  },
+  // 金刚区 refs: category id -> count
+  kingkongRefs: {
+    'B1': 2, 'B1-1': 3, 'B3': 1, 'B4': 1,
+    'M1': 2, 'M1-1': 1, 'M2': 3, 'M3-1': 1,
+  }
+};
+
+function _collectAllDescendantIds(node) {
+  var ids = [node.id];
+  if (node.children) { node.children.forEach(function(c) { ids = ids.concat(_collectAllDescendantIds(c)); }); }
+  return ids;
+}
+
+function _checkDeleteRefs(id) {
+  var node = findNode(id);
+  if (!node) return { marketingRefs:[], kingkongCount:0, childCount:0 };
+  var allIds = _collectAllDescendantIds(node);
+  var childCount = allIds.length - 1;
+  var marketingRefs = [];
+  var kingkongCount = 0;
+  allIds.forEach(function(did) {
+    if (_deleteRefChecks.marketingRefs[did]) {
+      _deleteRefChecks.marketingRefs[did].forEach(function(r) {
+        if (marketingRefs.indexOf(r) === -1) marketingRefs.push(r);
+      });
+    }
+    if (_deleteRefChecks.kingkongRefs[did]) {
+      kingkongCount += _deleteRefChecks.kingkongRefs[did];
+    }
+  });
+  // Deduplicate marketing refs by name
+  var seen = {};
+  marketingRefs = marketingRefs.filter(function(r) {
+    if (seen[r.name]) return false;
+    seen[r.name] = true;
+    return true;
+  });
+  return { marketingRefs: marketingRefs, kingkongCount: kingkongCount, childCount: childCount, node: node };
+}
+
+var _deletePendingRefs = null;
+
+function openDeleteModal(id) {
+  var node = findNode(id);
+  if (!node) return;
+  deleteTarget = id;
+  var refs = _checkDeleteRefs(id);
+  _deletePendingRefs = refs;
+
+  var hasChildren = refs.childCount > 0;
+  var hasMarketingRefs = refs.marketingRefs.length > 0;
+  var hasKingkongRefs = refs.kingkongCount > 0;
+
+  // Build warning text
+  var warningLines = [];
+  if (hasChildren) {
+    warningLines.push('该分类下有 <strong>' + refs.childCount + '</strong> 个子级分类，将一并删除。');
+  }
+  warningLines.push('将删除分类「<strong>' + refs.node.name + '</strong>」，并自动解除所有商品关联。');
+
+  // Marketing category reference check
+  var refCheckHtml = '';
+  if (hasMarketingRefs) {
+    refCheckHtml += '<div style="background:#fffbf0;border:1px solid #fde8c4;border-radius:var(--radius-sm);padding:12px 14px;font-size:12.5px;color:#92400e;margin-bottom:8px;">';
+    refCheckHtml += '<strong>⚠ 营销分类引用校验</strong><br>';
+    refCheckHtml += '该分类被 <strong>' + refs.marketingRefs.length + '</strong> 个营销分类引用（如：';
+    refCheckHtml += refs.marketingRefs.slice(0,3).map(function(r){return r.name;}).join('、');
+    refCheckHtml += '），删除后对应营销分类将失去此商品来源。';
+    refCheckHtml += '</div>';
+  }
+  if (hasKingkongRefs) {
+    refCheckHtml += '<div style="background:#fff8f7;border:1px solid #fdd9d5;border-radius:var(--radius-sm);padding:12px 14px;font-size:12.5px;color:#b53a35;margin-bottom:8px;">';
+    refCheckHtml += '<strong>⚠ 金刚区入口引用校验</strong><br>';
+    if (currentTab === 'market' && hasChildren) {
+      refCheckHtml += '该分类及子级中共 <strong>' + refs.kingkongCount + '</strong> 个节点被金刚区入口引用。';
+    } else {
+      refCheckHtml += '该分类被 <strong>' + refs.kingkongCount + '</strong> 个金刚区入口引用。';
+    }
+    refCheckHtml += '删除后对应金刚区入口将无法跳转到此分类，小程序端已内置兜底机制（用户点击时提示"该活动已下线"）。';
+    refCheckHtml += '</div>';
+  }
+
+  if (!hasMarketingRefs && !hasKingkongRefs) {
+    refCheckHtml = '<div style="color:var(--text-muted);font-size:12px;">✅ 未检测到引用关系，可安全删除</div>';
+  }
+
+  document.getElementById('deleteModalTitle').textContent = '删除确认';
+  document.getElementById('deleteWarningText').innerHTML = warningLines.join('<br>');
+  document.getElementById('deleteRefCheckSection').style.display = 'block';
+  document.getElementById('deleteRefCheckSection').innerHTML = refCheckHtml;
+  document.getElementById('deleteHint').textContent = hasMarketingRefs || hasKingkongRefs
+    ? '删除后不可恢复。请仔细阅读以上引用校验结果后确认。'
+    : '删除后不可恢复，关联商品将被解除关联';
+  document.getElementById('deleteConfirmBtn').textContent = '确认删除';
+  document.getElementById('deleteConfirmBtn').style.color = 'var(--red)';
+  openModal('deleteModal');
+}
+
+function confirmDelete() {
+  if (!deleteTarget) return;
+  var refs = _deletePendingRefs || _checkDeleteRefs(deleteTarget);
+  var hasRefs = refs.marketingRefs.length > 0 || refs.kingkongCount > 0;
+
+  if (hasRefs) {
+    // Show final confirmation
+    var btn = document.getElementById('deleteConfirmBtn');
+    if (btn.textContent === '确认删除') {
+      // First click: escalate warning
+      document.getElementById('deleteWarningText').innerHTML = '<strong style="color:#da3e3a;">⚠ 最终确认</strong><br>您已阅读以上引用校验结果，确认后不可撤销。';
+      document.getElementById('deleteHint').textContent = '请再次点击「确认删除」以执行删除操作';
+      btn.textContent = '再次确认删除';
+      btn.style.color = '#fff';
+      btn.style.background = 'var(--red)';
+      btn.style.padding = '6px 16px';
+      btn.style.borderRadius = 'var(--radius-sm)';
+      return;
+    }
+  }
+
+  removeNode(deleteTarget);
+  closeModal('deleteModal');
+  renderTree(); renderTable();
+  showToast('success', '分类已删除');
+  deleteTarget = null;
+  _deletePendingRefs = null;
+}
+
+function openPublishModal() { openModal('publishModal'); }
+function doPublish() {
+  closeModal('publishModal');
+  document.getElementById('publishBadge').style.display = 'none';
+  var now = new Date();
+  var ts = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('lastPublishTime').textContent = ts;
+  showToast('success', '发布成功，预计30秒内生效');
+}
+
+function saveCategory() {
+  var name = document.getElementById('catName').value.trim();
+  if (!name) { showToast('info', '请输入分类名称'); return; }
+  var selectedChannels = getSelectedChannels();
+  if (selectedChannels.length === 0) { showToast('info', '请至少选择一个适用渠道'); return; }
+  var nodeType = document.querySelector('input[name="catType"]:checked').value;
+
+  if (editId) {
+    var node = findNode(editId);
+    if (node) { node.name = name; node.channels = selectedChannels; node.updatedBy = '当前用户'; node.updatedAt = new Date().toISOString().slice(0,16).replace('T',' '); saveLinkData(node); }
+  } else {
+    var newNode = { id:'N'+Date.now(), name:name, type:nodeType, source:'virtual', mappedSystem:'', mappedSystemName:'', productCount:'0/0', sort:99, enabled:true, visible:true, channels:selectedChannels, updatedBy:'当前用户', updatedAt:new Date().toISOString().slice(0,16).replace('T',' '), children:(nodeType==='dir'?[]:undefined) };
+    if (currentTab === 'basic') {
+      basicCategories.push(newNode);
+      saveLinkData(newNode);
+    } else {
+      marketCategories.push(newNode);
+      saveLinkData(newNode);
+    }
+  }
+  closeModal('categoryModal');
+  renderTree(); renderTable();
+  document.getElementById('publishBadge').style.display = 'inline-block';
+  showToast('success', '保存成功（草稿态）');
+  editId = null;
+}
+
+function findSystemById(id) {
+  function search(nodes) { for (var i=0; i<nodes.length; i++) { if (nodes[i].id === id) return nodes[i]; if (nodes[i].children) { var f = search(nodes[i].children); if (f) return f; } } return null; }
+  return search(systemCategories);
+}
+
+function saveLinkData(node) {
+  if (currentTab === 'basic') {
+    // 基础分类：二选一模式
+    var linkMode = document.querySelector('input[name="linkMode"]:checked').value;
+    if (linkMode === 'system') {
+      // 映射系统类目（可多选）
+      var checkedCats = document.querySelectorAll('#catLinkCatList input:checked');
+      var catIds = Array.prototype.map.call(checkedCats, function(cb) { return cb.value; });
+      if (catIds.length > 0) {
+        node.source = 'system';
+        node._linkedList = '';
+        node.mappedSystem = catIds.join(',');
+        var names = [];
+        catIds.forEach(function(cid) {
+          var sys = findSystemById(cid);
+          if (sys) names.push(sys.name);
+        });
+        node.mappedSystemName = names.join('、');
+      } else {
+        node.source = 'virtual';
+        node.mappedSystem = '';
+        node.mappedSystemName = '';
+      }
+    } else {
+      // 关联选品清单（单选）
+      var listId = document.getElementById('catLinkListSelect').value;
+      if (listId) {
+        node.source = 'virtual';
+        node.mappedSystem = '';
+        node.mappedSystemName = '';
+        node._linkedList = listId;
+      } else {
+        node._linkedList = '';
+      }
+    }
+  } else {
+    // 营销分类：可同时关联基础分类 + 选品清单
+    var checkedCats = document.querySelectorAll('#catLinkCatList input:checked');
+    var catIds = Array.prototype.map.call(checkedCats, function(cb) { return cb.value; });
+    if (catIds.length > 0) {
+      node.mappedSystem = catIds.join(',');
+      node.mappedSystemName = catIds.length + '个基础分类';
+    } else {
+      node.mappedSystem = '';
+      node.mappedSystemName = '';
+    }
+    var listId = document.getElementById('catLinkListSelect').value;
+    if (listId) {
+      node._linkedList = listId;
+    } else {
+      node._linkedList = '';
+    }
+  }
+}
+
+// Channel helpers
+function toggleChannelMode() {
+  var isSpec = document.querySelector('input[name="channelMode"]:checked').value === 'spec';
+  document.getElementById('channelCheckList').style.display = isSpec ? 'block' : 'none';
+}
+function renderChannelCheckList(selectedIds) {
+  var html = '';
+  channels.forEach(function(c) { html += '<label style="display:flex;align-items:center;gap:8px;padding:5px 8px;cursor:pointer;font-size:13px;"><input type="checkbox" value="'+c.id+'" '+(selectedIds.indexOf(c.id)>=0?'checked':'')+' style="accent-color:var(--accent);">'+c.name+'</label>'; });
+  document.getElementById('channelCheckList').innerHTML = html;
+}
+function resetChannelSelect() {
+  document.querySelector('input[name="channelMode"][value="all"]').checked = true;
+  document.getElementById('channelCheckList').style.display = 'none';
+  renderChannelCheckList(['C1','C2','C3','C4']);
+}
+function setChannelSelect(channelIds) {
+  var isAll = channelIds.length === 4;
+  document.querySelector('input[name="channelMode"][value="'+(isAll?'all':'spec')+'"]').checked = true;
+  document.getElementById('channelCheckList').style.display = isAll ? 'none' : 'block';
+  renderChannelCheckList(channelIds);
+}
+function getSelectedChannels() {
+  var isAll = document.querySelector('input[name="channelMode"]:checked').value === 'all';
+  if (isAll) return ['C1','C2','C3','C4'];
+  var cbs = document.querySelectorAll('#channelCheckList input:checked');
+  return Array.prototype.map.call(cbs, function(cb) { return cb.value; });
+}
+
+// Link product
+// ---- Link Product Modal (查看态，仅可同步) ----
+function openLinkProductModal(id) {
+  var node = findNode(id); if (!node) return;
+  linkProductTarget = id;
+  document.getElementById('linkProductTitle').textContent = '关联商品 - ' + node.name;
+  document.getElementById('linkProductInfo').textContent = '当前关联商品数：' + (node.productCount || '0/0');
+  document.getElementById('lpSyncResult').style.display = 'none';
+
+  var lpSystemSection = document.getElementById('lpSystemSection');
+  var lpListGroup = document.getElementById('lpListGroup');
+
+  if (currentTab === 'market') {
+    // 营销分类：两个区域同时可见（查看态）
+    lpSystemSection.style.display = 'block';
+    lpListGroup.style.display = 'block';
+
+    // 关联基础分类
+    document.getElementById('lpCatLabel').textContent = '关联基础分类';
+    if (node.mappedSystemName) {
+      document.getElementById('lpCatText').innerHTML = '<span class="tag tag-market-dir" style="font-size:12px;">' + node.mappedSystemName + '</span>';
+    } else {
+      document.getElementById('lpCatText').textContent = '—';
+    }
+
+    // 关联选品清单
+    var sel = document.getElementById('lpListSelect');
+    sel.innerHTML = '<option value="">未关联选品清单</option>';
+    var lists = [{id:'L1',name:'2024-Q2-航司积分选品',count:8},{id:'L2',name:'政企福利-夏季清凉专场',count:12},{id:'L3',name:'商城会员购-数码节点',count:5},{id:'L4',name:'618大促-精选爆品清单',count:16}];
+    lists.forEach(function(l) { sel.innerHTML += '<option value="'+l.id+'">'+l.name+'（'+l.count+'件）</option>'; });
+    if (node._linkedList) {
+      sel.value = node._linkedList;
+      sel.disabled = false;
+      document.getElementById('lpSyncBtn').disabled = false;
+    } else {
+      sel.disabled = true;
+      document.getElementById('lpSyncBtn').disabled = true;
+    }
+  } else {
+    // 基础分类：根据来源二选一展示
+    var isSystemSource = (node.source === 'system');
+    if (isSystemSource) {
+      lpSystemSection.style.display = 'block';
+      lpListGroup.style.display = 'none';
+
+      document.getElementById('lpCatLabel').textContent = '关联系统类目';
+      if (node.mappedSystemName) {
+        var names = node.mappedSystemName.split('、');
+        var tagsHtml = '';
+        names.forEach(function(n) {
+          tagsHtml += '<span class="tag tag-basic-dir" style="font-size:12px;margin-right:4px;">' + n + '</span>';
+        });
+        document.getElementById('lpCatText').innerHTML = tagsHtml;
+      } else {
+        document.getElementById('lpCatText').textContent = '—';
+      }
+    } else {
+      lpSystemSection.style.display = 'none';
+      lpListGroup.style.display = 'block';
+
+      var sel2 = document.getElementById('lpListSelect');
+      sel2.innerHTML = '<option value="">未关联选品清单</option>';
+      var lists2 = [{id:'L1',name:'2024-Q2-航司积分选品',count:8},{id:'L2',name:'政企福利-夏季清凉专场',count:12},{id:'L3',name:'商城会员购-数码节点',count:5},{id:'L4',name:'618大促-精选爆品清单',count:16}];
+      lists2.forEach(function(l) { sel2.innerHTML += '<option value="'+l.id+'">'+l.name+'（'+l.count+'件）</option>'; });
+      if (node._linkedList) {
+        sel2.value = node._linkedList;
+        sel2.disabled = false;
+        document.getElementById('lpSyncBtn').disabled = false;
+      } else {
+        sel2.disabled = true;
+        document.getElementById('lpSyncBtn').disabled = true;
+      }
+    }
+  }
+
+  openModal('linkProductModal');
+}
+
+function syncListProducts() {
+  var sel = document.getElementById('lpListSelect');
+  var listName = sel.options[sel.selectedIndex].text;
+  var result = document.getElementById('lpSyncResult');
+  var node = findNode(linkProductTarget);
+  var count = Math.floor(Math.random() * 50) + 100;
+  var total = count + Math.floor(Math.random() * 20);
+  if (node) {
+    node.productCount = count + '/' + total;
+    document.getElementById('linkProductInfo').textContent = '当前关联商品数：' + node.productCount;
+  }
+  result.style.display = 'block';
+  result.textContent = '✅ 已同步「'+listName+'」：新增 12 个SKU，移除 3 个SKU（清单中已不存在），净增 9 个SKU。当前：' + count + '/' + total;
+}
+
+function openProductDetailModal(id) {
+  var node = findNode(id); if(!node) return;
+  document.getElementById('productDetailTitle').textContent = '关联商品明细 - ' + node.name;
+  var pc = (node.productCount||'0/0').split('/');
+  document.getElementById('pdDetail').innerHTML = '<div style="padding:4px 12px;">来源：'+(currentTab==='system'?'系统类目商品自动纳入':'手动关联SKU')+'</div>';
+  document.getElementById('pdCount').textContent = '在售数 '+(pc[0]||0)+' / 总数 '+(pc[1]||0);
+  openModal('productDetailModal');
+}
+
+// Common
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function showToast(type, msg) {
+  var c = document.getElementById('toastContainer');
+  var t = document.createElement('div'); t.className='toast '+type; t.textContent=msg; c.appendChild(t);
+  setTimeout(function(){t.style.opacity='0';t.style.transform='translateX(20px)';t.style.transition='all .2s ease';setTimeout(function(){t.remove();},200);},2500);
+}
+document.querySelectorAll('.modal-overlay').forEach(function(o){o.addEventListener('click',function(e){if(e.target===this)closeModal(this.id);});});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){document.querySelectorAll('.modal-overlay.open').forEach(function(m){m.classList.remove('open');});}});
+
+// ========================================
+// DRAG & DROP SORTING
+// ========================================
+var _dragSrcId = null;
+var _dragSrcTab = null;
+var _dragSrcDepth = null;
+
+function _getSiblingsInTable(nodeId, tab) {
+  // Get sibling nodes at same depth from the rendered table rows
+  var rows = document.querySelectorAll('#tableBody tr[data-tab="' + tab + '"]');
+  var siblings = [];
+  var srcDepth = null;
+  rows.forEach(function(row) {
+    var d = parseInt(row.getAttribute('data-depth') || '0');
+    var nid = row.getAttribute('data-node-id');
+    if (nid === nodeId) { srcDepth = d; }
+  });
+  rows.forEach(function(row) {
+    var d = parseInt(row.getAttribute('data-depth') || '0');
+    if (d === srcDepth) {
+      siblings.push(row.getAttribute('data-node-id'));
+    }
+  });
+  return siblings;
+}
+
+function onDragStart(e) {
+  var tr = e.target.closest('tr');
+  if (!tr) return;
+  _dragSrcId = tr.getAttribute('data-node-id');
+  _dragSrcTab = tr.getAttribute('data-tab');
+  _dragSrcDepth = parseInt(tr.getAttribute('data-depth') || '0');
+  tr.classList.add('drag-source');
+  e.dataTransfer.effectAllowed = 'move';
+  e.dataTransfer.setData('text/plain', _dragSrcId);
+}
+
+function onDragOver(e) {
+  e.preventDefault();
+  var tr = e.target.closest('tr');
+  if (!tr) return;
+  var targetId = tr.getAttribute('data-node-id');
+  var targetTab = tr.getAttribute('data-tab');
+  var targetDepth = parseInt(tr.getAttribute('data-depth') || '0');
+  // Only allow drop on same tab and same depth (sibling reorder)
+  if (targetId === _dragSrcId || targetTab !== _dragSrcTab || targetDepth !== _dragSrcDepth) return;
+  e.dataTransfer.dropEffect = 'move';
+  tr.classList.add('drag-over');
+}
+
+function onDragLeave(e) {
+  var tr = e.target.closest('tr');
+  if (!tr) return;
+  tr.classList.remove('drag-over');
+}
+
+function onDrop(e) {
+  e.preventDefault();
+  var tr = e.target.closest('tr');
+  if (!tr) return;
+  tr.classList.remove('drag-over');
+  var targetId = tr.getAttribute('data-node-id');
+  var targetTab = tr.getAttribute('data-tab');
+  var targetDepth = parseInt(tr.getAttribute('data-depth') || '0');
+  if (!_dragSrcId || targetId === _dragSrcId || targetTab !== _dragSrcTab || targetDepth !== _dragSrcDepth) return;
+
+  // Reorder in data model
+  var dataArray = targetTab === 'basic' ? basicCategories : marketCategories;
+  var srcNode = null, srcParent = null, srcIdx = -1;
+  var tgtNode = null, tgtParent = null, tgtIdx = -1;
+
+  function findInList(list, parent) {
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === _dragSrcId) { srcNode = list[i]; srcParent = parent || list; srcIdx = i; }
+      if (list[i].id === targetId) { tgtNode = list[i]; tgtParent = parent || list; tgtIdx = i; }
+      if (list[i].children) findInList(list[i].children, list[i].children);
+    }
+  }
+  findInList(dataArray, null);
+
+  if (srcNode && tgtNode && srcParent === tgtParent) {
+    // Swap sort weights or reorder
+    var nodes = srcParent;
+    var removed = nodes.splice(srcIdx, 1)[0];
+    nodes.splice(tgtIdx, 0, removed);
+    // Update sort weights to match new positions
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].sort = i + 1;
+    }
+    renderTable();
+    renderTree();
+    document.getElementById('publishBadge').style.display = 'inline-block';
+    showToast('info', '排序已更新（草稿态）');
+  }
+}
+
+function onDragEnd(e) {
+  document.querySelectorAll('tr.drag-source, tr.drag-over').forEach(function(r) {
+    r.classList.remove('drag-source', 'drag-over');
+  });
+  _dragSrcId = null;
+  _dragSrcTab = null;
+  _dragSrcDepth = null;
+}
+
+// ========================================
+// INLINE SORT WEIGHT EDITING
+// ========================================
+function startSortEdit(e, nodeId) {
+  e.stopPropagation();
+  var span = e.target;
+  if (span.tagName !== 'SPAN') return;
+  var currentVal = parseInt(span.textContent) || 99;
+  var input = document.createElement('input');
+  input.type = 'number';
+  input.className = 'sort-input';
+  input.value = currentVal;
+  input.min = 1;
+  input.max = 999;
+  input.style.width = '50px';
+
+  function commit() {
+    var newVal = parseInt(input.value) || currentVal;
+    if (newVal < 1) newVal = 1;
+    var node = findNode(nodeId);
+    if (node) {
+      node.sort = newVal;
+      renderTable();
+      document.getElementById('publishBadge').style.display = 'inline-block';
+      showToast('info', '排序权重已更新为 ' + newVal + '（草稿态）');
+    }
+  }
+
+  input.addEventListener('blur', commit);
+  input.addEventListener('keydown', function(ev) {
+    if (ev.key === 'Enter') { commit(); }
+    if (ev.key === 'Escape') { renderTable(); }
+  });
+
+  span.parentNode.replaceChild(input, span);
+  input.focus();
+  input.select();
+}
+
+// Init
+updateActionBar();
+renderTree();
+renderTable();
+resetChannelSelect();
+</script>
+</body>
+</html>

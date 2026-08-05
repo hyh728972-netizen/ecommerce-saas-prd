@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>订单列表 · 导入订单 - 运营后台</title>
+<style>
+:root {
+  --bg-app: #f4f3f0; --bg-sidebar: #1e1e22; --bg-surface: #ffffff; --bg-hover: #f7f6f4;
+  --border: #e6e4e0; --border-light: #f0eeeb; --text-primary: #1a1a1c; --text-secondary: #6b6b70;
+  --text-muted: #99999d; --text-sidebar: #c4c4c9; --accent: #2d2d33; --accent-soft: #f0eeeb;
+  --blue: #2563eb; --blue-bg: #f5f8ff; --blue-border: #d4e0fc; --red: #da3e3a; --red-bg: #fef4f3;
+  --red-border: #fcd9d7; --green: #16a34a; --green-bg: #f4fdf6; --green-border: #c6f0d4;
+  --orange: #d97706; --orange-bg: #fffbf0; --orange-border: #fde8c4;
+  --gray: #6b7280; --gray-bg: #f8f8f7; --gray-border: #e8e6e3;
+  --radius-sm: 4px; --radius: 8px; --radius-lg: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,.06); --shadow-lg: 0 4px 16px rgba(0,0,0,.10);
+  --transition: 160ms ease;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;background:var(--bg-app);color:var(--text-primary);display:flex;min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+/* Sidebar */
+.sidebar{width:232px;min-width:232px;background:var(--bg-sidebar);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:10;}
+.sidebar-brand{padding:20px 20px 28px;border-bottom:1px solid rgba(255,255,255,.06);}
+.sidebar-brand .logo{font-size:17px;font-weight:600;color:#fff;letter-spacing:-.02em;display:flex;align-items:center;gap:10px;}
+.sidebar-brand .sub{font-size:11px;color:var(--text-sidebar);margin-top:2px;letter-spacing:.02em;}
+.sidebar-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px;}
+.nav-section-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.25);padding:14px 10px 6px;cursor:pointer;user-select:none;display:flex;align-items:center;gap:4px;}
+.nav-section-label:hover{color:rgba(255,255,255,.45);}
+.section-arrow{font-size:8px;transition:transform .2s ease;flex-shrink:0;}
+.nav-section.collapsed .section-arrow{transform:rotate(-90deg);}
+.nav-section.collapsed .nav-section-items{display:none;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;color:var(--text-sidebar);font-size:13.5px;cursor:pointer;transition:all var(--transition);text-decoration:none;}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#fff;}
+.nav-item.active{background:rgba(255,255,255,.10);color:#fff;font-weight:500;}
+.nav-icon{width:18px;height:18px;opacity:.55;flex-shrink:0;}
+.nav-item.active .nav-icon{opacity:1;}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{height:52px;min-height:52px;background:var(--bg-surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;z-index:5;}
+.topbar .breadcrumb{font-size:12.5px;color:var(--text-muted);}
+.topbar .breadcrumb span{color:var(--text-primary);font-weight:500;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:16px;}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:#e6e4e0;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);}
+.content{flex:1;display:flex;flex-direction:column;padding:20px 24px;}
+.page-header{margin-bottom:18px;display:flex;align-items:flex-start;justify-content:space-between;}
+.page-header h1{font-size:22px;font-weight:600;letter-spacing:-.02em;}
+.page-header p{font-size:13px;color:var(--text-muted);margin-top:2px;}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;padding:6px 14px;border-radius:var(--radius-sm);font-size:12.5px;font-family:inherit;cursor:pointer;border:1px solid var(--border);background:var(--bg-surface);color:var(--text-primary);font-weight:500;transition:all var(--transition);white-space:nowrap;}
+.btn:hover{border-color:var(--text-muted);}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btn-primary:hover{opacity:.88;}
+.btn-sm{padding:4px 10px;font-size:11.5px;}
+.btn-link{color:var(--blue);border:none;background:none;padding:2px 4px;cursor:pointer;font-size:12.5px;font-family:inherit;text-decoration:none;}
+.btn-link:hover{text-decoration:underline;}
+
+/* Filter Bar */
+.filter-bar{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--bg-surface);border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
+.filter-bar input,.filter-bar select{height:34px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;background:var(--bg-surface);color:var(--text-primary);outline:none;}
+.filter-bar input[type="text"]{width:200px;}
+.filter-bar input::placeholder{color:var(--text-muted);}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--accent);}
+.filter-bar .sep{color:var(--text-muted);font-size:12px;margin:0 2px;}
+
+/* Toolbar */
+.toolbar{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;}
+.toolbar .count{color:var(--text-muted);font-size:12px;margin-left:auto;}
+
+/* Table Panel */
+.table-panel{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg);display:flex;flex-direction:column;flex:1;min-height:0;}
+.table-wrap{flex:1;overflow:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{background:#fafaf9;text-align:left;padding:10px 12px;font-weight:500;font-size:12px;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:1;}
+thead th:first-child{padding-left:20px;}
+tbody td{padding:11px 12px;border-bottom:1px solid var(--border-light);vertical-align:middle;}
+tbody td:first-child{padding-left:20px;}
+tbody tr{transition:background var(--transition);}
+tbody tr:hover{background:var(--bg-hover);}
+tbody tr:last-child td{border-bottom:none;}
+
+/* Tags */
+.tag{display:inline-flex;align-items:center;padding:2px 10px;border-radius:100px;font-size:11.5px;font-weight:500;white-space:nowrap;}
+.tag-pending{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border);}
+.tag-shipped{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);}
+.tag-done{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+.tag-cancel{background:var(--gray-bg);color:var(--gray);border:1px solid var(--gray-border);}
+.tag-points{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);}
+.tag-offline{background:var(--gray-bg);color:var(--gray);border:1px solid var(--gray-border);}
+.mono{font-family:"Consolas","Monaco",monospace;font-size:12.5px;}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;align-items:center;justify-content:center;backdrop-filter:blur(2px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);max-width:90vw;overflow:hidden;animation:modalIn .18s ease;}
+@keyframes modalIn{from{opacity:0;transform:translateY(8px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+.modal-header{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.modal-header h3{font-size:15px;font-weight:600;}
+.modal-close{width:28px;height:28px;border:none;background:none;cursor:pointer;font-size:18px;color:var(--text-muted);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;}
+.modal-close:hover{background:var(--bg-hover);color:var(--text-primary);}
+.modal-body{padding:20px 24px;font-size:13px;}
+.modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;}
+
+/* Upload Area */
+.upload-card{border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;background:var(--bg-hover);}
+.upload-card .icon{width:40px;height:40px;border-radius:var(--radius-sm);background:var(--blue-bg);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.upload-card .info{flex:1;}
+.upload-card .info .title{font-size:13px;color:var(--text-primary);margin-bottom:2px;}
+.upload-card .info .sub{font-size:11.5px;color:var(--text-muted);}
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:32px;text-align:center;cursor:pointer;transition:all var(--transition);margin-bottom:16px;}
+.upload-zone:hover{border-color:var(--blue);background:var(--blue-bg);}
+.upload-zone .icon{font-size:32px;margin-bottom:8px;color:var(--text-muted);}
+.upload-zone .text{font-size:13px;color:var(--text-secondary);}
+.upload-zone .hint{font-size:11.5px;color:var(--text-muted);margin-top:6px;}
+.file-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:var(--radius);font-size:12.5px;color:var(--blue);}
+.file-chip .remove{cursor:pointer;font-size:16px;color:var(--text-muted);line-height:1;}
+.file-chip .remove:hover{color:var(--red);}
+.loading-state{text-align:center;padding:40px 0;}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Result */
+.result-icon{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;margin:0 auto 16px;}
+.result-icon.success{background:var(--green-bg);color:var(--green);}
+.result-icon.fail{background:var(--red-bg);color:var(--red);}
+.result-title{text-align:center;font-size:17px;font-weight:600;margin-bottom:8px;}
+.result-desc{text-align:center;font-size:13px;color:var(--text-secondary);margin-bottom:20px;}
+
+/* Error Table */
+.error-table-wrap{max-height:280px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:16px;}
+.error-table{width:100%;border-collapse:collapse;font-size:12px;}
+.error-table th{background:#fafaf9;padding:8px 10px;text-align:left;font-weight:500;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0;}
+.error-table td{padding:7px 10px;border-bottom:1px solid var(--border-light);vertical-align:middle;}
+.error-table tr:last-child td{border-bottom:none;}
+
+/* Demo selector */
+.demo-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;padding:8px 12px;background:var(--orange-bg);border:1px solid var(--orange-border);border-radius:var(--radius-sm);font-size:12px;color:var(--orange);}
+.demo-row select{height:28px;padding:0 6px;border:1px solid var(--orange-border);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;background:var(--bg-surface);}
+
+/* Toast */
+.toast-container{position:fixed;top:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--bg-sidebar);color:#fff;padding:12px 18px;border-radius:var(--radius);font-size:13px;box-shadow:var(--shadow-lg);animation:toastIn .25s ease;display:flex;align-items:center;gap:8px;}
+.toast.success{border-left:3px solid #16a34a;}
+.toast.info{border-left:3px solid var(--blue);}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>运营后台</div>
+    <div class="sub">Operations Platform</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-section-label" onclick="toggleSection(this)"><span class="section-arrow">▾</span>订单管理</div>
+      <div class="nav-section-items">
+        <a class="nav-item active" href="01.订单列表-导入订单-商城运营平台原型.html"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>订单列表</a>
+      </div>
+    </div>
+
+  </nav>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">订单管理 / <span>订单列表</span></div>
+    <div class="topbar-right">
+      <span style="font-size:12px;color:var(--text-muted);">商城超管</span>
+      <div class="user-avatar">李</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="page-header">
+      <div><h1>订单列表</h1><p>管理线上线下订单，支持批量导入线下订单数据</p></div>
+    </div>
+    <div class="table-panel">
+      <div class="filter-bar">
+        <input type="text" placeholder="搜索订单号" id="fOrder">
+        <input type="text" placeholder="开始日期" style="width:120px" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'" id="fDateFrom">
+        <span class="sep">—</span>
+        <input type="text" placeholder="结束日期" style="width:120px" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'" id="fDateTo">
+        <select id="fStatus" style="width:110px;">
+          <option value="">全部状态</option><option value="待发货">待发货</option><option value="已发货">已发货</option><option value="已完成">已完成</option><option value="已取消">已取消</option>
+        </select>
+
+        <button class="btn btn-sm" onclick="renderTable()">查询</button>
+        <button class="btn btn-sm" onclick="resetFilter()">重置</button>
+      </div>
+      <div class="toolbar">
+        <button class="btn btn-primary btn-sm" onclick="openUploadModal()">导入订单</button>
+        <button class="btn btn-sm" onclick="openTplModal()">渠道模板</button>
+        <button class="btn btn-sm" onclick="showToast('success','已导出订单列表（演示）')">导出</button>
+        <span class="count" id="toolbarInfo"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>订单号</th>
+              <th>售后状态</th>
+              <th>收货人</th>
+              <th>手机号</th>
+              <th>订单总金额</th>
+              <th>支付方式</th>
+              <th>订单状态</th>
+              <th>支付流水号</th>
+              <th>支付时间</th>
+              <th>下单时间</th>
+              <th>订单备注</th>
+              <th>订单来源</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal-overlay" id="uploadModal">
+  <div class="modal" style="width:520px;">
+    <div class="modal-header"><h3>导入订单</h3><button class="modal-close" onclick="closeModal('uploadModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="demo-row">
+        <span>⚙ 演示场景：</span>
+        <select id="demoScene"><option value="success">全部成功</option><option value="fail">校验失败</option><option value="dup">重复导入(部分跳过)</option></select>
+      </div>
+      <div id="uploadContent"></div>
+    </div>
+    <div class="modal-footer" id="uploadFooter">
+      <button class="btn" onclick="closeModal('uploadModal')">取消</button>
+      <button class="btn btn-primary" onclick="startUpload()">开始上传</button>
+    </div>
+  </div>
+</div>
+
+<!-- Result Modal (动态三格) -->
+<div class="modal-overlay" id="resultModal">
+  <div class="modal" id="resultModalBox" style="width:720px;">
+    <div class="modal-header"><h3>导入结果</h3><button class="modal-close" onclick="closeModal('resultModal')">✕</button></div>
+    <div class="modal-body" id="resultBody" style="padding:20px 24px;"></div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="finishResult()">完成</button></div>
+  </div>
+</div>
+
+<!-- Channel Template List Modal -->
+<div class="modal-overlay" id="tplModal">
+  <div class="modal" style="width:900px;">
+    <div class="modal-header"><h3>渠道模板管理</h3><button class="modal-close" onclick="closeModal('tplModal')">✕</button></div>
+    <div class="modal-body" style="padding:16px 20px;">
+      <div style="display:flex;align-items:center;margin-bottom:12px;">
+        <button class="btn btn-primary btn-sm" onclick="openTplEditModal()">+ 新增渠道模板</button>
+        <span style="font-size:12px;color:var(--text-muted);margin-left:auto;" id="tplCount"></span>
+      </div>
+      <div class="error-table-wrap" style="max-height:420px;">
+        <table class="error-table">
+          <thead><tr><th>渠道名称</th><th>渠道编码</th><th>映射字段数</th><th>创建人</th><th>创建时间</th><th>更新时间</th><th>状态</th><th>操作</th></tr></thead>
+          <tbody id="tplBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('tplModal')">关闭</button></div>
+  </div>
+</div>
+
+<!-- Channel Template Edit Modal (新增/编辑) -->
+<div class="modal-overlay" id="tplEditModal">
+  <div class="modal" style="width:760px;max-height:90vh;display:flex;flex-direction:column;">
+    <div class="modal-header" style="flex-shrink:0;"><h3 id="tplEditTitle">新增渠道模板</h3><button class="modal-close" onclick="closeModal('tplEditModal')">✕</button></div>
+    <div class="modal-body" style="overflow-y:auto;flex:1;">
+      <div class="mapping-tip" style="color:var(--text-secondary);background:var(--bg-hover);border-color:var(--border);">填写渠道信息，并在下方为每个标准字段指定该渠道（客户）Excel 表格中对应的列名。<b style="color:var(--red);">*</b> 为必填，必须填写对应列名。</div>
+      <div style="display:flex;gap:12px;margin-bottom:14px;">
+        <div style="flex:1;">
+          <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">渠道名称</label>
+          <input id="tplName" type="text" style="width:100%;height:34px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;outline:none;" placeholder="如 京东企业购">
+        </div>
+        <div style="flex:1;">
+          <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">渠道编码</label>
+          <input id="tplCode" type="text" style="width:100%;height:34px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;outline:none;" placeholder="如 JD-CORP" oninput="this.value=this.value.replace(/[^A-Za-z0-9-_]/g,'')">
+        </div>
+        <div style="flex:0 0 130px;">
+          <label style="display:block;font-size:12px;color:var(--text-secondary);margin-bottom:4px;">状态</label>
+          <select id="tplStatus" style="width:100%;height:34px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--bg-surface);"><option value="启用">启用</option><option value="停用">停用</option></select>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;margin:6px 0 8px;">
+        <span style="font-size:13px;font-weight:500;">列名映射</span>
+        <span style="font-size:12px;color:var(--text-muted);margin-left:8px;">标准模板字段 → 客户表格列名</span>
+      </div>
+      <div class="mapping-table-wrap" style="max-height:none;">
+        <table class="mapping-table">
+          <thead><tr><th style="width:42%;">标准模板字段</th><th>客户表格列名（请填写）</th></tr></thead>
+          <tbody id="tplEditBody"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn" onclick="closeModal('tplEditModal')">取消</button><button class="btn btn-primary" onclick="saveTpl()">保存</button></div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ===== DATA =====
+// 订单数据（运营平台多商城字段）
+var orders = [
+  {id:'IMP20260611001',mall:'京东企业购',supplier:'欧莱雅官方',time:'2026-06-11 09:30:15',customer:'王明 13812345678',price:121.00,qty:2,total:289.50,status:'待发货',oms:'未发货',afterSale:'无售后',remark:'线下集采订单',source:'线下导入'},
+  {id:'IMP20260611002',mall:'天猫官方',supplier:'华为授权',time:'2026-06-11 09:30:15',customer:'张丽 13987654321',price:1499.00,qty:1,total:1499.00,status:'待发货',oms:'未发货',afterSale:'无售后',remark:'企业年会采购',source:'线下导入'},
+  {id:'IMP20260611003',mall:'京东企业购',supplier:'美的集团',time:'2026-06-11 09:30:15',customer:'赵刚 15012348765',price:18597.00,qty:1,total:18597.00,status:'已发货',oms:'运输中',afterSale:'退款中',remark:'员工福利',source:'线下导入'},
+  {id:'IMP20260610001',mall:'天猫官方',supplier:'小米之家',time:'2026-06-10 14:20:30',customer:'李华 18656781234',price:2399.00,qty:1,total:2399.00,status:'已发货',oms:'已签收',afterSale:'无售后',remark:'',source:'线上'},
+  {id:'IMP20260610002',mall:'京东企业购',supplier:'海尔商用',time:'2026-06-10 14:20:30',customer:'陈芳 13767894561',price:2699.00,qty:2,total:5398.00,status:'已发货',oms:'已发货',afterSale:'无售后',remark:'',source:'线下导入'},
+  {id:'IMP20260609001',mall:'天猫官方',supplier:'三只松鼠',time:'2026-06-09 16:45:00',customer:'周婷 15890123456',price:89.00,qty:2,total:178.00,status:'已完成',oms:'已签收',afterSale:'已退款',remark:'',source:'线上'},
+  {id:'IMP20260608001',mall:'京东企业购',supplier:'格力电器',time:'2026-06-08 11:20:00',customer:'刘洋 13601234567',price:4490.00,qty:1,total:4490.00,status:'已完成',oms:'已签收',afterSale:'无售后',remark:'',source:'线上'},
+  {id:'IMP20260607001',mall:'天猫官方',supplier:'飞利浦',time:'2026-06-07 10:10:00',customer:'孙磊 18912345678',price:5198.00,qty:1,total:5198.00,status:'已取消',oms:'未发货',afterSale:'无售后',remark:'客户取消',source:'线上'},
+  {id:'IMP20260606001',mall:'京东企业购',supplier:'欧莱雅官方',time:'2026-06-06 08:50:00',customer:'吴娜 13587654321',price:487.00,qty:1,total:487.00,status:'待发货',oms:'未发货',afterSale:'退款中',remark:'展会销售',source:'线下导入'},
+  {id:'IMP20260605001',mall:'天猫官方',supplier:'华为授权',time:'2026-06-05 15:30:00',customer:'郑伟 18765432109',price:2399.00,qty:2,total:4798.00,status:'已发货',oms:'运输中',afterSale:'无售后',remark:'',source:'线上'},
+];
+
+// 渠道列表（导入弹窗下拉）
+var channels = ['京东企业购','天猫官方旗舰店','拼多多企业购'];
+
+// 标准字段定义（映射弹窗 + 渠道模板编辑共用）
+var stdFields = [
+  {name:'主订单号',req:true},{name:'子订单号',req:false},{name:'客户商品编码',req:true},
+  {name:'销售单价',req:true},{name:'商品数量',req:true},{name:'收货人',req:true},
+  {name:'手机号1',req:true},{name:'手机号2',req:false},{name:'收货地址',req:true},
+  {name:'订单备注',req:false},{name:'交易时间',req:false},
+  {name:'订单状态',req:false},{name:'买家备注',req:false},{name:'卖家备注',req:false}
+];
+
+// 渠道文件示例表头（映射弹窗右列下拉选项）
+var channelColumns = ['','订单编号','子单号','商家编码','商品编码','成交价','销售价','购买数量','数量','收货人姓名','联系电话','手机号','备用电话','收货地址','详细地址','买家留言','备注','下单时间','交易时间','订单状态','买家备注','卖家备注'];
+
+// 渠道模板示例数据
+var tplList = [
+  {name:'京东企业购',code:'JD-CORP',status:'启用',creator:'李运营',create:'2026-05-10 14:20:00',update:'2026-06-12 09:30:00',map:{'主订单号':'订单编号','子订单号':'子单号','客户商品编码':'商家编码','销售单价':'成交价','商品数量':'购买数量','收货人':'收货人姓名','手机号1':'联系电话','手机号2':'备用电话','收货地址':'收货地址','订单备注':'买家留言','交易时间':'','订单状态':'','买家备注':'','卖家备注':''}},
+  {name:'天猫官方旗舰店',code:'TM-FLAG',status:'启用',creator:'李运营',create:'2026-05-15 10:05:00',update:'2026-05-15 10:05:00',map:{'主订单号':'主订单号','子订单号':'','客户商品编码':'商品编码','销售单价':'销售价','商品数量':'数量','收货人':'收货人','手机号1':'手机号','手机号2':'','收货地址':'详细地址','订单备注':'','交易时间':'下单时间','订单状态':'','买家备注':'','卖家备注':''}},
+  {name:'拼多多企业购',code:'PDD-CORP',status:'停用',creator:'王管理',create:'2026-04-20 16:40:00',update:'2026-05-28 11:00:00',map:{'主订单号':'单号','子订单号':'子单号','客户商品编码':'SKU','销售单价':'单价','商品数量':'件数','收货人':'姓名','手机号1':'电话','手机号2':'','收货地址':'地址','订单备注':'','交易时间':'','订单状态':'','买家备注':'','卖家备注':''}}
+];
+
+// 导入弹窗状态
+var uploadState = 'idle';
+var selectedChannel = '';
+// 渠道模板编辑状态
+var tplEditingIndex = -1;
+
+// ===== SIDEBAR =====
+function toggleSection(label){ label.parentElement.classList.toggle('collapsed'); }
+
+// ===== TAGS =====
+function statusTag(s){
+  var cls = {'待发货':'tag-pending','已发货':'tag-shipped','已完成':'tag-done','已取消':'tag-cancel'};
+  return '<span class="tag '+(cls[s]||'tag-cancel')+'">'+s+'</span>';
+}
+function omsTag(s){
+  var cls = {'未发货':'tag-cancel','已发货':'tag-shipped','运输中':'tag-transport','已签收':'tag-done'};
+  return '<span class="tag '+(cls[s]||'tag-cancel')+'">'+s+'</span>';
+}
+function afterSaleTag(s){
+  var cls = {'无售后':'tag-cancel','退款中':'tag-pending','已退款':'tag-done','退款驳回':'tag-cancel'};
+  return '<span class="tag '+(cls[s]||'tag-cancel')+'">'+s+'</span>';
+}
+function sourceTag(s){
+  var cls = {'线上':'tag-points','线下导入':'tag-offline'};
+  return '<span class="tag '+(cls[s]||'tag-offline')+'">'+s+'</span>';
+}
+
+// ===== RENDER ORDER TABLE =====
+function renderTable(){
+  var fOrder = (document.getElementById('fOrder').value||'').trim().toLowerCase();
+  var fStatus = document.getElementById('fStatus').value;
+  var filtered = orders.filter(function(o){
+    if(fOrder && o.id.toLowerCase().indexOf(fOrder)===-1) return false;
+    if(fStatus && o.status!==fStatus) return false;
+    return true;
+  });
+  document.getElementById('toolbarInfo').textContent = '共 '+filtered.length+' 条';
+  var html = '';
+  filtered.forEach(function(o){
+    html += '<tr>';
+    html += '<td><span class="mono" style="color:var(--blue);cursor:pointer;" onclick="showToast(\'info\',\'查看订单详情（演示）\')">'+o.id+'</span></td>';
+    html += '<td>'+o.mall+'</td>';
+    html += '<td>'+o.supplier+'</td>';
+    html += '<td style="font-size:12px;color:var(--text-secondary);white-space:nowrap;">'+o.time+'</td>';
+    html += '<td style="font-size:12px;">'+o.customer+'</td>';
+    html += '<td><span class="mono">¥ '+o.price.toFixed(2)+'</span></td>';
+    html += '<td>'+o.qty+'</td>';
+    html += '<td><span class="mono" style="font-weight:500;">¥ '+o.total.toFixed(2)+'</span></td>';
+    html += '<td>'+statusTag(o.status)+'</td>';
+    html += '<td>'+omsTag(o.oms)+'</td>';
+    html += '<td>'+afterSaleTag(o.afterSale)+'</td>';
+    html += '<td style="font-size:12px;color:var(--text-secondary);max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+o.remark+'">'+(o.remark||'—')+'</td>';
+    html += '<td>'+sourceTag(o.source)+'</td>';
+    html += '<td><a class="btn-link" href="javascript:void(0)" onclick="showToast(\'info\',\'查看订单详情（演示）\')">查看详情</a></td>';
+    html += '</tr>';
+  });
+  if(filtered.length===0){
+    html = '<tr><td colspan="14" style="text-align:center;padding:48px;color:var(--text-muted);">暂无匹配的订单数据</td></tr>';
+  }
+  document.getElementById('tableBody').innerHTML = html;
+}
+
+function resetFilter(){
+  document.getElementById('fOrder').value='';
+  document.getElementById('fDateFrom').value='';
+  document.getElementById('fDateTo').value='';
+  document.getElementById('fStatus').value='';
+  renderTable();
+  showToast('info','筛选条件已重置');
+}
+
+// ===== UPLOAD MODAL =====
+function openUploadModal(){
+  uploadState = 'idle';
+  selectedChannel = '';
+  renderUploadState();
+  openModal('uploadModal');
+}
+
+function renderUploadState(){
+  var content = document.getElementById('uploadContent');
+  var footer = document.getElementById('uploadFooter');
+  var channelSelectHtml = '<div class="field-row"><label>渠道</label><select id="channelSelect" onchange="selectedChannel=this.value;"><option value="">请选择渠道</option>'+channels.map(function(c){return '<option value="'+c+'"'+(selectedChannel===c?' selected':'')+'>'+c+'</option>';}).join('')+'</select></div>';
+  if(uploadState==='idle'){
+    content.innerHTML = channelSelectHtml + '<div class="upload-zone" id="uploadZone" onclick="simulateSelectFile()"><div class="icon">📁</div><div class="text">点击选择或拖拽渠道订单文件</div><div class="hint">仅支持 .xlsx，≤ 10MB</div></div>';
+    footer.style.display = 'flex';
+    footer.innerHTML = '<button class="btn" onclick="closeModal(\'uploadModal\')">取消</button><button class="btn btn-primary" onclick="startUpload()">开始上传</button>';
+  }else if(uploadState==='selected'){
+    content.innerHTML = channelSelectHtml + '<div style="padding:16px 0;"><div class="file-chip">📄 渠道订单_'+(selectedChannel||'')+'_20260611.xlsx <span class="remove" onclick="removeFile()">×</span></div></div>';
+    footer.style.display = 'flex';
+    footer.innerHTML = '<button class="btn" onclick="closeModal(\'uploadModal\')">取消</button><button class="btn btn-primary" onclick="startUpload()">开始上传</button>';
+  }else if(uploadState==='loading'){
+    content.innerHTML = channelSelectHtml + '<div class="loading-state"><div class="spinner"></div><div style="font-size:14px;font-weight:500;margin-bottom:4px;">正在校验订单数据…</div><div style="font-size:12px;color:var(--text-muted);">请勿关闭窗口</div></div>';
+    footer.style.display = 'none';
+  }
+}
+
+function simulateSelectFile(){ uploadState='selected'; renderUploadState(); }
+function removeFile(){ uploadState='idle'; renderUploadState(); }
+
+function startUpload(){
+  var cs = document.getElementById('channelSelect');
+  if(!cs || !cs.value){ showToast('error','请先选择渠道'); return; }
+  selectedChannel = cs.value;
+  if(uploadState==='idle'){ showToast('info','请先选择文件'); return; }
+  uploadState = 'loading';
+  renderUploadState();
+  var scene = document.getElementById('demoScene').value;
+  setTimeout(function(){
+    closeModal('uploadModal');
+    if(scene.indexOf('map_')===0){
+      openMappingModal();
+    }else{
+      showResult(scene);
+    }
+  },1500);
+}
+
+// ===== MAPPING MODAL =====
+function openMappingModal(){
+  document.getElementById('mappingChannelName').textContent = selectedChannel;
+  renderMappingTable();
+  openModal('mappingModal');
+}
+
+function renderMappingTable(){
+  var guessMap = {'主订单号':'订单编号','子订单号':'子单号','客户商品编码':'商家编码','销售单价':'成交价','商品数量':'购买数量','收货人':'收货人姓名','手机号1':'联系电话','手机号2':'备用电话','收货地址':'收货地址','订单备注':'买家留言','交易时间':'','订单状态':'','买家备注':'','卖家备注':''};
+  var html = '';
+  stdFields.forEach(function(f){
+    var pre = guessMap[f.name] || '';
+    var opts = channelColumns.map(function(c){
+      return '<option value="'+c+'"'+(c===pre?' selected':'')+'>'+(c||'- 不映射 -')+'</option>';
+    }).join('');
+    html += '<tr><td class="std-name">'+f.name+(f.req?'<span class="req">*</span>':'')+'</td><td><select data-std="'+f.name+'" data-req="'+f.req+'">'+opts+'</select></td></tr>';
+  });
+  document.getElementById('mappingBody').innerHTML = html;
+}
+
+function confirmMapping(){
+  var selects = document.querySelectorAll('#mappingBody select');
+  var used = {};
+  for(var i=0;i<selects.length;i++){
+    var sel = selects[i];
+    var val = sel.value;
+    var isReq = sel.getAttribute('data-req')==='true';
+    if(isReq && !val){ showToast('error', sel.getAttribute('data-std')+'为必填，请选择对应渠道列'); return; }
+    if(val){
+      if(used[val]){ showToast('error','渠道列「'+val+'」已被用于'+used[val]+'，请勿重复映射'); return; }
+      used[val] = sel.getAttribute('data-std');
+    }
+  }
+  if(document.getElementById('saveAsTpl').checked){
+    showToast('success','已保存为【'+selectedChannel+'】的映射模板');
+  }
+  closeModal('mappingModal');
+  var scene = document.getElementById('demoScene').value;
+  setTimeout(function(){ showResult(scene); }, 300);
+}
+
+function cancelMapping(){
+  closeModal('mappingModal');
+  showToast('info','已取消映射，返回上传');
+}
+
+// ===== RESULT =====
+// 三场景演示数据：成功 / 跳过 / 失败
+var sceneData = {
+  success: {
+    ok:{orders:3, rows:8}, skip:{rows:0, list:[]}, fail:{rows:0, list:[]}
+  },
+  fail: {
+    ok:{orders:1, rows:3}, skip:{rows:0, list:[]},
+    fail:{rows:3, list:[
+      {main:'JD20260611003', code:'CUST-88899', price:'121.00', phone:'15112345678', reason:'客户商品编码「CUST-88899」在对应商城不存在或未上架'},
+      {main:'JD20260611003', code:'CUST-00103', price:'0', phone:'13987654321', reason:'销售单价必须大于 0'},
+      {main:'TB20260611015', code:'CUST-00106', price:'899.00', phone:'138-1234-5678', reason:'手机号1格式不正确，须为 11 位数字'}
+    ]}
+  },
+  dup: {
+    ok:{orders:1, rows:1},   // 主订单 JD20260611003 第3行 新导入
+    skip:{rows:2, list:[
+      {main:'JD20260611003', sub:'JD2026061100301', reason:'子订单号已导入过，已跳过（未重复导入）'},
+      {main:'JD20260611003', sub:'JD2026061100302', reason:'子订单号已导入过，已跳过（未重复导入）'}
+    ]},
+    fail:{rows:0, list:[]}
+  }
+};
+
+function renderResult(scene){
+  var d = sceneData[scene] || sceneData.success;
+  var body = document.getElementById('resultBody');
+  var box = document.getElementById('resultModalBox');
+
+  // 标题图标 + 文案
+  var allOk = d.fail.rows===0 && d.skip.rows===0;        // 全成功
+  var hasFail = d.fail.rows>0;
+  var hasSkip = d.skip.rows>0;
+  var headIcon, headTitle;
+  if(allOk){ headIcon='✓'; headTitle='导入成功'; box.style.width='440px'; }
+  else if(hasFail){ headIcon='!'; headTitle='部分成功'; box.style.width='720px'; }
+  else { headIcon='i'; headTitle='导入完成'; box.style.width='720px'; }
+
+  // 统计卡片
+  var cards = '';
+  if(d.ok.rows>0 || allOk){
+    cards += '<div style="flex:1;background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--radius);padding:12px 16px;">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="color:var(--green);font-size:18px;">✓</span><span style="font-size:13px;color:var(--green);font-weight:600;">成功导入</span></div>'
+      + '<div style="font-size:12px;color:var(--text-secondary);">已导入 <b style="color:var(--text-primary);">'+d.ok.orders+'</b> 笔主订单（共 <b style="color:var(--text-primary);">'+d.ok.rows+'</b> 行商品），订单状态为待发货</div>'
+      + '</div>';
+  }
+  if(d.skip.rows>0){
+    cards += '<div style="flex:1;background:var(--gray-bg);border:1px solid var(--gray-border);border-radius:var(--radius);padding:12px 16px;">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="color:var(--gray);font-size:18px;">↻</span><span style="font-size:13px;color:var(--gray);font-weight:600;">已跳过</span></div>'
+      + '<div style="font-size:12px;color:var(--text-secondary);"><b style="color:var(--text-primary);">'+d.skip.rows+'</b> 个子订单已存在，本次未重复导入</div>'
+      + '</div>';
+  }
+  if(d.fail.rows>0){
+    cards += '<div style="flex:1;background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius);padding:12px 16px;">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="color:var(--red);font-size:18px;">✕</span><span style="font-size:13px;color:var(--red);font-weight:600;">校验失败</span></div>'
+      + '<div style="font-size:12px;color:var(--text-secondary);"><b style="color:var(--text-primary);">'+d.fail.rows+'</b> 行错误，未导入，请修正后重传</div>'
+      + '</div>';
+  }
+
+  var html = '';
+  // 全成功：大图标样式
+  if(allOk){
+    html += '<div style="text-align:center;padding:8px 0 4px;">'
+      + '<div class="result-icon success">✓</div>'
+      + '<div class="result-title">导入成功</div>'
+      + '<div class="result-desc">成功导入 <b>'+d.ok.orders+'</b> 笔主订单（共 <b>'+d.ok.rows+'</b> 行商品），订单状态为<b>待发货</b></div>'
+      + '</div>';
+  } else {
+    html += '<div style="display:flex;gap:12px;margin-bottom:'+(hasFail||hasSkip?'18px':'0')+';">'+cards+'</div>';
+  }
+
+  // 跳过明细
+  if(hasSkip){
+    html += '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;">跳过明细（ORD-402，已存在未重复导入）：</div>';
+    html += '<div class="error-table-wrap" style="max-height:180px;">';
+    html += '<table class="error-table"><thead><tr><th>主订单号</th><th>子订单号</th><th>跳过原因</th></tr></thead><tbody>';
+    d.skip.list.forEach(function(r){
+      html += '<tr><td class="mono">'+r.main+'</td><td class="mono">'+r.sub+'</td><td style="color:var(--gray);">'+r.reason+'</td></tr>';
+    });
+    html += '</tbody></table></div>';
+  }
+
+  // 失败明细
+  if(hasFail){
+    html += '<div style="font-size:13px;color:var(--text-secondary);margin:'+(hasSkip?'14px':'0')+' 0 8px;">失败明细：</div>';
+    html += '<div class="error-table-wrap">';
+    html += '<table class="error-table"><thead><tr><th>主订单号</th><th>客户商品编码</th><th>销售单价</th><th>手机号1</th><th>错误原因</th></tr></thead><tbody>';
+    d.fail.list.forEach(function(r){
+      html += '<tr><td class="mono">'+r.main+'</td><td class="mono">'+r.code+'</td><td>'+r.price+'</td><td class="mono">'+r.phone+'</td><td style="color:var(--red);">'+r.reason+'</td></tr>';
+    });
+    html += '</tbody></table></div>';
+    html += '<a href="javascript:void(0)" onclick="downloadErrorDetail()" style="color:var(--blue);text-decoration:none;font-size:13px;display:inline-flex;align-items:center;gap:4px;margin-top:12px;">⬇ 下载失败明细（含原因列，修正后可重传）</a>';
+  }
+  body.innerHTML = html;
+}
+
+function showResult(scene){ renderResult(scene); openModal('resultModal'); }
+
+function downloadErrorDetail(){ showToast('success','已下载错误明细 Excel'); }
+
+function finishResult(){
+  var scene = document.getElementById('demoScene').value;
+  closeModal('resultModal');
+  // 成功 或 重复导入(有新增行) 才刷新列表；纯失败不刷新
+  if(scene==='success' || scene==='dup'){
+    var now = new Date();
+    var p = function(n){ return n.toString().padStart(2,'0'); };
+    var timeStr = now.getFullYear()+'-'+p(now.getMonth()+1)+'-'+p(now.getDate())+' '+p(now.getHours())+':'+p(now.getMinutes())+':'+p(now.getSeconds());
+    if(scene==='success'){
+      orders.unshift({id:'IMP'+now.getFullYear()+p(now.getMonth()+1)+p(now.getDate())+'004',mall:'京东企业购',supplier:'欧莱雅官方',time:timeStr,customer:'陈明 13100001111',price:79.50,qty:2,total:159.00,status:'待发货',oms:'未发货',afterSale:'无售后',remark:'线下导入',source:'线下导入'});
+      showToast('success','订单列表已刷新');
+    }else{
+      orders.unshift({id:'JD20260611003',mall:'京东企业购',supplier:'欧莱雅官方',time:timeStr,customer:'赵刚 15012348765',price:6299.00,qty:1,total:6299.00,status:'待发货',oms:'未发货',afterSale:'无售后',remark:'第3行补传',source:'线下导入'});
+      showToast('info','新增 1 行已导入，2 行已存在自动跳过');
+    }
+    renderTable();
+  }else{
+    showToast('info','失败订单请修正后重传');
+  }
+  uploadState = 'idle'; selectedChannel = '';
+}
+
+// ===== 渠道模板管理 =====
+function renderTplTable(){
+  document.getElementById('tplCount').textContent = '共 '+tplList.length+' 个渠道模板';
+  var html = '';
+  tplList.forEach(function(t,i){
+    var mapped = 0;
+    stdFields.forEach(function(f){ if(t.map[f.name]) mapped++; });
+    html += '<tr>';
+    html += '<td>'+t.name+'</td>';
+    html += '<td class="mono">'+t.code+'</td>';
+    html += '<td>'+mapped+' / 14</td>';
+    html += '<td>'+t.creator+'</td>';
+    html += '<td style="font-size:11.5px;color:var(--text-secondary);white-space:nowrap;">'+t.create+'</td>';
+    html += '<td style="font-size:11.5px;color:var(--text-secondary);white-space:nowrap;">'+t.update+'</td>';
+    html += '<td><span class="tag '+(t.status==='启用'?'tag-done':'tag-cancel')+'">'+t.status+'</span></td>';
+    html += '<td style="white-space:nowrap;">';
+    html += '<a class="btn-link" href="javascript:void(0)" onclick="toggleTplStatus('+i+')" style="margin-right:6px;">'+(t.status==='启用'?'停用':'启用')+'</a>';
+    html += '<a class="btn-link" href="javascript:void(0)" onclick="openTplEditModal('+i+')" style="margin-right:6px;">编辑</a>';
+    html += '<a class="btn-link" href="javascript:void(0)" onclick="delTpl('+i+')" style="color:var(--red);">删除</a>';
+    html += '</td>';
+    html += '</tr>';
+  });
+  if(tplList.length===0){ html = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--text-muted);">暂无渠道模板，点击「新增渠道模板」创建</td></tr>'; }
+  document.getElementById('tplBody').innerHTML = html;
+}
+
+function openTplModal(){
+  renderTplTable();
+  openModal('tplModal');
+}
+
+function openTplEditModal(idx){
+  tplEditingIndex = (typeof idx==='number') ? idx : -1;
+  if(tplEditingIndex>=0){
+    document.getElementById('tplEditTitle').textContent = '编辑渠道模板';
+    var t = tplList[tplEditingIndex];
+    document.getElementById('tplName').value = t.name;
+    document.getElementById('tplCode').value = t.code;
+    document.getElementById('tplCode').disabled = true;
+    document.getElementById('tplStatus').value = t.status;
+  }else{
+    document.getElementById('tplEditTitle').textContent = '新增渠道模板';
+    document.getElementById('tplName').value = '';
+    document.getElementById('tplCode').value = '';
+    document.getElementById('tplCode').disabled = false;
+    document.getElementById('tplStatus').value = '启用';
+  }
+  var html = '';
+  stdFields.forEach(function(f){
+    var val = (tplEditingIndex>=0 && tplList[tplEditingIndex].map[f.name]) || '';
+    html += '<tr><td class="std-name">'+f.name+(f.req?'<span class="req">*</span>':'')+'</td>';
+    html += '<td><input type="text" data-std="'+f.name+'" data-req="'+f.req+'" value="'+val+'" placeholder="'+(f.req?'必填':'选填，留空不映射')+'" style="width:100%;height:32px;padding:0 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;outline:none;"></td></tr>';
+  });
+  document.getElementById('tplEditBody').innerHTML = html;
+  closeModal('tplModal');
+  openModal('tplEditModal');
+}
+
+function saveTpl(){
+  var name = document.getElementById('tplName').value.trim();
+  var code = document.getElementById('tplCode').value.trim();
+  var status = document.getElementById('tplStatus').value;
+  if(!name){ showToast('error','请输入渠道名称'); return; }
+  if(!code){ showToast('error','请输入渠道编码'); return; }
+  var inputs = document.querySelectorAll('#tplEditBody input');
+  var newMap = {}; var used = {};
+  for(var i=0;i<inputs.length;i++){
+    var inp = inputs[i]; var std = inp.getAttribute('data-std'); var isReq = inp.getAttribute('data-req')==='true'; var val = inp.value.trim();
+    if(isReq && !val){ showToast('error', std+'为必填，请填写对应渠道列名'); return; }
+    if(val){
+      if(used[val]){ showToast('error','渠道列名「'+val+'」重复，已被用于'+used[val]); return; }
+      used[val] = std; newMap[std] = val;
+    }else{ newMap[std] = ''; }
+  }
+  for(var j=0;j<tplList.length;j++){
+    if(j===tplEditingIndex) continue;
+    if(tplList[j].code===code){ showToast('error','该渠道编码已存在'); return; }
+    if(tplList[j].name===name){ showToast('error','该渠道名称已存在'); return; }
+  }
+  var now = new Date();
+  var ts = now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0')+'-'+now.getDate().toString().padStart(2,'0')+' '+now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0')+':'+now.getSeconds().toString().padStart(2,'0');
+  if(tplEditingIndex>=0){
+    var t = tplList[tplEditingIndex];
+    t.name = name; t.status = status; t.map = newMap; t.update = ts;
+    showToast('success','渠道模板已更新');
+  }else{
+    tplList.push({name:name,code:code,status:status,creator:'李运营',create:ts,update:ts,map:newMap});
+    showToast('success','渠道模板已新增');
+  }
+  closeModal('tplEditModal');
+  renderTplTable();
+  openModal('tplModal');
+}
+
+function toggleTplStatus(i){
+  tplList[i].status = tplList[i].status==='启用'?'停用':'启用';
+  renderTplTable();
+  showToast('info','已'+tplList[i].status+'渠道「'+tplList[i].name+'」');
+}
+
+function delTpl(i){
+  if(confirm('确认删除渠道模板「'+tplList[i].name+'」？删除后不可恢复，且该渠道后续上传需重新配置映射。')){
+    tplList.splice(i,1);
+    renderTplTable();
+    showToast('success','渠道模板已删除');
+  }
+}
+
+// ===== COMMON =====
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function showToast(type,msg){
+  var c = document.getElementById('toastContainer');
+  var t = document.createElement('div'); t.className = 'toast '+type; t.textContent = msg; c.appendChild(t);
+  setTimeout(function(){ t.style.opacity='0'; t.style.transition='all .2s ease'; setTimeout(function(){ t.remove(); },200); },2500);
+}
+document.querySelectorAll('.modal-overlay').forEach(function(o){ o.addEventListener('click',function(e){ if(e.target===this) closeModal(this.id); }); });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') document.querySelectorAll('.modal-overlay.open').forEach(function(m){ m.classList.remove('open'); }); });
+
+// ===== INIT =====
+renderTable();
+
+</script>
+</body>
+</html>

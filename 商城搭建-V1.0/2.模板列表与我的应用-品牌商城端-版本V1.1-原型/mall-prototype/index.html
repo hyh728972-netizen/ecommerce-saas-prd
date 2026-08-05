@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>商城端 - 运营工作台</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="logo">商城端</div>
+      <nav class="nav">
+        <a href="#" class="nav-item active" data-page="templates">模板列表</a>
+        <a href="#" class="nav-item" data-page="mall-list">我的应用</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span class="user">运营账号：ops@platform.com</span>
+      </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="main">
+      <!-- 模板列表页 -->
+      <section id="page-templates" class="page active">
+        <header class="page-header">
+          <h1>模板列表</h1>
+        </header>
+        <div class="filters">
+          <div class="filters-left">
+            <div class="filter-group">
+              <label>标签</label>
+              <select id="filter-tag">
+                <option value="">全部</option>
+                <option value="美妆">美妆</option>
+                <option value="食品">食品</option>
+                <option value="服饰">服饰</option>
+                <option value="618大促">618大促</option>
+              </select>
+            </div>
+          </div>
+          <div class="filters-right">
+            <div class="filters-search-wrap">
+              <input
+                type="text"
+                id="template-search-input"
+                class="filters-search-input"
+                placeholder="搜索模板名称..."
+              />
+              <button type="button" class="btn btn-ghost" id="btn-template-search">搜索</button>
+            </div>
+            <button type="button" class="btn btn-ghost btn-link-reset" id="btn-template-reset">重置</button>
+          </div>
+        </div>
+        <div class="template-gallery-wrap">
+          <div class="template-gallery-toolbar-note">以下为已发布的模板，可直接选择使用</div>
+          <div class="template-grid" id="template-tbody"></div>
+          <div class="table-pagination" id="template-pagination"></div>
+        </div>
+      </section>
+
+      <!-- 商城列表页 -->
+      <section id="page-mall-list" class="page">
+        <header class="page-header">
+          <h1>我的应用</h1>
+          <button type="button" class="btn btn-primary" id="btn-new-mall">+ 新建商城</button>
+        </header>
+        <div class="mall-list-toolbar">
+          <div class="search-wrap">
+            <input type="text" id="mall-search-input" class="search-input" placeholder="搜索应用名称..." />
+            <button type="button" class="btn btn-ghost" id="btn-mall-search">搜索</button>
+          </div>
+        </div>
+        <div class="template-gallery-wrap">
+          <div class="template-gallery-toolbar-note">应用基于模板创建：仅一个应用处于「已发布」，其余为「草稿」</div>
+          <div class="template-grid" id="app-tbody"></div>
+          <div class="table-pagination" id="mall-list-pagination"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  
+
+  <!-- 发布前预览确认 -->
+  <div id="modal-publish-preview" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>发布前预览</h2>
+        <button type="button" class="modal-close" aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="tip">请确认模板在 PC 与移动端预览无误后再发布。</p>
+        <div class="preview-tabs">
+          <!-- <button type="button" class="preview-tab active" data-device="pc">PC 预览</button> -->
+          <button type="button" class="preview-tab" data-device="mobile">移动端预览</button>
+        </div>
+        <div class="preview-frame pc" id="preview-frame">
+          <div class="preview-placeholder">模板预览区域（演示）</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost modal-cancel">返回编辑</button>
+        <button type="button" class="btn btn-primary" id="btn-confirm-publish">确认发布</button>
+      </div>
+    </div>
+  </div>
+
+  
+
+  <!-- 分类页选择模板弹窗 -->
+  <div id="modal-category-template" class="modal">
+    <div class="modal-content modal-lg modal-xl">
+      <div class="modal-header">
+        <h2>选择分类页模板</h2>
+        <button type="button" class="modal-close" aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="tip">请选择一种分类页布局，确定后将进入编辑器进行配置。</p>
+        <div class="category-template-grid" id="category-template-list">
+          <label class="radio-card category-template-card">
+            <input type="radio" name="category-template" value="level3" />
+            <span class="card-label">三级分类页</span>
+            <span class="card-desc">左侧一级分类 + 右侧二级分组与三级图标网格</span>
+          </label>
+          <label class="radio-card category-template-card">
+            <input type="radio" name="category-template" value="level2" />
+            <span class="card-label">二级分类页</span>
+            <span class="card-desc">左侧一级分类 + 右侧二级图标网格（无分组标题）</span>
+          </label>
+          <label class="radio-card category-template-card">
+            <input type="radio" name="category-template" value="level2-list" />
+            <span class="card-label">二级分类+商品列表页</span>
+            <span class="card-desc">左侧一级分类 + 右侧 Tab 子分类 + 商品列表</span>
+          </label>
+          <label class="radio-card category-template-card">
+            <input type="radio" name="category-template" value="level1-tab" />
+            <span class="card-label">一级分类+商品分类页（横向 Tab）</span>
+            <span class="card-desc">顶部横向 Tab 子分类 + 商品列表</span>
+          </label>
+          <label class="radio-card category-template-card">
+            <input type="radio" name="category-template" value="level1-list" />
+            <span class="card-label">一级分类+商品分类页（直接列表）</span>
+            <span class="card-desc">左侧一级分类 + 右侧直接商品列表</span>
+          </label>
+          <label class="radio-card category-template-card">
+            <input type="radio" name="category-template" value="level1-list-b" />
+            <span class="card-label">一级分类+商品分类页（直接列表样式二）</span>
+            <span class="card-desc">左侧一级分类 + 右侧商品列表，另一种卡片样式</span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost modal-cancel">取消</button>
+        <button type="button" class="btn btn-primary" id="btn-confirm-category-template">确定</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 应用发布确认（二次确认） -->
+  <div id="modal-publish-app-step1" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>确认发布</h2>
+        <button type="button" class="modal-close" aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="tip">确定将该应用设为「已发布」吗？其他已发布应用会变为「草稿」。</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost modal-cancel" id="btn-cancel-publish-app-step1">取消</button>
+        <button type="button" class="btn btn-primary" id="btn-confirm-publish-app-step1">确定发布</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

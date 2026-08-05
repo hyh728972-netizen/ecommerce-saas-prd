@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提示 - 手机号未注册</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', "PingFang SC", "Microsoft YaHei", sans-serif; }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.45); backdrop-filter: blur(2px); }
+        .fade-in { animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <!-- 演示说明 -->
+    <div class="fixed top-8 left-8 max-w-md">
+        <p class="text-gray-600 text-sm mb-4">在登录页面输入未注册的手机号，点击获取验证码时弹窗：</p>
+        <button onclick="showModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm transition-colors">
+            显示弹窗
+        </button>
+    </div>
+
+    <!-- 模态框 -->
+    <div id="modal" class="fixed inset-0 z-50 flex items-center justify-center">
+        <!-- 遮罩层 -->
+        <div class="modal-overlay absolute inset-0" onclick="closeModal()"></div>
+        
+        <!-- 弹窗内容 -->
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-sm relative fade-in mx-4">
+            <!-- 头部 -->
+            <div class="flex items-center gap-3 px-6 pt-5 pb-3">
+                <div class="w-5 h-5 rounded-full border-2 border-red-500 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-exclamation text-red-500 text-xs"></i>
+                </div>
+                <span class="text-gray-800 font-medium text-base">提示</span>
+            </div>
+            
+            <!-- 内容 -->
+            <div class="px-6 py-4">
+                <p class="text-gray-700 text-sm leading-relaxed">
+                    该手机号未注册，请先完成注册！
+                </p>
+            </div>
+            
+            <!-- 底部按钮 -->
+            <div class="flex justify-center gap-3 px-6 pb-5 pt-2">
+                <button onclick="closeModal()" 
+                    class="px-5 py-1.5 border border-gray-300 text-gray-600 rounded text-sm hover:bg-gray-50 transition-colors bg-white">
+                    取消
+                </button>
+                <button onclick="goToRegister()" 
+                    class="px-5 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors">
+                    立即注册
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // 显示模态框
+    function showModal() {
+        document.getElementById('modal').classList.remove('hidden');
+        document.getElementById('modal').classList.add('flex');
+    }
+
+    // 关闭模态框
+    function closeModal() {
+        document.getElementById('modal').classList.add('hidden');
+        document.getElementById('modal').classList.remove('flex');
+    }
+
+    // 跳转到注册页面
+    function goToRegister() {
+        alert('跳转到注册页面...');
+        // window.location.href = '/register';
+    }
+
+    // 页面加载时显示模态框（方便预览）
+    window.onload = function() {
+        // 默认显示，如需隐藏可取消下面这行注释
+        // closeModal();
+    };
+
+    // ESC键关闭
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>账号信息 - 一兆链采供应链系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', "PingFang SC", "Microsoft YaHei", sans-serif; background-color: #f5f7fa; }
+        .avatar-edit { opacity: 0; transition: opacity 0.3s; }
+        .avatar-container:hover .avatar-edit { opacity: 1; }
+        .edit-mode { display: none; }
+        .edit-mode.active { display: flex; }
+        .view-mode.hidden { display: none; }
+    </style>
+</head>
+<body class="text-gray-700">
+
+<!-- 顶部导航 -->
+<nav class="bg-white border-b border-gray-200 fixed w-full z-50 top-0 h-16">
+    <div class="flex items-center justify-between px-6 h-full">
+        <div class="flex items-center gap-2">
+            <span class="text-xl font-semibold text-blue-600">一兆链采供应链系统</span>
+        </div>
+        <div class="flex items-center gap-4 text-gray-500">
+            <button class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <i class="fas fa-redo-alt"></i>
+            </button>
+            <button class="p-2 hover:bg-gray-100 rounded-full transition-colors relative">
+                <i class="fas fa-bell"></i>
+            </button>
+            <div class="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center text-gray-600 cursor-pointer overflow-hidden border border-gray-300">
+                <img src="https://via.placeholder.com/36x36/3b82f6/ffffff?text=1" alt="avatar" class="w-full h-full object-cover">
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="flex pt-16 min-h-screen">
+    <!-- 左侧边栏 -->
+    <aside class="w-56 bg-white border-r border-gray-200 fixed h-full overflow-y-auto">
+        <div class="py-2 space-y-1">
+            <div class="flex items-center gap-3 px-6 py-3 text-blue-600 bg-blue-50 cursor-pointer transition-colors border-r-2 border-blue-600">
+                <i class="fas fa-home w-5"></i>
+                <span class="text-sm font-medium">首页</span>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-building w-5"></i>
+                <span class="text-sm">供应商</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-cube w-5"></i>
+                <span class="text-sm">商品中心</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-clipboard-list w-5"></i>
+                <span class="text-sm">订单中心</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-shopping-cart w-5"></i>
+                <span class="text-sm">采购管理</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-warehouse w-5"></i>
+                <span class="text-sm">仓库管理</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-headset w-5"></i>
+                <span class="text-sm">售后管理</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-user w-5"></i>
+                <span class="text-sm">用户管理</span>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-bell w-5"></i>
+                <span class="text-sm">消息管理</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+            <div class="flex items-center gap-3 px-6 py-3 text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors">
+                <i class="fas fa-cog w-5"></i>
+                <span class="text-sm">设置</span>
+                <i class="fas fa-chevron-down ml-auto text-xs"></i>
+            </div>
+        </div>
+    </aside>
+
+    <!-- 主内容区 -->
+    <main class="flex-1 ml-56 p-6">
+        <!-- 面包屑标签 -->
+        <div class="bg-white rounded-t-lg border-b border-gray-200 px-6 py-3 mb-0 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-gray-600 text-sm">账号信息</span>
+                <button class="text-gray-400 hover:text-gray-600 ml-1"><i class="fas fa-times text-xs"></i></button>
+            </div>
+        </div>
+
+        <!-- 账号信息内容 -->
+        <div class="bg-white rounded-b-lg shadow-sm p-8">
+            <h2 class="text-base font-semibold text-gray-800 mb-8">基础信息</h2>
+
+            <div class="flex gap-12">
+                <!-- 左侧头像 -->
+                <div class="flex-shrink-0">
+                    <div class="avatar-container relative w-20 h-20 rounded-full bg-blue-600 flex items-center justify-center text-white text-3xl font-semibold cursor-pointer overflow-hidden group">
+                        <span id="avatar-text">1</span>
+                        <div class="avatar-edit absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                            <i class="fas fa-pencil-alt text-white text-lg"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧信息 -->
+                <div class="flex-1 space-y-6">
+                    <!-- 第一行：对接人姓名 + 账号密码 -->
+                    <div class="flex gap-16">
+                        <!-- 对接人姓名 -->
+                        <div class="flex-1">
+                            <div class="flex items-center gap-4 mb-2">
+                                <label class="text-sm text-gray-500 w-24">对接人姓名</label>
+                                <div class="flex-1">
+                                    <!-- 查看模式 -->
+                                    <div class="view-mode flex items-center gap-3" id="name-view">
+                                        <span class="text-sm text-gray-900" id="display-name">李阳</span>
+                                        <button onclick="enterEditMode()" class="text-blue-600 hover:text-blue-800 text-sm font-medium">修改</button>
+                                    </div>
+                                    <!-- 编辑模式 -->
+                                    <div class="edit-mode items-center gap-2" id="name-edit">
+                                        <input type="text" id="name-input" value="李阳" class="border border-gray-300 rounded px-3 py-1.5 text-sm w-32 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                                        <button onclick="saveName()" class="text-blue-600 hover:text-blue-800 text-sm font-medium px-2">保存</button>
+                                        <button onclick="cancelEdit()" class="text-gray-500 hover:text-gray-700 text-sm font-medium px-2">取消</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 账号密码 -->
+                        <div class="flex-1">
+                            <div class="flex items-center gap-4">
+                                <label class="text-sm text-gray-500 w-24">账号密码</label>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm text-gray-900">*********</span>
+                                    <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">重置</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 第二行：邮箱 -->
+                    <div class="flex gap-16">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-4">
+                                <label class="text-sm text-gray-500 w-24">邮箱</label>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm text-gray-900">未填写</span>
+                                    <button class="text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-pencil-alt text-xs"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex-1"></div>
+                    </div>
+
+                    <!-- 第三行：对接人手机号 + 注册时间 -->
+                    <div class="flex gap-16">
+                        <!-- 对接人手机号 -->
+                        <div class="flex-1">
+                            <div class="flex items-center gap-4">
+                                <label class="text-sm text-gray-500 w-24">对接人手机号</label>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm text-gray-900">17317141147</span>
+                                    <button class="text-blue-600 hover:text-blue-800 text-sm font-medium">修改</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 注册时间 -->
+                        <div class="flex-1">
+                            <div class="flex items-center gap-4">
+                                <label class="text-sm text-gray-500 w-24">注册时间</label>
+                                <span class="text-sm text-gray-900">2026-01-23 09:53:42</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    // 进入编辑模式
+    function enterEditMode() {
+        document.getElementById('name-view').classList.add('hidden');
+        document.getElementById('name-edit').classList.add('active');
+        document.getElementById('name-input').focus();
+    }
+
+    // 保存修改
+    function saveName() {
+        const newName = document.getElementById('name-input').value;
+        if (newName.trim()) {
+            document.getElementById('display-name').textContent = newName;
+            // 更新头像文字（取第一个字符）
+            document.getElementById('avatar-text').textContent = newName.charAt(0);
+        }
+        cancelEdit();
+    }
+
+    // 取消编辑
+    function cancelEdit() {
+        document.getElementById('name-view').classList.remove('hidden');
+        document.getElementById('name-edit').classList.remove('active');
+        // 重置输入框值
+        document.getElementById('name-input').value = document.getElementById('display-name').textContent;
+    }
+
+    // 回车保存
+    document.getElementById('name-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            saveName();
+        }
+    });
+</script>
+
+</body>
+</html>

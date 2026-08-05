@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商城订单详情 - 商城运营平台</title>
+<style>
+:root {
+  --bg-app:#f4f3f0; --bg-sidebar:#1e1e22; --bg-surface:#ffffff; --bg-hover:#f7f6f4; --bg-input:#f9f8f7;
+  --border:#e6e4e0; --border-light:#f0eeeb;
+  --text-primary:#1a1a1c; --text-secondary:#6b6b70; --text-muted:#99999d; --text-sidebar:#c4c4c9;
+  --accent:#2d2d33; --accent-soft:#f0eeeb;
+  --blue:#2563eb; --blue-bg:#f5f8ff; --blue-border:#d4e0fc;
+  --red:#da3e3a; --red-bg:#fef4f3; --red-border:#fcd9d7;
+  --green:#16a34a; --green-bg:#f4fdf6; --green-border:#c6f0d4;
+  --orange:#d97706; --orange-bg:#fffbf0; --orange-border:#fde8c4;
+  --yellow-bg:#fefce8; --yellow-border:#fef08a;
+  --purple:#7c3aed; --purple-bg:#faf8ff; --purple-border:#e4dcfc;
+  --gray:#6b7280; --gray-bg:#f8f8f7; --gray-border:#e8e6e3;
+  --radius-sm:4px; --radius:8px; --radius-lg:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.06); --shadow-lg:0 4px 16px rgba(0,0,0,.10);
+  --transition:160ms ease;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;background:var(--bg-app);color:var(--text-primary);display:flex;min-height:100vh;-webkit-font-smoothing:antialiased;}
+
+/* Sidebar */
+.sidebar{width:232px;min-width:232px;background:var(--bg-sidebar);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:10;}
+.sidebar-brand{padding:20px 20px 28px;border-bottom:1px solid rgba(255,255,255,.06);}
+.sidebar-brand .logo{font-size:17px;font-weight:600;color:#fff;letter-spacing:-.02em;display:flex;align-items:center;gap:10px;}
+.sidebar-brand .sub{font-size:11px;color:var(--text-sidebar);margin-top:2px;}
+.sidebar-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px;}
+.nav-section-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.25);padding:14px 10px 6px;display:flex;align-items:center;gap:4px;cursor:pointer;user-select:none;}
+.nav-section-label:hover{color:rgba(255,255,255,.45);}
+.section-arrow{font-size:8px;transition:transform .2s ease;flex-shrink:0;}
+.nav-section.collapsed .section-arrow{transform:rotate(-90deg);}
+.nav-section.collapsed .nav-section-items{display:none;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;color:var(--text-sidebar);font-size:13.5px;cursor:pointer;transition:all var(--transition);text-decoration:none;letter-spacing:.01em;}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#fff;}
+.nav-item.active{background:rgba(255,255,255,.10);color:#fff;font-weight:500;}
+.nav-icon{width:18px;height:18px;opacity:.55;flex-shrink:0;}
+.nav-item.active .nav-icon{opacity:1;}
+.nav-item .badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px;min-width:20px;text-align:center;line-height:18px;}
+
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{height:52px;min-height:52px;background:var(--bg-surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;z-index:5;}
+.topbar .breadcrumb{font-size:12.5px;color:var(--text-muted);letter-spacing:.01em;}
+.topbar .breadcrumb span{color:var(--text-primary);font-weight:500;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:16px;}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:#e6e4e0;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);}
+.content{flex:1;display:flex;flex-direction:column;padding:22px 28px 32px;}
+
+/* Page Header */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:16px;}
+.page-header h1{font-size:22px;font-weight:600;letter-spacing:-.02em;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.page-header .page-mall{font-size:13px;font-weight:400;color:var(--text-muted);}
+.page-header .page-subtitle{font-size:13px;color:var(--text-muted);margin-top:4px;display:flex;align-items:center;flex-wrap:wrap;gap:0;}
+.page-header .page-subtitle .meta-item{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
+.page-header .page-subtitle .meta-sep{color:var(--border);padding:0 10px;user-select:none;line-height:1;}
+.page-header .page-subtitle .meta-value{font-family:"JetBrains Mono","Consolas",monospace;color:var(--text-secondary);}
+.page-header .order-no{display:inline-flex;align-items:center;gap:4px;}
+.page-header-actions{display:flex;gap:8px;align-items:center;flex-shrink:0;}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;padding:6px 14px;border-radius:var(--radius-sm);font-size:12.5px;font-family:inherit;cursor:pointer;border:1px solid transparent;transition:all var(--transition);white-space:nowrap;font-weight:500;gap:5px;text-decoration:none;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{opacity:.88;}
+.btn-outline{border-color:var(--border);color:var(--text-primary);background:var(--bg-surface);}
+.btn-outline:hover{border-color:var(--text-muted);background:var(--bg-hover);}
+.btn-sm{padding:3px 10px;font-size:11.5px;}
+.btn-danger{background:var(--red);color:#fff;}
+.btn-danger:hover{opacity:.88;}
+.demo-toggle{display:flex;gap:6px;align-items:center;}
+.demo-toggle label{font-size:11px;color:var(--text-muted);white-space:nowrap;}
+.demo-toggle select{font-size:11px;padding:3px 8px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-surface);color:var(--text-primary);cursor:pointer;max-width:200px;}
+
+/* Status Banner */
+.status-banner{padding:14px 18px;border-radius:var(--radius);margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.status-banner.shipping{background:var(--blue-bg);border:1px solid var(--blue-border);}
+.status-banner.shipped{background:var(--green-bg);border:1px solid var(--green-border);}
+.status-banner.partial-overdue{background:var(--orange-bg);border:1px solid var(--orange-border);}
+.status-banner.overdue{background:var(--red-bg);border:1px solid var(--red-border);}
+.status-banner.completed{background:var(--green-bg);border:1px solid var(--green-border);}
+.status-banner.cancelled{background:var(--gray-bg);border:1px solid var(--gray-border);}
+.status-banner.warning{background:var(--yellow-bg);border:1px solid var(--yellow-border);}
+.status-banner-icon{width:45px;height:45px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.status-banner-icon svg{display:block;width:45px;height:45px;}
+.status-banner.partial-overdue .status-banner-icon svg{color:var(--orange);}
+.status-banner.shipping .status-banner-icon svg{color:var(--blue);}
+.status-banner.shipped .status-banner-icon svg{color:var(--green);}
+.status-banner-body{flex:1;min-width:0;}
+.status-banner-title{font-size:16px;font-weight:600;color:var(--text-primary);}
+.status-banner-sub{font-size:12px;color:var(--text-muted);margin-top:2px;display:flex;align-items:center;gap:12px;}
+.status-banner-actions{flex-shrink:0;}
+.status-progress{margin-top:8px;display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--text-muted);}
+.status-progress-label{flex-shrink:0;white-space:nowrap;}
+.status-progress-bar{flex:1;display:block;min-width:120px;height:6px;background:rgba(0,0,0,.08);border-radius:3px;overflow:hidden;}
+.status-progress-bar-fill{display:block;height:100%;border-radius:3px;transition:width .4s ease;}
+.status-banner.shipping .status-progress-bar-fill{background:var(--blue);}
+.status-banner.shipped .status-progress-bar-fill{background:var(--green);}
+.status-banner.partial-overdue .status-progress-bar-fill{background:var(--orange);}
+
+/* Detail Layout */
+.detail-layout{display:flex;gap:18px;flex:1;min-height:0;align-items:flex-start;}
+.detail-left{flex:1;display:flex;flex-direction:column;gap:12px;min-width:0;}
+.detail-right{flex:0 0 300px;display:flex;flex-direction:column;gap:14px;min-width:280px;max-width:320px;}
+
+/* Cards */
+.card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border-light);}
+.card-header h3{font-size:13px;font-weight:600;color:var(--text-primary);letter-spacing:.01em;}
+.card-header-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.card-body{padding:16px;}
+
+/* Quick Actions Bar */
+/* Package Card */
+.package-card{border:1px solid var(--border);}
+.package-card-header{display:flex;align-items:center;padding:10px 14px;background:var(--bg-hover);border-bottom:1px solid var(--border-light);gap:10px;font-size:12.5px;flex-wrap:wrap;}
+.package-card-header .package-header-title{font-weight:600;color:var(--text-primary);display:inline-flex;align-items:center;gap:0;flex-wrap:wrap;}
+.package-card-header .express-name{font-weight:600;color:var(--text-primary);}
+.package-card-header .waybill-no{font-family:"JetBrains Mono","Consolas",monospace;font-size:11.5px;color:var(--text-secondary);margin-left:4px;}
+.package-card-header .package-status{font-size:11.5px;}
+.package-card-header .eta{font-size:11.5px;color:var(--text-muted);margin-left:auto;}
+.logistics-toggle{font-size:11.5px;color:var(--text-muted);cursor:pointer;user-select:none;}
+.logistics-toggle:hover{color:var(--text-secondary);}
+.logistics-track{display:none;padding:12px 14px 4px;border-bottom:1px solid var(--border-light);background:var(--bg-surface);}
+.logistics-track.open{display:block;}
+.logistics-track .timeline{padding:0;}
+.package-card-body{padding:0;overflow-x:auto;}
+.item-table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:1346px;table-layout:fixed;}
+.item-table th{background:#fafaf9;text-align:left;padding:9px 10px;font-weight:500;font-size:11.5px;color:var(--text-muted);letter-spacing:.02em;border-bottom:1px solid var(--border);white-space:nowrap;}
+.item-table td{padding:10px 10px;border-bottom:1px solid var(--border-light);vertical-align:middle;line-height:1.4;overflow:hidden;}
+.supply-source-line{display:flex;align-items:center;gap:4px;margin-top:2px;}.supply-source-line .mono{white-space:nowrap;}
+.item-table tr:last-child td{border-bottom:none;}
+.item-table .col-qty,.item-table .col-price,.item-table .col-subtotal,.item-table .col-status,.item-table .col-after,.item-table .col-ship-time,.item-table .col-action{text-align:center;}
+.item-table .col-remark{max-width:120px;font-size:12px;color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.item-table .col-action{white-space:nowrap;}
+.item-table .action-links{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;}
+.item-table .action-link{color:var(--blue);font-size:12px;cursor:pointer;white-space:nowrap;}
+.item-table .action-link:hover{text-decoration:underline;}
+.item-table .prod-info{display:flex;align-items:flex-start;gap:8px;min-width:220px;}
+.prod-thumb{width:44px;height:44px;border-radius:var(--radius-sm);background:var(--accent-soft);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-muted);}
+.prod-name{font-size:12.5px;font-weight:500;color:var(--text-primary);line-height:1.35;}
+.prod-subno{font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.35;}
+.prod-subno .mono{font-size:11px;color:var(--text-secondary);}
+.prod-sku{font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.35;}
+.prod-sku .mono{font-size:11px;color:var(--text-secondary);}
+.item-table .mono{font-family:"JetBrains Mono","Consolas",monospace;font-size:11px;color:var(--text-secondary);}
+.placeholder-cell{color:var(--text-muted);font-size:12px;}
+.ship-time{display:inline-block;font-size:12px;font-weight:500;line-height:1.35;color:var(--text-primary);}
+.ship-time-warning{color:var(--orange);}
+.ship-time-overdue{color:var(--red);}
+/* Pending Section */
+.pending-section{border:1px solid var(--orange-border);}
+.pending-section .pending-header{padding:10px 14px;background:var(--orange-bg);border-bottom:1px solid var(--orange-border);display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--orange);}
+.pending-section.pending-normal{border-color:var(--blue-border);}
+.pending-section.pending-normal .pending-header{background:var(--blue-bg);border-bottom-color:var(--blue-border);color:var(--blue);}
+.pending-section tr.pending-row-overdue{background:var(--red-bg);}
+
+/* Closed/Cancelled Section */
+.closed-section{border:1px solid var(--gray-border);opacity:.8;}
+.closed-section .closed-header{padding:10px 16px;background:var(--gray-bg);border-bottom:1px solid var(--gray-border);font-size:12.5px;font-weight:600;color:var(--gray);}
+.closed-section .item-table td{color:var(--text-muted);}
+
+/* Right Column Cards */
+.info-card .info-row{display:flex;align-items:flex-start;padding:6px 0;font-size:12.5px;line-height:1.55;}
+.info-card .info-row:first-child{padding-top:0;}
+.info-card .info-row:last-child{padding-bottom:0;}
+.info-card .info-label{color:var(--text-muted);flex-shrink:0;width:56px;}
+.info-card .info-value{color:var(--text-primary);flex:1;min-width:0;word-break:break-all;}
+.info-row+.divider{border-top:1px solid var(--border-light);margin:4px 0;}
+
+/* Address Card */
+.addr-name{font-size:15px;font-weight:600;color:var(--text-primary);}
+.addr-phone{font-size:13px;color:var(--text-secondary);margin-left:8px;}
+.addr-detail{font-size:12.5px;color:var(--text-primary);margin-top:8px;line-height:1.55;}
+.addr-note{margin-top:10px;padding:8px 10px;background:var(--yellow-bg);border-radius:var(--radius-sm);font-size:12px;color:var(--text-primary);display:flex;align-items:flex-start;gap:6px;line-height:1.5;}
+
+/* Fee Card */
+.fee-summary{display:flex;flex-direction:column;gap:10px;}
+.fee-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;font-size:12.5px;line-height:1.45;}
+.fee-row.total .fee-val{font-size:22px;font-weight:700;color:var(--text-primary);}
+.fee-row.paid .fee-val{font-size:18px;font-weight:600;color:var(--red);}
+.fee-val{color:var(--text-primary);font-weight:500;font-family:"JetBrains Mono","Consolas",monospace;flex-shrink:0;}
+.fee-row.discount .fee-val{color:var(--red);}
+.fee-row .fee-label{color:var(--text-muted);}
+.fee-breakdown{border-top:1px solid var(--border-light);margin-top:12px;padding-top:10px;display:flex;flex-direction:column;gap:6px;}
+.fee-breakdown .fee-row{font-size:12px;}
+.fee-breakdown .fee-val{font-size:12px;font-weight:500;}
+.fee-meta{border-top:1px solid var(--border-light);margin-top:12px;padding-top:10px;display:flex;flex-direction:column;gap:8px;}
+.fee-meta-row{display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:var(--text-muted);line-height:1.45;}
+
+/* Buyer Profile */
+.buyer-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.buyer-avatar{width:36px;height:36px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--text-secondary);}
+.buyer-name{font-size:14px;font-weight:600;}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;font-size:12px;}
+.profile-item .pi-label{color:var(--text-muted);}
+.profile-item .pi-val{color:var(--text-primary);font-weight:500;}
+
+/* Timeline */
+.timeline{padding:0;}
+.tl-item{position:relative;padding:0 0 14px 24px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-item::before{content:'';position:absolute;left:5px;top:7px;bottom:0;width:1.5px;background:var(--border);}
+.tl-item:last-child::before{display:none;}
+.tl-dot{position:absolute;left:0;top:4px;width:11px;height:11px;border-radius:50%;background:var(--border);border:2px solid var(--bg-surface);}
+.tl-dot.active{background:var(--accent);}
+.tl-dot.ops{background:var(--blue);}
+.tl-dot.ops.active{background:var(--blue);}
+.tl-content{font-size:12px;color:var(--text-secondary);line-height:1.5;}
+.tl-time{font-size:11px;color:var(--text-muted);margin-top:1px;}
+
+/* Tags */
+.tag{display:inline-flex;align-items:center;padding:2px 10px;border-radius:100px;font-size:11px;font-weight:500;white-space:nowrap;border:1px solid transparent;}
+.tag-blue{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border);}
+.tag-green{background:var(--green-bg);color:var(--green);border-color:var(--green-border);}
+.tag-orange{background:var(--orange-bg);color:var(--orange);border-color:var(--orange-border);}
+.tag-red{background:var(--red-bg);color:var(--red);border-color:var(--red-border);}
+.tag-gray{background:var(--gray-bg);color:var(--gray);border-color:var(--gray-border);}
+.tag-yellow{background:var(--yellow-bg);color:#a16207;border-color:var(--yellow-border);}
+.tag-after-none{background:var(--gray-bg);color:var(--gray);border-color:var(--gray-border);}
+.tag-after-active{background:var(--orange-bg);color:var(--orange);border-color:var(--orange-border);}
+.tag-after-done{background:var(--green-bg);color:var(--green);border-color:var(--green-border);}
+
+/* Risk Banner */
+.risk-banner{padding:9px 14px;border-radius:var(--radius-sm);font-size:12px;display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer;}
+.risk-banner.warn{background:var(--yellow-bg);border:1px solid var(--yellow-border);color:#a16207;}
+
+/* Copy button */
+.copy-btn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;border-radius:3px;flex-shrink:0;transition:all var(--transition);vertical-align:middle;}
+.copy-btn:hover{color:var(--text-secondary);background:var(--bg-hover);}
+.eye-btn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;border-radius:3px;flex-shrink:0;font-size:13px;}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg-surface);border-radius:var(--radius-lg);width:100%;max-width:460px;box-shadow:var(--shadow-lg);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+.modal-header h3{font-size:15px;font-weight:600;}
+.modal-close{background:none;border:none;font-size:18px;color:var(--text-muted);cursor:pointer;padding:4px;}
+.modal-body{padding:20px;}
+.modal-body .form-group{margin-bottom:14px;}
+.modal-body .form-group:last-child{margin-bottom:0;}
+.modal-body label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;}
+.modal-body input,.modal-body textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;resize:vertical;}
+.modal-body input:focus,.modal-body textarea:focus{border-color:var(--accent);}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border);}
+
+/* Toast */
+.toast-container{position:fixed;top:24px;right:24px;z-index:400;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--bg-sidebar);color:#fff;padding:12px 18px;border-radius:var(--radius);font-size:13px;box-shadow:var(--shadow-lg);}
+.toast.success{border-left:3px solid var(--green);}
+.toast.info{border-left:3px solid var(--blue);}
+
+/* Utility */
+.mono{font-family:"JetBrains Mono","Consolas",monospace;}
+.price{font-family:"JetBrains Mono","Consolas",monospace;font-weight:500;}
+.text-muted{color:var(--text-muted);}
+.text-danger{color:var(--red);}
+.coupon-sub{font-size:11px;color:var(--text-muted);line-height:1.35;margin-top:2px;}
+.text-warning{color:var(--orange);}
+.ml-auto{margin-left:auto;}
+.gap-8{display:flex;gap:8px;align-items:center;}
+.remark-dot{display:inline-flex;width:6px;height:6px;border-radius:50%;background:var(--blue);margin-left:4px;}
+.addr-warn{padding:2px 8px;border-radius:3px;font-size:11px;margin-left:6px;background:var(--orange-bg);color:var(--orange);}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="app-sidebar"></aside>
+<script src="./assets/common-sidebar.js"></script>
+
+<div class="main">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="breadcrumb"><a href="16.商城订单列表-原型页面.html" style="color:var(--text-muted);text-decoration:none;">订单监控</a> / <a href="16.商城订单列表-原型页面.html" style="color:var(--text-muted);text-decoration:none;">商城订单列表</a> / <span>订单详情</span></div>
+    <div class="topbar-right">
+      <span style="font-size:12px;color:var(--text-muted);">运营专员</span>
+      <div class="user-avatar">李</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div>
+        <h1>商城订单详情 <span class="page-mall">（农行商城）</span></h1>
+        <p class="page-subtitle">
+          <span class="meta-item">主订单号: <span class="meta-value order-no">ORD20260323001 <button class="copy-btn" onclick="copyText('ORD20260323001')" title="复制主订单号"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></span>
+          <span class="meta-sep">|</span>
+          <span class="meta-item">支付流水号: <span class="meta-value pay-no">PAY20240323143025123456 <button class="copy-btn" onclick="copyText('PAY20240323143025123456')" title="复制支付流水号"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></span></span>
+          <span class="meta-sep">|</span>
+          <span class="meta-item">下单时间: <span class="meta-value order-time">2024-03-23 14:30</span></span>
+        </p>
+      </div>
+      <div class="page-header-actions">
+        <div class="demo-toggle">
+          <label>演示模式：</label>
+          <select id="orderDemoMode" onchange="switchOrderDemoMode(this.value)">
+            <option value="pending">待发货</option>
+            <option value="pending-overdue">待发货（含已超时发货）</option>
+            <option value="shipped">已发货</option>
+            <option value="partial" selected>部分发货（含已超时发货）</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-sm" id="btnUrgeAll" onclick="showToast('success','已向主订单下待发货子订单发送催办提醒（演示）')">一键催办</button>
+        <button class="btn btn-outline btn-sm" onclick="openUnifiedRemarkModal()">统一备注</button>
+        <button class="btn btn-outline btn-sm" onclick="showToast('success','导出成功')">导出订单</button>
+      </div>
+    </div>
+
+    <!-- Risk Banner -->
+    <div class="risk-banner warn" onclick="this.style.display='none'" style="cursor:pointer;">
+      ⚠ 收货地址存在异常（地址不完整），请核实后再联系供应链发货 · 点击关闭
+    </div>
+
+    <!-- Status Banner -->
+    <div class="status-banner partial-overdue" id="statusBanner">
+      <div class="status-banner-icon" id="statusBannerIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <div class="status-banner-body">
+        <div class="status-banner-title" id="statusBannerTitle">部分发货 · 2个包裹（3件商品）已发，4 件待发货 · 已超时 3h</div>
+        <div class="status-progress" id="statusProgress">
+          <span class="status-progress-label" id="statusProgressLabel">3/7 商品已发</span>
+          <span class="status-progress-bar"><span class="status-progress-bar-fill" id="statusProgressFill" style="width:42.86%;"></span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="detail-layout">
+      <!-- LEFT COLUMN -->
+      <div class="detail-left">
+        <!-- Package 1 -->
+        <div class="card package-card">
+          <div class="package-card-header">
+            <span class="package-header-title">包裹1（共计3件）📦<span class="express-name">圆通速递</span><span class="waybill-no">YT11881899999</span></span>
+            <button class="copy-btn" onclick="copyText('YT11881899999')" title="复制运单号"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+            <span class="tag tag-blue">运输中</span>
+            <span class="eta">预计送达 2026-06-25</span>
+            <span class="logistics-toggle" onclick="toggleLogisticsTrack(this)">查看物流轨迹 ▸</span>
+          </div>
+          <div class="logistics-track">
+            <div class="timeline">
+              <div class="tl-item"><div class="tl-dot active"></div><div class="tl-content">快件已到达【南京转运中心】</div><div class="tl-time">2026-06-22 09:15</div></div>
+              <div class="tl-item"><div class="tl-dot"></div><div class="tl-content">快件已从【上海转运中心】发出，下一站南京</div><div class="tl-time">2026-06-21 18:40</div></div>
+              <div class="tl-item"><div class="tl-dot"></div><div class="tl-content">商家已发货 · 圆通速递 YT11881899999</div><div class="tl-time">2026-06-21 10:20</div></div>
+            </div>
+          </div>
+          <div class="package-card-body">
+            <table class="item-table">
+              <colgroup>
+                <col style="width:240px"><col style="width:220px"><col style="width:140px"><col style="width:68px"><col style="width:44px"><col style="width:116px"><col style="width:108px"><col style="width:72px"><col style="width:72px"><col style="width:96px"><col style="width:88px"><col style="width:120px"><col style="width:108px">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>商品</th>
+                  <th>供货来源</th>
+                  <th>客户商品编码</th>
+                  <th class="col-price">销售单价</th>
+                  <th class="col-qty">数量</th>
+                  <th>优惠券</th>
+                  <th>积分抵扣</th>
+                  <th class="col-subtotal">金额小计</th>
+                  <th class="col-status">订单状态</th>
+                  <th class="col-ship-time">剩余发货时间</th>
+                  <th class="col-after">售后状态</th>
+                  <th>运营备注</th>
+                  <th class="col-action">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+<td>
+                    <div class="prod-info">
+                      <div class="prod-thumb">🖼</div>
+                      <div>
+                        <div class="prod-name">不锈钢保温杯（500ml 银色）</div>
+                        <div class="prod-subno">子订单号：<span class="mono">ORD2026032300101</span></div>
+                        <div class="prod-sku">商城SKU：<span class="mono">SC-A00004-001</span></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><div>星辰商贸</div><div class="supply-source-line"><span class="mono">HZ-A00004-001-DF-A001</span> <button class="copy-btn" onclick="copyText('HZ-A00004-001-DF-A001')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></div></td>
+                  <td><div class="mono">KH-SP-2024-001</div></td>
+                  <td class="price col-price">¥68.00</td>
+                  <td class="col-qty">1</td>
+                  <td><span class="text-danger">−¥12.59</span><div class="coupon-sub">（满减券150元）</div></td>
+                  <td><span class="text-danger">−¥0.67</span><div class="coupon-sub">（苏银豆67）</div></td>
+                  <td class="price col-subtotal">¥54.74</td>
+                  <td class="col-status"><span class="tag tag-green">已发货</span></td>
+                  <td class="col-ship-time"><span class="placeholder-cell">—</span></td>
+                  <td class="col-after"><span class="placeholder-cell">—</span></td>
+                  <td class="col-remark" title="已催供应商发货">已催供应商发货</td>
+                  <td class="col-action"><div class="action-links"><span class="action-link" onclick="openRemarkModal()">备注</span></div></td>
+                </tr>
+                <tr>
+<td>
+                    <div class="prod-info">
+                      <div class="prod-thumb">🖼</div>
+                      <div>
+                        <div class="prod-name">夏季T恤（黑色 L）</div>
+                        <div class="prod-subno">子订单号：<span class="mono">ORD2026032300102</span></div>
+                        <div class="prod-sku">商城SKU：<span class="mono">SC-A00005-002</span></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><div>星辰商贸</div><div class="supply-source-line"><span class="mono">HZ-A00005-002-DF-A001</span> <button class="copy-btn" onclick="copyText('HZ-A00005-002-DF-A001')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></div></td>
+                  <td><span class="placeholder-cell">—</span></td>
+                  <td class="price col-price">¥89.00</td>
+                  <td class="col-qty">2</td>
+                  <td><span class="text-danger">−¥32.96</span><div class="coupon-sub">（满减券150元）</div></td>
+                  <td><span class="text-danger">−¥1.76</span><div class="coupon-sub">（苏银豆176）</div></td>
+                  <td class="price col-subtotal">¥143.28</td>
+                  <td class="col-status"><span class="tag tag-green">已发货</span></td>
+                  <td class="col-ship-time"><span class="placeholder-cell">—</span></td>
+                  <td class="col-after"><span class="placeholder-cell">—</span></td>
+                  <td class="col-remark"><span class="placeholder-cell">—</span></td>
+                  <td class="col-action"><div class="action-links"><span class="action-link" onclick="openRemarkModal()">备注</span></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Package 2 -->
+        <div class="card package-card">
+          <div class="package-card-header">
+            <span class="package-header-title">包裹2（共计1件）📦<span class="express-name">中通快递</span><span class="waybill-no">ZT99887766</span></span>
+            <button class="copy-btn" onclick="copyText('ZT99887766')" title="复制运单号"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+            <span class="tag tag-green">已签收</span>
+            <span class="eta">签收时间 2026-06-18</span>
+            <span class="logistics-toggle" onclick="toggleLogisticsTrack(this)">查看物流轨迹 ▸</span>
+          </div>
+          <div class="logistics-track">
+            <div class="timeline">
+              <div class="tl-item"><div class="tl-dot active"></div><div class="tl-content">已签收，签收人：本人</div><div class="tl-time">2026-06-18 14:22</div></div>
+              <div class="tl-item"><div class="tl-dot"></div><div class="tl-content">快件正在派送中，派送员：李师傅 138****5566</div><div class="tl-time">2026-06-18 08:05</div></div>
+              <div class="tl-item"><div class="tl-dot"></div><div class="tl-content">商家已发货 · 中通快递 ZT99887766</div><div class="tl-time">2026-06-16 11:00</div></div>
+            </div>
+          </div>
+          <div class="package-card-body">
+            <table class="item-table">
+              <colgroup>
+                <col style="width:240px"><col style="width:220px"><col style="width:140px"><col style="width:68px"><col style="width:44px"><col style="width:116px"><col style="width:108px"><col style="width:72px"><col style="width:72px"><col style="width:96px"><col style="width:88px"><col style="width:120px"><col style="width:108px">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>商品</th>
+                  <th>供货来源</th>
+                  <th>客户商品编码</th>
+                  <th class="col-price">销售单价</th>
+                  <th class="col-qty">数量</th>
+                  <th>优惠券</th>
+                  <th>积分抵扣</th>
+                  <th class="col-subtotal">金额小计</th>
+                  <th class="col-status">订单状态</th>
+                  <th class="col-ship-time">剩余发货时间</th>
+                  <th class="col-after">售后状态</th>
+                  <th>运营备注</th>
+                  <th class="col-action">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+<td>
+                    <div class="prod-info">
+                      <div class="prod-thumb">🖼</div>
+                      <div>
+                        <div class="prod-name">便携风扇（白色）</div>
+                        <div class="prod-subno">子订单号：<span class="mono">ORD2026032300103</span></div>
+                        <div class="prod-sku">商城SKU：<span class="mono">SC-A00006-003</span></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><div>星辰商贸</div><div class="supply-source-line"><span class="mono">HZ-A00006-003-DF-A001</span> <button class="copy-btn" onclick="copyText('HZ-A00006-003-DF-A001')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></div></td>
+                  <td><div class="mono">KH-FS-2024-003</div></td>
+                  <td class="price col-price">¥39.00</td>
+                  <td class="col-qty">1</td>
+                  <td><span class="text-danger">−¥7.22</span><div class="coupon-sub">（满减券150元）</div></td>
+                  <td><span class="text-danger">−¥0.39</span><div class="coupon-sub">（苏银豆39）</div></td>
+                  <td class="price col-subtotal">¥31.39</td>
+                  <td class="col-status"><span class="tag tag-green">已完成</span></td>
+                  <td class="col-ship-time"><span class="placeholder-cell">—</span></td>
+                  <td class="col-after"><span class="tag tag-after-done">售后完成</span></td>
+                  <td class="col-remark"><span class="placeholder-cell">—</span></td>
+                  <td class="col-action"><div class="action-links"><span class="action-link" onclick="openRemarkModal()">备注</span></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pending Ship -->
+        <div class="card pending-section" id="pendingSection">
+          <div class="pending-header" id="pendingHeader">⏳ 待发货商品 · 已超时 3h · 建议优先联系供应链催办</div>
+          <div class="package-card-body">
+            <table class="item-table">
+              <colgroup>
+                <col style="width:240px"><col style="width:220px"><col style="width:140px"><col style="width:68px"><col style="width:44px"><col style="width:116px"><col style="width:108px"><col style="width:72px"><col style="width:72px"><col style="width:96px"><col style="width:88px"><col style="width:120px"><col style="width:108px">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>商品</th>
+                  <th>供货来源</th>
+                  <th>客户商品编码</th>
+                  <th class="col-price">销售单价</th>
+                  <th class="col-qty">数量</th>
+                  <th>优惠券</th>
+                  <th>积分抵扣</th>
+                  <th class="col-subtotal">金额小计</th>
+                  <th class="col-status">订单状态</th>
+                  <th class="col-ship-time">剩余发货时间</th>
+                  <th class="col-after">售后状态</th>
+                  <th>运营备注</th>
+                  <th class="col-action">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="pending-item-row pending-row-overdue">
+<td>
+                    <div class="prod-info">
+                      <div class="prod-thumb">🖼</div>
+                      <div>
+                        <div class="prod-name">厨房抹布（3条装）</div>
+                        <div class="prod-subno">子订单号：<span class="mono">ORD2026032300104</span></div>
+                        <div class="prod-sku">商城SKU：<span class="mono">SC-A00007-004</span></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><div>星辰商贸</div><div class="supply-source-line"><span class="mono">HZ-A00007-004-DF-A003</span></div></td>
+                  <td><span class="placeholder-cell">—</span></td>
+                  <td class="price col-price">¥29.00</td>
+                  <td class="col-qty">3</td>
+                  <td><span class="text-danger">−¥16.11</span><div class="coupon-sub">（满减券150元）</div></td>
+                  <td><span class="text-danger">−¥0.86</span><div class="coupon-sub">（苏银豆86）</div></td>
+                  <td class="price col-subtotal">¥70.03</td>
+                  <td class="col-status"><span class="tag tag-orange">待发货</span></td>
+                  <td class="col-ship-time"><span class="ship-time ship-time-overdue" title="承诺时效 24h · 已超时">已超时 3h</span></td>
+                  <td class="col-after"><span class="placeholder-cell">—</span></td>
+                  <td class="col-remark"><span class="placeholder-cell">—</span></td>
+                  <td class="col-action"><div class="action-links"><span class="action-link" onclick="showToast('success','已催办供应链系统')">催办</span><span class="action-link" onclick="openRemarkModal()">备注</span></div></td>
+                </tr>
+                <tr class="pending-item-row pending-row-overdue">
+<td>
+                    <div class="prod-info">
+                      <div class="prod-thumb">🖼</div>
+                      <div>
+                        <div class="prod-name">不锈钢削皮器（经典款）</div>
+                        <div class="prod-subno">子订单号：<span class="mono">ORD2026032300105</span></div>
+                        <div class="prod-sku">商城SKU：<span class="mono">SC-A00015-001</span></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><div>星辰商贸</div><div class="supply-source-line"><span class="mono">HZ-A00015-001-DF-A001</span> <button class="copy-btn" onclick="copyText('HZ-A00015-001-DF-A001')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></div></td>
+                  <td><div class="mono">KH-PK-2024-005</div></td>
+                  <td class="price col-price">¥42.00</td>
+                  <td class="col-qty">1</td>
+                  <td><span class="text-danger">−¥7.78</span><div class="coupon-sub">（满减券150元）</div></td>
+                  <td><span class="text-danger">−¥0.41</span><div class="coupon-sub">（苏银豆41）</div></td>
+                  <td class="price col-subtotal">¥33.81</td>
+                  <td class="col-status"><span class="tag tag-orange">待发货</span></td>
+                  <td class="col-ship-time"><span class="ship-time ship-time-overdue" title="承诺时效 24h · 已超时">已超时 3h</span></td>
+                  <td class="col-after"><span class="placeholder-cell">—</span></td>
+                  <td class="col-remark"><span class="placeholder-cell">—</span></td>
+                  <td class="col-action"><div class="action-links"><span class="action-link" onclick="showToast('success','已催办供应链系统')">催办</span><span class="action-link" onclick="openRemarkModal()">备注</span></div></td>
+                </tr>
+                <tr class="pending-item-row pending-row-overdue">
+<td>
+                    <div class="prod-info">
+                      <div class="prod-thumb">🖼</div>
+                      <div>
+                        <div class="prod-name">便携迷你USB风扇（薄荷绿）</div>
+                        <div class="prod-subno">子订单号：<span class="mono">ORD2026032300107</span></div>
+                        <div class="prod-sku">商城SKU：<span class="mono">SC-A00008-001</span></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><div>博源供应链</div><div class="supply-source-line"><span class="mono">HZ-A00008-001-DF-A002</span> <button class="copy-btn" onclick="copyText('HZ-A00008-001-DF-A002')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></div></td>
+                  <td><span class="placeholder-cell">—</span></td>
+                  <td class="price col-price">¥28.00</td>
+                  <td class="col-qty">1</td>
+                  <td><span class="text-danger">−¥5.19</span><div class="coupon-sub">（满减券150元）</div></td>
+                  <td><span class="text-danger">−¥0.28</span><div class="coupon-sub">（苏银豆28）</div></td>
+                  <td class="price col-subtotal">¥22.53</td>
+                  <td class="col-status"><span class="tag tag-orange">待发货</span></td>
+                  <td class="col-ship-time"><span class="ship-time ship-time-overdue" title="承诺时效 24h · 已超时">已超时 3h</span></td>
+                  <td class="col-after"><span class="placeholder-cell">—</span></td>
+                  <td class="col-remark" title="待仓库拣货">待仓库拣货</td>
+                  <td class="col-action"><div class="action-links"><span class="action-link" onclick="showToast('success','已催办供应链系统')">催办</span><span class="action-link" onclick="openRemarkModal()">备注</span></div></td>
+                </tr>
+                <tr class="pending-item-row pending-row-overdue">
+<td>
+                    <div class="prod-info">
+                      <div class="prod-thumb">🖼</div>
+                      <div>
+                        <div class="prod-name">硅胶防烫锅铲（灰色）</div>
+                        <div class="prod-subno">子订单号：<span class="mono">ORD2026032300108</span></div>
+                        <div class="prod-sku">商城SKU：<span class="mono">SC-A00016-001</span></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><div>华茂通</div><div class="supply-source-line"><span class="mono">HZ-A00016-001-DF-A002</span> <button class="copy-btn" onclick="copyText('HZ-A00016-001-DF-A002')"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></div></td>
+                  <td><div class="mono">KH-GL-2024-008</div></td>
+                  <td class="price col-price">¥35.00</td>
+                  <td class="col-qty">2</td>
+                  <td><span class="text-danger">−¥12.96</span><div class="coupon-sub">（满减券150元）</div></td>
+                  <td><span class="text-danger">−¥0.69</span><div class="coupon-sub">（苏银豆69）</div></td>
+                  <td class="price col-subtotal">¥56.35</td>
+                  <td class="col-status"><span class="tag tag-orange">待发货</span></td>
+                  <td class="col-ship-time"><span class="ship-time ship-time-overdue" title="承诺时效 24h · 已超时">已超时 3h</span></td>
+                  <td class="col-after"><span class="placeholder-cell">—</span></td>
+                  <td class="col-remark"><span class="placeholder-cell">—</span></td>
+                  <td class="col-action"><div class="action-links"><span class="action-link" onclick="showToast('success','已催办供应链系统')">催办</span><span class="action-link" onclick="openRemarkModal()">备注</span></div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Refunded -->
+        <div class="card closed-section">
+          <div class="closed-header">✕ 已退款商品</div>
+          <div class="package-card-body">
+            <table class="item-table">
+              <colgroup>
+                <col style="width:240px"><col style="width:220px"><col style="width:140px"><col style="width:68px"><col style="width:44px"><col style="width:116px"><col style="width:108px"><col style="width:72px"><col style="width:72px"><col style="width:96px"><col style="width:88px"><col style="width:120px"><col style="width:108px">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>商品</th>
+                  <th>供货来源</th>
+                  <th>客户商品编码</th>
+                  <th class="col-price">销售单价</th>
+                  <th class="col-qty">数量</th>
+                  <th>优惠券</th>
+                  <th>积分抵扣</th>
+                  <th class="col-subtotal">金额小计</th>
+                  <th class="col-status">订单状态</th>
+                  <th class="col-ship-time">剩余发货时间</th>
+                  <th class="col-after">售后状态</th>
+                  <th>运营备注</th>
+                  <th class="col-action">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+<td>
+                    <div class="prod-info">
+                      <div class="prod-thumb">🖼</div>
+                      <div>
+                        <div class="prod-name">无线降噪耳机（黑色）</div>
+                        <div class="prod-subno">子订单号：<span class="mono">ORD2026032100701</span></div>
+                        <div class="prod-sku">商城SKU：<span class="mono">SC-A00010-001</span></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><div>星辰商贸</div><div class="supply-source-line"><span class="mono">HZ-A00010-001-DF-A001</span></div></td>
+                  <td><span class="placeholder-cell">—</span></td>
+                  <td class="price col-price">¥279.00</td>
+                  <td class="col-qty">1</td>
+                  <td><span class="text-danger">−¥51.67</span><div class="coupon-sub">（满减券150元）</div></td>
+                  <td><span class="text-danger">−¥2.75</span><div class="coupon-sub">（苏银豆275）</div></td>
+                  <td class="price col-subtotal">¥224.58</td>
+                  <td class="col-status"><span class="tag tag-gray">已关闭</span></td>
+                  <td class="col-ship-time"><span class="placeholder-cell">—</span></td>
+                  <td class="col-after"><span class="tag tag-after-active">退款申请中</span></td>
+                  <td class="col-remark" title="客户申请退款，跟进中">客户申请退款，跟进中</td>
+                  <td class="col-action"><span class="placeholder-cell">—</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Cancelled -->
+        <div class="card closed-section">
+          <div class="closed-header">✕ 已取消商品</div>
+          <div class="package-card-body">
+            <table class="item-table">
+              <colgroup>
+                <col style="width:240px"><col style="width:220px"><col style="width:140px"><col style="width:68px"><col style="width:44px"><col style="width:116px"><col style="width:108px"><col style="width:72px"><col style="width:72px"><col style="width:96px"><col style="width:88px"><col style="width:120px"><col style="width:108px">
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>商品</th>
+                  <th>供货来源</th>
+                  <th>客户商品编码</th>
+                  <th class="col-price">销售单价</th>
+                  <th class="col-qty">数量</th>
+                  <th>优惠券</th>
+                  <th>积分抵扣</th>
+                  <th class="col-subtotal">金额小计</th>
+                  <th class="col-status">订单状态</th>
+                  <th class="col-ship-time">剩余发货时间</th>
+                  <th class="col-after">售后状态</th>
+                  <th>运营备注</th>
+                  <th class="col-action">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+<td>
+                    <div class="prod-info">
+                      <div class="prod-thumb">🖼</div>
+                      <div>
+                        <div class="prod-name">玻璃水杯（350ml）</div>
+                        <div class="prod-subno">子订单号：<span class="mono">ORD2026032300106</span></div>
+                        <div class="prod-sku">商城SKU：<span class="mono">SC-A00008-005</span></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td><div>星辰商贸</div><div class="supply-source-line"><span class="mono">HZ-A00008-005-DF-A001</span></div></td>
+                  <td><div class="mono">KH-CU-2024-006</div></td>
+                  <td class="price col-price">¥19.00</td>
+                  <td class="col-qty">1</td>
+                  <td><span class="text-danger">−¥3.52</span><div class="coupon-sub">（满减券150元）</div></td>
+                  <td><span class="text-danger">−¥0.19</span><div class="coupon-sub">（苏银豆19）</div></td>
+                  <td class="price col-subtotal">¥15.29</td>
+                  <td class="col-status"><span class="tag tag-gray">已关闭</span></td>
+                  <td class="col-ship-time"><span class="placeholder-cell">—</span></td>
+                  <td class="col-after"><span class="placeholder-cell">—</span></td>
+                  <td class="col-remark"><span class="placeholder-cell">—</span></td>
+                  <td class="col-action"><span class="placeholder-cell">—</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="detail-right">
+        <!-- Address Card -->
+        <div class="card">
+          <div class="card-header"><h3>收货信息</h3><div class="card-header-actions"><button class="btn btn-outline btn-sm" onclick="copyReceivingInfo()">一键复制</button><button class="btn btn-outline btn-sm" onclick="openAddressModal()">修改地址</button></div></div>
+          <div class="card-body">
+            <div>
+              <span class="addr-name">张三</span>
+              <span class="addr-phone">138****8888 <button class="eye-btn" onclick="togglePhone(this)" data-masked="138****8888" data-full="13812348888" title="查看完整手机号">👁</button></span>
+            </div>
+            <div class="addr-detail">
+              <span class="addr-text">江苏省南京市建邺区江东中路88号苏宁慧谷</span><span class="addr-warn">⚠ 地址不完整</span>
+            </div>
+            <div class="addr-note">💬 <span style="flex:1;">"请尽快发货，谢谢"</span></div>
+          </div>
+        </div>
+
+        <!-- Buyer Profile -->
+        <div class="card">
+          <div class="card-header"><h3>买家画像</h3></div>
+          <div class="card-body">
+            <div class="buyer-header">
+              <div class="buyer-avatar">张</div>
+              <div class="buyer-name">张三 <span style="margin-left:6px;font-size:12px;font-weight:400;color:var(--text-muted);">【农行商城】</span></div>
+            </div>
+            <div class="profile-grid">
+              <div class="profile-item"><div class="pi-label">注册时间</div><div class="pi-val">2024-03</div></div>
+              <div class="profile-item"><div class="pi-label">购买次数</div><div class="pi-val">12 次</div></div>
+              <div class="profile-item"><div class="pi-label">累计消费</div><div class="pi-val">¥3,580</div></div>
+              <div class="profile-item"><div class="pi-label">退款率</div><div class="pi-val text-warning">8%（近30天 2/25笔）</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fee Detail -->
+        <div class="card">
+          <div class="card-header"><h3>费用明细</h3></div>
+          <div class="card-body">
+            <div class="fee-summary">
+              <div class="fee-row total"><span class="fee-label">订单总金额</span><span class="fee-val">¥9,986.00</span></div>
+              <div class="fee-row paid"><span class="fee-label">实付金额</span><span class="fee-val">¥9,828.00</span></div>
+            </div>
+            <div class="fee-breakdown">
+              <div class="fee-row"><span class="fee-label">运费</span><span class="fee-val" style="color:var(--text-secondary);">+¥10.00</span></div>
+              <div class="fee-row discount"><span class="fee-label">满减券150元</span><span class="fee-val">−¥150.00</span></div>
+              <div class="fee-row"><span class="fee-label">积分抵扣</span><span class="fee-val" style="color:var(--text-secondary);">−¥8.00</span></div>
+            </div>
+            <div class="fee-meta">
+              <div class="fee-meta-row"><span>支付方式</span><span>微信支付</span></div>
+              <div class="fee-meta-row"><span>支付时间</span><span>2024-03-23 14:32:40</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="card">
+          <div class="card-header"><h3>订单时间线</h3><button class="btn btn-outline btn-sm" onclick="showToast('info','功能开发中')">更多</button></div>
+          <div class="card-body timeline">
+            <div class="tl-item">
+              <div class="tl-dot ops active"></div>
+              <div class="tl-content">运营专员 李运营 发起催办 → ORD2026032300104</div>
+              <div class="tl-time">2026-06-22 16:00</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div class="tl-content">ORD2026032300101 已发货 · 圆通速递 YT11881899999</div>
+              <div class="tl-time">2026-06-21 10:20</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div class="tl-content">ORD2026032300103 已签收</div>
+              <div class="tl-time">2026-06-18 14:22</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div class="tl-content">买家已支付 <strong>¥9,828.00</strong>（微信支付）</div>
+              <div class="tl-time">2024-03-23 14:32</div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div class="tl-content">用户提交订单</div>
+              <div class="tl-time">2024-03-23 14:30</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modals -->
+<div id="addressModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><h3>修改收货信息</h3><button class="modal-close" onclick="closeModal('addressModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>收货人姓名 *</label><input type="text" value="张三"></div>
+      <div class="form-group"><label>收货手机号 *</label><input type="tel" value="13812348888"></div>
+      <div class="form-group"><label>收货地址 *</label><input type="text" value="江苏省南京市建邺区江东中路88号苏宁慧谷"></div>
+      <div class="form-group"><label>买家留言</label><textarea rows="2" placeholder="选填">请尽快发货，谢谢</textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addressModal')">取消</button>
+      <button class="btn btn-primary" onclick="closeModal('addressModal');showToast('success','收货信息已更新')">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="remarkModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><h3>运营备注</h3><button class="modal-close" onclick="closeModal('remarkModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>子订单号</label><input type="text" value="ORD2026032300101" readonly style="background:var(--bg-input);"></div>
+      <div class="form-group"><label>商品名称</label><input type="text" value="不锈钢保温杯 500ml 银色" readonly style="background:var(--bg-input);"></div>
+      <div class="form-group"><label>备注内容</label><textarea rows="3" placeholder="输入运营备注（最大500字）">客户要求礼品包装</textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('remarkModal')">取消</button>
+      <button class="btn btn-primary" onclick="closeModal('remarkModal');showToast('success','备注已保存')">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="unifiedRemarkModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-header"><h3>统一备注</h3><button class="modal-close" onclick="closeModal('unifiedRemarkModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>主订单号</label><input type="text" id="unifiedRemarkOrderNo" value="ORD20260323001" readonly style="background:var(--bg-input);"></div>
+      <div class="form-group"><label>适用范围</label><div id="unifiedRemarkScope" style="font-size:13px;color:var(--text-secondary);">将写入本订单下全部子订单的运营备注</div></div>
+      <div class="form-group"><label>备注内容</label><textarea id="unifiedRemarkInput" rows="4" placeholder="输入统一运营备注（最大500字），将覆盖各子订单原有备注"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('unifiedRemarkModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveUnifiedRemark()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// Read order number from URL
+var params=new URLSearchParams(location.search);
+var orderNo=params.get('order')||'ORD20260323001';
+var ORDER_DEMO_MODES={
+  pending:{
+    bannerClass:'shipping',
+    title:'待发货 · 距离承诺发货剩余 6.3h',
+    progressLabel:'0/7 商品已发',
+    progressWidth:'0%',
+    showProgress:true,
+    icon:'clock',
+    showPackages:false,
+    showPending:true,
+    pendingTone:'normal',
+    pendingHeader:'⏳ 待发货商品 · 距离承诺发货剩余 6.3h'
+  },
+  'pending-overdue':{
+    bannerClass:'partial-overdue',
+    title:'待发货 · 4 件待发货 · 已超时 3h',
+    progressLabel:'0/7 商品已发',
+    progressWidth:'0%',
+    showProgress:true,
+    icon:'warning',
+    showPackages:false,
+    showPending:true,
+    pendingTone:'overdue',
+    pendingHeader:'⏳ 待发货商品 · 已超时 3h · 建议优先联系供应链催办'
+  },
+  shipped:{
+    bannerClass:'shipped',
+    title:'商家已发货 · 3 个包裹运输中',
+    progressLabel:'7/7 商品已发',
+    progressWidth:'100%',
+    showProgress:true,
+    icon:'check',
+    showPackages:true,
+    showPending:false,
+    pendingTone:'overdue',
+    pendingHeader:''
+  },
+  partial:{
+    bannerClass:'partial-overdue',
+    title:'部分发货 · 2个包裹（3件商品）已发，4 件待发货 · 已超时 3h',
+    progressLabel:'3/7 商品已发',
+    progressWidth:'42.86%',
+    showProgress:true,
+    icon:'warning',
+    showPackages:true,
+    showPending:true,
+    pendingTone:'overdue',
+    pendingHeader:'⏳ 待发货商品 · 已超时 3h · 建议优先联系供应链催办'
+  }
+};
+var BANNER_SVG={
+  warning:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'
+};
+function applyPendingShipDisplay(isOverdue){
+  document.querySelectorAll('#pendingSection tbody tr.pending-item-row').forEach(function(row){
+    var cell=row.querySelector('.col-ship-time');
+    if(!cell)return;
+    row.classList.toggle('pending-row-overdue',isOverdue);
+    if(isOverdue){
+      cell.innerHTML='<span class="ship-time ship-time-overdue" title="承诺时效 24h · 已超时">已超时 3h</span>';
+    }else{
+      cell.innerHTML='<span class="ship-time ship-time-warning" title="承诺时效 24h">剩余 6.3h</span>';
+    }
+  });
+}
+function switchOrderDemoMode(mode){
+  var cfg=ORDER_DEMO_MODES[mode]||ORDER_DEMO_MODES.partial;
+  var banner=document.getElementById('statusBanner');
+  if(banner){
+    banner.className='status-banner '+cfg.bannerClass;
+  }
+  var iconEl=document.getElementById('statusBannerIcon');
+  if(iconEl)iconEl.innerHTML=BANNER_SVG[cfg.icon]||BANNER_SVG.warning;
+  var titleEl=document.getElementById('statusBannerTitle');
+  if(titleEl)titleEl.textContent=cfg.title;
+  var progressEl=document.getElementById('statusProgress');
+  if(progressEl)progressEl.style.display=cfg.showProgress?'flex':'none';
+  var labelEl=document.getElementById('statusProgressLabel');
+  if(labelEl)labelEl.textContent=cfg.progressLabel;
+  var fillEl=document.getElementById('statusProgressFill');
+  if(fillEl)fillEl.style.width=cfg.progressWidth;
+  document.querySelectorAll('.detail-left .package-card').forEach(function(el){
+    el.style.display=cfg.showPackages?'':'none';
+  });
+  var pending=document.getElementById('pendingSection');
+  if(pending){
+    pending.style.display=cfg.showPending?'':'none';
+    pending.classList.toggle('pending-normal',cfg.pendingTone==='normal');
+  }
+  var pendingHeader=document.getElementById('pendingHeader');
+  if(pendingHeader&&cfg.pendingHeader)pendingHeader.textContent=cfg.pendingHeader;
+  if(cfg.showPending)applyPendingShipDisplay(cfg.pendingTone==='overdue');
+  var urgeBtn=document.getElementById('btnUrgeAll');
+  if(urgeBtn){
+    var canUrge=mode==='pending'||mode==='pending-overdue'||mode==='partial';
+    urgeBtn.disabled=!canUrge;
+    urgeBtn.style.opacity=canUrge?'1':'.45';
+    urgeBtn.style.cursor=canUrge?'pointer':'not-allowed';
+  }
+}
+document.addEventListener('DOMContentLoaded',function(){
+  var el=document.querySelector('.order-no');
+  if(el)el.innerHTML=orderNo+' <button class="copy-btn" onclick="copyText(\''+orderNo+'\')" title="复制主订单号"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>';
+  var demoSel=document.getElementById('orderDemoMode');
+  if(demoSel)switchOrderDemoMode(demoSel.value);
+});
+function copyText(text){
+  navigator.clipboard.writeText(text).then(()=>showToast('success','已复制: '+text));
+}
+function showToast(type,msg){
+  var c=document.getElementById('toastContainer');
+  var t=document.createElement('div');
+  t.className='toast '+(type||'info');
+  t.textContent=msg;
+  c.appendChild(t);
+  setTimeout(function(){t.remove();},2000);
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function openAddressModal(){openModal('addressModal');}
+function copyReceivingInfo(){
+  var name=document.querySelector('.addr-name')?.textContent?.trim()||'';
+  var eye=document.querySelector('.addr-phone .eye-btn');
+  var phone=eye?eye.dataset.full:'';
+  var addr=document.querySelector('.addr-text')?.textContent?.trim()||'';
+  copyText(name+' '+phone+' '+addr);
+}
+function openRemarkModal(){openModal('remarkModal');}
+function countEditableRemarkRows(){
+  var n=0;
+  document.querySelectorAll('.detail-left .item-table tbody tr').forEach(function(row){
+    var action=row.querySelector('.col-action');
+    if(action&&!action.querySelector('.placeholder-cell'))n++;
+  });
+  return n;
+}
+function openUnifiedRemarkModal(){
+  var noInput=document.getElementById('unifiedRemarkOrderNo');
+  if(noInput)noInput.value=orderNo;
+  var scope=document.getElementById('unifiedRemarkScope');
+  var count=countEditableRemarkRows();
+  if(scope)scope.textContent='将写入本订单下 '+count+' 个子订单的运营备注（覆盖各子订单原有备注）';
+  var input=document.getElementById('unifiedRemarkInput');
+  if(input)input.value='';
+  openModal('unifiedRemarkModal');
+}
+function saveUnifiedRemark(){
+  var text=(document.getElementById('unifiedRemarkInput')?.value||'').trim();
+  if(!text){showToast('info','请输入备注内容');return;}
+  var count=0;
+  document.querySelectorAll('.detail-left .item-table tbody tr').forEach(function(row){
+    var action=row.querySelector('.col-action');
+    if(!action||action.querySelector('.placeholder-cell'))return;
+    var cell=row.querySelector('.col-remark');
+    if(!cell)return;
+    cell.innerHTML='';
+    cell.textContent=text;
+    cell.title=text;
+    count++;
+  });
+  closeModal('unifiedRemarkModal');
+  showToast('success','已为 '+count+' 个子订单写入统一备注');
+}
+function toggleLogisticsTrack(el){
+  var card=el.closest('.package-card');
+  var track=card&&card.querySelector('.logistics-track');
+  if(!track)return;
+  var open=track.classList.toggle('open');
+  el.textContent=open?'收起物流轨迹 ▾':'查看物流轨迹 ▸';
+}
+function togglePhone(btn){
+  var p=btn.previousSibling;
+  if(btn.dataset.state==='shown'){
+    p.textContent=btn.dataset.masked;
+    btn.dataset.state='masked';
+  }else{
+    p.textContent=btn.dataset.full;
+    btn.dataset.state='shown';
+    setTimeout(function(){p.textContent=btn.dataset.masked;btn.dataset.state='masked';},5000);
+  }
+}
+</script>
+</body>
+</html>
