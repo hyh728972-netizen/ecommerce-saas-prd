@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>供应链商品池 - 选品后台管理系统</title>
+<!-- 移除Google Fonts引用，改用系统原生字体以避免渲染阻塞 -->
+<style>
+:root {
+  --bg-app: #f4f3f0;
+  --bg-sidebar: #1e1e22;
+  --bg-surface: #ffffff;
+  --bg-hover: #f7f6f4;
+  --bg-input: #f9f8f7;
+  --border: #e6e4e0;
+  --border-light: #f0eeeb;
+  --text-primary: #1a1a1c;
+  --text-secondary: #6b6b70;
+  --text-muted: #99999d;
+  --text-sidebar: #c4c4c9;
+  --text-sidebar-active: #ffffff;
+  --accent: #2d2d33;
+  --accent-soft: #f0eeeb;
+  --red: #da3e3a;
+  --red-bg: #fef4f3;
+  --red-border: #fcd9d7;
+  --orange: #d97706;
+  --orange-bg: #fffbf0;
+  --orange-border: #fde8c4;
+  --blue: #2563eb;
+  --blue-bg: #f5f8ff;
+  --blue-border: #d4e0fc;
+  --green: #16a34a;
+  --green-bg: #f4fdf6;
+  --green-border: #c6f0d4;
+  --purple: #7c3aed;
+  --purple-bg: #faf8ff;
+  --purple-border: #e4dcfc;
+  --teal: #0d9488;
+  --teal-bg: #f5fdfc;
+  --teal-border: #c4f2ed;
+  --gray: #6b7280;
+  --gray-bg: #f8f8f7;
+  --gray-border: #e8e6e3;
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.04);
+  --shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.04);
+  --transition: 160ms ease;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  background: var(--bg-app);
+  color: var(--text-primary);
+  display: flex;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Sidebar ---- */
+.sidebar {
+  width: 232px;
+  min-width: 232px;
+  background: var(--bg-sidebar);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  z-index: 10;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-brand { padding: 20px 20px 28px; border-bottom: 1px solid rgba(255,255,255,.06); }
+.sidebar-brand .logo { font-size: 17px; font-weight: 600; color: #fff; letter-spacing: -.02em; display: flex; align-items: center; gap: 10px; }
+.sidebar-brand .logo svg { flex-shrink: 0; }
+.sidebar-brand .sub { font-size: 11px; color: var(--text-sidebar); margin-top: 2px; letter-spacing: .02em; }
+.sidebar-nav { flex: 1; padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; }
+.nav-section-label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: rgba(255,255,255,.25); padding: 14px 10px 6px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 6px; color: var(--text-sidebar); font-size: 13.5px; cursor: pointer; transition: all var(--transition); text-decoration: none; letter-spacing: .01em; }
+.nav-item:hover { background: rgba(255,255,255,.05); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,.10); color: #fff; font-weight: 500; }
+.nav-item .badge { margin-left: auto; background: var(--red); color: #fff; font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 10px; min-width: 20px; text-align: center; line-height: 18px; }
+.nav-icon { width: 18px; height: 18px; opacity: .55; flex-shrink: 0; }
+.nav-item.active .nav-icon { opacity: 1; }
+
+/* ---- Main ---- */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.topbar { height: 52px; min-height: 52px; background: var(--bg-surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; gap: 16px; z-index: 5; }
+.topbar .breadcrumb { font-size: 12.5px; color: var(--text-muted); letter-spacing: .01em; }
+.topbar .breadcrumb span { color: var(--text-primary); font-weight: 500; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+.topbar-right .user-avatar { width: 30px; height: 30px; border-radius: 50%; background: #e6e4e0; font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); }
+
+.content { display: flex; flex-direction: column; padding: 24px 28px; padding-bottom: 70px; }
+.page-header { margin-bottom: 18px; }
+.page-header h1 { font-size: 22px; font-weight: 600; letter-spacing: -.02em; }
+.page-header p { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+/* ---- Filter Bar ---- */
+.filter-bar { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+.filter-bar select,
+.filter-bar input { height: 36px; padding: 0 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; background: var(--bg-surface); color: var(--text-primary); outline: none; transition: border-color var(--transition); }
+.filter-bar input[type="text"] { width: 260px; }
+.filter-bar input[type="text"]::placeholder { color: var(--text-muted); }
+.filter-bar select { min-width: 150px; }
+.filter-bar select:focus,
+.filter-bar input:focus { border-color: var(--accent); }
+
+.filter-bar .search-hint { position: absolute; font-size: 10px; color: var(--text-muted); pointer-events: none; }
+.filter-bar .search-wrap { position: relative; }
+.filter-bar .search-wrap .search-hint { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--text-muted); pointer-events: none; background: var(--bg-surface); padding: 0 4px; }
+
+.btn { display: inline-flex; align-items: center; padding: 5px 12px; border-radius: var(--radius-sm); font-size: 12px; font-family: inherit; cursor: pointer; border: 1px solid transparent; transition: all var(--transition); white-space: nowrap; font-weight: 500; gap: 5px; }
+.btn-sm { padding: 4px 10px; font-size: 11.5px; }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { opacity: .85; }
+.btn-outline { border-color: var(--border); color: var(--text-primary); background: var(--bg-surface); }
+.btn-outline:hover { border-color: var(--text-muted); background: var(--bg-hover); }
+.btn-filter { height: 36px; padding: 0 16px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; cursor: pointer; font-weight: 500; transition: opacity var(--transition); }
+.btn-filter:hover { opacity: .88; }
+.btn-reset { height: 36px; padding: 0 14px; background: transparent; color: var(--text-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; cursor: pointer; transition: all var(--transition); }
+.btn-reset:hover { border-color: var(--text-muted); color: var(--text-primary); }
+
+/* ---- Table ---- */
+.table-wrap { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); display: flex; flex-direction: column; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: auto; min-width: 1600px; }
+thead th { background: #fafaf9; text-align: left; padding: 11px 14px; font-weight: 500; font-size: 12px; color: var(--text-muted); letter-spacing: .02em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+thead th:first-child { padding-left: 20px; }
+tbody td { padding: 13px 14px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
+tbody td:first-child { padding-left: 20px; }
+tbody tr { transition: background var(--transition); }
+tbody tr:hover { background: var(--bg-hover); }
+tbody tr:last-child td { border-bottom: none; }
+tbody tr.row-main { cursor: pointer; }
+tbody tr.row-main:hover { background: var(--bg-hover); }
+tbody tr.row-sub { background: #fafaf9; }
+tbody tr.row-sub td { padding: 9px 14px; font-size: 12.5px; }
+tbody tr.row-sub td:first-child { padding-left: 40px; }
+tbody tr.row-sub:hover { background: #f4f3f0; }
+.row-main .expand-arrow { display: inline-block; transition: transform var(--transition); font-size: 10px; margin-right: 6px; color: var(--text-muted); }
+.row-main .expand-arrow.expanded { transform: rotate(90deg); }
+
+/* Tags */
+.tag { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 100px; font-size: 11.5px; font-weight: 500; letter-spacing: .01em; white-space: nowrap; }
+.tag-physical { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.tag-virtual { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.tag-hot, .tag-new, .tag-best, .tag-stable, .tag-promo, .tag-quality { background: var(--gray-bg); color: var(--gray); border: 1px solid var(--gray-border); }
+
+.price { font-family: "JetBrains Mono", "Consolas", monospace; font-size: 12.5px; }
+.product-name { font-weight: 500; }
+.product-name .model { font-size: 11.5px; color: var(--text-muted); margin-left: 4px; font-weight: 400; }
+.product-meta { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; display: flex; gap: 10px; align-items: center; }
+.product-thumb { width: 44px; height: 44px; border-radius: var(--radius-sm); background: #e8e6e2; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-right: 10px; vertical-align: middle; }
+.product-thumb.hidden { display: none; }
+.spu-code { font-family: "JetBrains Mono", "Consolas", monospace; font-size: 11px; color: var(--text-muted); }
+.cell-stack { display: flex; flex-direction: column; gap: 2px; }
+.cell-stack .primary { font-size: 13px; }
+.cell-stack .secondary { font-size: 11.5px; color: var(--text-muted); }
+.tags-inline { display: flex; gap: 4px; flex-wrap: wrap; }
+.placeholder-cell { color: var(--text-muted); font-size: 12px; }
+/* Checkbox */
+.checkbox { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
+
+/* Table Footer — fixed */
+.table-footer { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-top: 1px solid var(--border); background: #fafaf9; position: fixed; bottom: 0; left: 232px; right: 0; z-index: 100; box-shadow: 0 -4px 12px rgba(0,0,0,.08); }
+.batch-actions { display: flex; gap: 8px; align-items: center; }
+.batch-actions .selected-info { font-size: 12.5px; color: var(--text-muted); }
+.pagination { display: flex; align-items: center; gap: 4px; }
+.pagination .page-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; cursor: pointer; background: var(--bg-surface); color: var(--text-primary); transition: all var(--transition); }
+.pagination .page-btn:hover { border-color: var(--text-muted); }
+.pagination .page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.pagination .page-btn.disabled { opacity: .35; pointer-events: none; }
+.pagination .page-info { font-size: 12px; color: var(--text-muted); margin: 0 8px; }
+
+/* ---- Empty State ---- */
+.empty-state { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; }
+.empty-state.visible { display: flex; }
+.empty-state .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: .4; }
+.empty-state h3 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.empty-state p { font-size: 13px; color: var(--text-muted); }
+
+/* ---- Modals ---- */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(2px); }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--bg-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 520px; max-width: 90vw; overflow: hidden; animation: modalIn .18s ease; }
+@keyframes modalIn { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.modal-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.modal-header h3 { font-size: 16px; font-weight: 600; letter-spacing: -.01em; }
+.modal-close { width: 28px; height: 28px; border: none; background: none; cursor: pointer; font-size: 18px; color: var(--text-muted); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; transition: all var(--transition); }
+.modal-close:hover { background: var(--bg-hover); color: var(--text-primary); }
+.modal-body { padding: 20px 24px; font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+.modal-body .product-info { background: var(--bg-hover); border-radius: var(--radius-sm); padding: 10px 14px; margin-bottom: 16px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.modal-body .product-info .name { font-weight: 500; color: var(--text-primary); }
+.modal-body .product-info .sku { font-family: "JetBrains Mono", "Consolas", monospace; font-size: 11px; color: var(--text-muted); }
+.modal-body .section-label { font-size: 12.5px; font-weight: 500; color: var(--text-primary); margin-bottom: 8px; }
+.modal-body .hint { font-size: 11.5px; color: var(--text-muted); margin-top: 8px; }
+.modal-body .warning-box { background: #fff8f7; border: 1px solid #fdd9d5; border-radius: var(--radius-sm); padding: 12px 14px; font-size: 12.5px; color: #b53a35; display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; }
+.modal-body .list-options { max-height: 280px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.modal-body .list-options label { display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; font-size: 13px; transition: background var(--transition); border-bottom: 1px solid var(--border-light); }
+.modal-body .list-options label:last-child { border-bottom: none; }
+.modal-body .list-options label:hover { background: var(--bg-hover); }
+.modal-body .list-options input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); flex-shrink: 0; }
+.modal-body .list-options .list-meta { font-size: 11.5px; color: var(--text-muted); margin-left: auto; flex-shrink: 0; }
+.modal-body .list-options .list-status { font-size: 11px; padding: 1px 8px; border-radius: 100px; flex-shrink: 0; }
+.modal-body .list-options .list-status.active-status { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; }
+
+/* Toast */
+.toast-container { position: fixed; top: 24px; right: 24px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+.toast { background: var(--bg-sidebar); color: #fff; padding: 12px 18px; border-radius: var(--radius); font-size: 13px; box-shadow: var(--shadow-lg); animation: toastIn .25s ease; display: flex; align-items: center; gap: 8px; }
+@keyframes toastIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+.toast.success { border-left: 3px solid #16a34a; }
+.toast.info { border-left: 3px solid var(--blue); }
+
+@media (max-width: 1400px) {
+  .sidebar { width: 200px; min-width: 200px; }
+  .content { padding: 20px; }
+  .table-footer { left: 200px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+      选品后台
+    </div>
+    <div class="sub">Selection Management</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">选品管理</div>
+    <a class="nav-item active" href="01.供应链商品池-原型页面.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      供应链商品池
+    </a>
+    <a class="nav-item" href="02.选品清单管理-原型页面.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="6"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      选品清单管理
+    </a>
+    <a class="nav-item" href="03.待处理选品-原型页面.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/></svg>
+      待处理选品
+      <span class="badge">8</span>
+    </a>
+    <a class="nav-item" href="04.渠道商品管理-原型页面.html">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      渠道商品管理
+    </a>
+  </nav>
+</aside>
+
+<!-- Main Content -->
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">选品管理 / <span>供应链商品池</span></div>
+    <div class="topbar-right">
+      <span style="font-size:12px;color:var(--text-muted);">运营专员</span>
+      <div class="user-avatar">李</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="page-header">
+      <h1>供应链商品池</h1>
+      <p>浏览供应链全部可用商品，筛选后加入选品清单进行后续作业</p>
+    </div>
+
+    
+    <div class="filter-bar" id="filterBar">
+      </span>
+      <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="商品名称 / 型号 / SKU编码 / SPU编码" oninput="renderTable()">
+      </div>
+      <select id="categoryFilter" onchange="renderTable()">
+        <option value="all">商品类目: 全部</option>
+        <option value="男装">男装</option>
+        <option value="女装">女装</option>
+        <option value="数码">数码</option>
+        <option value="家居">家居</option>
+        <option value="鞋靴">鞋靴</option>
+        <option value="虚拟商品">虚拟商品</option>
+      </select>
+      <select id="typeFilter" onchange="renderTable()">
+        <option value="all">商品类型: 全部</option>
+        <option value="physical">实物商品</option>
+        <option value="virtual">虚拟商品</option>
+      </select>
+      <button class="btn-filter" onclick="renderTable()">查询</button>
+      <button class="btn-reset" onclick="resetFilters()">重置</button>
+      <button class="btn btn-outline btn-sm" id="btnImageView" onclick="toggleImageView()" style="margin-left:auto;height:28px;">无图显示</button>
+      <button class="btn btn-outline btn-sm" id="btnSPUExpand" onclick="expandAllSPUs()" style="height:28px;">全部展开 ▾</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table id="productTable">
+          <thead>
+            <tr>
+              <th style="width:40px;"><input type="checkbox" class="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th>
+              <th style="width:240px;">商品信息</th>
+              <th style="width:180px;">类目 / 品牌</th>
+              <th style="width:110px;">供应商</th>
+              <th style="width:200px;">商品标签(供应链)</th>
+              <th style="width:90px;">供货价</th>
+              <th style="width:90px;">电商价</th>
+              <th style="width:80px;">库存</th>
+              <th style="width:140px;">发货 / 物流</th>
+              <th style="width:90px;">其他同款</th>
+              <th style="width:100px;">已上架渠道</th>
+              <th style="width:120px;">操作</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8" stroke-width="1.2"/><path d="M1 3h22v5H1z" stroke-width="1.2"/><path d="M10 12h4" stroke-width="1.2"/></svg></div>
+          <h3>暂无匹配商品</h3>
+          <p>请尝试调整筛选条件或搜索关键词</p>
+        </div>
+      <div class="table-footer">
+        <div class="batch-actions">
+          <button class="btn btn-primary btn-sm" onclick="batchAddToList()">批量加入清单</button>
+          <button class="btn btn-outline btn-sm" onclick="batchExport()">批量导出</button>
+          <span class="selected-info" id="selectedInfo">已选 0 项</span>
+        </div>
+        <div class="pagination">
+          <div class="page-btn disabled"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></div>
+          <div class="page-btn active">1</div>
+          <div class="page-btn">2</div>
+          <div class="page-btn">3</div>
+          <div class="page-btn"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>
+          <span class="page-info" id="pageInfo">共 0 条</span>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 加入选品清单 Modal -->
+<div class="modal-overlay" id="addToListModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>加入选品清单</h3>
+      <button class="modal-close" onclick="closeModal('addToListModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="product-info" id="modalProductInfo"></div>
+      <div class="section-label">选择目标清单（可多选）</div>
+      <div class="list-options" id="listOptions"></div>
+      <div class="hint">商品将被添加到所选清单中，已存在于某清单时不会重复添加</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('addToListModal')">取消</button>
+      <button class="btn btn-primary" onclick="confirmAddToList()">确认加入</button>
+    </div>
+  </div>
+</div>
+
+<!-- 重复校验确认 Modal -->
+<div class="modal-overlay" id="duplicateCheckModal">
+  <div class="modal" style="width:560px;">
+    <div class="modal-header">
+      <h3>重复加入确认</h3>
+      <button class="modal-close" onclick="closeModal('duplicateCheckModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="warning-box" style="margin-bottom:16px;">
+        <span style="font-size:16px;">⚠</span>
+        <div id="duplicateSummary"></div>
+      </div>
+      <div style="font-size:12.5px;font-weight:500;color:var(--text-primary);margin-bottom:8px;">已存在于目标清单的商品：</div>
+      <div style="max-height:240px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);" id="duplicateDetailList"></div>
+      <div class="hint" style="margin-top:12px;">重复商品将被跳过，仅加入尚未存在于目标清单的商品</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('duplicateCheckModal')">取消</button>
+      <button class="btn btn-primary" onclick="proceedAddToList()">跳过重复项，继续加入</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ========================================
+// DATA: 选品清单 (for modal)
+// ========================================
+const shoppingLists = [
+  { id:'L1', name:'2024-Q2-航司积分选品', productCount:8, status:'active' },
+  { id:'L2', name:'政企福利-夏季清凉专场', productCount:12, status:'active' },
+  { id:'L3', name:'商城会员购-数码品类', productCount:5, status:'active' },
+  { id:'L4', name:'618大促-精选爆品清单', productCount:16, status:'active' },
+  { id:'L5', name:'2024-Q1-春节礼盒专场', productCount:20, status:'archived' },
+  { id:'L6', name:'双11-美妆护肤精选', productCount:14, status:'archived' },
+];
+
+// Track which products are in which lists (productId → [listId, ...])
+const productListMap = {
+  101: ['L1'],
+  102: ['L1', 'L2'],
+  104: ['L2'],
+  107: ['L3'],
+  111: ['L4'],
+  115: ['L3', 'L4'],
+  120: ['L2'],
+};
+
+// Available channels (品牌商城)
+const channels = [
+  { id:'C1', name:'政企福利商城' },
+  { id:'C2', name:'航司积分小站' },
+  { id:'C3', name:'商城会员购' },
+  { id:'C4', name:'品牌自营旗舰店' },
+];
+
+// Track which products have been pushed to which channels
+const productChannelMap = {
+  101: ['C1', 'C2'],
+  102: ['C1'],
+  105: ['C3'],
+  107: ['C1', 'C3'],
+  111: ['C2'],
+  115: ['C4'],
+  118: ['C3'],
+  123: ['C2', 'C4'],
+};
+
+// ========================================
+// DATA: 供应链商品池
+// ========================================
+const tagPool = [
+  { label: '热销款', cls: 'tag-hot' },
+  { label: '新品上市', cls: 'tag-new' },
+  { label: '最优性价比', cls: 'tag-best' },
+  { label: '稳定供货', cls: 'tag-stable' },
+  { label: '品质优选', cls: 'tag-quality' },
+  { label: '限时促销', cls: 'tag-promo' },
+];
+
+const supplyProducts = [
+  { id:101, name:'夏季纯棉圆领T恤', model:'TSHIRT-002', spu:'SPU20260501001', sku:'SKU20260501001', type:'physical', catL3:'男装 > T恤 > 短袖T恤', brand:'森马', supplier:'星辰商贸', tags:[0,1,2], supplyPrice:'¥85.00', ecomPrice:'¥129.00', stock:2580, warehouse:'华东仓', shipping:'顺丰/中通', logisticsNote:'24h内发货' },
+  { id:102, name:'夏季纯棉圆领T恤', model:'TSHIRT-002-BK', spu:'SPU20260501001', sku:'SKU20260422015', type:'physical', catL3:'数码 > 健康设备 > 体脂秤', brand:'小米', supplier:'星辰商贸', tags:[0,3], supplyPrice:'¥82.00', ecomPrice:'¥139.00', stock:890, warehouse:'华南仓', shipping:'京东物流', logisticsNote:'48h内发货' },
+  { id:103, name:'女士直筒休闲长裤', model:'PANT-228', spu:'SPU20260418033', sku:'SKU20260418033', type:'physical', catL3:'女装 > 裤子 > 休闲裤', brand:'优衣库', supplier:'鹏程优品', tags:[1,4], supplyPrice:'¥95.00', ecomPrice:'¥169.00', stock:320, warehouse:'华东仓', shipping:'中通/圆通', logisticsNote:'24h内发货' },
+  { id:104, name:'不锈钢保温杯500ml', model:'CUP-330', spu:'SPU20260410052', sku:'SKU20260410052', type:'physical', catL3:'家居 > 杯具 > 保温杯', brand:'富光', supplier:'星辰商贸', tags:[2,3], supplyPrice:'¥34.50', ecomPrice:'¥68.00', stock:5200, warehouse:'华中仓', shipping:'韵达/中通', logisticsNote:'24h内发货' },
+  { id:105, name:'加厚保暖羽绒服', model:'DOWN-401', spu:'SPU20260328008', sku:'SKU20260328008', type:'physical', catL3:'男装 > 外套 > 羽绒服', brand:'波司登', supplier:'环球优选', tags:[0,5], supplyPrice:'¥180.00', ecomPrice:'¥359.00', stock:320, warehouse:'华北仓', shipping:'顺丰', logisticsNote:'48h内发货' },
+  { id:106, name:'男士商务休闲皮鞋', model:'SHOE-552', spu:'SPU20260315026', sku:'SKU20260315026', type:'physical', catL3:'鞋靴 > 男鞋 > 商务鞋', brand:'奥康', supplier:'恒通供应链', tags:[2,4], supplyPrice:'¥100.00', ecomPrice:'¥259.00', stock:180, warehouse:'华东仓', shipping:'顺丰', logisticsNote:'48h内发货' },
+  { id:107, name:'4K超清智能投影仪', model:'PROJ-120', spu:'SPU20260405017', sku:'SKU20260405017', type:'physical', catL3:'数码 > 投影设备 > 智能投影仪', brand:'极米', supplier:'鹏程优品', tags:[0,1,2], supplyPrice:'¥520.00', ecomPrice:'¥899.00', stock:156, warehouse:'华南仓', shipping:'顺丰', logisticsNote:'48h内发货' },
+  { id:108, name:'在线教育VIP年卡', model:'EDU-VIP-12M', spu:'SPU20260502001', sku:'SKU20260502001', type:'virtual', catL3:'虚拟商品 > 教育 > 会员卡', brand:'学而思', supplier:'数字服务商A', tags:[1,5], supplyPrice:'¥199.00', ecomPrice:'¥365.00', stock:-1, warehouse:'—', shipping:'自动发货', logisticsNote:'即时到账' },
+  { id:109, name:'视频平台会员季卡', model:'VIDEO-VIP-3M', spu:'SPU20260503002', sku:'SKU20260503002', type:'virtual', catL3:'虚拟商品 > 影音娱乐 > 会员卡', brand:'腾讯视频', supplier:'数字服务商B', tags:[5], supplyPrice:'¥45.00', ecomPrice:'¥78.00', stock:-1, warehouse:'—', shipping:'自动发货', logisticsNote:'即时到账' },
+  { id:110, name:'云存储空间1TB/年', model:'CLOUD-1T-Y', spu:'SPU20260504003', sku:'SKU20260504003', type:'virtual', catL3:'虚拟商品 > 云服务 > 存储', brand:'阿里云', supplier:'数字服务商A', tags:[2,3], supplyPrice:'¥88.00', ecomPrice:'¥158.00', stock:-1, warehouse:'—', shipping:'自动开通', logisticsNote:'即时生效' },
+  { id:111, name:'无线降噪蓝牙耳机', model:'BUD-990', spu:'SPU20260412044', sku:'SKU20260412044', type:'physical', catL3:'数码 > 音频设备 > 蓝牙耳机', brand:'漫步者', supplier:'星辰商贸', tags:[0,2,4], supplyPrice:'¥135.00', ecomPrice:'¥269.00', stock:4320, warehouse:'华东仓', shipping:'中通/圆通', logisticsNote:'24h内发货' },
+  { id:112, name:'电子书阅读器青春版', model:'EREAD-7', spu:'SPU20260408019', sku:'SKU20260408019', type:'physical', catL3:'数码 > 阅读设备 > 电子书', brand:'掌阅', supplier:'恒通供应链', tags:[1,3], supplyPrice:'¥220.00', ecomPrice:'¥399.00', stock:450, warehouse:'华南仓', shipping:'顺丰', logisticsNote:'48h内发货' },
+  { id:113, name:'户外防水冲锋衣', model:'JKT-880', spu:'SPU20260507011', sku:'SKU20260507011', type:'physical', catL3:'男装 > 外套 > 冲锋衣', brand:'探路者', supplier:'环球优选', tags:[0,3,4], supplyPrice:'¥260.00', ecomPrice:'¥499.00', stock:1200, warehouse:'华北仓', shipping:'顺丰/京东', logisticsNote:'24h内发货' },
+  { id:114, name:'女士防晒皮肤衣', model:'UV-335', spu:'SPU20260508012', sku:'SKU20260508012', type:'physical', catL3:'女装 > 外套 > 防晒衣', brand:'蕉下', supplier:'鹏程优品', tags:[0,1], supplyPrice:'¥72.00', ecomPrice:'¥149.00', stock:6800, warehouse:'华东仓', shipping:'中通/韵达', logisticsNote:'24h内发货' },
+  { id:115, name:'智能手表GT4', model:'WATCH-GT4', spu:'SPU20260509020', sku:'SKU20260509020', type:'physical', catL3:'数码 > 穿戴设备 > 智能手表', brand:'华为', supplier:'星辰商贸', tags:[0,1,2], supplyPrice:'¥680.00', ecomPrice:'¥1288.00', stock:450, warehouse:'华南仓', shipping:'顺丰', logisticsNote:'48h内发货' },
+  { id:116, name:'有机山茶油500ml', model:'OIL-021', spu:'SPU20260510030', sku:'SKU20260510030', type:'physical', catL3:'家居 > 食品 > 食用油', brand:'金龙鱼', supplier:'恒通供应链', tags:[3,4], supplyPrice:'¥28.00', ecomPrice:'¥59.00', stock:15000, warehouse:'华中仓', shipping:'中通/圆通', logisticsNote:'24h内发货' },
+  { id:117, name:'电子礼品卡100元', model:'GIFT-100', spu:'SPU20260511005', sku:'SKU20260511005', type:'virtual', catL3:'虚拟商品 > 礼品卡 > 电子卡', brand:'京东', supplier:'数字服务商B', tags:[5], supplyPrice:'¥90.00', ecomPrice:'¥100.00', stock:-1, warehouse:'—', shipping:'自动发放', logisticsNote:'即时到账' },
+  { id:118, name:'男士速干运动短裤', model:'SHORT-662', spu:'SPU20260512045', sku:'SKU20260512045', type:'physical', catL3:'男装 > 裤子 > 运动裤', brand:'安踏', supplier:'环球优选', tags:[0,3], supplyPrice:'¥48.00', ecomPrice:'¥99.00', stock:3800, warehouse:'华北仓', shipping:'韵达/中通', logisticsNote:'24h内发货' },
+  { id:119, name:'家用空气净化器', model:'AIR-P300', spu:'SPU20260513055', sku:'SKU20260513055', type:'physical', catL3:'家居 > 电器 > 净化器', brand:'美的', supplier:'鹏程优品', tags:[0,1,4], supplyPrice:'¥420.00', ecomPrice:'¥799.00', stock:230, warehouse:'华东仓', shipping:'顺丰', logisticsNote:'48h内发货' },
+  { id:120, name:'真皮手提商务包', model:'BAG-881', spu:'SPU20260514066', sku:'SKU20260514066', type:'physical', catL3:'鞋靴 > 箱包 > 商务包', brand:'金利来', supplier:'星辰商贸', tags:[2,3,4], supplyPrice:'¥175.00', ecomPrice:'¥359.00', stock:560, warehouse:'华南仓', shipping:'顺丰/京东', logisticsNote:'24h内发货' },
+  { id:121, name:'音乐平台会员年卡', model:'MUSIC-VIP-Y', spu:'SPU20260515008', sku:'SKU20260515008', type:'virtual', catL3:'虚拟商品 > 影音娱乐 > 会员卡', brand:'网易云音乐', supplier:'数字服务商A', tags:[5], supplyPrice:'¥68.00', ecomPrice:'¥128.00', stock:-1, warehouse:'—', shipping:'自动发货', logisticsNote:'即时到账' },
+  { id:122, name:'女士帆布休闲鞋', model:'CANVAS-112', spu:'SPU20260425070', sku:'SKU20260425070', type:'physical', catL3:'鞋靴 > 女鞋 > 帆布鞋', brand:'回力', supplier:'恒通供应链', tags:[0,2,3], supplyPrice:'¥38.00', ecomPrice:'¥79.00', stock:9600, warehouse:'华中仓', shipping:'中通/韵达', logisticsNote:'24h内发货' },
+  { id:123, name:'便携式蓝牙音箱', model:'SPK-550', spu:'SPU20260516088', sku:'SPU20260516088', type:'physical', catL3:'数码 > 音频设备 > 蓝牙音箱', brand:'JBL', supplier:'鹏程优品', tags:[0,1,5], supplyPrice:'¥155.00', ecomPrice:'¥299.00', stock:780, warehouse:'华南仓', shipping:'顺丰', logisticsNote:'48h内发货' },
+  { id:124, name:'有机绿茶礼盒装', model:'TEA-200', spu:'SPU20260430035', sku:'SPU20260430035', type:'physical', catL3:'家居 > 食品 > 茶叶', brand:'八马', supplier:'环球优选', tags:[2,4], supplyPrice:'¥56.00', ecomPrice:'¥128.00', stock:3400, warehouse:'华东仓', shipping:'韵达/中通', logisticsNote:'24h内发货' },
+  { id:125, name:'儿童防蓝光眼镜', model:'GLASS-K01', spu:'SPU20260502099', sku:'SPU20260502099', type:'physical', catL3:'家居 > 眼镜 > 防蓝光镜', brand:'可得', supplier:'星辰商贸', tags:[1,4], supplyPrice:'¥62.00', ecomPrice:'¥139.00', stock:2100, warehouse:'华北仓', shipping:'中通/圆通', logisticsNote:'24h内发货' },
+];
+
+// ========================================
+// RENDER
+// ========================================
+function getStockDisplay(stock) {
+  if (stock < 0) return '<span class="price">—</span>';
+  if (stock === 0) return '<span class="price" style="color:var(--red);">0</span>';
+  return '<span class="price">' + stock.toLocaleString() + '</span>';
+}
+
+function getLogisticsDisplay(row) {
+  if (row.type === 'virtual') {
+    return '<div style="font-size:13px;">' + row.shipping + '</div><div style="font-size:11.5px;color:var(--text-muted);">' + row.logisticsNote + '</div>';
+  }
+  return '<div style="font-size:13px;">' + row.shipping + '</div><div style="font-size:11.5px;color:var(--text-muted);">' + row.warehouse + ' · ' + row.logisticsNote + '</div>';
+}
+
+function getChannelCell(productId) {
+  var channelIds = productChannelMap[productId];
+  if (!channelIds || channelIds.length === 0) return '<span class="placeholder-cell">—</span>';
+  var names = channelIds.map(function(cid) {
+    var ch = channels.find(function(c) { return c.id === cid; });
+    return ch ? ch.name : cid;
+  });
+  if (names.length <= 1) {
+    return '<span style="font-size:12.5px;">' + names[0] + '</span>';
+  }
+  return '<span style="font-size:12.5px;">' + names[0] + '</span><div style="font-size:10.5px;color:var(--text-muted);">等' + names.length + '个渠道</div>';
+}
+
+function renderTags(tagIndices) {
+  return tagIndices.map(function(i) {
+    var t = tagPool[i];
+    return '<span class="tag ' + t.cls + '">' + t.label + '</span>';
+  }).join('');
+}
+
+function getFilteredProducts() {
+  var search = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  var catFilter = document.getElementById('categoryFilter').value;
+  var typeFilter = document.getElementById('typeFilter').value;
+
+  return supplyProducts.filter(function(p) {
+    // Category filter
+    if (catFilter !== 'all' && p.catL3.indexOf(catFilter) === -1) {
+      // Check if top-level category matches
+      var topCat = p.catL3.split(' > ')[0];
+      if (topCat !== catFilter) return false;
+    }
+    // Type filter
+    if (typeFilter !== 'all' && p.type !== typeFilter) return false;
+    // Search filter (fuzzy: name, model, sku, spu)
+    if (search) {
+      var haystack = (p.name + ' ' + p.model + ' ' + p.sku + ' ' + p.spu).toLowerCase();
+      if (haystack.indexOf(search) === -1) return false;
+    }
+    return true;
+  });
+}
+
+var expandedSPUs = {}; // spu → bool
+var spuAllExpanded = false;
+var showImages = true; // 有图/无图显示切换
+
+function getThumbColor(str) {
+  var hash = 0;
+  for (var i = 0; i < str.length; i++) { hash = str.charCodeAt(i) + ((hash << 5) - hash); }
+  var colors = ['#dbeafe','#d1fae5','#fef3c7','#ede9fe','#fce7f3','#e0e7ff','#d1fae5','#ffedd5'];
+  return colors[Math.abs(hash) % colors.length];
+}
+
+function renderTable() {
+  var tbody = document.getElementById('tableBody');
+  var empty = document.getElementById('emptyState');
+  var table = document.getElementById('productTable');
+  var products = getFilteredProducts();
+
+  if (products.length === 0) {
+    tbody.innerHTML = '';
+    empty.classList.add('visible');
+    table.style.display = 'none';
+    document.getElementById('pageInfo').textContent = '共 0 条';
+    return;
+  }
+
+  empty.classList.remove('visible');
+  table.style.display = '';
+
+  // Group by SPU
+  var spuMap = {};
+  products.forEach(function(row) {
+    if (!spuMap[row.spu]) spuMap[row.spu] = { name:row.name, spu:row.spu, catL3:row.catL3, brand:row.brand, tags:row.tags, skus:[] };
+    spuMap[row.spu].skus.push(row);
+  });
+  var spus = Object.values(spuMap);
+
+  var html = '';
+  spus.forEach(function(spu) {
+    var isExp = expandedSPUs[spu.spu];
+    var prices = spu.skus.map(function(s){ return parseInt(s.supplyPrice.replace('¥','')); });
+    var eprices = spu.skus.map(function(s){ return parseInt(s.ecomPrice.replace('¥','')); });
+    var pMin=Math.min.apply(null,prices), pMax=Math.max.apply(null,prices);
+    var eMin=Math.min.apply(null,eprices), eMax=Math.max.apply(null,eprices);
+    var priceRange = pMin===pMax ? '¥'+pMin : '¥'+pMin+'-¥'+pMax;
+    var epriceRange = eMin===eMax ? '¥'+eMin : '¥'+eMin+'-¥'+eMax;
+    var totalStock = spu.skus.reduce(function(s,sk){ return s+(sk.stock>0?sk.stock:0); },0);
+    var allVirtual = spu.skus.every(function(sk){ return sk.type==='virtual'; });
+    var allPhysical = spu.skus.every(function(sk){ return sk.type==='physical'; });
+    var stockDisplay = allVirtual ? '<span class="placeholder-cell">—</span>' : '<span class="price">'+totalStock.toLocaleString()+'</span>';
+    var spuTypeTag = allPhysical ? '<span class="tag tag-physical">实物商品</span>' : allVirtual ? '<span class="tag tag-virtual">虚拟商品</span>' : '';
+    var suppliers = []; spu.skus.forEach(function(s){ if(suppliers.indexOf(s.supplier)<0) suppliers.push(s.supplier); });
+    var suppAgg = suppliers.length===1 ? suppliers[0] : suppliers[0]+'<br><span style="font-size:11px;color:var(--text-muted);">等'+suppliers.length+'个供应商</span>';
+    var chCount = 0; spu.skus.forEach(function(s){ var chs = productChannelMap[s.id]||[]; chCount += chs.length; });
+    var allTags = spu.tags||[];
+
+    var thumbClass = showImages ? 'product-thumb' : 'product-thumb hidden';
+    var thumbHTML = '<span class="'+thumbClass+'" style="background:'+getThumbColor(spu.name)+';">'+spu.name.charAt(0)+'</span>';
+    html += '<tr class="row-main" data-spu="'+spu.spu+'" onclick="toggleSPU(\''+spu.spu+'\')">'
+      + '<td onclick="event.stopPropagation()"><input type="checkbox" class="checkbox row-check" data-spu="'+spu.spu+'" onchange="onSPUCheck(this,\''+spu.spu+'\')"></td>'
+      + '<td>'+thumbHTML+'<span class="expand-arrow'+(isExp?' expanded':'')+'"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span><span class="product-name">'+spu.name+'</span><div class="product-meta"><span class="spu-code">'+spu.spu+'</span>'+spuTypeTag+'</div></td>'
+      + '<td><div class="cell-stack"><span class="primary">'+spu.catL3+'</span><span class="secondary">品牌：'+spu.brand+'</span></div></td>'
+      + '<td>'+suppAgg+'</td>'
+      + '<td><div class="tags-inline">'+renderTags(allTags)+'</div></td>'
+      + '<td class="price">'+priceRange+'</td>'
+      + '<td class="price">'+epriceRange+'</td>'
+      + '<td>'+stockDisplay+'</td>'
+      + '<td><span class="placeholder-cell">—</span></td>'
+      + '<td><span class="placeholder-cell">—</span></td>'
+      + '<td><span class="placeholder-cell">—</span></td>'
+      + '<td><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();" title="查看详情">查看</button> <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();openAddToListModal('+spu.skus[0].id+')">加入选品清单</button></td>'
+      + '</tr>';
+
+    if (isExp) {
+      spu.skus.forEach(function(sku) {
+        var typeTag = sku.type === 'physical' ? '<span class="tag tag-physical">实物商品</span>' : '<span class="tag tag-virtual">虚拟商品</span>';
+        var sThumbClass = showImages ? 'product-thumb' : 'product-thumb hidden';
+        var sThumbHTML = '<span class="'+sThumbClass+'" style="width:36px;height:36px;font-size:10px;background:'+getThumbColor(sku.model)+';">'+sku.model.charAt(0)+'</span>';
+        html += '<tr class="row-sub" data-id="'+sku.id+'" data-spu="'+sku.spu+'">'
+          + '<td onclick="event.stopPropagation()"><input type="checkbox" class="checkbox row-check" data-id="'+sku.id+'" data-spu="'+sku.spu+'" onchange="onSKUCheck(this,\''+sku.spu+'\')"></td>'
+          + '<td>'+sThumbHTML+'<span class="product-name" style="font-size:12.5px;">└ SKU: '+sku.model+'<span class="model">'+sku.sku+'</span></span></td>'
+          + '<td></td>'
+          + '<td>'+sku.supplier+'</td>'
+          + '<td></td>'
+          + '<td class="price">'+sku.supplyPrice+'</td>'
+          + '<td class="price">'+sku.ecomPrice+'</td>'
+          + '<td>'+(sku.type==='virtual'?'<span class="placeholder-cell">—</span>':'<span class="price">'+sku.stock.toLocaleString()+'</span>')+'</td>'
+          + '<td>'+getLogisticsDisplay(sku)+'</td>'
+          + '<td>'+getSimilarCell(sku.id)+'</td>'
+          + '<td>'+getChannelCell(sku.id)+'</td>'
+          + '<td><button class="btn btn-outline btn-sm" onclick="event.stopPropagation();" title="查看详情">查看</button> <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();openAddToListModal('+sku.id+')">加入选品清单</button></td>'
+          + '</tr>';
+      });
+    }
+  });
+  tbody.innerHTML = html;
+  document.getElementById('pageInfo').textContent = '共 '+spus.length+' 个SPU · '+products.length+' 个SKU';
+}
+
+function toggleSPU(spu) { expandedSPUs[spu]=!expandedSPUs[spu]; spuAllExpanded=false; renderTable(); updateExpandBtn(); }
+function toggleImageView() {
+  showImages = !showImages;
+  var btn = document.getElementById('btnImageView');
+  if (btn) btn.textContent = showImages ? '无图显示' : '有图显示';
+  renderTable();
+}
+function expandAllSPUs() {
+  spuAllExpanded=!spuAllExpanded;
+  if (spuAllExpanded) {
+    var products = getFilteredProducts();
+    products.forEach(function(p){ expandedSPUs[p.spu]=true; });
+  } else expandedSPUs = {};
+  renderTable(); updateExpandBtn();
+}
+function updateExpandBtn() {
+  var btn = document.getElementById('btnSPUExpand'); if(!btn)return;
+  if (spuAllExpanded && Object.values(expandedSPUs).every(function(v){return v;})) { btn.textContent='全部收起 ▴'; spuAllExpanded=true; }
+  else if (Object.values(expandedSPUs).every(function(v){return !v;})) { btn.textContent='全部展开 ▾'; spuAllExpanded=false; }
+  else { btn.textContent='全部展开 ▾'; spuAllExpanded=false; }
+}
+function onSPUCheck(cb, spu) {
+  document.querySelectorAll('.row-check[data-spu="'+spu+'"]').forEach(function(c){ c.checked=cb.checked; });
+  updateSelection();
+}
+function onSKUCheck(cb, spu) {
+  var skuCbs = document.querySelectorAll('.row-check[data-spu="'+spu+'"][data-id]');
+  var all = true, none = true;
+  skuCbs.forEach(function(c){ if(c.checked) none=false; else all=false; });
+  var spuCb = document.querySelector('.row-check[data-spu="'+spu+'"]:not([data-id])');
+  if (spuCb) { spuCb.checked = all; spuCb.indeterminate = !all && !none; }
+  updateSelection();
+}
+
+// Other similar products (same product, different suppliers)
+var similarMap = { 101:2, 102:2, 104:1, 111:1, 115:2, 123:1 };
+function getSimilarCell(id) {
+  var count = similarMap[id];
+  if (count) return '<span class="tag" style="background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border);">'+count+'个同款</span>';
+  return '<span class="placeholder-cell">—</span>';
+}
+
+// ========================================
+// MODAL: 加入选品清单
+// ========================================
+var currentProductId = null;
+
+function openAddToListModal(productId) {
+  currentProductId = productId;
+  window._batchIds = null;
+  var product = supplyProducts.find(function(p) { return p.id === productId; });
+  if (!product) return;
+
+  // Product info header
+  document.getElementById('modalProductInfo').innerHTML =
+    '<span style="font-size:16px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg></span>'
+    + '<div>'
+    +   '<div class="name">' + product.name + '</div>'
+    +   '<div class="sku">' + product.sku + ' · ' + product.model + '</div>'
+    + '</div>';
+
+  // List options (only active lists)
+  var activeLists = shoppingLists.filter(function(l) { return l.status === 'active'; });
+  document.getElementById('listOptions').innerHTML = activeLists.map(function(l) {
+    return '<label>'
+      + '<input type="checkbox" value="' + l.id + '">'
+      + '<span>' + l.name + '</span>'
+      + '<span class="list-status active-status">进行中</span>'
+      + '<span class="list-meta">' + l.productCount + '件商品</span>'
+      + '</label>';
+  }).join('');
+
+  openModal('addToListModal');
+}
+
+// ========================================
+// FILTERS
+// ========================================
+function resetFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('categoryFilter').value = 'all';
+  document.getElementById('typeFilter').value = 'all';
+  renderTable();
+}
+
+// ========================================
+// SELECTION
+// ========================================
+function toggleSelectAll(el) {
+  document.querySelectorAll('.row-check:not([data-id])').forEach(function(cb) { cb.checked = el.checked; onSPUCheck(cb, cb.dataset.spu); });
+  updateSelection();
+}
+
+function updateSelection() {
+  var count = document.querySelectorAll('.row-check[data-id]:checked').length;
+  document.getElementById('selectedInfo').textContent = '已选 ' + count + ' 项';
+}
+
+function getSelectedProductIds() {
+  var checked = document.querySelectorAll('.row-check[data-id]:checked');
+  return [].map.call(checked, function(cb) { return parseInt(cb.dataset.id); });
+}
+
+// ========================================
+// BATCH OPERATIONS
+// ========================================
+function batchAddToList() {
+  var ids = getSelectedProductIds();
+  if (ids.length === 0) { showToast('info', '请至少勾选一个商品'); return; }
+  // Use first selected product for the modal display
+  currentProductId = ids[0];
+  window._batchIds = ids;
+  var product = supplyProducts.find(function(p) { return p.id === ids[0]; });
+  if (!product) return;
+
+  var label = ids.length === 1
+    ? product.name
+    : product.name + ' 等 <strong>' + ids.length + '</strong> 个商品';
+
+  document.getElementById('modalProductInfo').innerHTML =
+    '<span style="font-size:16px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg></span>'
+    + '<div>'
+    +   '<div class="name">' + label + '</div>'
+    +   '<div class="sku">' + product.sku + ' · ' + product.model + '</div>'
+    + '</div>';
+
+  var activeLists = shoppingLists.filter(function(l) { return l.status === 'active'; });
+  document.getElementById('listOptions').innerHTML = activeLists.map(function(l) {
+    return '<label>'
+      + '<input type="checkbox" value="' + l.id + '">'
+      + '<span>' + l.name + '</span>'
+      + '<span class="list-status active-status">进行中</span>'
+      + '<span class="list-meta">' + l.productCount + '件商品</span>'
+      + '</label>';
+  }).join('');
+
+  openModal('addToListModal');
+}
+
+function confirmAddToList() {
+  var checked = document.querySelectorAll('#listOptions input:checked');
+  if (checked.length === 0) {
+    showToast('info', '请至少选择一个选品清单');
+    return;
+  }
+
+  var productIds = window._batchIds || [currentProductId];
+  var selectedListIds = [].map.call(checked, function(cb) { return cb.value; });
+
+  // Detect duplicates: for each (productId, listId) pair, check if already exists
+  var duplicates = []; // { productId, productName, listId, listName }
+  var newProductIds = [];
+  productIds.forEach(function(pid) {
+    var existingLists = productListMap[pid] || [];
+    var dupLists = selectedListIds.filter(function(lid) { return existingLists.indexOf(lid) !== -1; });
+    var product = supplyProducts.find(function(p) { return p.id === pid; });
+    if (dupLists.length > 0) {
+      dupLists.forEach(function(lid) {
+        var list = shoppingLists.find(function(l) { return l.id === lid; });
+        duplicates.push({
+          productId: pid,
+          productName: product ? product.name + ' (' + product.model + ')' : '商品#' + pid,
+          listId: lid,
+          listName: list ? list.name : lid
+        });
+      });
+    }
+    // Check if this product has ANY new lists to add to
+    var newLists = selectedListIds.filter(function(lid) { return existingLists.indexOf(lid) === -1; });
+    if (newLists.length > 0) {
+      newProductIds.push(pid);
+    }
+  });
+
+  // Store state for proceedAddToList
+  window._pendingAdd = {
+    productIds: productIds,
+    newProductIds: newProductIds,
+    selectedListIds: selectedListIds,
+    duplicates: duplicates
+  };
+
+  if (duplicates.length > 0) {
+    // Close list selection modal, open duplicate confirmation
+    closeModal('addToListModal');
+
+    var totalProducts = productIds.length;
+    var duplicateProductIds = [];
+    duplicates.forEach(function(d) {
+      if (duplicateProductIds.indexOf(d.productId) === -1) duplicateProductIds.push(d.productId);
+    });
+
+    document.getElementById('duplicateSummary').innerHTML =
+      '<strong>' + duplicateProductIds.length + '</strong> 个商品已存在于 <strong>' + selectedListIds.length + '</strong> 个目标清单中的部分清单，'
+      + '剩余 <strong>' + newProductIds.length + '</strong> 个商品可正常加入。';
+
+    // Build detail list grouped by product
+    var detailHtml = '';
+    var seenPids = {};
+    duplicates.forEach(function(d) {
+      if (seenPids[d.productId]) return;
+      seenPids[d.productId] = true;
+      var productDups = duplicates.filter(function(x) { return x.productId === d.productId; });
+      detailHtml += '<div style="padding:10px 14px;border-bottom:1px solid var(--border-light);font-size:12.5px;">'
+        + '<div style="font-weight:500;color:var(--text-primary);">' + d.productName + '</div>'
+        + '<div style="color:var(--red);margin-top:2px;">已在以下清单中：' + productDups.map(function(x) { return x.listName; }).join('、') + '</div>'
+        + '</div>';
+    });
+    document.getElementById('duplicateDetailList').innerHTML = detailHtml;
+
+    openModal('duplicateCheckModal');
+  } else {
+    // No duplicates, proceed directly
+    doAddToList(productIds, selectedListIds);
+    closeModal('addToListModal');
+    finishAddToList(productIds, selectedListIds);
+  }
+}
+
+function proceedAddToList() {
+  var pending = window._pendingAdd;
+  if (!pending) return;
+  closeModal('duplicateCheckModal');
+  doAddToList(pending.newProductIds, pending.selectedListIds);
+  finishAddToList(pending.productIds, pending.selectedListIds);
+}
+
+function doAddToList(productIds, selectedListIds) {
+  selectedListIds.forEach(function(lid) {
+    var list = shoppingLists.find(function(l) { return l.id === lid; });
+    if (!list) return;
+    productIds.forEach(function(pid) {
+      // Record in productListMap
+      if (!productListMap[pid]) productListMap[pid] = [];
+      if (productListMap[pid].indexOf(lid) === -1) {
+        productListMap[pid].push(lid);
+        list.productCount += 1;
+      }
+    });
+  });
+}
+
+function finishAddToList(productIds, selectedListIds) {
+  var listNames = selectedListIds.map(function(lid) {
+    var list = shoppingLists.find(function(l) { return l.id === lid; });
+    return list ? list.name : lid;
+  });
+
+  var duplicates = window._pendingAdd ? window._pendingAdd.duplicates : [];
+  var addedCount = window._pendingAdd ? window._pendingAdd.newProductIds.length : productIds.length;
+  var skippedCount = duplicates.length > 0
+    ? (new Set(duplicates.map(function(d) { return d.productId; }))).size
+    : 0;
+
+  var msg = '已添加 ' + addedCount + ' 个商品至 ' + listNames.length + ' 个清单：' + listNames.join('、');
+  if (skippedCount > 0) {
+    msg += '（跳过 ' + skippedCount + ' 个已在清单中的商品）';
+  }
+  showToast('success', msg);
+
+  // Clear selection
+  document.querySelectorAll('.row-check:checked').forEach(function(cb) { cb.checked = false; });
+  document.getElementById('selectAll').checked = false;
+  updateSelection();
+  currentProductId = null;
+  window._batchIds = null;
+  window._pendingAdd = null;
+
+  // Refresh table to update 已上架渠道 column
+  renderTable();
+}
+
+function batchExport() {
+  var ids = getSelectedProductIds();
+  var selected = ids.length > 0
+    ? supplyProducts.filter(function(p) { return ids.indexOf(p.id) > -1; })
+    : supplyProducts;
+  if (selected.length === 0) { showToast('info', '当前无商品可导出'); return; }
+
+  // Simulate CSV download
+  var header = '商品名称,型号,SPU编码,SKU编码,商品类型,类目,品牌,供应商,供货价,电商价,库存\n';
+  var csv = header + selected.map(function(r) {
+    return '"' + r.name + '","' + r.model + '","' + r.spu + '","' + r.sku + '","' + (r.type === 'physical' ? '实物' : '虚拟') + '","' + r.catL3 + '","' + r.brand + '","' + r.supplier + '","' + r.supplyPrice + '","' + r.ecomPrice + '","' + (r.stock < 0 ? '不适用' : r.stock) + '"';
+  }).join('\n');
+  var blob = new Blob(['﻿' + csv], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8;' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  var now = new Date();
+  var ts = now.getFullYear() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0') + '_' + String(now.getHours()).padStart(2,'0') + String(now.getMinutes()).padStart(2,'0') + String(now.getSeconds()).padStart(2,'0');
+  a.href = url;
+  a.download = '供应链商品池导出_' + ts + '.xlsx';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('success', '已导出 ' + selected.length + ' 条商品数据');
+  // Clear selection after export
+  document.querySelectorAll('.row-check:checked').forEach(function(cb) { cb.checked = false; });
+  document.getElementById('selectAll').checked = false;
+  updateSelection();
+}
+
+// ========================================
+// MODAL HELPERS
+// ========================================
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) closeModal(this.id);
+  });
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(function(m) {
+      m.classList.remove('open');
+    });
+  }
+});
+
+// ========================================
+// TOAST
+// ========================================
+function showToast(type, msg) {
+  var container = document.getElementById('toastContainer');
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(function() {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(20px)';
+    toast.style.transition = 'all .2s ease';
+    setTimeout(function() { toast.remove(); }, 200);
+  }, 2500);
+}
+
+// ========================================
+// INIT
+// ========================================
+renderTable();
+</script>
+</body>
+</html>
