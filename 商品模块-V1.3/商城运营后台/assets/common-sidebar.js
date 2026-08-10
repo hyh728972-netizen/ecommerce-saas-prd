@@ -11,6 +11,7 @@
     grid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
     search: '<circle cx="11" cy="11" r="6"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
     pending: '<polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/><line x1="12" y1="22" x2="12" y2="15.5"/><polyline points="22 8.5 12 15.5 2 8.5"/>',
+    combo: '<rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/><line x1="11" y1="7" x2="13" y2="7"/><line x1="7" y1="11" x2="7" y2="13"/>',
     channel: '<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',
     category: '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/>',
     tag: '<path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>',
@@ -27,13 +28,15 @@
     shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
     log: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
     platform: '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="5" y1="4" x2="5" y2="16"/>',
-    logo: '<rect x="3" y="3" width="18" height="18" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>'
+    logo: '<rect x="3" y="3" width="18" height="18" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/>',
+    combo: '<rect x="4" y="4" width="7" height="7" rx="1"/><rect x="12" y="4" width="8" height="8" rx="1"/><rect x="4" y="12" width="9" height="8" rx="1"/><rect x="13" y="12" width="7" height="7" rx="1"/>'
   };
 
   /** 子页面归属：详情/配置页高亮父级菜单 */
   var PAGE_ACTIVE_MAP = {
     '05.定价推品配置页-原型页面.html': 'selection-list',
     '10.商品详情页-原型页面.html': 'channel-products',
+    '22.组合商品详情页-原型页面.html': 'combo-product',
     '17.商城订单详情页-原型页面.html': 'order-list',
     '18.售后监控列表-原型页面.html': 'aftersale-list',
     '19.售后详情页-原型页面.html': 'aftersale-list'
@@ -44,7 +47,7 @@
       id: 'home',
       type: 'item',
       label: '工作台首页',
-      href: '#',
+      href: '00.工作台首页-原型页面.html',
       icon: 'home'
     },
     {

@@ -261,44 +261,6 @@ body {
 .table-panel > .table-wrap { border: none; border-radius: 0; background: transparent; }
 
 /* Multi-select dropdown */
-.multi-select { position: relative; }
-.multi-select-trigger {
-  height: 36px;
-  padding: 0 32px 0 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  background: var(--bg-surface);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 180px;
-  transition: border-color var(--transition);
-  white-space: nowrap;
-}
-.multi-select-trigger:hover { border-color: var(--accent); }
-.multi-select-trigger .arrow { margin-left: auto; color: var(--text-muted); font-size: 10px; }
-.multi-select-dropdown {
-  display: none;
-  position: absolute; top: 40px; left: 0;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-lg);
-  z-index: 20;
-  min-width: 200px;
-  padding: 6px;
-}
-.multi-select-dropdown.open { display: block; }
-.multi-select-dropdown label {
-  display: flex; align-items: center; gap: 8px;
-  padding: 7px 10px; border-radius: var(--radius-sm);
-  font-size: 13px; cursor: pointer;
-  transition: background var(--transition);
-}
-.multi-select-dropdown label:hover { background: var(--bg-hover); }
-.multi-select-dropdown input[type="checkbox"] { accent-color: var(--accent); }
 
 .filter-bar .btn-filter {
   height: 36px;
@@ -336,9 +298,10 @@ body {
   display: flex;
   flex-direction: column;
 }
-.table-scroll { }
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table {
   width: 100%;
+  min-width: 1720px;
   border-collapse: collapse;
   font-size: 13px;
   table-layout: fixed;
@@ -528,6 +491,8 @@ td.cell-reason { vertical-align: middle; }
 .modal-close:hover { background: var(--bg-hover); color: var(--text-primary); }
 .modal-body { padding: 20px 24px; }
 .modal-body .form-group { margin-bottom: 16px; }
+#priceModal > .modal, #forceListModal > .modal { display: flex; flex-direction: column; height: 500px; }
+#priceModal .modal-body, #forceListModal .modal-body { overflow-y: auto; flex: 1; min-height: 0; }
 .modal-body .form-group:last-child { margin-bottom: 0; }
 .modal-body label {
   display: block; font-size: 12.5px; font-weight: 500;
@@ -720,40 +685,35 @@ td.cell-reason { vertical-align: middle; }
     <div class="table-panel">
     <!-- Filter Bar -->
     <div class="filter-bar">
-      <div class="multi-select" id="problemTypeFilter">
-        <div class="multi-select-trigger" onclick="toggleDropdown('problemTypeFilter')">
-          问题类型: 全部 <span style="color:var(--text-muted);font-size:11px;">(7类)</span>
-          <span class="arrow">▾</span>
-        </div>
-        <div class="multi-select-dropdown" id="problemTypeDropdown">
-          <label><input type="checkbox" value="duplicate" checked onchange="updateMultiSelect('problemTypeFilter')"> <span class="tag tag-duplicate">重复数据</span></label>
-          <label><input type="checkbox" value="profit" checked onchange="updateMultiSelect('problemTypeFilter')"> <span class="tag tag-profit">利润预警</span></label>
-          <label><input type="checkbox" value="supplier" checked onchange="updateMultiSelect('problemTypeFilter')"> <span class="tag tag-supplier">供应商优化</span></label>
-          <label><input type="checkbox" value="conflict" checked onchange="updateMultiSelect('problemTypeFilter')"> <span class="tag tag-conflict">渠道冲突</span></label>
-          <label><input type="checkbox" value="cost" checked onchange="updateMultiSelect('problemTypeFilter')"> <span class="tag tag-cost">成本变动</span></label>
-          <label><input type="checkbox" value="outage" checked onchange="updateMultiSelect('problemTypeFilter')"> <span class="tag tag-outage">断供提醒</span></label>
-          <label><input type="checkbox" value="codeConflict" checked onchange="updateMultiSelect('problemTypeFilter')"> <span class="tag tag-code-conflict">编码冲突</span></label>
-        </div>
-      </div>
-      <input type="text" placeholder="商品名称 / 供应链SKU / 供应商" class="filter-group">
-      <select class="filter-group">
+      <select id="fType" class="filter-group">
+        <option value="">问题类型: 全部</option>
+        <option value="duplicate">重复数据</option>
+        <option value="profit">利润预警</option>
+        <option value="supplier">供应商优化</option>
+        <option value="conflict">渠道冲突</option>
+        <option value="cost">成本变动</option>
+        <option value="outage">断供提醒</option>
+        <option value="codeConflict">编码冲突</option>
+      </select>
+      <input type="text" id="fKeyword" placeholder="商品名称 / 供应链SKU / 供应商" class="filter-group">
+      <select id="fChannel" class="filter-group">
         <option>目标渠道: 全部</option>
         <option>政企福利商城</option>
         <option>航司积分小站</option>
         <option>商城会员购</option>
         <option>品牌自营旗舰店</option>
       </select>
-      <select class="filter-group" style="min-width:130px;">
+      <select id="fSource" class="filter-group" style="min-width:130px;">
         <option>来源类型: 全部</option>
         <option>清单推品</option>
         <option>渠道导入</option>
         <option>存量巡检</option>
       </select>
-      <input type="text" placeholder="起始日期" class="filter-group" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
+      <input type="text" id="fDateFrom" placeholder="起始日期" class="filter-group" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
       <span class="date-sep">—</span>
-      <input type="text" placeholder="结束日期" class="filter-group" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
-      <button class="btn-filter">查询</button>
-      <button class="btn-reset">重置</button>
+      <input type="text" id="fDateTo" placeholder="结束日期" class="filter-group" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
+      <button class="btn-filter" onclick="renderTable()">查询</button>
+      <button class="btn-reset" onclick="resetFilter()">重置</button>
     </div>
 
     <!-- Table -->
@@ -810,7 +770,7 @@ td.cell-reason { vertical-align: middle; }
 <div class="modal-overlay" id="priceModal">
   <div class="modal">
     <div class="modal-header">
-      <h3>修改渠道价格</h3>
+      <h3>申请上架</h3>
       <button class="modal-close" onclick="closeModal('priceModal')">✕</button>
     </div>
     <div class="modal-body">
@@ -825,7 +785,7 @@ td.cell-reason { vertical-align: middle; }
       <div class="form-group">
         <label>新渠道价</label>
         <input type="number" id="priceModalInput" placeholder="请输入新渠道价" step="0.01" min="0" oninput="updatePricePreview()">
-        <div class="hint">修改后系统将自动重算毛利，符合规则后解除异常</div>
+        <div class="hint">改回高于供货价即正常上架；维持或低于供货价将进入负利润定价申请</div>
       </div>
       <div class="price-preview" id="pricePreview" style="display:none;">
         毛利预估：<span id="pricePreviewValue">—</span>
@@ -833,7 +793,7 @@ td.cell-reason { vertical-align: middle; }
     </div>
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('priceModal')">取消</button>
-      <button class="btn btn-primary" onclick="submitPriceChange()">保存并进入定价</button>
+      <button class="btn btn-primary" onclick="submitPriceChange()">确认</button>
     </div>
   </div>
 </div>
@@ -842,21 +802,41 @@ td.cell-reason { vertical-align: middle; }
 <div class="modal-overlay" id="forceListModal">
   <div class="modal">
     <div class="modal-header">
-      <h3><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 强制上架确认</h3>
+      <h3>负利润定价申请</h3>
       <button class="modal-close" onclick="closeModal('forceListModal')">✕</button>
     </div>
     <div class="modal-body">
-      <div class="warning-box">
+      <div style="margin-bottom:12px;">
+        <div style="font-size:13px;font-weight:600;" id="forceListProductName">—</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;" id="forceListProductInfo">—</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 16px;font-size:13px;">
+        <div><div style="font-size:11.5px;color:var(--text-muted);">供货价</div><div style="font-weight:500;" id="forceListSupply">—</div></div>
+        <div>
+          <div style="font-size:11.5px;color:var(--text-muted);">申请渠道价 <span style="color:#da3e3a;">*</span></div>
+          <input type="number" id="forceListChannelPrice" min="0" step="0.01" placeholder="请输入" oninput="updateForceListPreview()" style="width:100%;margin-top:2px;height:32px;padding:0 8px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:'JetBrains Mono','Consolas',monospace;">
+        </div>
+        <div><div style="font-size:11.5px;color:var(--text-muted);">单件亏损</div><div style="font-weight:500;color:#da3e3a;" id="forceListLoss">—</div></div>
+        <div><div style="font-size:11.5px;color:var(--text-muted);">毛利率</div><div style="font-weight:500;color:#da3e3a;" id="forceListMargin">—</div></div>
+      </div>
+      <div class="warning-box" style="margin-top:12px;">
         <span style="font-size:18px;">⚠</span>
         <div>
-          <strong>确认以低于成本价销售？</strong>
-          <div style="margin-top:2px;">该操作可能造成经营亏损，请谨慎决策。</div>
+          <strong>渠道价低于供货价（负利润）</strong>
+          <div style="margin-top:2px;">提交后将生成负利润定价申请，审批通过后生效；该渠道商品暂设为不可售。</div>
         </div>
       </div>
+      <div style="margin-top:12px;">
+        <div style="font-size:12.5px;font-weight:500;color:var(--text-secondary);margin-bottom:6px;">申请原因（必填）</div>
+        <textarea id="forceListReason" rows="3" placeholder="请填写负利润定价/强制上架的申请原因，如战略补贴、清仓等" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:inherit;resize:vertical;"></textarea>
+      </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('forceListModal')">取消</button>
-      <button class="btn btn-danger" onclick="submitForceList()">确认强制上架</button>
+    <div class="modal-footer" style="justify-content:space-between;">
+      <button class="btn btn-outline" onclick="backToPriceList()">上一步</button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-outline" onclick="closeModal('forceListModal')">取消</button>
+        <button class="btn btn-primary" onclick="submitForceList()">提交申请</button>
+      </div>
     </div>
   </div>
 </div>
@@ -885,38 +865,38 @@ td.cell-reason { vertical-align: middle; }
 <div class="modal-overlay" id="compareModal">
   <div class="modal" style="width:720px;max-width:94vw;">
     <div class="modal-header">
-      <h3>商品对比 — 渠道冲突处理</h3>
+      <h3 id="cmpTitle">商品对比 — 渠道冲突处理</h3>
       <button class="modal-close" onclick="closeModal('compareModal')">✕</button>
     </div>
     <div class="modal-body">
       <div class="compare-cards">
         <div class="compare-card new">
-          <h4><span style="display:inline-flex;align-items:center;gap:3px;background:var(--blue-bg);color:var(--blue);font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;vertical-align:middle;">NEW</span> 新选品（待上架）</h4>
-          <div class="row"><span>供应链SKU</span><span class="val">HZ-A00001-001-DF-A001</span></div>
-          <div class="row"><span>商品名称</span><span class="val">夏季纯棉圆领T恤</span></div>
-          <div class="row"><span>供货价</span><span class="val better">¥85.00 ✓</span></div>
-          <div class="row"><span>渠道价</span><span class="val better">¥129.00 ✓</span></div>
-          <div class="row"><span>供应商</span><span class="val">星辰商贸</span></div>
-          <div class="row"><span>划线价</span><span class="val">¥199.00</span></div>
+          <h4 id="cmpLeftH"><span style="display:inline-flex;align-items:center;gap:3px;background:var(--blue-bg);color:var(--blue);font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;vertical-align:middle;">NEW</span> 新选品（待上架）</h4>
+          <div class="row"><span>供应链SKU</span><span class="val" id="cmpLSku">HZ-A00001-001-DF-A001</span></div>
+          <div class="row"><span>商品名称</span><span class="val" id="cmpLProd">夏季纯棉圆领T恤</span></div>
+          <div class="row"><span>供货价</span><span class="val better" id="cmpLSupply">¥85.00 ✓</span></div>
+          <div class="row"><span>渠道价</span><span class="val better" id="cmpLChannel">¥129.00 ✓</span></div>
+          <div class="row"><span>供应商</span><span class="val" id="cmpLSupplier">星辰商贸</span></div>
+          <div class="row"><span>划线价</span><span class="val" id="cmpLMark">¥199.00</span></div>
         </div>
         <div class="compare-card">
-          <h4><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg> 渠道现有品（在售中）</h4>
-          <div class="row"><span>供应链SKU</span><span class="val">HZ-A00001-002-DF-A001</span></div>
-          <div class="row"><span>商品名称</span><span class="val">夏季纯棉圆领T恤</span></div>
-          <div class="row"><span>供货价</span><span class="val">¥92.00</span></div>
-          <div class="row"><span>渠道价</span><span class="val">¥119.00</span></div>
-          <div class="row"><span>供应商</span><span class="val">星辰商贸</span></div>
-          <div class="row"><span>划线价</span><span class="val">¥189.00</span></div>
+          <h4 id="cmpRightH"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg> 渠道现有品（在售中）</h4>
+          <div class="row"><span>供应链SKU</span><span class="val" id="cmpRSku">HZ-A00001-002-DF-A001</span></div>
+          <div class="row"><span>商品名称</span><span class="val" id="cmpRProd">夏季纯棉圆领T恤</span></div>
+          <div class="row"><span>供货价</span><span class="val" id="cmpRSupply">¥92.00</span></div>
+          <div class="row"><span>渠道价</span><span class="val" id="cmpRChannel">¥119.00</span></div>
+          <div class="row"><span>供应商</span><span class="val" id="cmpRSupplier">星辰商贸</span></div>
+          <div class="row"><span>划线价</span><span class="val" id="cmpRMark">¥189.00</span></div>
         </div>
       </div>
-      <div style="padding:14px 16px;background:#f8fdf6;border-radius:var(--radius);font-size:12.5px;color:#16a34a;margin-top:16px;">
+      <div id="cmpConclusion" style="padding:14px 16px;background:#f8fdf6;border-radius:var(--radius);font-size:12.5px;color:#16a34a;margin-top:16px;">
         ✓ 新选品在供货价和渠道价上均占优势，建议替换现有品
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeModal('compareModal')">放弃上架</button>
-      <button class="btn btn-outline" onclick="submitCompareChange()">改价申请</button>
-      <button class="btn btn-primary" onclick="submitReplaceListing()">替换上架</button>
+      <button class="btn btn-outline" onclick="cancelCompareListing()">放弃上架</button>
+      <button class="btn btn-outline" onclick="submitCompareChange()">现品改价</button>
+      <button class="btn btn-primary" id="cmpReplaceBtn" onclick="submitReplaceListing()">替换上架</button>
     </div>
   </div>
 </div>
@@ -949,7 +929,7 @@ td.cell-reason { vertical-align: middle; }
   </div>
 </div>
 
-<!-- 特批申请 Modal -->
+<!-- 申请指定 Modal -->
 <div class="modal-overlay" id="approvalModal">
   <div class="modal" style="width:760px;max-width:94vw;">
     <div class="modal-header">
@@ -1028,7 +1008,7 @@ var sourceTypeTagClassMap = PendingPool.sourceTypeTagClassMap;
 
 // Data loaded from data-pending-pool.js above
 
-// ---- Supplier Reference Data (for 特批申请 modal) ----
+// ---- Supplier Reference Data (for 申请指定 modal) ----
 var supplierRefData = {
   'HZ-A00003-001-DF-A002': { // 智能蓝牙体脂秤
     spuCode: 'S003A00001',
@@ -1125,9 +1105,11 @@ function renderActionButtons(actions, rowId) {
     forceDelist: `<button class="btn btn-outline btn-sm" onclick="doForceDelist(${rowId})">强制下架</button>`,
     compare: `<button class="btn btn-outline btn-sm" onclick="event.stopPropagation();showCompareModal(${rowId})">商品对比</button>`,
     switch: `<button class="btn btn-primary btn-sm" onclick="doSwitch(${rowId})">一键切换最优</button>`,
-    approval: `<button class="btn btn-outline btn-sm" onclick="doApproval(${rowId})">特批申请</button>`,
+    approval: `<button class="btn btn-outline btn-sm" onclick="doApproval(${rowId})">申请指定</button>`,
     editPrice: `<button class="btn btn-primary btn-sm" onclick="openPriceModal(${rowId})">修改价格</button>`,
     forceList: `<button class="btn btn-warning btn-sm" onclick="openForceListModal(${rowId})">强制上架</button>`,
+    applyList: `<button class="btn btn-primary btn-sm" onclick="openPriceModal(${rowId})">申请上架</button>`,
+    cancelList: `<button class="btn btn-outline btn-sm" onclick="cancelListing(${rowId})">放弃上架</button>`,
     ignore: `<button class="btn btn-outline btn-sm" onclick="openIgnoreDelete(${rowId})">忽略删除</button>`,
     resubmit: `<button class="btn btn-primary btn-sm" onclick="doResubmit(${rowId})">重新提交</button>`,
     confirmMerge: `<button class="btn btn-primary btn-sm" onclick="doConfirmMerge(${rowId})">确认合并</button>`,
@@ -1145,8 +1127,22 @@ function productName(row) {
 }
 
 function renderTable() {
+  var kw = (document.getElementById('fKeyword').value || '').trim().toLowerCase();
+  var ch = document.getElementById('fChannel').value;
+  var chVal = (ch && ch.indexOf('全部') < 0) ? ch : '';
+  var src = document.getElementById('fSource').value;
+  var srcVal = (src && src.indexOf('全部') < 0) ? src : '';
+  var dFrom = document.getElementById('fDateFrom').value;
+  var dTo = document.getElementById('fDateTo').value;
+  var typeVal = document.getElementById('fType').value;
   var filtered = pendingData.filter(function(row) {
-    return activeTypeFilters.has(row.type);
+    if (typeVal && row.type !== typeVal) return false;
+    if (kw && String(row.product || '').toLowerCase().indexOf(kw) < 0 && String(row.sku || '').toLowerCase().indexOf(kw) < 0 && String(row.supplier || '').toLowerCase().indexOf(kw) < 0) return false;
+    if (chVal && row.channel !== chVal) return false;
+    if (srcVal && row.sourceType !== srcVal) return false;
+    if (dFrom && String(row.time || '').slice(0, 10) < dFrom) return false;
+    if (dTo && String(row.time || '').slice(0, 10) > dTo) return false;
+    return true;
   });
   const tbody = document.getElementById('pendingTableBody');
   if (filtered.length === 0) {
@@ -1177,7 +1173,21 @@ function renderTable() {
 }
 
 // ---- Dropdown & Filter ----
-const activeTypeFilters = new Set(['duplicate','profit','supplier','conflict','cost','outage','codeConflict']);
+function resetFilter() {
+  document.getElementById('fKeyword').value = '';
+  document.getElementById('fType').selectedIndex = 0;
+  document.getElementById('fChannel').selectedIndex = 0;
+  document.getElementById('fSource').selectedIndex = 0;
+  ['fDateFrom', 'fDateTo'].forEach(function(id) { var el = document.getElementById(id); el.value = ''; el.type = 'text'; });
+  renderTable();
+}
+function resetClosedFilter() {
+  document.getElementById('cfKeyword').value = '';
+  document.getElementById('cfType').selectedIndex = 0;
+  document.getElementById('cfSource').selectedIndex = 0;
+  ['cfDateFrom', 'cfDateTo'].forEach(function(id) { var el = document.getElementById(id); el.value = ''; el.type = 'text'; });
+  showClosedTab();
+}
 
 renderTable();
 updateTabBadge();
@@ -1190,56 +1200,6 @@ function toggleSelectAll(el) {
 function updateSelection() {
   const count = document.querySelectorAll('.row-check:checked').length;
   document.getElementById('selectedInfo').textContent = `已选 ${count} 项`;
-}
-
-// ---- Dropdown & Filter ----
-
-function toggleDropdown(id) {
-  var dd = document.getElementById(id + 'Dropdown');
-  if (dd) dd.classList.toggle('open');
-}
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('.multi-select')) {
-    document.querySelectorAll('.multi-select-dropdown.open').forEach(function(d) { d.classList.remove('open'); });
-  }
-});
-function updateMultiSelect(id) {
-  var dropdown = document.getElementById(id + 'Dropdown');
-  if (!dropdown) return;
-  var cbs = dropdown.querySelectorAll('input[type="checkbox"]');
-  activeTypeFilters.clear();
-  cbs.forEach(function(cb) {
-    if (cb.checked) activeTypeFilters.add(cb.value);
-  });
-  // Update trigger text
-  var trigger = document.getElementById(id).querySelector('.multi-select-trigger');
-  if (trigger) {
-    var checkedCount = activeTypeFilters.size;
-    var totalCount = cbs.length;
-    trigger.innerHTML = '问题类型: ' + (checkedCount === totalCount ? '全部' : '已选' + checkedCount + '类') + ' <span style=\"color:var(--text-muted);font-size:11px;\">(' + totalCount + '类)</span> <span class=\"arrow\">▾</span>';
-  }
-  if (id === 'problemTypeFilterClosed') {
-    showClosedTab();
-  } else {
-    renderTable();
-  }
-}
-function syncDropdownsToFilter() {
-  ['problemTypeFilter','problemTypeFilterClosed'].forEach(function(id) {
-    var dropdown = document.getElementById(id + 'Dropdown');
-    if (!dropdown) return;
-    var cbs = dropdown.querySelectorAll('input[type="checkbox"]');
-    cbs.forEach(function(cb) { cb.checked = activeTypeFilters.has(cb.value); });
-    var trigger = document.getElementById(id);
-    if (trigger) {
-      trigger = trigger.querySelector('.multi-select-trigger');
-      if (trigger) {
-        var totalCount = cbs.length;
-        var checkedCount = activeTypeFilters.size;
-        trigger.innerHTML = '问题类型: ' + (checkedCount === totalCount ? '全部' : '已选' + checkedCount + '类') + ' <span style=\"color:var(--text-muted);font-size:11px;\">(' + totalCount + '类)</span> <span class=\"arrow\">▾</span>';
-      }
-    }
-  });
 }
 
 // ---- Tab Switch ----
@@ -1260,34 +1220,29 @@ const closedTheadHTML = `<th><input type="checkbox" class="checkbox" id="selectA
   <th style="width:130px;">处理时间</th>
   <th style="width:130px;">操作方式</th>
   <th style="width:100px;">操作人</th>`;
-const closedFilterHTML = `<div class="multi-select" id="problemTypeFilterClosed">
-    <div class="multi-select-trigger" onclick="toggleDropdown('problemTypeFilterClosed')">
-      问题类型: 全部 <span style="color:var(--text-muted);font-size:11px;">(7类)</span>
-      <span class="arrow">▾</span>
-    </div>
-    <div class="multi-select-dropdown" id="problemTypeFilterClosedDropdown">
-      <label><input type="checkbox" value="duplicate" checked onchange="updateMultiSelect('problemTypeFilterClosed')"> <span class="tag tag-duplicate">重复数据</span></label>
-      <label><input type="checkbox" value="profit" checked onchange="updateMultiSelect('problemTypeFilterClosed')"> <span class="tag tag-profit">利润预警</span></label>
-      <label><input type="checkbox" value="supplier" checked onchange="updateMultiSelect('problemTypeFilterClosed')"> <span class="tag tag-supplier">供应商优化</span></label>
-      <label><input type="checkbox" value="conflict" checked onchange="updateMultiSelect('problemTypeFilterClosed')"> <span class="tag tag-conflict">渠道冲突</span></label>
-      <label><input type="checkbox" value="cost" checked onchange="updateMultiSelect('problemTypeFilterClosed')"> <span class="tag tag-cost">成本变动</span></label>
-      <label><input type="checkbox" value="outage" checked onchange="updateMultiSelect('problemTypeFilterClosed')"> <span class="tag tag-outage">断供提醒</span></label>
-      <label><input type="checkbox" value="codeConflict" checked onchange="updateMultiSelect('problemTypeFilterClosed')"> <span class="tag tag-code-conflict">编码冲突</span></label>
-    </div>
-  </div>
-  <select class="filter-group" style="min-width:130px;">
+const closedFilterHTML = `<select id="cfType" class="filter-group">
+    <option value="">问题类型: 全部</option>
+    <option value="duplicate">重复数据</option>
+    <option value="profit">利润预警</option>
+    <option value="supplier">供应商优化</option>
+    <option value="conflict">渠道冲突</option>
+    <option value="cost">成本变动</option>
+    <option value="outage">断供提醒</option>
+    <option value="codeConflict">编码冲突</option>
+  </select>
+  <select id="cfSource" class="filter-group" style="min-width:130px;">
     <option>来源类型: 全部</option>
     <option>清单推品</option>
     <option>渠道导入</option>
 	    <option>存量巡检</option>
 	  
   </select>
-  <input type="text" placeholder="商品名称 / 供应链SKU / 供应商" class="filter-group">
-  <input type="text" placeholder="起始日期" class="filter-group" style="width:120px;" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
+  <input type="text" id="cfKeyword" placeholder="商品名称 / 供应链SKU / 供应商" class="filter-group">
+  <input type="text" id="cfDateFrom" placeholder="起始日期" class="filter-group" style="width:120px;" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
   <span style="color:var(--text-muted);font-size:12px;">—</span>
-  <input type="text" placeholder="结束日期" class="filter-group" style="width:120px;" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
-  <button class="btn-filter">查询</button>
-  <button class="btn-reset">重置</button>`;
+  <input type="text" id="cfDateTo" placeholder="结束日期" class="filter-group" style="width:120px;" onfocus="this.type='date'" onblur="if(!this.value)this.type='text'">
+  <button class="btn-filter" onclick="showClosedTab()">查询</button>
+  <button class="btn-reset" onclick="resetClosedFilter()">重置</button>`;
 
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', function() {
@@ -1300,13 +1255,11 @@ document.querySelectorAll('.tab').forEach(tab => {
       filterBar.style.display = '';
       theadRow.innerHTML = pendingTheadHTML;
       document.querySelector('.table-footer .batch-actions').innerHTML = origBatchHTML;
-      syncDropdownsToFilter();
       renderTable();
     } else {
       filterBar.innerHTML = closedFilterHTML;
       filterBar.style.display = '';
       theadRow.innerHTML = closedTheadHTML;
-      syncDropdownsToFilter();
       showClosedTab();
     }
   });
@@ -1317,15 +1270,28 @@ function showClosedTab() {
   const closedData = [
     { typeLabel:'断供提醒', type:'outage', product:'加厚保暖羽绒服', sku:'HZ-A00008-001-DF-A004', channel:'商城会员购', supplier:'环球优选', supplyPrice:'¥180.00', channelPrice:'¥359.00', reason:'供应商[环球优选]已将此商品下架，已被系统转为不可售，请及时寻找替代品', createdTime:'2026-05-14 14:22:10', processedTime:'2026-05-14 14:23:05', method:'已确认', operator:'李运营', sourceType:'存量巡检' },
     { typeLabel:'成本变动', type:'cost', product:'女士直筒休闲长裤', sku:'HZ-A00005-001-DF-A003', channel:'政企福利商城', supplier:'鹏程优品', supplyPrice:'¥95.00', channelPrice:'¥169.00', reason:'供应商已调价，商品已被系统转为不可售。原供货价 ¥80 → 现供货价 ¥95', createdTime:'2026-05-14 10:15:33', processedTime:'2026-05-14 10:16:10', method:'接受并更新', operator:'李运营', sourceType:'存量巡检' },
-    { typeLabel:'利润预警', type:'profit', product:'男士商务休闲皮鞋', sku:'HZ-A00006-001-DF-A002', channel:'航司积分小站', supplier:'恒通供应链', supplyPrice:'¥100.00', channelPrice:'¥90.00', reason:'供货价 ¥100 > 渠道价 ¥90，预计亏损 ¥10/单', createdTime:'2026-05-12 15:12:44', processedTime:'2026-05-12 15:14:30', method:'修改价格', operator:'王专员', sourceType:'清单推品' },
+    { typeLabel:'利润预警', type:'profit', product:'男士商务休闲皮鞋', sku:'HZ-A00006-001-DF-A002', channel:'航司积分小站', supplier:'恒通供应链', supplyPrice:'¥100.00', channelPrice:'¥90.00', reason:'供货价 ¥100 > 渠道价 ¥90，预计亏损 ¥10/单', createdTime:'2026-05-12 15:12:44', processedTime:'2026-05-12 15:14:30', method:'申请上架', operator:'王专员', sourceType:'清单推品' },
     { typeLabel:'供应商优化', type:'supplier', product:'智能蓝牙体脂秤', sku:'HZ-A00003-001-DF-A002', channel:'政企福利商城', supplier:'恒通供应链', supplyPrice:'¥100.00', channelPrice:'¥189.00', reason:'存在更低价供应商星辰商贸 (¥95)，当前差价 ¥5', createdTime:'2026-05-13 09:30:15', processedTime:'2026-05-13 09:32:01', method:'一键切换最优', operator:'李运营', sourceType:'渠道导入' },
-    { typeLabel:'渠道冲突', type:'conflict', product:'夏季纯棉圆领T恤', sku:'HZ-A00001-001-DF-A001', channel:'政企福利商城', supplier:'星辰商贸', supplyPrice:'¥85.00', channelPrice:'¥129.00', reason:'渠道 [政企福利商城] 已存在同款在售 (供应链SKU: HZ-A00001-002-DF-A001)', createdTime:'2026-05-13 16:48:02', processedTime:'2026-05-13 16:50:00', method:'改价申请', operator:'张选品', sourceType:'清单推品' },
+    { typeLabel:'渠道冲突', type:'conflict', product:'夏季纯棉圆领T恤', sku:'HZ-A00001-001-DF-A001', channel:'政企福利商城', supplier:'星辰商贸', supplyPrice:'¥85.00', channelPrice:'¥129.00', reason:'渠道 [政企福利商城] 已存在同款在售 (供应链SKU: HZ-A00001-002-DF-A001)', createdTime:'2026-05-13 16:48:02', processedTime:'2026-05-13 16:50:00', method:'现品改价', operator:'张选品', sourceType:'清单推品' },
     { typeLabel:'重复数据', type:'duplicate', product:'不锈钢保温杯500ml', sku:'HZ-A00004-001-DF-A001', channel:'商城会员购', supplier:'星辰商贸', supplyPrice:'¥35.00', channelPrice:'¥69.00', reason:'[不锈钢保温杯500ml] 商品重复，存在 3 条重复数据', createdTime:'2026-05-12 11:05:28', processedTime:'2026-05-12 11:08:15', method:'重新提交', operator:'李运营', sourceType:'渠道导入' },
     { typeLabel:'重复数据', type:'duplicate', product:'不锈钢保温杯500ml', sku:'HZ-A00004-001-DF-A001', channel:'商城会员购', supplier:'星辰商贸', supplyPrice:'¥36.00', channelPrice:'¥72.00', reason:'[不锈钢保温杯500ml] 商品重复，存在 3 条重复数据（重复项 2/3）', createdTime:'2026-05-12 11:05:28', processedTime:'2026-05-12 11:08:15', method:'被覆盖删除', operator:'系统', sourceType:'渠道导入' },
     { typeLabel:'重复数据', type:'duplicate', product:'不锈钢保温杯500ml', sku:'HZ-A00004-001-DF-A001', channel:'商城会员购', supplier:'星辰商贸', supplyPrice:'¥34.50', channelPrice:'¥68.00', reason:'[不锈钢保温杯500ml] 商品重复，存在 3 条重复数据（重复项 3/3）', createdTime:'2026-05-12 11:05:28', processedTime:'2026-05-12 11:08:15', method:'被覆盖删除', operator:'系统', sourceType:'渠道导入' },
     { typeLabel:'编码冲突', type:'codeConflict', product:'3M 9001V KN95口罩', sku:'HZ-A00002-001-DF-A001', channel:'政企福利商城', supplier:'星辰商贸', supplyPrice:'¥85.00', channelPrice:'¥129.00', reason:'供应链同款组 SAME-MASK-004 关联了2个不同的商城SPU，已确认合并至主SPU S001A00001', createdTime:'2026-06-20 14:30:00', processedTime:'2026-06-20 14:32:10', method:'确认合并', operator:'李运营', sourceType:'存量巡检' },
   ];
-  tbody.innerHTML = closedData.filter(function(r) { return activeTypeFilters.has(r.type); }).map((r, idx) => `
+  var kw = (document.getElementById('cfKeyword').value || '').trim().toLowerCase();
+  var src = document.getElementById('cfSource').value;
+  var srcVal = (src && src.indexOf('全部') < 0) ? src : '';
+  var dFrom = document.getElementById('cfDateFrom').value;
+  var dTo = document.getElementById('cfDateTo').value;
+  var typeVal = document.getElementById('cfType').value;
+  tbody.innerHTML = closedData.filter(function(r) {
+    if (typeVal && r.type !== typeVal) return false;
+    if (kw && String(r.product || '').toLowerCase().indexOf(kw) < 0 && String(r.sku || '').toLowerCase().indexOf(kw) < 0 && String(r.supplier || '').toLowerCase().indexOf(kw) < 0) return false;
+    if (srcVal && r.sourceType !== srcVal) return false;
+    if (dFrom && String(r.processedTime || '').slice(0, 10) < dFrom) return false;
+    if (dTo && String(r.processedTime || '').slice(0, 10) > dTo) return false;
+    return true;
+  }).map((r, idx) => `
     <tr>
       <td><input type="checkbox" class="checkbox row-check" data-closed-idx="${idx}" onchange="updateSelection()"></td>
       <td><span class="tag ${tagClassMap[r.type]}">${r.typeLabel}</span></td>
@@ -1496,7 +1462,7 @@ function submitApproval() {
   }
   var rowId = window._approvalRowId;
   var row = pendingData.find(r => r.id === rowId);
-  showToast('success', '已生成OA特批申请：' + (row ? row.product : '') + '，审批中...');
+  showToast('success', '已生成指定供应商申请：' + (row ? row.product : '') + '，审批中（演示）');
   closeModal('approvalModal');
   if (row) removeRow(rowId);
 }
@@ -1509,8 +1475,8 @@ function openPriceModal(id) {
   const row = pendingData.find(r => r.id === id);
   document.getElementById('priceModalProduct').textContent = row.product;
   document.getElementById('priceModalSupply').textContent = row.supplyPrice;
-  document.getElementById('priceModalInput').value = '';
-  document.getElementById('pricePreview').style.display = 'none';
+  document.getElementById('priceModalInput').value = parseFloat(String(row.channelPrice||'').replace('¥','').replace(',','')) || '';
+  updatePricePreview();
   openModal('priceModal');
 }
 function updatePricePreview() {
@@ -1531,22 +1497,66 @@ function submitPriceChange() {
   const val = document.getElementById('priceModalInput').value;
   if (!val || parseFloat(val) <= 0) return;
   const row = pendingData.find(r => r.id === currentRowId);
+  const supply = parseFloat(row.supplyPrice.replace('¥',''));
+  if (parseFloat(val) < supply) {
+    closeModal('priceModal');
+    openForceListModal(currentRowId, val);
+    showToast('info', '渠道价低于供货价（负利润），已转为负利润定价申请');
+    return;
+  }
   showToast('success', `渠道价已更新：${row.product} → ¥${val}，即将跳转定价推品配置页正常模式`);
   closeModal('priceModal');
   removeRow(currentRowId);
-  setTimeout(() => { window.location.href = '05.定价推品配置页-原型页面.html?mode=normal'; }, 800);
+  setTimeout(() => { window.location.href = '02a.定价推品配置页-原型页面.html?mode=normal'; }, 800);
 }
 
-function openForceListModal(id) {
+function openForceListModal(id, presetPrice) {
   currentRowId = id;
+  const row = pendingData.find(r => r.id === id);
+  if (row) {
+    document.getElementById('forceListProductName').textContent = row.product;
+    document.getElementById('forceListProductInfo').textContent = '渠道: ' + (row.channel || '—') + ' | 商城SKU: ' + (row.sku || '—');
+    document.getElementById('forceListSupply').textContent = row.supplyPrice;
+  }
+  document.getElementById('forceListChannelPrice').value = presetPrice || '';
+  document.getElementById('forceListReason').value = '';
+  updateForceListPreview();
   openModal('forceListModal');
 }
-function submitForceList() {
+function updateForceListPreview() {
   const row = pendingData.find(r => r.id === currentRowId);
-  showToast('success', `已强制上架：${row.product}，即将跳转定价推品配置页异常模式（已关闭价格校验）`);
+  if (!row) return;
+  const supply = parseFloat(row.supplyPrice.replace('¥',''));
+  const val = parseFloat(document.getElementById('forceListChannelPrice').value);
+  const lossEl = document.getElementById('forceListLoss');
+  const marginEl = document.getElementById('forceListMargin');
+  if (!isNaN(val) && val > 0) {
+    lossEl.textContent = '¥' + (supply - val).toFixed(2);
+    marginEl.textContent = (((val - supply) / val) * 100).toFixed(1) + '%';
+  } else {
+    lossEl.textContent = '—';
+    marginEl.textContent = '—';
+  }
+}
+function submitForceList() {
+  const val = parseFloat(document.getElementById('forceListChannelPrice').value);
+  if (!val || val <= 0) { showToast('info', '请输入申请渠道价'); return; }
+  const reason = document.getElementById('forceListReason').value.trim();
+  if (!reason) { showToast('info', '请填写申请原因'); return; }
+  const row = pendingData.find(r => r.id === currentRowId);
+  showToast('success', `已生成负利润定价申请：${row.product}（申请渠道价 ¥${val}），审批中（演示）`);
   closeModal('forceListModal');
   removeRow(currentRowId);
-  setTimeout(() => { window.location.href = '05.定价推品配置页-原型页面.html?mode=abnormal'; }, 800);
+}
+function cancelListing(id) {
+  const row = pendingData.find(r => r.id === id);
+  if (!row) return;
+  showToast('success', `已放弃上架：${row.product}`);
+  removeRow(id);
+}
+function backToPriceList() {
+  closeModal('forceListModal');
+  openModal('priceModal');
 }
 
 function openIgnoreDelete(id) {
@@ -1562,16 +1572,73 @@ function submitIgnoreDelete() {
   removeRow(currentRowId);
 }
 
+function setVal(id, text, better) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  el.classList.toggle('better', !!better);
+}
 function showCompareModal(id) {
   window._compareId = id;
+  const row = pendingData.find(r => r.id === id);
+  const isDup = !!(row && row.reason && row.reason.indexOf('重复推品') > -1);
+  const conc = document.getElementById('cmpConclusion');
+  const replaceBtn = document.getElementById('cmpReplaceBtn');
+  if (isDup) {
+    // 重复推品：同一商品复查，去掉“替换上架”
+    document.getElementById('cmpTitle').textContent = '商品对比 — 重复推品复查';
+    document.getElementById('cmpLeftH').textContent = '本次推品（待上架）';
+    document.getElementById('cmpRightH').textContent = '渠道现有在售（同一商品）';
+    setVal('cmpLSku', row.sku);
+    setVal('cmpLProd', row.product);
+    setVal('cmpLSupply', row.supplyPrice);
+    setVal('cmpLChannel', row.channelPrice);
+    setVal('cmpLSupplier', row.supplier);
+    setVal('cmpLMark', '—');
+    setVal('cmpRSku', row.sku);
+    setVal('cmpRProd', row.product);
+    setVal('cmpRSupply', row.supplyPrice);
+    setVal('cmpRChannel', row.channelPrice);
+    setVal('cmpRSupplier', '与本次推品同一商品');
+    setVal('cmpRMark', '—');
+    conc.textContent = '该商品已在目标渠道上架，本次为重复推品（同SKU）。请复查是否需改价或调整；如无需改动，可放弃本次推品。';
+    conc.style.background = '#f6f8fa';
+    conc.style.color = 'var(--text-secondary)';
+    if (replaceBtn) replaceBtn.style.display = 'none';
+  } else {
+    // 同款冲突：恢复原始演示数据
+    document.getElementById('cmpTitle').textContent = '商品对比 — 渠道冲突处理';
+    document.getElementById('cmpLeftH').innerHTML = '<span style="display:inline-flex;align-items:center;gap:3px;background:var(--blue-bg);color:var(--blue);font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;vertical-align:middle;">NEW</span> 新选品（待上架）';
+    document.getElementById('cmpRightH').innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/></svg> 渠道现有品（在售中）';
+    setVal('cmpLSku', 'HZ-A00001-001-DF-A001');
+    setVal('cmpLProd', '夏季纯棉圆领T恤');
+    setVal('cmpLSupply', '¥85.00 ✓', true);
+    setVal('cmpLChannel', '¥129.00 ✓', true);
+    setVal('cmpLSupplier', '星辰商贸');
+    setVal('cmpLMark', '¥199.00');
+    setVal('cmpRSku', 'HZ-A00001-002-DF-A001');
+    setVal('cmpRProd', '夏季纯棉圆领T恤');
+    setVal('cmpRSupply', '¥92.00');
+    setVal('cmpRChannel', '¥119.00');
+    setVal('cmpRSupplier', '星辰商贸');
+    setVal('cmpRMark', '¥189.00');
+    conc.textContent = '✓ 新选品在供货价和渠道价上均占优势，建议替换现有品';
+    conc.style.background = '#f8fdf6';
+    conc.style.color = '#16a34a';
+    if (replaceBtn) replaceBtn.style.display = '';
+  }
   openModal('compareModal');
+}
+function cancelCompareListing() {
+  closeModal('compareModal');
+  cancelListing(window._compareId);
 }
 function submitCompareChange() {
   closeModal('compareModal');
   var id = window._compareId;
   const row = pendingData.find(r => r.id === id);
   if (row) {
-    showToast('success', `已提交改价申请：${row.product}`);
+    showToast('success', `已提交现品改价：${row.product}`);
     removeRow(id);
   }
 }
@@ -1590,7 +1657,7 @@ function confirmReplaceListing() {
   if (row) {
     showToast('success', `已提交替换上架：${row.product} — 现有品已下架，新选品进入定价推品`);
     removeRow(id);
-    setTimeout(() => { window.location.href = '05.定价推品配置页-原型页面.html?mode=normal'; }, 800);
+    setTimeout(() => { window.location.href = '02a.定价推品配置页-原型页面.html?mode=normal'; }, 800);
   }
 }
 
