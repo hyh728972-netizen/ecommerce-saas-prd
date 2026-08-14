@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>福利商城 - 页面导航</title>
+<style>
+  :root {
+    --primary-start: #ff6034;
+    --primary-end: #ee0a24;
+    --price-color: #ee0a24;
+    --success-color: #52c41a;
+    --warning-color: #ff9800;
+    --warning-dark: #d48806;
+    --info-color: #1677ff;
+    --info-light: #10aeee;
+    --tag-blue: #1677ff;
+    --tag-purple: #8b5cf6;
+    --tag-pink: #ec4899;
+    --text-color: #333;
+    --text-secondary: #666;
+    --text-tertiary: #999;
+    --text-muted: #bbb;
+    --bg-color: #f5f5f5;
+    --bg-input: #f8f8f8;
+    --card-bg: #fff;
+    --hover-bg: #fafafa;
+    --selected-bg: #fff5f0;
+    --border-color: #eee;
+    --radius-xs: 4px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 24px;
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 24px;
+    --space-2xl: 32px;
+    --font-xs: 10px;
+    --font-sm: 12px;
+    --font-base: 14px;
+    --font-md: 16px;
+    --font-lg: 18px;
+    --font-xl: 20px;
+    --font-2xl: 24px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-lg: 0 4px 12px rgba(0,0,0,0.12);
+  }
+  /* Green theme */
+  .theme-green {
+    --primary-start: #07c160;
+    --primary-end: #059c4e;
+    --price-color: #059c4e;
+    --selected-bg: #e8f5e9;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: var(--bg-color);
+    color: var(--text-color);
+    padding: var(--space-xl);
+  }
+  h1 {
+    font-size: var(--font-xl);
+    text-align: center;
+    margin-bottom: var(--space-xs);
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--text-tertiary);
+    font-size: var(--font-sm);
+    margin-bottom: var(--space-xl);
+  }
+  .section {
+    background: var(--card-bg);
+    border-radius: var(--radius-sm);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-md);
+    box-shadow: var(--shadow-sm);
+  }
+  .section h2 {
+    font-size: var(--font-md);
+    color: var(--price-color);
+    margin-bottom: var(--space-md);
+    padding-left: var(--space-sm);
+    border-left: 3px solid var(--price-color);
+  }
+  .links {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: var(--space-sm);
+  }
+  .links a {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 6px;
+    min-height: 68px;
+    padding: var(--space-md);
+    background: var(--bg-input);
+    border-radius: var(--radius-sm);
+    text-decoration: none;
+    color: var(--text-color);
+    font-size: var(--font-base);
+    transition: background 0.15s, opacity 0.15s, box-shadow 0.15s, filter 0.15s;
+  }
+  .links a:hover {
+    background: #fff0ed;
+    color: var(--price-color);
+  }
+  .links a .title {
+    line-height: 1.4;
+  }
+  .links a .ver {
+    display: inline-block;
+    padding: 1px var(--space-xs);
+    color: var(--card-bg);
+    font-size: var(--font-xs);
+    border-radius: var(--radius-xs);
+  }
+  .links a .ver.v01 { background: var(--text-secondary); }
+  .links a .ver.v2 { background: var(--warning-color); }
+  .links a .ver.v3 { background: var(--tag-blue); }
+  .links a .ver.v4 { background: var(--success-color); }
+  .links a .ver.v5 { background: var(--info-color); }
+  .links a .ver.v6 { background: var(--tag-pink); }
+  .links a .ver.v11 { background: var(--tag-purple); }
+  .links a .ver.v7 { background: var(--price-color); }
+  /* 版本标签统一放在标题下方的第二行，与标题左对齐 */
+  .links a .ver-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  /* 废弃版本：灰底 + 删除线，直接标记在版本标签上 */
+  .links a .ver.deprecated {
+    background: var(--text-tertiary);
+    text-decoration: line-through;
+  }
+  .tip {
+    background: #fffbe6;
+    border: 1px solid var(--warning-color);
+    border-radius: var(--radius-sm);
+    padding: var(--space-md) var(--space-lg);
+    margin-bottom: var(--space-lg);
+    font-size: var(--font-sm);
+    color: var(--warning-dark);
+  }
+  /* 版本筛选栏 */
+  .version-bar {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-sm);
+    padding: var(--space-sm) 0;
+    margin-bottom: var(--space-md);
+    background: var(--bg-color);
+  }
+  .version-bar .vb-label {
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+  }
+  .version-btn {
+    font-size: var(--font-sm);
+    color: var(--text-color);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 6px var(--space-md);
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+  }
+  .version-btn b { color: var(--price-color); font-weight: 600; }
+  .version-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 140px;
+    max-height: 320px;
+    overflow-y: auto;
+    background: var(--card-bg);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-xs);
+  }
+  .version-menu.show { display: block; }
+  .version-menu button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-size: var(--font-sm);
+    color: var(--text-color);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-xs);
+    cursor: pointer;
+    text-align: left;
+  }
+  .version-menu button:hover { background: var(--hover-bg); }
+  .version-menu button.active {
+    background: var(--selected-bg);
+    color: var(--price-color);
+    font-weight: 600;
+  }
+  .version-menu .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  /* 版本筛选状态：匹配卡片白底+阴影，其余置灰 */
+  .links a.card-on {
+    background: var(--card-bg);
+    box-shadow: var(--shadow-md);
+  }
+  .links a.card-off {
+    opacity: 0.6;
+    filter: grayscale(100%);
+  }
+  .links a .ver.tag-off { background: var(--text-muted); }
+</style>
+</head>
+<body>
+<h1>福利商城 - 页面导航</h1>
+<p class="subtitle">原型演示页面，直接点击链接打开 · 一级：底部Tab常驻入口｜二级：从一级进入的功能页｜三级：从二级进入的操作页</p>
+
+<div class="tip">测试前先在浏览器控制台执行 <code>Auth.resetAccounts()</code> 重置账号数据</div>
+
+<div class="version-bar">
+  <span class="vb-label">版本筛选</span>
+  <button class="version-btn" id="versionBtn" type="button"><b id="versionCurrent">全部版本</b> ▾</button>
+  <div class="version-menu" id="versionMenu"></div>
+</div>
+
+<div class="section">
+  <h2>一级页面（底部Tab）</h2>
+  <div class="links">
+    <a href="pages/home_page.html">首页 <span class="ver v01">V0</span></a>
+    <a href="pages/category.html">分类 <span class="ver v01">V0</span></a>
+    <a href="pages/cart.html">购物车 <span class="ver v3">V0.3</span> <span class="ver v6">V0.6</span> <span class="ver v6">V0.61</span></a>
+    <a href="pages/profile.html">我的 <span class="ver v01">V0.1</span></a>
+  </div>
+</div>
+
+<div class="section">
+  <h2>二级页面</h2>
+  <div class="links">
+    <a href="pages/search.html">搜索 <span class="ver v01">V0.1</span></a>
+    <a href="pages/search_filter.html">搜索结果 <span class="ver v01">V0.1</span></a>
+    <a href="pages/product_detail.html">商品详情 <span class="ver v3">V0.3</span></a>
+    <a href="pages/product_detail_virtual.html">虚拟商品详情 <span class="ver v6">V0.6</span> <span class="ver v6">V0.61</span></a>
+    <a href="pages/product_list.html">商品列表 <span class="ver v01">V0.1</span></a>
+    <a href="pages/browse_history.html">浏览记录 <span class="ver v01">V0.1</span></a>
+    <a href="pages/order_list.html">我的订单 <span class="ver v3">V0.3</span> <span class="ver v6">V0.6</span> <span class="ver v6">V0.61</span></a>
+    <a href="pages/favorites.html">我的收藏 <span class="ver v01">V0.1</span></a>
+    <a href="pages/coupon_center.html">我的卡券<span class="ver v5">V0.5</span></a>
+    <a href="pages/coupon.html">卡券包 <span class="ver v01">V0.1</span></a>
+    <a href="pages/points_center.html">我的积分 <span class="ver v2">V0.2</span></a>
+    <a href="pages/wallet.html">我的钱包 <span class="ver v01">V0.1</span></a>
+    <a href="pages/message.html">消息中心</a>
+    <a href="pages/settings.html">设置 <span class="ver v01">V0.1</span></a>
+    <a href="pages/activity_page.html">活动专题</a>
+    <a href="pages/flash_sale.html">限时秒杀</a>
+    <a href="pages/vip_center.html">会员中心</a>
+    <a href="pages/brand_list.html">品牌专区</a>
+    <a href="pages/newuser_gift.html">新人专享</a>
+    <a href="pages/movie_cinema.html">电影/影院 <span class="ver v5">V0.5</span></a>
+  </div>
+</div>
+
+<div class="section">
+  <h2>三级页面</h2>
+  <div class="links">
+    <a href="pages/login.html">登录（H5）<span class="ver v01">V0.1</span></a>
+    <a href="pages/login_mp.html">登录（小程序）<span class="ver v01">V0.1 NEW</span></a>
+    <a href="pages/register.html">注册 <span class="ver v01">V0.1</span></a>
+    <a href="pages/profile_edit.html">个人资料 <span class="ver v01">V0.1</span></a>
+    <a href="pages/change_phone.html">修改手机号 <span class="ver v01">V0.1</span></a>
+    <a href="pages/address.html">收货地址 <span class="ver v01">V0.1</span></a>
+    <a href="pages/address_edit.html">编辑地址 <span class="ver v01">V0.1</span></a>
+    <a href="pages/points_detail.html">积分变动明细 <span class="ver v2">V0.2</span></a>
+    <a href="pages/points_types.html">积分类型 <span class="ver v2">V0.2 NEW</span></a>
+    <a href="pages/points_expire.html">即将失效积分 <span class="ver v2">V0.2</span></a>
+    <a href="pages/points_consume.html">积分消费记录 <span class="ver v2">V0.2</span></a>
+    <a href="pages/points_rules.html">积分兑换规则 <span class="ver v2">V0.2</span></a>
+    <a href="pages/points_exchange.html">积分卡券兑换 <span class="ver v2">V0.2</span></a>
+    <a href="pages/points_movie.html">兑换电影票次卡 <span class="ver v2">V0.2</span></a>
+    <a href="pages/coupon_bind.html">卡券绑定 <span class="ver v5">V0.5</span></a>
+    <a href="pages/coupon_select.html">选择优惠券 <span class="ver v5">V0.5</span></a>
+    <a href="pages/points_batch_select.html">选择积分批次 <span class="ver v3">V0.3</span> <span class="ver v7">V0.7</span></a>
+    <a href="pages/order_product.html">确认订单（商品） <span class="ver v3">V0.3 NEW</span> <span class="ver v7">V0.7</span></a>
+    <a href="pages/order_cake.html">确认订单（蛋糕） <span class="ver v3">V0.3</span> <span class="ver v7">V0.7</span></a>
+    <a href="pages/order_movie.html">确认订单（电影票） <span class="ver v3">V0.3</span> <span class="ver v7">V0.7</span></a>
+    <a href="pages/order_virtual.html">确认订单（虚拟商品） <span class="ver v6">V0.6</span> <span class="ver v6">V0.61</span> <span class="ver v6 deprecated">V0.62已废弃</span> <span class="ver v7">V0.7</span></a>
+    <a href="pages/order_detail_virtual.html">订单详情（虚拟商品）<span class="ver v6">V0.6</span></a>
+    <a href="pages/order_detail_virtual_direct.html">订单详情（虚拟-直充） <span class="ver v6">V0.61</span> <span class="ver v6 deprecated">V0.62已废弃</span></a>
+    <a href="pages/movie_card_select.html">选择电影次卡 <span class="ver v3">V0.3</span></a>
+    <a href="pages/movie_pass_detail.html">电影票次卡详情 <span class="ver v3">V0.3</span></a>
+    <a href="pages/order_pay.html">订单支付 <span class="ver v3">V0.3</span></a>
+    <a href="pages/pay_success.html">支付成功 <span class="ver v3">V0.3</span> <span class="ver v6">V0.61</span> <span class="ver v6 deprecated">V0.62已废弃</span></a>
+    <a href="pages/order_detail.html">订单详情 <span class="ver v3">V0.3</span></a>
+    <a href="pages/order_cancel.html">取消订单 <span class="ver v3">V0.3</span></a>
+    <a href="pages/order_complaint.html">订单投诉 <span class="ver v3">V0.3</span></a>
+    <a href="pages/logistics.html">物流追踪 <span class="ver v3">V0.3</span></a>
+    <a href="pages/refund.html">退款/售后 <span class="ver v4">V0.4</span></a>
+    <a href="pages/apply_refund.html">申请退款 <span class="ver v4">V0.4</span></a>
+    <a href="pages/refund_detail.html">退款详情 <span class="ver v4">V0.4</span></a>
+    <a href="pages/apply_exchange.html">申请换货 <span class="ver v4">V0.4</span></a>
+    <a href="pages/review.html">评价中心 <span class="ver v11 deprecated">V1.1已废弃</span></a>
+    <a href="pages/write_review.html">发表评价 <span class="ver v11 deprecated">V1.1已废弃</span></a>
+    <a href="pages/product_reviews.html">商品评价 <span class="ver v11 deprecated">V1.1已废弃</span></a>
+    <a href="pages/product_detail_off.html">商品详情（已下架）<span class="ver v3">V0.3</span></a>
+    <a href="pages/my_reviews.html">我的评价 <span class="ver v11 deprecated">V1.1已废弃</span></a>
+    <a href="pages/account_cancel.html">账号注销 <span class="ver v01">V0.1</span></a>
+  </div>
+</div>
+
+<div class="section">
+  <h2>辅助页面</h2>
+  <div class="links">
+    <a href="pages/customer_service.html">在线客服</a>
+    <a href="pages/help.html">帮助中心</a>
+    <a href="pages/feedback.html">意见反馈</a>
+    <a href="pages/about.html">关于我们 <span class="ver v01">V0.1</span></a>
+  </div>
+</div>
+
+<script src="js/theme-switcher.js"></script>
+<script>
+// 统一卡片结构：标题文本包进 .title（第一行），版本标签包进 .ver-group（第二行）
+(function () {
+  document.querySelectorAll('.links a').forEach(function (a) {
+    var title = document.createElement('span');
+    title.className = 'title';
+    Array.prototype.slice.call(a.childNodes).forEach(function (node) {
+      var isTag = node.classList && node.classList.contains('ver');
+      if (!isTag) {
+        title.appendChild(node);
+      }
+    });
+    title.textContent = title.textContent.trim();
+    a.appendChild(title);
+    var vers = a.querySelectorAll('.ver');
+    if (vers.length) {
+      var group = document.createElement('span');
+      group.className = 'ver-group';
+      vers.forEach(function (v) { group.appendChild(v); });
+      a.appendChild(group);
+    }
+  });
+})();
+
+// 版本筛选：默认选中最新版本；选「全部版本」恢复默认样式
+(function () {
+  var ALL = '__all__';
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.links a'));
+  var versionSet = {};
+  var versionColor = {};
+  var versionLive = {}; // 存在未废弃标签的版本
+
+  cards.forEach(function (a) {
+    var vers = [];
+    a.querySelectorAll('.ver').forEach(function (v) {
+      var m = v.textContent.match(/V[\d.]+/);
+      if (!m) return;
+      var ver = m[0];
+      v.dataset.ver = ver;
+      if (!versionSet[ver]) {
+        versionSet[ver] = true;
+        versionColor[ver] = getComputedStyle(v).backgroundColor;
+      }
+      if (!v.classList.contains('deprecated')) versionLive[ver] = true;
+      vers.push(ver);
+    });
+    a.dataset.versions = vers.join(',');
+  });
+
+  var versions = Object.keys(versionSet).sort(function (x, y) {
+    return parseFloat(x.slice(1)) - parseFloat(y.slice(1));
+  });
+
+  var btn = document.getElementById('versionBtn');
+  var current = document.getElementById('versionCurrent');
+  var menu = document.getElementById('versionMenu');
+
+  function buildOption(label, value, color) {
+    var opt = document.createElement('button');
+    opt.type = 'button';
+    opt.dataset.value = value;
+    opt.innerHTML = '<span class="dot"></span><span></span>';
+    opt.lastChild.textContent = label;
+    opt.firstChild.style.background = color || 'var(--text-muted)';
+    opt.addEventListener('click', function () {
+      apply(value);
+      menu.classList.remove('show');
+    });
+    menu.appendChild(opt);
+  }
+
+  buildOption('全部版本', ALL, null);
+  versions.forEach(function (ver) {
+    buildOption(versionLive[ver] ? ver : ver + ' 已废弃', ver, versionColor[ver]);
+  });
+
+  function apply(value) {
+    current.textContent = value === ALL ? '全部版本' : value;
+    var filtering = value !== ALL;
+    menu.querySelectorAll('button').forEach(function (b) {
+      b.classList.toggle('active', b.dataset.value === value);
+    });
+    cards.forEach(function (a) {
+      var vers = a.dataset.versions ? a.dataset.versions.split(',') : [];
+      var on = filtering && vers.indexOf(value) !== -1;
+      a.classList.toggle('card-on', on);
+      a.classList.toggle('card-off', filtering && !on);
+      a.querySelectorAll('.ver').forEach(function (v) {
+        if (v.classList.contains('deprecated')) return; // 废弃标记常驻，不参与着色
+        v.classList.toggle('tag-off', filtering && v.dataset.ver !== value);
+      });
+    });
+  }
+
+  btn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    menu.classList.toggle('show');
+  });
+  document.addEventListener('click', function (e) {
+    if (!menu.contains(e.target)) menu.classList.remove('show');
+  });
+
+  // 默认选中当前开发版本 V0.7（积分批次多选叠加）；V0.7 不在则回退最新活跃版本
+  var defaultVer = versions.indexOf('V0.7') !== -1 ? 'V0.7' : (versions.filter(function (v) { return versionLive[v]; }).pop() || versions[versions.length - 1]);
+  apply(defaultVer);
+})();
+</script>
+</body>
+</html>

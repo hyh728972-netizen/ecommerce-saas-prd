@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>售后详情 - 商城运营平台</title>
+<style>
+:root {
+  --bg-app:#f4f3f0; --bg-sidebar:#1e1e22; --bg-surface:#ffffff; --bg-hover:#f7f6f4;
+  --border:#e6e4e0; --border-light:#f0eeeb;
+  --text-primary:#1a1a1c; --text-secondary:#6b6b70; --text-muted:#99999d; --text-sidebar:#c4c4c9;
+  --accent:#2d2d33; --accent-soft:#f0eeeb;
+  --blue:#2563eb; --blue-bg:#f5f8ff; --blue-border:#d4e0fc;
+  --red:#da3e3a; --red-bg:#fef4f3; --red-border:#fcd9d7;
+  --green:#16a34a; --green-bg:#f4fdf6; --green-border:#c6f0d4;
+  --orange:#d97706; --orange-bg:#fffbf0; --orange-border:#fde8c4;
+  --yellow-bg:#fefce8; --yellow-border:#fef08a;
+  --gray:#6b7280; --gray-bg:#f8f8f7; --gray-border:#e8e6e3;
+  --radius-sm:4px; --radius:8px; --radius-lg:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.06); --shadow-lg:0 4px 16px rgba(0,0,0,.10);
+  --transition:160ms ease;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;background:var(--bg-app);color:var(--text-primary);display:flex;min-height:100vh;-webkit-font-smoothing:antialiased;}
+.sidebar{width:232px;min-width:232px;background:var(--bg-sidebar);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:10;}
+.sidebar-brand{padding:20px 20px 28px;border-bottom:1px solid rgba(255,255,255,.06);}
+.sidebar-brand .logo{font-size:17px;font-weight:600;color:#fff;letter-spacing:-.02em;display:flex;align-items:center;gap:10px;}
+.sidebar-brand .sub{font-size:11px;color:var(--text-sidebar);margin-top:2px;}
+.sidebar-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px;}
+.nav-section-label{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.25);padding:14px 10px 6px;display:flex;align-items:center;gap:4px;cursor:pointer;user-select:none;}
+.nav-section-label:hover{color:rgba(255,255,255,.45);}
+.section-arrow{font-size:8px;transition:transform .2s ease;flex-shrink:0;}
+.nav-section.collapsed .section-arrow{transform:rotate(-90deg);}
+.nav-section.collapsed .nav-section-items{display:none;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;color:var(--text-sidebar);font-size:13.5px;cursor:pointer;transition:all var(--transition);text-decoration:none;letter-spacing:.01em;}
+.nav-item:hover{background:rgba(255,255,255,.05);color:#fff;}
+.nav-item.active{background:rgba(255,255,255,.10);color:#fff;font-weight:500;}
+.nav-icon{width:18px;height:18px;opacity:.55;flex-shrink:0;}
+.nav-item.active .nav-icon{opacity:1;}
+.nav-item .badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:600;padding:1px 7px;border-radius:10px;min-width:20px;text-align:center;line-height:18px;}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{height:52px;min-height:52px;background:var(--bg-surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;z-index:50;}
+.topbar .breadcrumb{font-size:12.5px;color:var(--text-muted);letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.topbar .breadcrumb a{color:var(--text-muted);text-decoration:none;}
+.topbar .breadcrumb a:hover{color:var(--text-secondary);}
+.topbar .breadcrumb span{color:var(--text-primary);font-weight:500;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:16px;}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:#e6e4e0;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);}
+.content{flex:1;display:flex;flex-direction:column;padding:22px 28px 32px;}
+
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:16px;}
+.page-header h1{font-size:22px;font-weight:600;letter-spacing:-.02em;display:flex;align-items:baseline;gap:8px;flex-wrap:nowrap;overflow:hidden;}
+.page-header .page-mall{font-size:13px;font-weight:400;color:var(--text-muted);}
+.page-header .page-subtitle{font-size:13px;color:var(--text-muted);margin-top:4px;display:flex;align-items:center;flex-wrap:nowrap;gap:0;overflow:hidden;}
+.page-header .page-subtitle .meta-item{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
+.page-header .page-subtitle .meta-sep{color:var(--border);padding:0 10px;user-select:none;line-height:1;}
+.page-header .page-subtitle .meta-value{font-family:"JetBrains Mono","Consolas",monospace;color:var(--text-secondary);}
+.page-header-actions{display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:nowrap;}
+
+.risk-banner{padding:9px 14px;border-radius:var(--radius-sm);font-size:12px;display:flex;align-items:center;gap:8px;margin-bottom:12px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.risk-banner.warn{background:var(--yellow-bg);border:1px solid var(--yellow-border);color:#a16207;}
+.risk-banner.closed{background:var(--gray-bg);border:1px solid var(--gray-border);color:var(--gray);}
+
+.progress-card{margin-bottom:14px;}
+.progress-card .card-body{padding:16px 20px;}
+.progress-summary{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px;padding:10px 12px;background:var(--bg-hover);border-radius:var(--radius-sm);font-size:12px;color:var(--text-secondary);}
+.progress-summary .summary-item{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;}
+.progress-summary .summary-label{color:var(--text-muted);}
+.progress-summary .summary-val{color:var(--text-primary);font-weight:500;}
+.progress-summary.closed{background:var(--red-bg);color:var(--red);}
+.progress-summary.closed .summary-label,.progress-summary.closed .summary-val{color:var(--red);}
+
+.stepper-wrap{position:relative;}
+.stepper{display:flex;align-items:flex-start;gap:0;overflow-x:auto;padding:2px 0 12px;}
+.step{flex:1;min-width:90px;position:relative;text-align:center;padding:0 4px;border:0;background:transparent;font-family:inherit;cursor:default;}
+.step.clickable{cursor:pointer;}
+.step.clickable:hover .step-name{text-decoration:underline;}
+.step.selected .step-icon{box-shadow:0 0 0 4px rgba(37,99,235,.10);}
+.step:not(:last-child)::after{content:'';position:absolute;top:13px;left:calc(50% + 15px);right:calc(-50% + 15px);height:2px;background:var(--border);z-index:0;}
+.step.done:not(:last-child)::after{background:var(--green);}
+.step-icon{width:26px;height:26px;border-radius:50%;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;font-size:11px;font-weight:600;color:#fff;position:relative;z-index:1;}
+.step.pending .step-icon{color:transparent;}
+.step.done .step-icon{border-color:var(--green);background:var(--green);}
+.step.current .step-icon{border-color:var(--orange);background:#fff;color:transparent;}
+.step.closed .step-icon{border-color:var(--red);background:var(--red);color:#fff;}
+.step.current .step-icon::after{content:'';width:10px;height:10px;border-radius:50%;background:var(--orange);position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);}
+.step-name{font-size:12px;font-weight:500;color:var(--text-muted);line-height:1.35;white-space:nowrap;}
+.step.done .step-name{color:var(--text-secondary);}
+.step.current .step-name{color:var(--orange);font-weight:600;}
+.step.closed .step-name{color:var(--red);font-weight:600;}
+.step.closed:not(:last-child)::after{background:var(--red-border);}
+.step-time{font-size:10.5px;color:var(--text-muted);margin-top:4px;line-height:1.45;white-space:nowrap;}
+.progress-detail{margin-top:10px;border-top:1px solid var(--border-light);padding-top:12px;display:grid;grid-template-columns:88px 1fr;gap:8px 12px;font-size:12.5px;line-height:1.5;position:absolute;left:0;width:360px;max-width:100%;background:var(--bg-surface);z-index:1;}
+.stepper-wrap{padding-bottom:160px;}
+.progress-detail-title{grid-column:1/-1;font-size:12px;font-weight:600;color:var(--text-primary);margin-bottom:2px;}
+.progress-detail .detail-label{color:var(--text-muted);}
+.progress-detail .detail-value{color:var(--text-primary);min-width:0;}
+.progress-detail.closed .detail-title,.progress-detail.closed .detail-value.strong{color:var(--red);}
+.close-info{margin-top:4px;font-size:10px;color:var(--red);line-height:1.45;text-align:left;display:inline-block;max-width:160px;}
+
+.btn{display:inline-flex;align-items:center;padding:6px 14px;border-radius:var(--radius-sm);font-size:12.5px;font-family:inherit;cursor:pointer;border:1px solid transparent;font-weight:500;white-space:nowrap;transition:all var(--transition);gap:5px;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{opacity:.88;}
+.btn-outline{border-color:var(--border);background:var(--bg-surface);color:var(--text-primary);}
+.btn-outline:hover{border-color:var(--text-muted);background:var(--bg-hover);}
+.btn-danger-outline{border-color:var(--red);color:var(--red);background:#fff;}
+.btn-danger-outline:hover{background:var(--red-bg);}
+.btn-sm{padding:3px 10px;font-size:11.5px;}
+.demo-toggle{display:flex;gap:6px;align-items:center;}
+.demo-toggle label{font-size:11px;color:var(--text-muted);white-space:nowrap;}
+.demo-toggle select{font-size:11px;padding:3px 8px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-surface);color:var(--text-primary);cursor:pointer;max-width:200px;}
+
+.tag{display:inline-flex;align-items:center;padding:2px 10px;border-radius:100px;font-size:11px;font-weight:500;white-space:nowrap;border:1px solid transparent;}
+.tag-orange{background:var(--orange-bg);color:var(--orange);border-color:var(--orange-border);}
+.tag-red{background:var(--red-bg);color:var(--red);border-color:var(--red-border);}
+.tag-blue{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-border);}
+.tag-green{background:var(--green-bg);color:var(--green);border-color:var(--green-border);}
+.tag-gray{background:var(--gray-bg);color:var(--gray);border-color:var(--gray-border);}
+
+.detail-layout{display:flex;gap:18px;flex:1;min-height:0;align-items:flex-start;}
+.detail-left{flex:1;display:flex;flex-direction:column;gap:12px;min-width:0;}
+.detail-right{flex:0 0 380px;display:flex;flex-direction:column;gap:14px;min-width:360px;max-width:400px;}
+
+.prod-table-wrap{overflow-x:auto;padding:0;}
+.item-table{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:auto;}
+.item-table th{background:#fafaf9;text-align:left;padding:9px 10px;font-weight:500;font-size:11.5px;color:var(--text-muted);letter-spacing:.02em;border-bottom:1px solid var(--border);white-space:nowrap;}
+.item-table td{padding:10px 10px;border-bottom:1px solid var(--border-light);vertical-align:middle;line-height:1.4;overflow:hidden;}
+.item-table tr:last-child td{border-bottom:none;}
+.item-table .col-price,.item-table .col-qty,.item-table .col-subtotal,.item-table .col-status{text-align:center;}
+.item-table .prod-info{display:flex;align-items:flex-start;gap:8px;min-width:180px;}
+.text-danger{color:var(--red);}
+.coupon-sub{font-size:10.5px;color:var(--text-muted);margin-top:1px;}
+
+.card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--border-light);}
+.card-header h3{font-size:13px;font-weight:600;color:var(--text-primary);letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-header-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.card-body{padding:16px;}
+.action-link{color:var(--blue);font-size:12px;cursor:pointer;background:none;border:none;font-family:inherit;padding:0;}
+.action-link:hover{text-decoration:underline;}
+
+.info-card .info-row{display:flex;align-items:flex-start;padding:6px 0;font-size:12.5px;line-height:1.55;gap:8px;}
+.info-card .info-row:first-child{padding-top:0;}
+.info-card .info-row:last-child{padding-bottom:0;}
+.info-card .info-label{color:var(--text-muted);flex-shrink:0;width:64px;white-space:nowrap;}
+.info-card .info-value{color:var(--text-primary);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+.prod-info{display:flex;align-items:flex-start;gap:8px;min-width:0;}
+.prod-thumb{width:44px;height:44px;border-radius:var(--radius-sm);background:var(--accent-soft);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-muted);}
+.prod-name{font-size:12.5px;font-weight:500;color:var(--text-primary);line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.prod-subno,.prod-sku{font-size:11px;color:var(--text-muted);margin-top:2px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.prod-subno .mono,.prod-sku .mono{font-size:11px;color:var(--text-secondary);}
+
+.fee-summary{display:flex;flex-direction:column;gap:8px;}
+.fee-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;font-size:12.5px;line-height:1.45;}
+.fee-row .fee-label{color:var(--text-muted);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fee-row .fee-val{color:var(--text-primary);font-weight:500;font-family:inherit;flex-shrink:0;}
+.fee-row.paid .fee-val{font-size:18px;font-weight:600;color:var(--red);}
+.fee-breakdown{border-top:1px solid var(--border-light);margin-top:8px;padding-top:8px;display:flex;flex-direction:column;gap:6px;}
+.fee-breakdown .fee-row{font-size:12px;}
+.text-muted{color:var(--text-muted);}
+.placeholder-cell{color:var(--text-muted);font-size:12px;}
+
+.evidence-head{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--border-light);}
+.evidence-title{font-size:12px;color:var(--text-muted);}
+.evidence-grid{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.evidence-item{width:72px;height:72px;border-radius:var(--radius-sm);background:var(--accent-soft);border:1px solid var(--border-light);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--text-muted);}
+.evidence-item:hover{opacity:.9;}
+.evidence-empty{padding:16px;text-align:center;color:var(--text-muted);font-size:12px;background:var(--bg-hover);border-radius:var(--radius-sm);margin-top:8px;}
+
+.addr-block{margin-top:10px;padding:10px 12px;background:var(--yellow-bg);border-radius:var(--radius-sm);font-size:12px;line-height:1.55;}
+.addr-block-title{font-weight:600;margin-bottom:4px;}
+.addr-line{color:var(--text-secondary);line-height:1.55;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+.addr-name{font-size:15px;font-weight:600;color:var(--text-primary);}
+.addr-phone{font-size:13px;color:var(--text-secondary);margin-left:8px;}
+.addr-detail{font-size:12.5px;color:var(--text-primary);margin-top:8px;line-height:1.55;}
+.addr-note{margin-top:10px;padding:8px 10px;background:var(--yellow-bg);border-radius:var(--radius-sm);font-size:12px;color:var(--text-primary);display:flex;align-items:flex-start;gap:6px;line-height:1.5;}
+.addr-warn{padding:2px 8px;border-radius:3px;font-size:11px;margin-left:6px;background:var(--orange-bg);color:var(--orange);}
+.eye-btn{background:none;border:none;cursor:pointer;font-size:14px;padding:0 2px;vertical-align:middle;}
+
+.buyer-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.buyer-avatar{width:36px;height:36px;border-radius:50%;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--text-secondary);}
+.buyer-name{font-size:14px;font-weight:600;}
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px;font-size:12px;}
+.profile-item .pi-label{color:var(--text-muted);}
+.profile-item .pi-val{color:var(--text-primary);font-weight:500;}
+
+.remark-textarea{width:100%;min-height:72px;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;resize:vertical;outline:none;background:var(--bg-surface);}
+.remark-textarea:focus{border-color:var(--accent);}
+.remark-actions{margin-top:8px;display:flex;justify-content:flex-end;}
+
+.timeline{padding:0;}
+.tl-item{position:relative;padding:0 0 14px 24px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-item::before{content:'';position:absolute;left:5px;top:7px;bottom:0;width:1.5px;background:var(--border);}
+.tl-item:last-child::before{display:none;}
+.tl-dot{position:absolute;left:0;top:4px;width:11px;height:11px;border-radius:50%;background:var(--border);border:2px solid var(--bg-surface);}
+.tl-dot.active{background:var(--accent);}
+.tl-dot.ops{background:var(--blue);}
+.tl-dot.buyer{background:var(--green);}
+.tl-content{font-size:12px;color:var(--text-secondary);line-height:1.5;}
+.tl-time{font-size:11px;color:var(--text-muted);margin-top:1px;}
+
+.copy-icon-btn,.copy-btn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;border:none;background:transparent;color:var(--text-muted);cursor:pointer;border-radius:3px;vertical-align:middle;transition:all var(--transition);}
+.copy-icon-btn:hover,.copy-btn:hover{color:var(--text-secondary);background:var(--bg-hover);}
+.mono{font-family:"JetBrains Mono","Consolas",monospace;font-size:11.5px;white-space:nowrap;}
+.price{font-family:"JetBrains Mono","Consolas",monospace;font-weight:500;}
+
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--bg-surface);border-radius:var(--radius-lg);width:100%;max-width:440px;box-shadow:var(--shadow-lg);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+.modal-header h3{font-size:15px;font-weight:600;}
+.modal-close{background:none;border:none;font-size:18px;color:var(--text-muted);cursor:pointer;}
+.modal-body{padding:20px;font-size:13px;}
+.modal-body label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;}
+.modal-body textarea,.modal-body select,.modal-body input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:13px;outline:none;}
+.modal-body .form-group{margin-bottom:14px;}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;border-top:1px solid var(--border);}
+.close-warn{margin-bottom:14px;padding:10px 12px;background:var(--red-bg);border:1px solid var(--red-border);border-radius:var(--radius-sm);font-size:12.5px;color:var(--red);line-height:1.5;}
+.close-confirm-panel{padding:14px;background:var(--bg-hover);border-radius:var(--radius-sm);}
+
+.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:400;align-items:center;justify-content:center;cursor:pointer;}
+.lightbox.open{display:flex;}
+.lightbox-inner{width:min(90vw,520px);height:min(70vh,520px);background:var(--accent-soft);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:64px;color:var(--text-muted);}
+
+.toast-container{position:fixed;top:24px;right:24px;z-index:500;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--bg-sidebar);color:#fff;padding:12px 18px;border-radius:var(--radius);font-size:13px;box-shadow:var(--shadow-lg);}
+.toast.success{border-left:3px solid var(--green);}
+.toast.info{border-left:3px solid var(--blue);}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="app-sidebar"></aside>
+<script src="assets/common-sidebar.js"></script>
+
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">
+      <a style="cursor:pointer;" onclick="showToast('info','订单监控页面（16.商城订单列表）待接入')">订单监控</a> /
+      <a href="18.售后监控列表-原型页面.html">售后监控列表</a> /
+      <span>售后详情</span>
+    </div>
+    <div class="topbar-right">
+      <span style="font-size:12px;color:var(--text-muted);">客服</span>
+      <div class="user-avatar">张</div>
+    </div>
+  </div>
+
+  <div class="content" id="pageRoot"></div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()"><div class="lightbox-inner" id="lightboxInner"></div></div>
+
+<div class="modal-overlay" id="remarkModal">
+  <div class="modal">
+    <div class="modal-header"><h3>客服备注</h3><button type="button" class="modal-close" onclick="closeModal('remarkModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>售后单号</label><div id="remarkModalNo" class="mono"></div></div>
+      <div class="form-group"><label>备注内容</label><textarea id="remarkModalInput" rows="4" placeholder="请输入客服备注"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('remarkModal')">取消</button>
+      <button type="button" class="btn btn-primary btn-sm" onclick="saveRemarkModal()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="rejectModal">
+  <div class="modal">
+    <div class="modal-header"><h3>驳回售后</h3><button type="button" class="modal-close" onclick="closeModal('rejectModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>驳回原因 *</label><textarea id="rejectReason" rows="4" placeholder="请填写驳回原因"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('rejectModal')">取消</button>
+      <button type="button" class="btn btn-danger-outline btn-sm" onclick="submitReject()">确认驳回</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="closeWorkorderModal">
+  <div class="modal">
+    <div class="modal-header"><h3>关闭售后</h3><button type="button" class="modal-close" onclick="closeCloseModal()">×</button></div>
+    <div class="modal-body">
+      <div class="close-warn">适用场景：售后进行中，买家与商家已线下协商解决。<strong>关闭后不可恢复</strong>。待平台审核请使用「驳回」。</div>
+      <div id="closeFormPanel">
+        <div class="form-group"><label>售后单号</label><div id="closeWorkorderNo" class="mono"></div></div>
+        <div class="form-group"><label>关闭原因 *</label>
+          <select id="closeReasonSelect"><option value="">请选择</option><option>已线下协商</option><option>买家撤销</option><option>重复申请</option><option>误操作发起</option><option>其他</option></select>
+        </div>
+        <div class="form-group"><label>补充说明</label><textarea id="closeReasonInput" rows="3" placeholder="选填；选择「其他」时必填"></textarea></div>
+      </div>
+      <div id="closeConfirmPanel" class="close-confirm-panel" hidden>
+        <div style="font-weight:600;margin-bottom:8px;">确认关闭该售后单？</div>
+        <div style="font-size:13px;color:var(--text-secondary);">关闭原因：<span id="closeConfirmReason"></span></div>
+        <div style="margin-top:4px;font-size:13px;color:var(--text-secondary);">操作备注：<span id="closeConfirmRemark"></span></div>
+        <div style="margin-top:8px;font-size:12px;color:var(--red);">关闭后售后终止，不可恢复。</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline btn-sm" onclick="closeCloseModal()">取消</button>
+      <button type="button" class="btn btn-outline btn-sm" id="closeBackBtn" onclick="backCloseStep()" hidden>上一步</button>
+      <button type="button" class="btn btn-primary btn-sm" id="closePrimaryBtn" onclick="submitCloseStep()">下一步</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addressModal">
+  <div class="modal">
+    <div class="modal-header"><h3>修改收货信息</h3><button type="button" class="modal-close" onclick="closeModal('addressModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>收货人姓名 *</label><input type="text" id="addrModalName"></div>
+      <div class="form-group"><label>收货手机号 *</label><input type="tel" id="addrModalPhone"></div>
+      <div class="form-group"><label>收货地址 *</label><input type="text" id="addrModalAddr"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('addressModal')">取消</button>
+      <button type="button" class="btn btn-primary btn-sm" onclick="saveAddressModal()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="returnAddressModal">
+  <div class="modal">
+    <div class="modal-header"><h3>修改寄回地址</h3><button type="button" class="modal-close" onclick="closeModal('returnAddressModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>收件人 *</label><input type="text" id="retAddrModalName"></div>
+      <div class="form-group"><label>联系电话 *</label><input type="tel" id="retAddrModalPhone"></div>
+      <div class="form-group"><label>寄回地址 *</label><input type="text" id="retAddrModalAddr"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('returnAddressModal')">取消</button>
+      <button type="button" class="btn btn-primary btn-sm" onclick="saveReturnAddressModal()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="snapshotModal">
+  <div class="modal" style="max-width:420px;padding:0;">
+    <div class="modal-header" style="padding:12px 16px;"><h3 style="font-size:14px;">交易快照 · 下单时商品详情页</h3><button type="button" class="modal-close" onclick="closeModal('snapshotModal')">×</button></div>
+    <div style="padding:8px 16px;font-size:11px;color:var(--text-muted);background:var(--bg);border-bottom:1px solid var(--border);">此快照为下单时刻冻结副本，作为售后纠纷判定依据</div>
+    <iframe src="product_detail.html" style="width:100%;height:70vh;border:none;display:block;"></iframe>
+  </div>
+</div>
+
+<div class="modal-overlay" id="logisticsTrackModal">
+  <div class="modal">
+    <div class="modal-header"><h3 id="logisticsTrackTitle">物流轨迹</h3><button type="button" class="modal-close" onclick="closeModal('logisticsTrackModal')">×</button></div>
+    <div class="modal-body info-card" id="logisticsTrackBody"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary btn-sm" onclick="closeModal('logisticsTrackModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="detailFillLogisticsModal">
+  <div class="modal">
+    <div class="modal-header"><h3>登记退货单号</h3><button type="button" class="modal-close" onclick="closeModal('detailFillLogisticsModal')">×</button></div>
+    <div class="modal-body">
+      <p style="margin-bottom:12px;">请登记买家退货物流信息，售后单将进入待供应商收货。</p>
+      <div class="form-group"><label>售后单号</label><div id="detailFillLogisticsNo" class="mono"></div></div>
+      <div class="form-group"><label>物流公司 *</label><input type="text" id="detailLogisticsCompanyInput" placeholder="请输入物流公司，如顺丰速运"></div>
+      <div class="form-group"><label>寄回单号 *</label><input type="text" id="detailLogisticsNoInput" placeholder="请输入寄回快递单号"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('detailFillLogisticsModal')">取消</button>
+      <button type="button" class="btn btn-primary btn-sm" onclick="submitFillLogisticsDetail()">确认登记</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="detailFillDeliverModal">
+  <div class="modal">
+    <div class="modal-header"><h3>登记发货单号</h3><button type="button" class="modal-close" onclick="closeModal('detailFillDeliverModal')">×</button></div>
+    <div class="modal-body">
+      <p style="margin-bottom:12px;">请登记换货发货物流信息，售后单将进入待客户收货。</p>
+      <div class="form-group"><label>售后单号</label><div id="detailFillDeliverNo" class="mono"></div></div>
+      <div class="form-group"><label>快递公司 *</label><input type="text" id="detailDeliverCompanyInput" placeholder="请输入快递公司"></div>
+      <div class="form-group"><label>发货单号 *</label><input type="text" id="detailDeliverNoInput" placeholder="请输入发货单号"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('detailFillDeliverModal')">取消</button>
+      <button type="button" class="btn btn-primary btn-sm" onclick="submitFillDeliverDetail()">确认登记</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="detailRefundProgressModal">
+  <div class="modal">
+    <div class="modal-header"><h3>退款进度</h3><button type="button" class="modal-close" onclick="closeModal('detailRefundProgressModal')">×</button></div>
+    <div class="modal-body">
+      <div class="form-group"><label>售后单号</label><div id="detailRefundProgressNo" class="mono"></div></div>
+      <div class="form-group"><label>当前状态</label><div id="detailRefundProgressStatus" style="font-size:13px;line-height:1.7;"></div></div>
+      <p style="font-size:12px;color:var(--text-muted);">退款已发起，等待支付渠道异步回调。下方按钮用于演示回调结果。</p>
+      <div style="display:flex;gap:8px;margin-top:14px;">
+        <button type="button" class="btn btn-primary btn-sm" onclick="applyRefundCallbackDetail(true)">模拟回调成功</button>
+        <button type="button" class="btn btn-danger-outline btn-sm" onclick="applyRefundCallbackDetail(false)">模拟回调失败</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline btn-sm" onclick="closeModal('detailRefundProgressModal')">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="detailViewLogisticsModal">
+  <div class="modal">
+    <div class="modal-header"><h3>查看物流</h3><button type="button" class="modal-close" onclick="closeModal('detailViewLogisticsModal')">×</button></div>
+    <div class="modal-body info-card">
+      <div class="info-row"><span class="info-label">快递公司</span><span class="info-value" id="detailViewLogisticsCompany"></span></div>
+      <div class="info-row"><span class="info-label">运单号</span><span class="info-value mono" id="detailViewLogisticsNo"></span></div>
+      <p style="font-size:12px;color:var(--text-muted);margin-top:10px;">换货商品已发出，等待客户确认收货。若客户 15 天未确认，系统将自动确认为换货成功。</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary btn-sm" onclick="closeModal('detailViewLogisticsModal')">我知道了</button>
+    </div>
+  </div>
+</div>
+
+<script src="assets/common-copy-btn.js"></script>
+<script>
+var CLOSEABLE=['待客户退货','待供应商收货','待退款','待供应商发货','待客户收货'];
+var STATUS_CLS={'待平台审核':'tag-orange','待客户退货':'tag-blue','待供应商收货':'tag-blue','待退款':'tag-orange','退款中':'tag-blue','退款失败':'tag-red','待供应商发货':'tag-orange','待客户收货':'tag-blue','退款成功':'tag-green','换货成功':'tag-green','已驳回':'tag-red','已关闭':'tag-red','已撤销':'tag-gray'};
+
+var CASES={
+  AF20260323002:{
+    id:'AF20260323002',mainNo:'ORD20260323001',subNo:'ORD2026032300103',mall:'政企福利商城',
+    name:'便携迷你USB风扇',spec:'薄荷绿',skuLogistics:'HZ-A00008-001-DF-A002',supplier:'博源供应链',
+    type:'仅退款',source:'C端申请',amount:'28.00',time:'2026-03-23 16:10',status:'待平台审核',
+    customer:'张三',phone:'13812348888',phoneMask:'138****8888',
+    address:'湖北省武汉市洪山区珞喻路1037号',addressWarning:'',buyerNote:'',
+    registrationDate:'2024-03',purchaseCount:'12 次',totalSpent:'¥3,580',refundRate:'8%（近30天 2/25笔）',
+    reason:'不想要了',description:'',evidence:[],paymentMethod:'微信支付',cashRefund:'28.00',pointsRefund:'',
+    qty:1,price:'28.00',coupon:'5.00',pointsDeduction:'0.28',orderStatus:'已发货',csRemark:'',
+    timeline:[{type:'buyer',text:'买家提交售后申请 · 原因：不想要了',time:'2026-03-23 16:10'}]
+  },
+  AF20260322003:{
+    id:'AF20260322003',mainNo:'ORD20260322018',subNo:'ORD20260322018',mall:'航司积分小站',
+    name:'智能蓝牙体脂秤',spec:'白色',skuLogistics:'HZ-A00003-001-DF-A002',supplier:'恒通供应链',
+    type:'退货退款',source:'C端申请',amount:'189.00',time:'2026-03-22 11:20',status:'待供应商收货',
+    customer:'李四',phone:'13912346621',phoneMask:'139****6621',
+    address:'北京市朝阳区建国门外大街1号',addressWarning:'',buyerNote:'',
+    registrationDate:'2023-09',purchaseCount:'5 次',totalSpent:'¥1,260',refundRate:'4%（近30天 1/25笔）',
+    reason:'发错货',description:'收到型号与订单不符',evidence:['错'],
+    paymentMethod:'支付宝',cashRefund:'189.00',pointsRefund:'',
+    qty:2,price:'94.50',coupon:'20.00',pointsDeduction:'1.89',orderStatus:'已发货',csRemark:'已联系供应商确认收货',
+    returnAddress:{name:'恒通供应链退货组',phone:'400-888-3301',addr:'江苏省苏州市工业园区星湖街328号'},
+    returnOrderNo:'RT20260322001',
+    returnLogistics:{company:'顺丰速运',no:'SF1234567890',time:'2026-03-24 09:00'},
+    timeline:[
+      {type:'buyer',text:'买家提交售后申请 · 原因：发错货 · 凭证 1 张',time:'2026-03-22 11:20'},
+      {type:'ops',text:'客服 王五 审核通过',time:'2026-03-22 14:00'},
+      {type:'buyer',text:'买家已填写退货物流 · 顺丰速运 SF1234567890',time:'2026-03-24 09:00'}
+    ]
+  },
+  AF20260322005:{
+    id:'AF20260322005',mainNo:'ORD20260322018',subNo:'ORD2026032201802',mall:'航司积分小站',
+    name:'智能蓝牙体脂秤',spec:'白色',skuLogistics:'HZ-A00003-001-DF-A002',supplier:'恒通供应链',
+    type:'退货退款',source:'C端申请',amount:'189.00',time:'2026-03-22 11:20',status:'已关闭',closeAtStep:'待客户退货',closeReason:'客户放弃退货',closeRemark:'客户表示商品可接受，不再寄回退货；客服电话确认后关闭售后。',closeTime:'2026-03-24 15:30',
+    customer:'李四',phone:'13912346621',phoneMask:'139****6621',
+    address:'北京市朝阳区建国门外大街1号',addressWarning:'',buyerNote:'',
+    registrationDate:'2023-09',purchaseCount:'5 次',totalSpent:'¥1,260',refundRate:'4%（近30天 1/25笔）',
+    reason:'发错货',description:'收到型号与订单不符，后客户表示可接受商品并放弃退货。',evidence:['错'],
+    paymentMethod:'支付宝',cashRefund:'189.00',pointsRefund:'',
+    qty:2,price:'94.50',coupon:'20.00',pointsDeduction:'1.89',orderStatus:'已发货',csRemark:'关闭原因：客户放弃退货；操作备注：客户表示商品可接受，不再寄回退货；客服电话确认后关闭售后。',
+    returnAddress:{name:'恒通供应链退货组',phone:'400-888-3301',addr:'江苏省苏州市工业园区星湖街328号'},
+    timeline:[
+      {type:'buyer',text:'买家提交售后申请 · 原因：发错货 · 凭证 1 张',time:'2026-03-22 11:20'},
+      {type:'ops',text:'客服 王五 审核通过',time:'2026-03-22 14:00'},
+      {type:'ops',text:'客服 王五 电话确认客户放弃退货，关闭售后',time:'2026-03-24 15:30',note:'客户表示商品可接受，不再寄回退货；客服电话确认后关闭售后。'}
+    ]
+  },
+  AF20260321004:{
+    id:'AF20260321004',mainNo:'ORD20260321005',subNo:'ORD2026032100501',mall:'政企福利商城',
+    name:'无线蓝牙耳机',spec:'黑色',skuLogistics:'HZ-A00012-001-DF-A003',supplier:'数码直供',
+    type:'换货',source:'C端申请',amount:'0',time:'2026-03-21 14:20',status:'待客户收货',
+    customer:'王五',phone:'13712345566',phoneMask:'137****5566',
+    address:'上海市浦东新区陆家嘴环路1000号',addressWarning:'地址不完整',buyerNote:'工作日送货',
+    registrationDate:'2024-01',purchaseCount:'18 次',totalSpent:'¥8,920',refundRate:'18%（近30天 4/22笔）',
+    reason:'质量问题',description:'右耳无声，已尝试重启配对仍无效。',
+    evidence:['耳'],paymentMethod:'微信支付',cashRefund:'',pointsRefund:'',
+    qty:1,price:'199.00',coupon:'30.00',pointsDeduction:'1.99',orderStatus:'已发货',csRemark:'换货已发出，待买家签收',
+    returnAddress:{name:'数码直供退货组',phone:'400-888-9901',addr:'广东省深圳市南山区科技园南路88号'},
+    returnOrderNo:'RT20260321001',
+    returnLogistics:{company:'顺丰速运',no:'SF9876543210',time:'2026-03-22 10:00'},
+    exchangeOrderNo:'EX20260321001',
+    exchangeLogistics:{company:'中通快递',no:'ZT5566778899',time:'2026-03-24 16:30'},
+    timeline:[
+      {type:'buyer',text:'买家提交换货申请 · 原因：质量问题 · 凭证 1 张',time:'2026-03-21 14:20'},
+      {type:'ops',text:'客服 李四 审核通过 · 同意换货',time:'2026-03-21 16:00'},
+      {type:'buyer',text:'买家已寄回 · 顺丰速运 SF9876543210',time:'2026-03-22 10:00'},
+      {type:'sys',text:'供应商已确认收货',time:'2026-03-23 09:00'},
+      {type:'sys',text:'换货商品已发出 · 中通快递 ZT5566778899',time:'2026-03-24 16:30'}
+    ]
+  },
+  AF20260305001:{
+    id:'AF20260305001',mainNo:'ORD20260325001',subNo:'ORD2026032500101',mall:'政企福利商城',
+    name:'不锈钢保温杯500ml',spec:'500ml 银色',skuLogistics:'HZ-A00004-001-DF-A001',supplier:'星辰商贸',
+    type:'退货退款',source:'C端申请',amount:'68.00',time:'2026-03-05 10:15',status:'已撤销',
+    customer:'孙七',phone:'13112343344',phoneMask:'131****3344',
+    address:'浙江省杭州市西湖区文三路478号',addressWarning:'',buyerNote:'',
+    registrationDate:'2024-06',purchaseCount:'3 次',totalSpent:'¥520',refundRate:'0%（近30天 0/3笔）',
+    reason:'不想要了',description:'',evidence:[],
+    paymentMethod:'微信支付',cashRefund:'68.00',pointsRefund:'',
+    qty:1,price:'68.00',coupon:'12.59',pointsDeduction:'0.67',orderStatus:'已发货',csRemark:'用户自行撤销申请',
+    timeline:[
+      {type:'buyer',text:'买家提交售后申请 · 原因：不想要了',time:'2026-03-05 10:15'},
+      {type:'buyer',text:'买家已撤销售后申请',time:'2026-03-05 11:20'}
+    ]
+  },
+  AF20260326001:{
+    id:'AF20260326001',mainNo:'ORD20260326001',subNo:'ORD2026032600101',mall:'政企福利商城',
+    name:'便携迷你USB风扇',spec:'薄荷绿',skuLogistics:'HZ-A00008-001-DF-A002',supplier:'博源供应链',
+    type:'仅退款',source:'C端申请',amount:'28.00',time:'2026-03-26 09:30',status:'退款成功',
+    customer:'赵六',phone:'13212347777',phoneMask:'132****7777',
+    address:'江苏省南京市鼓楼区汉口路22号',addressWarning:'',buyerNote:'',
+    registrationDate:'2024-05',purchaseCount:'8 次',totalSpent:'¥2,140',refundRate:'5%（近30天 1/20笔）',
+    reason:'商品破损',description:'收到时外包装已严重变形，内部风扇叶片断裂。',evidence:['破'],
+    paymentMethod:'微信支付',cashRefund:'28.00',pointsRefund:'',
+    qty:1,price:'28.00',coupon:'5.00',pointsDeduction:'0.28',orderStatus:'已发货',csRemark:'退款已完成',
+    timeline:[
+      {type:'buyer',text:'买家提交售后申请 · 原因：商品破损 · 凭证 1 张',time:'2026-03-26 09:30'},
+      {type:'ops',text:'客服 王五 审核通过',time:'2026-03-26 10:00'},
+      {type:'sys',text:'退款完成 · 到账金额 ¥28.00',time:'2026-03-26 11:00'}
+    ]
+  },
+  AF20260327001:{
+    id:'AF20260327001',mainNo:'ORD20260327001',subNo:'ORD2026032700102',mall:'航司积分小站',
+    name:'智能蓝牙体脂秤',spec:'白色',skuLogistics:'HZ-A00003-001-DF-A002',supplier:'恒通供应链',
+    type:'退货退款',source:'C端申请',amount:'189.00',time:'2026-03-27 08:40',status:'退款成功',
+    customer:'周八',phone:'13312348888',phoneMask:'133****8888',
+    address:'广东省广州市天河区体育西路111号',addressWarning:'',buyerNote:'',
+    registrationDate:'2023-12',purchaseCount:'15 次',totalSpent:'¥4,750',refundRate:'6%（近30天 2/33笔）',
+    reason:'质量问题',description:'无法连接APP，蓝牙搜索不到设备。',evidence:['质'],
+    paymentMethod:'支付宝',cashRefund:'189.00',pointsRefund:'',
+    qty:1,price:'189.00',coupon:'20.00',pointsDeduction:'1.89',orderStatus:'已发货',csRemark:'退货退款已完成',
+    returnAddress:{name:'恒通供应链退货组',phone:'400-888-3301',addr:'江苏省苏州市工业园区星湖街328号'},
+    returnOrderNo:'RT20260327001',
+    returnLogistics:{company:'圆通速递',no:'YT9988776655',time:'2026-03-28 14:00'},
+    timeline:[
+      {type:'buyer',text:'买家提交售后申请 · 原因：质量问题 · 凭证 1 张',time:'2026-03-27 08:40'},
+      {type:'ops',text:'客服 王五 审核通过',time:'2026-03-27 09:30'},
+      {type:'buyer',text:'买家已填写退货物流 · 圆通速递 YT9988776655',time:'2026-03-28 14:00'},
+      {type:'ops',text:'客服 张三 确认供应商收货',time:'2026-03-30 10:00'},
+      {type:'sys',text:'退款完成 · 到账金额 ¥189.00',time:'2026-03-30 15:00'}
+    ]
+  },
+  AF20260328001:{
+    id:'AF20260328001',mainNo:'ORD20260328001',subNo:'ORD2026032800101',mall:'政企福利商城',
+    name:'无线蓝牙耳机',spec:'白色',skuLogistics:'HZ-A00012-001-DF-A001',supplier:'数码直供',
+    type:'换货',source:'C端申请',amount:'0',time:'2026-03-28 10:00',status:'换货成功',
+    customer:'吴九',phone:'13412349999',phoneMask:'134****9999',
+    address:'四川省成都市高新区天府大道中段688号',addressWarning:'',buyerNote:'周末不送货',
+    registrationDate:'2024-02',purchaseCount:'20 次',totalSpent:'¥10,500',refundRate:'10%（近30天 3/30笔）',
+    reason:'质量问题',description:'左耳有杂音，已重置多次仍无法解决。',evidence:['质'],
+    paymentMethod:'微信支付',cashRefund:'',pointsRefund:'',
+    qty:1,price:'199.00',coupon:'30.00',pointsDeduction:'1.99',orderStatus:'已发货',csRemark:'换货已完成',
+    returnAddress:{name:'数码直供退货组',phone:'400-888-9901',addr:'广东省深圳市南山区科技园南路88号'},
+    returnOrderNo:'RT20260328001',
+    returnLogistics:{company:'京东物流',no:'JD1122334455',time:'2026-03-30 09:00'},
+    exchangeOrderNo:'EX20260331001',
+    exchangeLogistics:{company:'韵达快递',no:'YD6677889900',time:'2026-04-01 14:30'},
+    timeline:[
+      {type:'buyer',text:'买家提交换货申请 · 原因：质量问题 · 凭证 1 张',time:'2026-03-28 10:00'},
+      {type:'ops',text:'客服 李四 审核通过 · 同意换货',time:'2026-03-28 15:00'},
+      {type:'buyer',text:'买家已寄回 · 京东物流 JD1122334455',time:'2026-03-30 09:00'},
+      {type:'ops',text:'客服 张三 确认供应商收货',time:'2026-03-31 10:00'},
+      {type:'sys',text:'换货商品已发出 · 韵达快递 YD6677889900',time:'2026-04-01 14:30'},
+      {type:'sys',text:'买家已签收换货商品',time:'2026-04-03 09:00'}
+    ]
+  },
+  AF20260325001:{
+    id:'AF20260325001',mainNo:'ORD20260323001',subNo:'ORD2026032300101',mall:'政企福利商城',
+    name:'不锈钢保温杯500ml',spec:'500ml 银色',skuLogistics:'HZ-A00004-001-DF-A001',supplier:'星辰商贸',
+    type:'退货退款',source:'C端申请',amount:'68.00',time:'2026-03-25 09:30',status:'待客户退货',slaDays:3,
+    customer:'张三',phone:'13812348888',phoneMask:'138****8888',
+    address:'湖北省武汉市洪山区珞喻路1037号',addressWarning:'',buyerNote:'',
+    registrationDate:'2024-03',purchaseCount:'12 次',totalSpent:'¥3,580',refundRate:'8%（近30天 2/25笔）',
+    reason:'不想要了',description:'',evidence:[],paymentMethod:'微信支付',cashRefund:'68.00',pointsRefund:'',
+    qty:1,price:'68.00',coupon:'12.59',pointsDeduction:'0.67',orderStatus:'已发货',csRemark:'审核已通过，待客户寄回',
+    returnAddress:{name:'星辰商贸退货组',phone:'400-888-1001',addr:'上海市嘉定区曹安公路5555号'},
+    timeline:[
+      {type:'buyer',text:'买家提交售后申请 · 原因：不想要了',time:'2026-03-25 09:30'},
+      {type:'ops',text:'客服 王五 审核通过',time:'2026-03-25 10:00'}
+    ]
+  },
+  AF99999999:{
+    id:'AF99999999',mainNo:'ORD20260328001',subNo:'ORD2026032800101',mall:'政企福利商城',
+    name:'无线蓝牙耳机',spec:'白色',skuLogistics:'HZ-A00012-001-DF-A001',supplier:'数码直供',
+    type:'换货',source:'C端申请',amount:'0',time:'2026-04-01 10:00',status:'换货成功',
+    customer:'演示用户',phone:'13800001111',phoneMask:'138****1111',
+    address:'北京市朝阳区演示路100号',addressWarning:'',buyerNote:'',
+    registrationDate:'2024-01',purchaseCount:'5 次',totalSpent:'¥1,500',refundRate:'0%（近30天 0/5笔）',
+    reason:'质量问题',description:'演示全部时间线事件类型。',evidence:['质'],
+    paymentMethod:'微信支付',cashRefund:'',pointsRefund:'',
+    qty:1,price:'199.00',coupon:'30.00',pointsDeduction:'1.99',orderStatus:'已发货',csRemark:'演示全部时间线事件',
+    returnAddress:{name:'数码直供退货组',phone:'400-888-9901',addr:'广东省深圳市南山区科技园南路88号'},
+    returnOrderNo:'RT99999999',
+    returnLogistics:{company:'顺丰速运',no:'SF1111111111',time:'2026-04-03 11:00'},
+    exchangeOrderNo:'EX99999999',
+    exchangeLogistics:{company:'中通快递',no:'ZT2222222222',time:'2026-04-04 16:00'},
+    timeline:[
+      {type:'sys',text:'—— 以下为售后时间线全部事件类型展示（共14种），供开发参考 ——',time:'',note:'部分事件互斥不会同时出现在同一售后单中'},
+      {type:'buyer',text:'买家提交售后申请 · 原因：质量问题 · 凭证 1 张',time:'2026-04-01 10:00',note:'TL-001 买家提交申请'},
+      {type:'ops',text:'客服 王五 审核通过 · 同意换货',time:'2026-04-01 16:00',note:'TL-002 客服审核通过'},
+      {type:'ops',text:'客服 王五 修改寄回地址 · 原地址：广东省深圳市南山区科技园南路88号 → 新地址：广东省深圳市龙华区民治大道200号',time:'2026-04-01 16:30',note:'TL-014 客服修改寄回地址'},
+      {type:'buyer',text:'买家已填写退货物流 · 顺丰速运 SF1111111111',time:'2026-04-03 11:00',note:'TL-005 买家填写退货物流'},
+      {type:'ops',text:'客服 张三 确认供应商收货',time:'2026-04-04 10:00',note:'TL-007 客服确认供应商收货'},
+      {type:'ops',text:'客服 张三 修改客服备注 · 原：演示全部时间线事件 → 新：已确认收货，换货处理中',time:'2026-04-04 10:30',note:'TL-012 客服修改客服备注'},
+      {type:'ops',text:'客服 张三 修改收货地址 · 原：北京市朝阳区演示路100号 → 新：北京市海淀区中关村大街1号',time:'2026-04-04 11:00',note:'TL-013 客服修改补发收货地址'},
+      {type:'sys',text:'换货商品已发出 · 中通快递 ZT2222222222',time:'2026-04-04 16:00',note:'TL-009 换货商品已发出（供应商填写物流后触发）'},
+      {type:'sys',text:'买家已签收换货商品',time:'2026-04-05 14:00',note:'TL-010 买家签收换货商品（物流签收后触发）'},
+      {type:'sys',text:'—— 以下为互斥事件（不会与上述事件同时出现），仅展示格式 ——',time:''},
+      {type:'ops',text:'客服驳回：超出售后时效',time:'2026-04-01 16:00',note:'TL-003 客服驳回（与审核通过互斥，仅格式参考）'},
+      {type:'buyer',text:'买家已撤销售后申请',time:'2026-04-01 14:00',note:'TL-004 买家撤销售后申请（待平台审核时触发，仅格式参考）'},
+      {type:'sys',text:'退款完成 · 到账金额 ¥199.00',time:'2026-04-04 15:00',note:'TL-008 退款完成（仅退款/退货退款类型，仅格式参考）'},
+      {type:'ops',text:'客服关闭售后 · 原因：客户放弃退货 · 备注：客户电话确认不再寄回商品',time:'2026-04-04 15:00',note:'TL-011 客服关闭售后（仅格式参考）'}
+    ]
+  }
+};
+
+var DEMO_CASES=[
+  {id:'AF20260323002',label:'仅退款 · 待平台审核'},
+  {id:'AF20260326001',label:'仅退款 · 退款成功'},
+  {id:'AF20260322003',label:'退货退款 · 待供应商收货'},
+  {id:'AF20260325001',label:'退货退款 · 待客户退货'},
+  {id:'AF20260327001',label:'退货退款 · 退款成功'},
+  {id:'AF20260322005',label:'退货退款 · 已关闭'},
+  {id:'AF20260305001',label:'退货退款 · 已撤销'},
+  {id:'AF20260321004',label:'换货 · 待客户收货'},
+  {id:'AF20260328001',label:'换货 · 换货成功'},
+  {id:'AF99999999',label:'演示 · 全部时间线事件'}
+];
+var currentId='AF20260323002';
+var selectedStepIndex=null;
+var closeStep=1;
+
+function getCase(){return CASES[currentId]||CASES.AF20260323002;}
+
+function showToast(type,msg){
+  var c=document.getElementById('toastContainer');
+  var t=document.createElement('div');
+  t.className='toast '+(type||'info');
+  t.textContent=msg;
+  c.appendChild(t);
+  setTimeout(function(){t.remove();},2800);
+}
+function nowText(){
+  var d=new Date();
+  function p(n){return n<10?'0'+n:n;}
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
+}
+function copyText(text,e){
+  if(e)e.stopPropagation();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){showToast('success','已复制');});
+  }else showToast('info',text);
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function openSnapshotModal(){
+  document.getElementById('snapshotModal').classList.add('open');
+}
+function openLightbox(ch){document.getElementById('lightboxInner').textContent=ch;document.getElementById('lightbox').classList.add('open');}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');}
+
+function getSteps(c){
+  if(c.type==='仅退款')return ['发起申请','平台审核','待退款','已完成'];
+  if(c.type==='换货')return ['发起申请','平台审核','待客户退货','待收货及确认','待供应商发货','待客户收货','已完成'];
+  return ['发起申请','平台审核','待客户退货','待收货及确认','待退款','已完成'];
+}
+function stepIndex(c){
+  var steps=getSteps(c);
+  if(c.status==='已关闭'&&c.closeAtStep){
+    var closeIdx=steps.indexOf(c.closeAtStep);
+    if(closeIdx>=0)return closeIdx;
+  }
+  if(c.status==='退款成功'||c.status==='换货成功')return steps.length;
+  if(c.status==='已撤销')return 1;
+  if(c.type==='仅退款'){
+    var m1={'待平台审核':1,'已驳回':1,'待退款':2,'退款中':2,'退款失败':2,'退款成功':3,'已关闭':1};
+    return m1[c.status]!==undefined?m1[c.status]:0;
+  }
+  if(c.type==='换货'){
+    var m2={'待平台审核':1,'已驳回':1,'待客户退货':2,'待供应商收货':3,'待供应商发货':4,'待客户收货':5,'换货成功':6,'已关闭':1};
+    return m2[c.status]!==undefined?m2[c.status]:0;
+  }
+  var m3={'待平台审核':1,'已驳回':1,'待客户退货':2,'待供应商收货':3,'待退款':4,'退款中':4,'退款失败':4,'退款成功':5,'已关闭':1};
+  return m3[c.status]!==undefined?m3[c.status]:0;
+}
+function formatShortTime(t){
+  if(!t)return '';
+  var p=t.split(' ');
+  return p.length>=2?p[0].slice(5)+' '+p[1].slice(0,5):t;
+}
+function buildStepMetas(c,steps,curIdx){
+  var metas=steps.map(function(){return {time:'',who:'',note:'',operator:''};});
+  var customer=c.customer||'买家';
+  var supplier=c.supplier||'供应商';
+
+  // 从时间线提取客服姓名
+  function findOpsName(){
+    var tl=c.timeline||[];
+    for(var i=tl.length-1;i>=0;i--){
+      var m=tl[i].text.match(/客服\s+(\S+)/);
+      if(m)return m[1];
+    }
+    return '李四';
+  }
+  // 从时间线提取审核时间/退货时间等
+  function findEventTime(keyword){
+    var tl=c.timeline||[];
+    for(var i=0;i<tl.length;i++){
+      if(tl[i].text.indexOf(keyword)>=0)return tl[i].time;
+    }
+    return '';
+  }
+  var opsName=findOpsName();
+  var appTime=c.time||'';
+
+  // ① 发起申请
+  if(steps.length)metas[0]={time:formatShortTime(appTime),who:'买家',note:'',operator:'买家：'+customer};
+
+  // ② 平台审核
+  var auditIdx=steps.indexOf('平台审核');
+  if(auditIdx>=0){
+    if(c.status==='已撤销'){
+      metas[auditIdx]={time:'',who:'买家',note:'已撤销',operator:'买家：'+customer};
+    }else if(curIdx>auditIdx){
+      var auditTime=findEventTime('审核');
+      var isRejected=c.status==='已驳回';
+      metas[auditIdx]={
+        time:formatShortTime(auditTime),who:'客服',
+        note:isRejected?'已驳回':'审核通过',
+        operator:'客服：'+opsName
+      };
+    }else if(curIdx===auditIdx){
+      if(c.status==='已驳回'){
+        metas[auditIdx]={time:formatShortTime(findEventTime('驳回')),who:'客服',note:'已驳回',operator:'客服：'+opsName};
+      }else{
+        metas[auditIdx]={time:'',who:'客服',note:'待审核',operator:'客服：待处理'};
+      }
+    }else{
+      metas[auditIdx]={time:'',who:'客服',note:'',operator:'客服：待处理'};
+    }
+  }
+
+  // ③ 待客户退货
+  var returnIdx=steps.indexOf('待客户退货');
+  if(returnIdx>=0){
+    if(curIdx>returnIdx&&c.returnLogistics){
+      metas[returnIdx]={time:formatShortTime(c.returnLogistics.time),who:'买家',note:'已填写物流',operator:'买家：'+customer};
+    }else if(curIdx===returnIdx){
+      metas[returnIdx]={time:'',who:'买家',note:'待寄回',operator:'买家：'+customer};
+    }
+  }
+
+  // ④ 待收货及确认（供应商收货）
+  var recvIdx=steps.indexOf('待收货及确认');
+  if(recvIdx>=0){
+    if(curIdx>recvIdx){
+      metas[recvIdx]={time:formatShortTime(findEventTime('收货')),who:'供应商',note:'已确认收货',operator:'供应商：'+supplier};
+    }else if(curIdx===recvIdx){
+      var retTime=c.returnLogistics?c.returnLogistics.time:'';
+      metas[recvIdx]={time:'',who:'供应商',note:'待收货',operator:'供应商：'+supplier};
+    }
+  }
+
+  // ⑤ 待退款
+  var refundIdx=steps.indexOf('待退款');
+  if(refundIdx>=0){
+    if(curIdx>refundIdx)metas[refundIdx]={time:formatShortTime(findEventTime('退款完成')),who:'系统',note:'已退款',operator:'系统'};
+    else if(curIdx===refundIdx){
+      var rn='待退款';
+      if(c.status==='退款中')rn='退款处理中，等待支付回调';
+      else if(c.status==='退款失败')rn='退款失败，可重新发起';
+      metas[refundIdx]={time:'',who:'系统',note:rn,operator:'系统'};
+    }
+  }
+
+  // ⑥ 待供应商发货（换货场景）
+  var shipIdx=steps.indexOf('待供应商发货');
+  if(shipIdx>=0){
+    if(curIdx>shipIdx){
+      metas[shipIdx]={time:formatShortTime(c.exchangeLogistics?c.exchangeLogistics.time:''),who:'供应商',note:'已发出',operator:'供应商：'+supplier};
+    }else if(curIdx===shipIdx){
+      metas[shipIdx]={time:'',who:'供应商',note:'待发货',operator:'供应商：'+supplier};
+    }
+  }
+
+  // ⑧ 待客户收货（换货场景）
+  var custRecvIdx=steps.indexOf('待客户收货');
+  if(custRecvIdx>=0){
+    if(curIdx>custRecvIdx){
+      metas[custRecvIdx]={time:'',who:'买家',note:'已签收',operator:'买家：'+customer};
+    }else if(curIdx===custRecvIdx){
+      var shipTime=c.exchangeLogistics?c.exchangeLogistics.time:'';
+      metas[custRecvIdx]={time:'',who:'买家',note:'待签收',operator:'买家：'+customer};
+    }
+  }
+
+  // ⑨ 已完成
+  var doneIdx=steps.indexOf('已完成');
+  if(doneIdx>=0&&curIdx>=doneIdx){
+    metas[doneIdx]={time:'',who:'系统',note:'售后完成',operator:'系统'};
+  }
+
+  if(c.status==='已关闭'&&c.closeAtStep){
+    var closedIdx=steps.indexOf(c.closeAtStep);
+    if(closedIdx>=0){
+      metas[closedIdx]={time:formatShortTime(c.closeTime),who:'客服',note:'已关闭',operator:'客服：'+opsName};
+    }
+  }
+
+  return metas;
+}
+
+function renderProgressDetail(c,steps,metas,idx){
+  var meta=metas[idx]||{};
+  var name=steps[idx]||'';
+  var isClosed=c.status==='已关闭'&&idx===stepIndex(c);
+  var isCancelled=c.status==='已撤销'&&idx===1;
+  var isRejected=c.status==='已驳回'&&idx===stepIndex(c);
+  var html='<div class="progress-detail'+(isClosed||isCancelled||isRejected?' closed':'')+'">';
+  html+='<div class="progress-detail-title">'+(isCancelled?'撤销信息':(isClosed?'关闭信息':(isRejected?'驳回信息':'节点详情')))+'</div>';
+  html+='<div class="detail-label">节点</div><div class="detail-value strong">'+name+'</div>';
+  html+='<div class="detail-label">操作人</div><div class="detail-value">'+(meta.operator||'—')+'</div>';
+  html+='<div class="detail-label">操作时间</div><div class="detail-value">'+(meta.time||'—')+'</div>';
+  if(!isClosed&&!isCancelled){
+    html+='<div class="detail-label">操作备注</div><div class="detail-value">'+(meta.note||'—')+'</div>';
+  }
+  if(isCancelled){
+    html+='<div class="detail-label">撤销说明</div><div class="detail-value strong">用户在平台审核前主动撤销售后申请</div>';
+  }
+  if(isRejected){
+    var rejReason='';
+    (c.timeline||[]).forEach(function(t){var m=t.text.match(/客服驳回：(.+)/);if(m)rejReason=m[1];});
+    html+='<div class="detail-label">驳回原因</div><div class="detail-value strong">'+(rejReason||'—')+'</div>';
+  }
+  if(isClosed){
+    html+='<div class="detail-label">关闭原因</div><div class="detail-value strong">'+(c.closeReason||'—')+'</div>';
+    html+='<div class="detail-label">操作备注</div><div class="detail-value">'+(c.closeRemark||meta.note||'—')+'</div>';
+  }
+  html+='</div>';
+  return html;
+}
+function renderStepper(c){
+  var steps=getSteps(c);
+  var curIdx=stepIndex(c);
+  var allDone=curIdx>=steps.length;
+  var metas=buildStepMetas(c,steps,curIdx);
+  var selectedIdx=selectedStepIndex===null?Math.min(curIdx,steps.length-1):Math.min(selectedStepIndex,steps.length-1);
+  var currentMeta=metas[curIdx]||{};
+  var statusLabel=c.status||steps[curIdx]||'—';
+  var html='<div class="card progress-card"><div class="card-header"><h3>售后进展</h3><span class="tag '+(STATUS_CLS[c.status]||'tag-gray')+'">'+statusLabel+'</span></div><div class="card-body">';
+  html+='<div class="progress-summary '+(c.status==='已关闭'||c.status==='已撤销'?'closed':'')+'">'
+    +'<span class="summary-item"><span class="summary-label">当前状态</span><span class="summary-val">'+statusLabel+'</span></span>'
+    +'<span class="summary-item"><span class="summary-label">操作人</span><span class="summary-val">'+(currentMeta.operator||'—')+'</span></span>'
+    +'<span class="summary-item"><span class="summary-label">时间</span><span class="summary-val">'+(currentMeta.time||'—')+'</span></span>'
+    +'</div>';
+  html+='<div class="stepper-wrap"><div class="stepper">';
+  steps.forEach(function(name,i){
+    var cls='step pending';
+    if(c.status==='已关闭'&&i===curIdx)cls='step closed';
+    else if(c.status==='已撤销'&&i===1)cls='step closed';
+    else if(c.status==='已驳回'&&i===curIdx)cls='step closed';
+    else if(allDone||i<curIdx)cls='step done';
+    else if(i===curIdx)cls='step current';
+    var clickable=(i<=curIdx)||(allDone&&i<steps.length);
+    if(clickable)cls+=' clickable';
+    if(i===selectedIdx)cls+=' selected';
+    var icon=cls.indexOf('closed')>=0?'×':(i<curIdx||allDone?'✓':'');
+    var meta=metas[i]||{};
+    html+='<button type="button" class="'+cls+'" '+(clickable?'onclick="selectProgressStep('+i+')"':'disabled')+'><div class="step-icon">'+icon+'</div><div class="step-name">'+name+'</div>';
+    if(meta.time)html+='<div class="step-time">'+meta.time+'</div>';
+    html+='</button>';
+  });
+  html+='</div>';
+  html+=renderProgressDetail(c,steps,metas,selectedIdx);
+  html+='</div>';
+  html+='</div></div>';
+  return html;
+}
+
+function renderRiskBanner(c){
+  // 已关闭/已撤销的提示信息已在进度步骤条的关闭/撤销节点中展示，顶部不再重复显示横幅；仅保留超期未寄回的黄色 SLA 预警
+  if(!c.slaDays||c.status!=='待客户退货')return '';
+  return '<div class="risk-banner warn" onclick="this.style.display=\'none\'">⚠ 客户已超过 '+c.slaDays+' 天未寄回，建议提醒或关闭售后 · 点击关闭</div>';
+}
+
+function renderActions(c){
+  var html='';
+  if(c.status==='待平台审核'){
+    html+='<button type="button" class="btn btn-primary btn-sm" onclick="approveCase()">同意售后</button>';
+    html+='<button type="button" class="btn btn-danger-outline btn-sm" onclick="openModal(\'rejectModal\')">驳回</button>';
+  }else if(c.status==='待客户退货'){
+    html+='<button type="button" class="btn btn-primary btn-sm" onclick="remindReturn()">提醒客户寄回</button>';
+    html+='<button type="button" class="btn btn-outline btn-sm" onclick="openFillLogisticsDetail()">代填物流</button>';
+  }else if(c.status==='待供应商收货'){
+    html+='<button type="button" class="btn btn-primary btn-sm" onclick="confirmReceive()">确认收货</button>';
+  }else if(c.status==='待退款'){
+    html+='<button type="button" class="btn btn-primary btn-sm" onclick="executeRefundDetail()">执行退款</button>';
+  }else if(c.status==='退款中'){
+    html+='<button type="button" class="btn btn-primary btn-sm" onclick="openRefundProgressDetail()">查看退款进度</button>';
+  }else if(c.status==='退款失败'){
+    html+='<button type="button" class="btn btn-primary btn-sm" onclick="retryRefundDetail()">重新发起退款</button>';
+  }else if(c.status==='待供应商发货'){
+    html+='<button type="button" class="btn btn-primary btn-sm" onclick="openFillDeliverDetail()">代填发货</button>';
+  }else if(c.status==='待客户收货'){
+    html+='<button type="button" class="btn btn-outline btn-sm" onclick="openViewLogisticsDetail()">查看物流</button>';
+  }
+  if(CLOSEABLE.indexOf(c.status)>=0){
+    html+='<button type="button" class="btn btn-outline btn-sm" onclick="openCloseModal()">关闭售后</button>';
+  }
+  html+='<button type="button" class="btn btn-outline btn-sm" onclick="showToast(\'success\',\'导出成功（演示）\')">导出订单</button>';
+  return html;
+}
+
+function renderPage(){
+  var c=getCase();
+  var root=document.getElementById('pageRoot');
+  root.innerHTML=
+    '<div class="page-header"><div>'
+    +'<h1>售后单详情 <span class="page-mall">（'+c.mall+'）</span></h1>'
+    +'<p class="page-subtitle">'
+    +'<span class="meta-item">售后单号: <span class="meta-value"><span class="mono">'+c.id+'</span> '
+    +copyIconButton("copyText('"+c.id+"',event)",'复制售后单号')
+    +'</span></span>'
+    +'<span class="meta-sep">|</span>'
+    +'<span class="meta-item">申请时间: <span class="meta-value">'+c.time+'</span></span>'
+    +'<span class="meta-sep">|</span>'
+    +'<span class="meta-item">售后类型: <span class="meta-value">'+c.type+'</span></span>'
+    +'</p></div>'
+    +'<div class="page-header-actions">'
+    +'<div class="demo-toggle"><label>演示模式：</label><select onchange="switchCase(this.value)">'
+    +DEMO_CASES.map(function(d){return '<option value="'+d.id+'"'+(currentId===d.id?' selected':'')+'>'+d.label+'</option>';}).join('')
+    +'</select></div>'
+    +renderActions(c)+'</div></div>'
+    +renderRiskBanner(c)
+    +renderStepper(c)
+    +'<div class="detail-layout"><div class="detail-left">'
+    +renderApplyCard(c)+renderOrderCard(c)+renderProductCard(c)+renderRefundCard(c)+renderReturnCard(c)+renderSupplyCard(c)
+    +'</div><div class="detail-right">'
+    +renderAddressCard(c)+renderBuyerCard(c)+renderRemarkCard(c)+renderExchangeLogisticsCard(c)+renderLogisticsCard(c)+renderTimelineCard(c)
+    +'</div></div>';
+}
+
+function renderApplyCard(c){
+  var evHtml='';
+  if(c.evidence&&c.evidence.length){
+    evHtml='<div class="evidence-grid">'+c.evidence.map(function(ch){
+      return '<div class="evidence-item" onclick="openLightbox(\''+ch+'\')" title="点击预览">'+ch+'</div>';
+    }).join('')+'</div>';
+  }else evHtml='<div class="evidence-empty">用户未上传凭证</div>';
+  return '<div class="card"><div class="card-header"><h3>客户申请资料</h3><div class="card-header-actions"><button type="button" class="action-link" onclick="openSnapshotModal()">查看交易快照</button></div></div><div class="card-body info-card">'
+    +'<div class="info-row"><span class="info-label">联系方式</span><span class="info-value">'+c.phoneMask+' '+copyIconButton("copyText('"+c.phone+"',event)",'复制手机号')+'</span></div>'
+    +'<div class="info-row"><span class="info-label">申请原因</span><span class="info-value">'+c.reason+'</span></div>'
+    +'<div class="info-row"><span class="info-label">问题描述</span><span class="info-value">'+(c.description||'—')+'</span></div>'
+    +'<div class="info-row"><span class="info-label">发起来源</span><span class="info-value">'+c.source+'</span></div>'
+    +'<div class="evidence-head"><span class="evidence-title">凭证图片（'+(c.evidence?c.evidence.length:0)+'/3）</span></div>'+evHtml+'</div></div>';
+}
+
+function renderProductCard(c){
+  var ch=(c.name||'').charAt(0);
+  var coupon=c.coupon||'0.00';
+  var pts=c.pointsDeduction||'0.00';
+  var subtotal=c.subtotal||(parseFloat(c.price)*c.qty-parseFloat(coupon)-parseFloat(pts)).toFixed(2);
+  return '<div class="card"><div class="card-header"><h3>订单信息</h3></div><div class="prod-table-wrap">'
+    +'<table class="item-table"><thead><tr>'
+    +'<th>商品</th><th>供货来源</th><th class="col-price">销售单价</th><th class="col-qty">数量</th>'
+    +'<th>优惠券</th><th>积分抵扣</th><th class="col-subtotal">金额小计</th><th class="col-status">订单状态</th><th>运营备注</th><th class="col-action">操作</th>'
+    +'</tr></thead><tbody><tr>'
+    +'<td><div class="prod-info"><div class="prod-thumb">'+ch+'</div><div><div class="prod-name">'+c.name+'（'+c.spec+'）</div><div class="prod-subno">子订单号：<span class="mono">'+c.subNo+'</span></div></div></div></td>'
+    +'<td>'+c.supplier+'<div class="coupon-sub"><span class="mono">'+c.skuLogistics+'</span> '+copyIconButton("copyText('"+c.skuLogistics+"',event)",'复制')+'</div></td>'
+    +'<td class="price col-price">¥'+c.price+'</td>'
+    +'<td class="col-qty">'+c.qty+'</td>'
+    +'<td><span class="text-danger">−¥'+coupon+'</span></td>'
+    +'<td><span class="text-danger">−¥'+pts+'</span></td>'
+    +'<td class="price col-subtotal">¥'+subtotal+'</td>'
+    +'<td class="col-status"><span class="tag tag-green">'+(c.orderStatus||'已发货')+'</span></td>'
+    +'<td>'+(c.csRemark||'<span class="placeholder-cell">—</span>')+'</td>'
+    +'<td class="col-action"><a class="action-link" style="text-decoration:none;" href="17.商城订单详情页-原型页面.html?id='+c.mainNo+'" target="_blank" onclick="jumpOrderHint(\''+c.mainNo+'\')" title="跳转到商城订单详情页">订单详情</a></td>'
+    +'</tr></tbody></table></div></div>';
+}
+
+function renderRefundCard(c){
+  if(c.type==='换货'){
+    return '<div class="card"><div class="card-header"><h3>换货说明</h3></div><div class="card-body"><span class="text-muted">不涉及退款 · 同款同规格换货</span></div></div>';
+  }
+  var coupon=parseFloat(c.coupon||0);
+  var pts=parseFloat(c.pointsDeduction||0);
+  var subtotal=parseFloat(c.price)*c.qty-coupon-pts;
+  var totalRefund=subtotal+pts;
+  return '<div class="card"><div class="card-header"><h3>退款信息</h3></div><div class="card-body"><div class="fee-summary">'
+    +'<div class="fee-row paid"><span class="fee-label">合计退款</span><span class="fee-val">实付金额¥'+subtotal.toFixed(2)+' + 积分¥'+pts.toFixed(2)+'</span></div>'
+    +'<div class="fee-breakdown">'
+    +'<div class="fee-row"><span class="fee-label">售后类型</span><span class="fee-val">'+c.type+'</span></div>'
+    +'<div class="fee-row"><span class="fee-label">支付方式</span><span class="fee-val">'+c.paymentMethod+'</span></div>'
+    +'<div class="fee-row"><span class="fee-label">实付金额退</span><span class="fee-val">¥'+subtotal.toFixed(2)+'</span></div>'
+    +'<div class="fee-row"><span class="fee-label">应退积分</span><span class="fee-val">'+(pts>0?pts.toFixed(2):'—')+'</span></div>'
+    +'<div class="fee-row"><span class="fee-label">优惠券</span><span class="fee-val text-muted">'+(coupon>0?'−¥'+coupon.toFixed(2)+' 不退回':'不退回')+'</span></div>'
+    +'</div></div></div></div>';
+}
+
+function renderReturnCard(c){
+  if(!c.returnAddress)return '';
+  var ra=c.returnAddress;
+  var html='<div class="card"><div class="card-header"><h3>买家寄回地址</h3><div class="card-header-actions"><button type="button" class="btn btn-outline btn-sm" onclick="copyReturnAddress()">一键复制</button><button type="button" class="btn btn-outline btn-sm" onclick="openReturnAddressModal()">修改地址</button></div></div><div class="card-body info-card">'
+    +'<div class="info-row"><span class="info-label">收件人</span><span class="info-value">'+ra.name+'</span></div>'
+    +'<div class="info-row"><span class="info-label">联系电话</span><span class="info-value">'+ra.phone+'</span></div>'
+    +'<div class="info-row"><span class="info-label">寄回地址</span><span class="info-value">'+ra.addr+'</span></div>';
+  html+='</div></div>';
+  return html;
+}
+
+function renderReturnLogisticsCard(c){
+  if(!c.returnLogistics)return '';
+  var rl=c.returnLogistics;
+  return '<div class="card"><div class="card-header"><h3>退货物流</h3></div><div class="card-body info-card">'
+    +'<div class="info-row"><span class="info-label">快递公司</span><span class="info-value">'+rl.company+'</span></div>'
+    +'<div class="info-row"><span class="info-label">运单号</span><span class="info-value mono">'+rl.no+' '+copyIconButton("copyText('"+rl.no+"',event)",'复制')+'</span></div>'
+    +'</div></div>';
+}
+
+function renderOrderCard(c){
+  return '<div class="card info-card"><div class="card-header"><h3>关联订单</h3><div class="card-header-actions"><a class="action-link" style="text-decoration:none;" href="17.商城订单详情页-原型页面.html?id='+c.mainNo+'" target="_blank" onclick="jumpOrderHint(\''+c.mainNo+'\')" title="跳转到商城订单详情页">查看订单</a></div></div><div class="card-body">'
+    +'<div class="info-row"><span class="info-label">主订单</span><span class="info-value"><span class="mono">'+c.mainNo+'</span> '+copyIconButton("copyText('"+c.mainNo+"',event)",'复制')+'</span></div>'
+    +'<div class="info-row"><span class="info-label">子订单</span><span class="info-value"><span class="mono">'+c.subNo+'</span> '+copyIconButton("copyText('"+c.subNo+"',event)",'复制')+'</span></div>'
+    +'<div class="info-row"><span class="info-label">所属商城</span><span class="info-value">'+c.mall+'</span></div>'
+    +'</div></div>';
+}
+
+function renderRemarkCard(c){
+  return '<div class="card"><div class="card-header"><h3>客服备注</h3></div><div class="card-body">'
+    +'<textarea class="remark-textarea" id="inlineRemark" placeholder="请输入客服备注">'+c.csRemark+'</textarea>'
+    +'<div class="remark-actions"><button type="button" class="btn btn-primary btn-sm" onclick="saveInlineRemark()">保存</button></div></div></div>';
+}
+
+function renderLogisticsCard(c){
+  var lg=c.returnLogistics;
+  if(!lg)return '';
+  var headerExtra=c.returnOrderNo?'<span style="font-size:11px;color:var(--text-muted);">退货单号：</span><span class="mono">'+c.returnOrderNo+'</span>':'';
+  return '<div class="card info-card"><div class="card-header"><h3>退货物流</h3>'+(headerExtra?'<div class="card-header-actions">'+headerExtra+'</div>':'')+'</div><div class="card-body">'
+    +'<div class="info-row"><span class="info-label">快递公司</span><span class="info-value">'+lg.company+'</span></div>'
+    +'<div class="info-row"><span class="info-label">运单号</span><span class="info-value mono">'+lg.no+' '+copyIconButton("copyText('"+lg.no+"',event)",'复制')+'</span></div>'
+    +'<div class="info-row"><span class="info-label">最新轨迹</span><span class="info-value text-muted">【武汉市】快件已到达武汉转运中心</span></div>'
+    +'<button type="button" class="action-link" style="margin-top:4px;" onclick="openLogisticsTrack(\'return\')">查看完整轨迹 ▸</button>'
+    +'</div></div>';
+}
+function renderExchangeLogisticsCard(c){
+  var lg=c.exchangeLogistics;
+  if(!lg)return '';
+  var headerExtra=c.exchangeOrderNo?'<span style="font-size:11px;color:var(--text-muted);">换货单号：</span><span class="mono">'+c.exchangeOrderNo+'</span>':'';
+  return '<div class="card info-card"><div class="card-header"><h3>换货物流</h3>'+(headerExtra?'<div class="card-header-actions">'+headerExtra+'</div>':'')+'</div><div class="card-body">'
+    +'<div class="info-row"><span class="info-label">快递公司</span><span class="info-value">'+lg.company+'</span></div>'
+    +'<div class="info-row"><span class="info-label">运单号</span><span class="info-value mono">'+lg.no+' '+copyIconButton("copyText('"+lg.no+"',event)",'复制')+'</span></div>'
+    +'<div class="info-row"><span class="info-label">最新轨迹</span><span class="info-value text-muted">【武汉市】快件已到达武汉转运中心</span></div>'
+    +'<button type="button" class="action-link" style="margin-top:4px;" onclick="openLogisticsTrack(\'exchange\')">查看完整轨迹 ▸</button>'
+    +'</div></div>';
+}
+
+function renderSupplyCard(c){
+  var retNo=c.returnOrderNo||'';
+  return '<div class="card info-card"><div class="card-header"><h3>供货来源</h3></div><div class="card-body">'
+    +'<div class="info-row"><span class="info-label">供应商</span><span class="info-value">'+c.supplier+'</span></div>'
+    +'<div class="info-row"><span class="info-label">供应链SKU</span><span class="info-value mono">'+c.skuLogistics+'</span></div>'
+    +'<div class="info-row"><span class="info-label">退货单号</span><span class="info-value '+(retNo?'mono':'placeholder-cell')+'">'+(retNo||'— 待回传')+'</span></div>'
+    +'</div></div>';
+}
+
+function renderTimelineCard(c){
+  var items=(c.timeline||[]).slice().reverse();
+  var html='<div class="card"><div class="card-header"><h3>售后时间线</h3></div><div class="card-body"><div class="timeline">';
+  items.forEach(function(it,i){
+    var dotCls=it.type==='ops'?'ops active':(it.type==='buyer'?'buyer':'');
+    html+='<div class="tl-item"><div class="tl-dot '+dotCls+'"></div><div class="tl-content">'+it.text+(it.note?' · '+it.note:'')+'</div><div class="tl-time">'+it.time+'</div></div>';
+  });
+  html+='</div></div></div>';
+  return html;
+}
+
+function renderAddressCard(c){
+  var html='<div class="card"><div class="card-header"><h3>收货信息</h3><div class="card-header-actions"><button type="button" class="btn btn-outline btn-sm" onclick="copyReceivingInfo()">一键复制</button><button type="button" class="btn btn-outline btn-sm" onclick="openAddressModal()">修改地址</button></div></div><div class="card-body">'
+    +'<div><span class="addr-name">'+c.customer+'</span>'
+    +'<span class="addr-phone">'+c.phoneMask+' <button class="eye-btn" onclick="togglePhone(this)" data-masked="'+c.phoneMask+'" data-full="'+c.phone+'" title="查看完整手机号">👁</button></span></div>'
+    +'<div class="addr-detail">'+c.address;
+  if(c.addressWarning)html+='<span class="addr-warn">⚠ '+c.addressWarning+'</span>';
+  html+='</div>';
+  html+='</div></div>';
+  return html;
+}
+function renderBuyerCard(c){
+  var avatar=c.customer?c.customer.charAt(0):'买';
+  return '<div class="card"><div class="card-header"><h3>买家画像</h3></div><div class="card-body">'
+    +'<div class="buyer-header"><div class="buyer-avatar">'+avatar+'</div>'
+    +'<div class="buyer-name">'+c.customer+' <span style="margin-left:6px;font-size:12px;font-weight:400;color:var(--text-muted);">【'+c.mall+'】</span></div></div>'
+    +'<div class="profile-grid">'
+    +'<div class="profile-item"><div class="pi-label">注册时间</div><div class="pi-val">'+(c.registrationDate||'—')+'</div></div>'
+    +'<div class="profile-item"><div class="pi-label">购买次数</div><div class="pi-val">'+(c.purchaseCount||'—')+'</div></div>'
+    +'<div class="profile-item"><div class="pi-label">累计消费</div><div class="pi-val">'+(c.totalSpent||'—')+'</div></div>'
+    +'<div class="profile-item"><div class="pi-label">退款率</div><div class="pi-val">'+(c.refundRate||'—')+'</div></div>'
+    +'</div></div></div>';
+}
+function togglePhone(btn){
+  var p=btn.previousSibling;
+  if(btn.dataset.state==='shown'){
+    p.textContent=btn.dataset.masked;
+    btn.dataset.state='masked';
+  }else{
+    p.textContent=btn.dataset.full;
+    btn.dataset.state='shown';
+    setTimeout(function(){p.textContent=btn.dataset.masked;btn.dataset.state='masked';},5000);
+  }
+}
+
+function copyReceivingInfo(){
+  var c=getCase();
+  copyText(c.customer+' '+c.phone+' '+c.address);
+}
+function openAddressModal(){
+  var c=getCase();
+  document.getElementById('addrModalName').value=c.customer||'';
+  document.getElementById('addrModalPhone').value=c.phone||'';
+  document.getElementById('addrModalAddr').value=c.address||'';
+  openModal('addressModal');
+}
+function saveAddressModal(){
+  var c=getCase();
+  c.customer=document.getElementById('addrModalName').value.trim();
+  c.phone=document.getElementById('addrModalPhone').value.trim();
+  c.address=document.getElementById('addrModalAddr').value.trim();
+  // Update masked phone
+  var ph=c.phone;
+  c.phoneMask=ph.length>7?ph.slice(0,3)+'****'+ph.slice(-4):ph;
+  closeModal('addressModal');
+  renderPage();
+  showToast('success','收货信息已更新');
+}
+
+function copyReturnAddress(){
+  var c=getCase();
+  if(!c.returnAddress)return;
+  var ra=c.returnAddress;
+  copyText(ra.name+' '+ra.phone+' '+ra.addr);
+}
+function openReturnAddressModal(){
+  var c=getCase();
+  if(!c.returnAddress)return;
+  document.getElementById('retAddrModalName').value=c.returnAddress.name||'';
+  document.getElementById('retAddrModalPhone').value=c.returnAddress.phone||'';
+  document.getElementById('retAddrModalAddr').value=c.returnAddress.addr||'';
+  openModal('returnAddressModal');
+}
+function saveReturnAddressModal(){
+  var c=getCase();
+  if(!c.returnAddress)c.returnAddress={};
+  c.returnAddress.name=document.getElementById('retAddrModalName').value.trim();
+  c.returnAddress.phone=document.getElementById('retAddrModalPhone').value.trim();
+  c.returnAddress.addr=document.getElementById('retAddrModalAddr').value.trim();
+  closeModal('returnAddressModal');
+  renderPage();
+  showToast('success','寄回地址已更新');
+}
+
+function selectProgressStep(i){selectedStepIndex=i;renderPage();}
+function switchCase(id){currentId=id;selectedStepIndex=null;renderPage();}
+
+function openRemarkFromHeader(){
+  var c=getCase();
+  document.getElementById('remarkModalNo').textContent=c.id;
+  document.getElementById('remarkModalInput').value=c.csRemark||'';
+  openModal('remarkModal');
+}
+function saveRemarkModal(){
+  var text=document.getElementById('remarkModalInput').value.trim();
+  getCase().csRemark=text;
+  closeModal('remarkModal');
+  renderPage();
+  showToast('success','客服备注已保存');
+}
+function saveInlineRemark(){
+  getCase().csRemark=document.getElementById('inlineRemark').value.trim();
+  showToast('success','客服备注已保存');
+}
+function approveCase(){
+  var c=getCase();
+  c.status=c.type==='仅退款'?'待退款':'待客户退货';
+  c.timeline.push({type:'ops',text:'客服 张三 审核通过',time:nowText()});
+  renderPage();
+  showToast('success','已同意售后');
+}
+function submitReject(){
+  var r=document.getElementById('rejectReason').value.trim();
+  if(!r){showToast('info','请填写驳回原因');return;}
+  getCase().status='已驳回';
+  getCase().timeline.push({type:'ops',text:'客服驳回：'+r,time:nowText()});
+  closeModal('rejectModal');
+  renderPage();
+  showToast('success','已驳回');
+}
+function confirmReceive(){
+  var c=getCase();
+  c.status=c.type==='换货'?'待供应商发货':'待退款';
+  c.timeline.push({type:'ops',text:'客服 张三 确认供应商收货',time:nowText()});
+  renderPage();
+  showToast('success','已确认收货');
+}
+function openCloseModal(){
+  closeStep=1;
+  document.getElementById('closeWorkorderNo').textContent=getCase().id;
+  document.getElementById('closeFormPanel').hidden=false;
+  document.getElementById('closeConfirmPanel').hidden=true;
+  document.getElementById('closeBackBtn').hidden=true;
+  document.getElementById('closePrimaryBtn').textContent='下一步';
+  document.getElementById('closeReasonSelect').value='';
+  document.getElementById('closeReasonInput').value='';
+  document.getElementById('closeConfirmRemark').textContent='—';
+  openModal('closeWorkorderModal');
+}
+function closeCloseModal(){closeModal('closeWorkorderModal');}
+function backCloseStep(){
+  closeStep=1;
+  document.getElementById('closeFormPanel').hidden=false;
+  document.getElementById('closeConfirmPanel').hidden=true;
+  document.getElementById('closeBackBtn').hidden=true;
+  document.getElementById('closePrimaryBtn').textContent='下一步';
+}
+function submitCloseStep(){
+  if(closeStep===1){
+    var sel=document.getElementById('closeReasonSelect').value;
+    var custom=document.getElementById('closeReasonInput').value.trim();
+    if(!sel){showToast('info','请选择关闭原因');return;}
+    if(sel==='其他'&&!custom){showToast('info','请填写补充说明');return;}
+    var reason=sel;
+    var remark=custom||'';
+    document.getElementById('closeConfirmReason').textContent=reason;
+    document.getElementById('closeConfirmRemark').textContent=remark||'—';
+    closeStep=2;
+    document.getElementById('closeFormPanel').hidden=true;
+    document.getElementById('closeConfirmPanel').hidden=false;
+    document.getElementById('closeBackBtn').hidden=false;
+    document.getElementById('closePrimaryBtn').textContent='确认关闭';
+    return;
+  }
+  var c=getCase();
+  c.status='已关闭';
+  c.closeAtStep=c.closeAtStep||(stepIndex(c)>=2?'待客户退货':'平台审核');
+  c.closeReason=document.getElementById('closeConfirmReason').textContent;
+  c.closeRemark=document.getElementById('closeConfirmRemark').textContent==='—'?'':document.getElementById('closeConfirmRemark').textContent;
+  c.closeTime=nowText();
+  c.timeline.push({type:'ops',text:'客服关闭售后',time:c.closeTime,note:c.closeRemark||'—'});
+  closeCloseModal();
+  renderPage();
+  showToast('success','售后单已关闭');
+}
+
+function remindReturn(){
+  var c=getCase();
+  c.timeline.push({type:'ops',text:'客服 张三 提醒买家寄回',time:nowText()});
+  renderPage();
+  showToast('success','已提醒客户寄回');
+}
+function openFillLogisticsDetail(){
+  document.getElementById('detailFillLogisticsNo').textContent=getCase().id;
+  document.getElementById('detailLogisticsCompanyInput').value='';
+  document.getElementById('detailLogisticsNoInput').value='';
+  openModal('detailFillLogisticsModal');
+}
+function submitFillLogisticsDetail(){
+  var company=document.getElementById('detailLogisticsCompanyInput').value.trim();
+  var no=document.getElementById('detailLogisticsNoInput').value.trim();
+  if(!company||!no){showToast('info','请填写完整物流信息');return;}
+  var c=getCase();
+  c.status='待供应商收货';
+  c.returnLogistics={company:company,no:no,time:nowText()};
+  c.timeline.push({type:'ops',text:'客服 张三 代填退货物流 · '+company+' '+no,time:nowText()});
+  closeModal('detailFillLogisticsModal');
+  renderPage();
+  showToast('success','已登记退货单号 · 待供应商收货');
+}
+function openFillDeliverDetail(){
+  document.getElementById('detailFillDeliverNo').textContent=getCase().id;
+  document.getElementById('detailDeliverCompanyInput').value='';
+  document.getElementById('detailDeliverNoInput').value='';
+  openModal('detailFillDeliverModal');
+}
+function submitFillDeliverDetail(){
+  var company=document.getElementById('detailDeliverCompanyInput').value.trim();
+  var no=document.getElementById('detailDeliverNoInput').value.trim();
+  if(!company||!no){showToast('info','请填写完整物流信息');return;}
+  var c=getCase();
+  c.status='待客户收货';
+  c.exchangeLogistics={company:company,no:no,time:nowText()};
+  c.timeline.push({type:'sys',text:'换货商品已发出 · '+company+' '+no,time:nowText()});
+  closeModal('detailFillDeliverModal');
+  renderPage();
+  showToast('success','已登记发货单号 · 待客户收货');
+}
+function executeRefundDetail(){
+  var c=getCase();
+  c.status='退款中';
+  c.timeline.push({type:'sys',text:'已发起退款，等待支付渠道回调',time:nowText()});
+  renderPage();
+  showToast('success','已发起退款 · 退款中');
+}
+function openRefundProgressDetail(){
+  var c=getCase();
+  document.getElementById('detailRefundProgressNo').textContent=c.id;
+  document.getElementById('detailRefundProgressStatus').innerHTML='<span class="tag '+(STATUS_CLS[c.status]||'tag-gray')+'">'+c.status+'</span>　退款金额：'+(c.type==='换货'?'—':'¥'+c.amount);
+  openModal('detailRefundProgressModal');
+}
+function applyRefundCallbackDetail(success){
+  var c=getCase();
+  if(success){
+    c.status='退款成功';
+    c.timeline.push({type:'sys',text:'退款完成 · 到账金额 ¥'+c.amount,time:nowText()});
+    closeModal('detailRefundProgressModal');
+    renderPage();
+    showToast('success','支付回调成功 · 退款已完成');
+  }else{
+    c.status='退款失败';
+    c.timeline.push({type:'sys',text:'支付渠道回调失败，可重新发起退款',time:nowText()});
+    closeModal('detailRefundProgressModal');
+    renderPage();
+    showToast('info','支付回调失败 · 可重新发起退款');
+  }
+}
+function retryRefundDetail(){
+  var c=getCase();
+  c.status='退款中';
+  c.timeline.push({type:'sys',text:'已重新发起退款，等待支付渠道回调',time:nowText()});
+  renderPage();
+  showToast('success','已重新发起退款 · 退款中');
+}
+function openViewLogisticsDetail(){
+  var c=getCase();
+  var lg=c.exchangeLogistics||{company:'—',no:'—'};
+  document.getElementById('detailViewLogisticsCompany').textContent=lg.company;
+  document.getElementById('detailViewLogisticsNo').textContent=lg.no;
+  openModal('detailViewLogisticsModal');
+}
+// 订单详情 / 关联订单-查看订单 均改为直接跳转 17.商城订单详情页-原型页面.html（新标签页，URL 带 ?id=主订单号），不再使用页内弹窗
+function jumpOrderHint(mainNo){
+  showToast('info','跳转到商城订单详情页：17.商城订单详情页-原型页面.html?id='+mainNo+'（订单监控页面待接入）');
+}
+function openLogisticsTrack(kind){
+  var c=getCase();
+  var lg=kind==='exchange'?(c.exchangeLogistics||{}):(c.returnLogistics||{});
+  var company=lg.company||'—';
+  var no=lg.no||'—';
+  var today=nowText().slice(0,10);
+  var tracks=[
+    {t:today+' 22:10',d:'【武汉市】快件已发出，下一站分拨中心'},
+    {t:today+' 14:30',d:'【武汉市】快件已到达武汉转运中心'},
+    {t:today+' 09:00',d:'【收件】'+company+'快递员已揽件'}
+  ];
+  var html='<div class="info-row"><span class="info-label">快递公司</span><span class="info-value">'+company+'</span></div>'
+    +'<div class="info-row"><span class="info-label">运单号</span><span class="info-value mono">'+no+'</span></div>';
+  html+='<div class="timeline" style="margin-top:12px;">';
+  tracks.forEach(function(tr){
+    html+='<div class="tl-item"><div class="tl-dot ops active"></div><div class="tl-content">'+tr.d+'</div><div class="tl-time">'+tr.t+'</div></div>';
+  });
+  html+='</div>';
+  document.getElementById('logisticsTrackBody').innerHTML=html;
+  document.getElementById('logisticsTrackTitle').textContent=(kind==='exchange'?'换货物流轨迹':'退货物流轨迹');
+  openModal('logisticsTrackModal');
+}
+
+(function init(){
+  var m=location.search.match(/[?&]id=([^&]+)/);
+  if(m&&CASES[m[1]])currentId=m[1];
+  renderPage();
+})();
+</script>
+</body>
+</html>

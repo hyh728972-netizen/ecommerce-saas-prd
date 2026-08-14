@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQ — 客服模块</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="js/cs-modal.js"></script>
+  <style>
+    /* ===== admin-faq.html 专属样式 ===== */
+
+    /* 两栏布局：左侧分类树 + 右侧 FAQ 列表 */
+    .kb-layout { display: flex; gap: var(--cs-space-4); align-items: stretch; }
+    .kb-sidebar { width: 240px; flex-shrink: 0; }
+    .kb-main { flex: 1; min-width: 0; }
+
+    /* 分类树 */
+    .category-tree {
+      background: var(--cs-bg-card); border-radius: var(--cs-radius-md);
+      border: 1px solid var(--cs-border-light); box-shadow: var(--cs-shadow-card);
+      padding: var(--cs-space-3) 0; height: 100%; overflow-y: auto;
+    }
+    .category-tree .tree-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 4px var(--cs-space-4) var(--cs-space-3);
+      border-bottom: 1px solid var(--cs-border-lighter);
+    }
+    .category-tree .tree-header .tree-title { font-size: var(--cs-font-size-md); font-weight: var(--cs-font-weight-semibold); color: var(--cs-text); }
+    .tree-node {
+      display: flex; align-items: center; padding: var(--cs-space-2) var(--cs-space-4);
+      font-size: var(--cs-font-size-base); color: var(--cs-text); cursor: pointer;
+      transition: var(--cs-transition-fast); gap: 6px; position: relative;
+    }
+    .tree-node:hover { background: var(--cs-border-lighter); }
+    .tree-node.active { background: var(--cs-primary-bg); color: var(--cs-primary); font-weight: var(--cs-font-weight-medium); }
+    .tree-node.active::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--cs-primary); }
+    .tree-node .tree-label { flex: 1; }
+    .tree-node .tree-count { font-size: var(--cs-font-size-xs); color: var(--cs-text-tertiary); background: var(--cs-border-light); border-radius: 10px; padding: 0 7px; line-height: 16px; }
+    .tree-node.active .tree-count { color: var(--cs-primary); background: var(--cs-bg-card); }
+    .category-tree .tree-header .tree-add { font-size: var(--cs-font-size-xl); color: var(--cs-primary); cursor: pointer; line-height: 1; padding: 0 4px; }
+    .category-tree .tree-header .tree-add:hover { color: var(--cs-primary-hover); }
+    .tree-node .tree-actions { display: none; gap: 4px; }
+    .tree-node:hover .tree-actions { display: flex; }
+    .tree-node .tree-actions a { font-size: var(--cs-font-size-sm); color: var(--cs-text-tertiary); cursor: pointer; padding: 0 2px; }
+    .tree-node .tree-actions a:hover { color: var(--cs-primary); }
+
+    /* 工具条 */
+    .kb-toolbar { display: flex; align-items: center; gap: var(--cs-space-3); flex-wrap: wrap; margin-bottom: var(--cs-space-4); }
+    .kb-toolbar .ipt.input-search { min-width: 240px; color: var(--cs-text); }
+
+    /* 问题列 */
+    .data-table .col-title { font-weight: var(--cs-font-weight-medium); color: var(--cs-text); }
+    .data-table .col-title .title-sub {
+      display: block; font-size: var(--cs-font-size-sm); color: var(--cs-text-tertiary);
+      font-weight: var(--cs-font-weight-normal); margin-top: 2px;
+      max-width: 420px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .faq-meta { font-size: var(--cs-font-size-sm); color: var(--cs-text-secondary); }
+    .fq-tag { display: inline-flex; align-items: center; gap: 5px; font-size: var(--cs-font-size-sm); line-height: 1.5; color: var(--cs-text); }
+    .fq-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .fq-tag.on::before { background: var(--cs-success); }
+    .fq-tag.off::before { background: #bfbfbf; }
+    .row-actions a.danger { color: var(--cs-danger); }
+    .row-actions a.danger:hover { color: var(--cs-danger-hover); }
+
+    @media (max-width: 1100px) { .kb-layout { flex-direction: column; } .kb-sidebar { width: 100%; } }
+
+    /* 表格列宽：fixed 贴容器宽、长内容换行不溢出；操作列稳定宽 + nowrap 防按钮竖排 */
+    .faq-table { table-layout: fixed; width: 100%; min-width: 0; }
+    .faq-table .col-title { max-width: 100%; }
+    .faq-table .col-title .title-sub {
+      max-width: 100% !important;
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+    }
+    .faq-table td.row-actions { flex-wrap: nowrap; white-space: nowrap; }
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <aside class="admin-sidebar" id="sidebar-nav" data-active="faq"></aside>
+
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+    <header class="admin-header">
+      <div class="breadcrumb">知识库 / <span style="color:var(--cs-text);font-weight:600;">FAQ</span></div>
+      <div class="user-info">
+        <span class="status-badge online">客服A 在线</span>
+        <span style="font-size:var(--cs-font-size-base);color:var(--cs-text-secondary);">张小明</span>
+      </div>
+    </header>
+
+    <main class="admin-content">
+
+      <!-- 页面标题 + 操作按钮 -->
+      <div class="flex-between mb-16">
+        <div>
+          <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">维护常见问题（Q/A），供<strong>移动端自动发送 FAQ 卡片</strong>：用户咨询命中关键词或进入自助时，系统以卡片形式推送对应 FAQ。</p>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn-primary" id="btnAddFaq">+ 新建 FAQ</button>
+        </div>
+      </div>
+
+      <!-- 两栏：分类树 + FAQ 列表 -->
+      <div class="kb-layout">
+
+        <!-- 左侧：分类树 -->
+        <div class="kb-sidebar">
+          <div class="category-tree">
+            <div class="tree-header">
+              <span class="tree-title">FAQ 分类</span>
+              <span class="tree-add" title="新增分类">+</span>
+              
+            </div>
+            <div class="tree-node active" data-cat="all">
+              <span class="tree-label">全部 FAQ</span>
+              <span class="tree-count">10</span>
+            </div>
+            <div class="tree-node" data-cat="order">
+              <span class="tree-label">订单</span>
+              <span class="tree-count">2</span>
+            </div>
+            <div class="tree-node" data-cat="pay">
+              <span class="tree-label">支付</span>
+              <span class="tree-count">1</span>
+            </div>
+            <div class="tree-node" data-cat="aftersale">
+              <span class="tree-label">售后</span>
+              <span class="tree-count">3</span>
+            </div>
+            <div class="tree-node" data-cat="promo">
+              <span class="tree-label">营销</span>
+              <span class="tree-count">1</span>
+            </div>
+            <div class="tree-node" data-cat="account">
+              <span class="tree-label">账户</span>
+              <span class="tree-count">2</span>
+            </div>
+            <div class="tree-node" data-cat="logistic">
+              <span class="tree-label">物流</span>
+              <span class="tree-count">1</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧：工具条 + FAQ 表格 -->
+        <div class="kb-main">
+
+          <!-- 工具条 -->
+          <div class="card" style="padding:16px; margin-bottom:var(--cs-space-4);">
+            <div class="kb-toolbar">
+              <input type="text" id="fqSearch" class="ipt input-search" placeholder="搜索问题 / 答案 / 关键词" style="min-width:240px;color:var(--cs-text);" />
+              <select id="fqStatus" class="select" style="min-width:110px;">
+                <option value="">全部状态</option>
+                <option value="on">启用</option>
+                <option value="off">停用</option>
+              </select>
+              <div style="margin-left:auto;" class="flex gap-8">
+                <button id="fqBtnReset" class="btn-default">重置</button>
+                <button id="fqBtnQuery" class="btn-primary">查询</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ 表格 -->
+          <div class="card" style="padding:0;">
+            <div class="table-wrap">
+              <table class="data-table faq-table">
+                <thead>
+                  <tr>
+                    <th>问题</th>
+                    <th>答案摘要</th>
+                    <th style="width:160px;">触发关键词</th>
+                    <th style="width:80px;">状态</th>
+                    <th style="width:90px;">推送次数</th><th style="width:90px;">点击次数</th>
+                    <th style="width:150px;">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr data-cat="order" data-status="on">
+                    <td><div class="col-title">如何查询我的订单状态？
+                      <span class="title-sub">进入「我的-订单」按状态筛选查看</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">用户可在「我的-订单」查看订单详情与实时物流，支持按状态筛选…</div></div></td>
+                    <td><span class="faq-meta">订单查询、订单状态、我的订单</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>1,284</td><td>3,842</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="pay" data-status="on">
+                    <td><div class="col-title">支持哪些支付方式？
+                      <span class="title-sub">微信/支付宝/银行卡/花呗分期</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">支持微信、支付宝、银行卡、花呗分期，部分商品支持白条与信用卡分期…</div></div></td>
+                    <td><span class="faq-meta">支付方式、怎么付款、分期</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>962</td><td>2,956</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="aftersale" data-status="on">
+                    <td><div class="col-title">如何申请退款？
+                      <span class="title-sub">订单详情页申请，1-3 工作日原路退回</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">在订单详情页点击「申请退款」，选择仅退款/退货退款…</div></div></td>
+                    <td><span class="faq-meta">退款、退钱、申请退款</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>874</td><td>2,104</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="aftersale" data-status="on">
+                    <td><div class="col-title">7 天无理由退货流程？
+                      <span class="title-sub">签收 7 天内，商品完好可申请</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">签收后 7 天内可申请无理由退货，商品需保持原包装完好…</div></div></td>
+                    <td><span class="faq-meta">退货、7天无理由、换货</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>731</td><td>1,782</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="promo" data-status="on">
+                    <td><div class="col-title">优惠券怎么用？
+                      <span class="title-sub">下单满足门槛即可选用，每单一张</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">满减券需满足对应金额门槛，下单时在结算页选用…</div></div></td>
+                    <td><span class="faq-meta">优惠券、满减、券怎么用</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>645</td><td>1,430</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="order" data-status="on">
+                    <td><div class="col-title">如何开具发票？
+                      <span class="title-sub">订单完成后 24h 内自动开具电子发票</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">电子发票在订单完成后 24 小时内自动开具…</div></div></td>
+                    <td><span class="faq-meta">发票、抬头、开票</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>512</td><td>1,180</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="account" data-status="on">
+                    <td><div class="col-title">忘记密码怎么办？
+                      <span class="title-sub">登录页「忘记密码」验证后重置</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">登录页点击「忘记密码」，通过绑定手机号或邮箱验证后重置…</div></div></td>
+                    <td><span class="faq-meta">忘记密码、登录不了、重置密码</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>388</td><td>742</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="logistic" data-status="on">
+                    <td><div class="col-title">物流一直不更新怎么办？
+                      <span class="title-sub">联系快递员核实或申请客服介入</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">请先联系快递员核实；若仍未解决可在订单页申请售后…</div></div></td>
+                    <td><span class="faq-meta">物流、快递、没更新</span></td>
+                    <td><span class="fq-tag on">启用</span></td>
+                    <td>297</td><td>413</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>停用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="aftersale" data-status="off">
+                    <td><div class="col-title">商品有质量问题怎么办？
+                      <span class="title-sub">提供照片凭证，申请退换货</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">请拍摄商品质量问题照片，在订单页申请退换货…</div></div></td>
+                    <td><span class="faq-meta">质量问题、破损、坏</span></td>
+                    <td><span class="fq-tag off">停用</span></td>
+                    <td>89</td><td>256</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>启用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                  <tr data-cat="account" data-status="off">
+                    <td><div class="col-title">会员等级与权益？
+                      <span class="title-sub">按成长值升级，享对应权益</span></div></td>
+                    <td><div class="col-title" style="font-weight:normal;"><div class="title-sub" style="max-width:340px;">会员按成长值升级（银卡/金卡/铂金），不同等级享折扣、包邮…</div></div></td>
+                    <td><span class="faq-meta">会员、等级、权益</span></td>
+                    <td><span class="fq-tag off">停用</span></td>
+                    <td>54</td><td>148</td>
+                    <td class="row-actions"><a>编辑</a><span class="divider">|</span><a>启用</a><span class="divider">|</span><a class="danger">删除</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="pagination" style="padding:16px;">
+              <span class="pg-info">共 42 条</span>
+              <span class="pg-btn disabled">&#8249;</span>
+              <span class="pg-num active">1</span>
+              <span class="pg-num">2</span>
+              <span class="pg-num">3</span>
+              <span class="pg-num">4</span>
+              <span class="pg-num">5</span>
+              <span class="pg-btn">&#8250;</span>
+            </div>
+          </div>
+
+        </div><!-- /kb-main -->
+      </div><!-- /kb-layout -->
+
+      <p style="margin-top:16px; font-size:12px; color:var(--cs-text-placeholder);">
+        数据模型：customer_chat_faqs（FAQ Q/A）· 移动端命中关键词或进入自助时，以 FAQ 卡片（faq_card）自动推送；客服端可在工作台手动发送。
+      </p>
+
+    </main>
+  </div>
+
+</div>
+
+<script src="nav.js"></script>
+<script src="js/kb-tree-crud.js"></script>
+<script>
+/* admin-faq.html 交互：左树分类筛选 + 右侧搜索/状态 + 行操作委派 + 新增 */
+(function () {
+  'use strict';
+  var $  = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
+
+  function rows() { return $$('.faq-table tbody tr'); }
+
+  /* ---------- 1. 筛选状态 ---------- */
+  var currentCat = 'all';
+  var fSearch = $('#fqSearch'), fStatus = $('#fqStatus');
+  var btnQuery = $('#fqBtnQuery'), btnReset = $('#fqBtnReset');
+
+  function applyFilters() {
+    var kw = (fSearch ? fSearch.value : '').trim().toLowerCase();
+    var st = fStatus ? fStatus.value : '';
+    rows().forEach(function (tr) {
+      var ok = (currentCat === 'all' || tr.getAttribute('data-cat') === currentCat)
+            && (!st || tr.getAttribute('data-status') === st);
+      if (ok && kw) { ok = (tr.textContent || '').toLowerCase().indexOf(kw) !== -1; }
+      tr.style.display = ok ? '' : 'none';
+    });
+  }
+
+  /* ---------- 2. 分类树点击 → 联动 ---------- */
+  $$('.category-tree .tree-node').forEach(function (node) {
+    node.addEventListener('click', function () {
+      $$('.category-tree .tree-node').forEach(function (n) { n.classList.remove('active'); });
+      node.classList.add('active');
+      currentCat = node.getAttribute('data-cat') || 'all';
+      applyFilters();
+      var label = $('.tree-label', node);
+      toast('已筛选分类：' + (label ? label.textContent.trim() : '全部'));
+    });
+  });
+
+  /* ---------- 3. 工具条筛选 ---------- */
+  [fSearch, fStatus].forEach(function (el) {
+    if (!el) return;
+    el.addEventListener('change', applyFilters);
+    if (el === fSearch) el.addEventListener('input', applyFilters);
+  });
+  if (btnQuery) btnQuery.addEventListener('click', function () { applyFilters(); toast('已应用筛选条件'); });
+  if (btnReset) btnReset.addEventListener('click', function () {
+    if (fSearch) fSearch.value = ''; if (fStatus) fStatus.value = '';
+    currentCat = 'all';
+    $$('.category-tree .tree-node').forEach(function (n) { n.classList.toggle('active', n.getAttribute('data-cat') === 'all'); });
+    applyFilters(); toast('已重置筛选');
+  });
+
+  /* ---------- 4. 新增 ---------- */
+  var btnAdd = $('#btnAddFaq');
+  if (btnAdd) btnAdd.addEventListener('click', function () {
+    csModal.open('modals/modal-faq.html', { variant: 'center', width: 520 });
+  });
+
+  /* ---------- 5. 行操作委派（编辑/停用/启用/删除） ---------- */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('.faq-table .row-actions a');
+    if (!a) return;
+    e.preventDefault();
+    var txt = (a.textContent || '').trim();
+    var tr = a.closest('tr');
+    if (a.classList.contains('danger')) {
+      var tds = $$('td', tr);
+      var q = tds[0] ? tds[0].textContent.trim() : '';
+      csModal.open('modals/modal-delete-confirm.html?title=' + encodeURIComponent('确认删除该 FAQ？') +
+        '&desc=' + encodeURIComponent(q ? ('问题「' + q + '」删除后不可恢复。') : '删除后不可恢复。'),
+        { variant: 'center', width: 380 });
+      return;
+    }
+    if (txt === '编辑') {
+      var tds2 = $$('td', tr);
+      var q2 = tds2[0] ? tds2[0].textContent.trim() : '';
+      var a2 = tds2[1] ? tds2[1].textContent.trim() : '';
+      var kw = tds2[2] ? tds2[2].textContent.trim() : '';
+      csModal.open('modals/modal-faq.html?title=' + encodeURIComponent('编辑 FAQ') +
+        '&question=' + encodeURIComponent(q2) +
+        '&answer=' + encodeURIComponent(a2) +
+        '&category=' + (tr.getAttribute('data-cat') || '') +
+        '&keyword=' + encodeURIComponent(kw) +
+        '&status=' + (tr.getAttribute('data-status') === 'off' ? 'disabled' : 'enabled'),
+        { variant: 'center', width: 520 });
+      return;
+    }
+    if (txt === '停用') {
+      var s1 = $('.fq-tag', tr);
+      if (s1) { s1.className = 'fq-tag off'; s1.textContent = '停用'; tr.setAttribute('data-status', 'off'); }
+      a.textContent = '启用'; toast('已停用该 FAQ');
+    } else if (txt === '启用') {
+      var s2 = $('.fq-tag', tr);
+      if (s2) { s2.className = 'fq-tag on'; s2.textContent = '启用'; tr.setAttribute('data-status', 'on'); }
+      a.textContent = '停用'; toast('已启用该 FAQ');
+    }
+  });
+
+  /* ---------- 6. 分页 ---------- */
+  $$('.pg-num').forEach(function (n) {
+    n.addEventListener('click', function () {
+      $$('.pg-num').forEach(function (x) { x.classList.remove('active'); });
+      n.classList.add('active');
+    });
+  });
+
+  applyFilters();
+})();
+</script>
+
+<script src="js/cs-icons.js"></script>
+
+
+</body>
+</html>

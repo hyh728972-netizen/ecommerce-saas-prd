@@ -1,0 +1,4665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>供应链管理后台售后管理原型</title>
+    <style>
+        :root {
+            --primary-color: #1890ff;
+            --primary-hover: #40a9ff;
+            --primary-active: #096dd9;
+            --success-color: #52c41a;
+            --warning-color: #faad14;
+            --error-color: #ff4d4f;
+            --text-color: #333333;
+            --text-secondary: #666666;
+            --text-tertiary: #8c8c8c;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --hover-bg: #fafafa;
+            --selected-bg: #e6f7ff;
+            --border-color: #f0f0f0;
+            --border-radius: 8px;
+            --border-radius-lg: 12px;
+            --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            min-width: 1200px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            min-width: 1200px;
+        }
+
+        .header {
+            height: 64px;
+            padding: 0 24px;
+            background: var(--card-bg);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .header-logo {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary-color);
+            line-height: 1.2;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-link {
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            color: var(--text-secondary);
+            border-radius: 6px;
+            padding: 7px 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .header-link:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sider {
+            width: 200px;
+            background: var(--card-bg);
+            box-shadow: 2px 0 8px rgba(0, 0, 0, 0.06);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .menu-group {
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .menu-label {
+            padding: 0 20px 10px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .menu-item {
+            padding: 14px 20px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover {
+            background: var(--hover-bg);
+            color: var(--primary-color);
+        }
+
+        .menu-item.active {
+            background: var(--selected-bg);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .menu-item-parent {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .menu-arrow {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            transition: transform 0.2s ease;
+        }
+
+        .menu-item.active .menu-arrow,
+        .menu-item:hover .menu-arrow {
+            color: var(--primary-color);
+        }
+
+        .submenu {
+            display: grid;
+            gap: 2px;
+            padding: 6px 0 2px;
+        }
+
+        .submenu-item {
+            margin: 0 12px 0 20px;
+            padding: 12px 14px;
+            border-radius: 6px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .submenu-item:hover {
+            background: var(--hover-bg);
+            color: var(--primary-color);
+        }
+
+        .submenu-item.active {
+            background: var(--selected-bg);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .page-shell {
+            flex: 1;
+            padding: 20px;
+            overflow: hidden;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .page-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .page-head {
+            flex-shrink: 0;
+            margin-bottom: 12px;
+        }
+
+        .page-head-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            color: var(--text-color);
+        }
+
+        .btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            border-color: var(--primary-hover);
+            color: #fff;
+        }
+
+        .btn-danger {
+            color: var(--error-color);
+            border-color: var(--error-color);
+        }
+
+        .btn-danger:hover {
+            background: var(--error-color);
+            color: #fff;
+        }
+
+        .btn-link {
+            border: none;
+            background: none;
+            color: var(--primary-color);
+            padding: 0;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+
+        .summary-card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 18px 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid #f4f4f4;
+        }
+
+        .summary-card span {
+            display: block;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .summary-card strong {
+            display: block;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text-color);
+            line-height: 1;
+        }
+
+        .summary-card em {
+            display: block;
+            margin-top: 10px;
+            font-style: normal;
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+
+        .tab {
+            height: 38px;
+            padding: 0 18px;
+            border-radius: 8px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            border-color: var(--primary-color);
+            background: var(--selected-bg);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .content-layout {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+        }
+
+        .left-panel,
+        .right-panel {
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .left-panel {
+            flex: 1;
+        }
+
+        .right-panel {
+            display: none;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid #f4f4f4;
+        }
+
+        .filter-card {
+            padding: 16px;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+
+        .filter-card.is-collapsed .filter-advanced {
+            display: none;
+        }
+
+        .filter-card.is-collapsed .quick-extra {
+            display: none;
+        }
+
+        .filter-main-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .filter-quick-grid {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(180px, 1fr));
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .filter-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .filter-actions-primary {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-filter-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #1677ff;
+            white-space: nowrap;
+        }
+
+        .filter-advanced {
+            margin-top: 12px;
+        }
+
+        .filter-grid-actions {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            min-height: 38px;
+            min-width: max-content;
+        }
+
+        .filter-card:not(.is-collapsed) .filter-quick-grid {
+            grid-template-columns: repeat(4, minmax(160px, 1fr));
+        }
+
+        .filter-card:not(.is-collapsed) .filter-grid-actions {
+            grid-column: 3 / 5;
+            justify-self: end;
+            width: 100%;
+        }
+
+        .filter-card:not(.is-collapsed) .filter-actions-primary {
+            display: none;
+        }
+
+        .filter-card:not(.is-collapsed) .filter-actions > .toggle-filter-btn {
+            display: none;
+        }
+
+        .filter-footer-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            color: #1677ff;
+        }
+
+        .audit-types {
+            display: inline-flex;
+            flex-wrap: nowrap;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+            width: max-content;
+        }
+
+        .audit-type-card {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 8px;
+            background: var(--card-bg);
+            border: 1px solid #f0f0f0;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .audit-type-card:hover,
+        .audit-type-card.active {
+            border-color: var(--primary-color);
+            background: var(--selected-bg);
+        }
+
+        .audit-type-title {
+            display: inline-block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 0;
+            white-space: nowrap;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(160px, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+
+        .form-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            height: 38px;
+            padding: 0 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            background: #fff;
+            color: var(--text-color);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .inline-input {
+            color: var(--text-color);
+        }
+
+        .labeled-field {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            height: 38px;
+            padding: 0 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+        }
+
+        .labeled-field:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.08);
+        }
+
+        .field-prefix {
+            flex-shrink: 0;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            font-size: 13px;
+            margin-right: 6px;
+        }
+
+        .labeled-field .form-input,
+        .labeled-field .form-select {
+            height: 100%;
+            padding: 0 4px;
+            border: none;
+            border-radius: 0;
+            background: transparent;
+            box-shadow: none;
+        }
+
+        .labeled-field .form-input:focus,
+        .labeled-field .form-select:focus {
+            border: none;
+            box-shadow: none;
+        }
+
+        .labeled-field .form-select {
+            padding-right: 24px;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .date-range-field {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            height: 38px;
+            padding: 0 12px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            background: #fff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+        }
+
+        .date-range-field:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.08);
+        }
+
+        .date-range-prefix {
+            flex-shrink: 0;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        .range-date-box {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .range-date-trigger {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .range-date-display {
+            min-width: 0;
+            flex: 1;
+            color: var(--text-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 13px;
+        }
+
+        .range-date-trigger.is-empty .range-date-display {
+            color: var(--text-secondary);
+        }
+
+        .range-date-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .date-picker-btn,
+        .date-clear-btn {
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 4px;
+            background: transparent;
+            padding: 0;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .date-picker-btn::before,
+        .date-clear-btn::before,
+        .date-clear-btn::after {
+            content: "";
+            position: absolute;
+        }
+
+        .date-picker-btn::before {
+            left: 2px;
+            top: 3px;
+            width: 14px;
+            height: 13px;
+            border: 1px solid #8c8c8c;
+            border-radius: 3px;
+            box-sizing: border-box;
+            background:
+                linear-gradient(#8c8c8c, #8c8c8c) left 0 top 3px / 100% 1px no-repeat,
+                linear-gradient(#8c8c8c, #8c8c8c) left 4px top 0 / 1px 4px no-repeat,
+                linear-gradient(#8c8c8c, #8c8c8c) right 4px top 0 / 1px 4px no-repeat;
+        }
+
+        .date-clear-btn::before,
+        .date-clear-btn::after {
+            left: 9px;
+            top: 4px;
+            width: 1px;
+            height: 12px;
+            background: #8c8c8c;
+            transform-origin: center;
+        }
+
+        .date-clear-btn::before {
+            transform: rotate(45deg);
+        }
+
+        .date-clear-btn::after {
+            transform: rotate(-45deg);
+        }
+
+        .date-picker-btn:hover,
+        .date-clear-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .date-clear-btn[hidden] {
+            display: none;
+        }
+
+        .range-date-input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            pointer-events: none;
+            width: 100%;
+            height: 100%;
+            border: none;
+            outline: none;
+            background: transparent;
+            color: transparent;
+        }
+
+        .range-separator {
+            flex-shrink: 0;
+            color: var(--text-tertiary);
+            padding: 0 4px;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.08);
+        }
+
+        .form-select:disabled {
+            background: #f5f5f5;
+            color: var(--text-tertiary);
+            cursor: not-allowed;
+        }
+
+        .panel-head {
+            padding: 16px 16px 0;
+            flex-shrink: 0;
+        }
+
+        .panel-head-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .panel-head h3 {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .panel-head p {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .table-wrap {
+            flex: 1;
+            overflow: auto;
+            min-height: 0;
+            padding: 0 16px 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 14px;
+            table-layout: fixed;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            background: #fff;
+        }
+
+        table.return-table-mode {
+            width: 100%;
+            table-layout: fixed;
+        }
+
+        table.return-table-mode thead th,
+        table.return-table-mode tbody td {
+            padding: 12px 14px;
+            vertical-align: middle;
+        }
+
+        table.return-table-mode .action-col-header,
+        table.return-table-mode .action-col-cell {
+            padding-right: 8px;
+        }
+
+        thead th {
+            text-align: left;
+            color: #8c8c8c;
+            font-weight: 600;
+            font-size: 13px;
+            background: #fafafa;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            white-space: nowrap;
+            letter-spacing: 0.02em;
+        }
+
+        tbody td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f5f5f5;
+            vertical-align: middle;
+            color: var(--text-color);
+        }
+
+        tbody tr {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        tbody tr:hover {
+            background: #f0f7ff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(24, 144, 255, 0.08);
+        }
+
+        tbody tr.active {
+            background: var(--selected-bg);
+            box-shadow: inset 3px 0 0 var(--primary-color);
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .cell-title {
+            font-weight: 600;
+            margin-bottom: 6px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .cell-sub {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            line-height: 1.75;
+            word-break: break-word;
+        }
+
+        .product-cell {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .product-thumb {
+            width: 56px;
+            height: 56px;
+            border-radius: 8px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #f1f5fb 0%, #dfe8f6 100%);
+            border: 1px solid #eef2f7;
+        }
+
+        .product-meta {
+            min-width: 0;
+        }
+
+        .product-meta .cell-title {
+            line-height: 1.5;
+        }
+
+        .amount-main {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 84px;
+            height: 28px;
+            padding: 0 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status.audit {
+            background: rgba(250, 173, 20, 0.15);
+            color: #d48806;
+        }
+
+        .status.wait {
+            background: rgba(24, 144, 255, 0.12);
+            color: var(--primary-active);
+        }
+
+        .status.done {
+            background: rgba(82, 196, 26, 0.12);
+            color: #389e0d;
+        }
+
+        .status.fail {
+            background: rgba(255, 77, 79, 0.12);
+            color: #cf1322;
+        }
+
+        .table-action {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            min-width: 120px;
+        }
+
+        .table-action.return-action {
+            flex-direction: row;
+            align-items: center;
+            min-width: auto;
+        }
+
+        .table-action .btn-link {
+            line-height: 1;
+            white-space: nowrap;
+            padding: 4px 12px;
+            border-radius: 999px;
+            border: 1px solid #d9d9d9;
+            font-size: 12px;
+            transition: all 0.2s;
+            background: #fff;
+        }
+
+        .table-action .btn-link:hover {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            background: rgba(24, 144, 255, 0.04);
+        }
+
+        .action-col-header {
+            position: sticky;
+            right: 0;
+            z-index: 2;
+            background: #fafafa;
+            box-shadow: -4px 0 8px rgba(0, 0, 0, 0.06);
+            overflow: visible;
+        }
+
+        .action-col-header::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: -12px;
+            width: 12px;
+            background: #fafafa;
+        }
+
+        .action-col-cell {
+            position: sticky;
+            right: 0;
+            z-index: 1;
+            background: #fff;
+            box-shadow: -4px 0 8px rgba(0, 0, 0, 0.04);
+            overflow: visible;
+        }
+
+        .action-col-cell::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: -16px;
+            width: 16px;
+            background: #fff;
+        }
+
+        tbody tr:nth-child(even) .action-col-cell {
+            background: #fafafa;
+        }
+
+        tbody tr:nth-child(even) .action-col-cell::after {
+            background: #fafafa;
+        }
+
+        tbody tr.active .action-col-cell {
+            background: var(--selected-bg);
+        }
+
+        tbody tr.active .action-col-cell::after {
+            background: var(--selected-bg);
+        }
+
+        tbody tr:hover .action-col-cell {
+            background: #f0f7ff;
+        }
+
+        tbody tr:hover .action-col-cell::after {
+            background: #f0f7ff;
+        }
+
+        .pagination {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px 16px;
+            border-top: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+
+        .page-total {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-right: 10px;
+        }
+
+        .page-btn {
+            min-width: 36px;
+            height: 36px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .page-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .page-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .page-btn.active:hover {
+            color: #fff;
+        }
+
+        .detail-card {
+            padding: 16px;
+            overflow: auto;
+        }
+
+        .detail-title-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .detail-title-row h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .detail-title-row p {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .detail-section {
+            padding: 14px 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .detail-section:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+
+        .detail-section h4 {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .desc-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .desc-item {
+            display: grid;
+            grid-template-columns: 88px 1fr;
+            gap: 10px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .desc-item dt {
+            color: var(--text-secondary);
+        }
+
+        .desc-item dd {
+            color: var(--text-color);
+        }
+
+        .tag-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: #f5f5f5;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .tag.primary {
+            background: var(--selected-bg);
+            color: var(--primary-color);
+        }
+
+        .timeline {
+            display: grid;
+            gap: 14px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-left: 18px;
+        }
+
+        .timeline-item::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 6px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #d9d9d9;
+        }
+
+        .timeline-item.active::before {
+            background: var(--primary-color);
+        }
+
+        .timeline-item.done::before {
+            background: var(--success-color);
+        }
+
+        .timeline-title {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .timeline-desc,
+        .timeline-time {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            line-height: 1.6;
+        }
+
+        .process-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .process-item {
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 8px;
+        }
+
+        .process-item strong {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .process-item p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        .footer-actions {
+            display: flex;
+            gap: 10px;
+            padding-top: 14px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 84px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background: #333;
+            color: #fff;
+            border-radius: 6px;
+            font-size: 14px;
+            z-index: 2000;
+            display: none;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            width: 520px;
+            max-width: calc(100% - 32px);
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .modal-close {
+            border: none;
+            background: none;
+            color: #999;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 2px 6px;
+        }
+
+        /* Full Page Detail View - embedded in system layout */
+        .detail-page {
+            display: none;
+        }
+
+        .detail-page.show {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .detail-page .detail-breadcrumb {
+            flex-shrink: 0;
+            margin-bottom: 16px;
+        }
+
+        .detail-page .detail-card {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            overflow: hidden;
+        }
+
+        .detail-page .detail-content {
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .detail-page .detail-action-bar {
+            flex-shrink: 0;
+            padding: 16px 24px;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .detail-page-tabs {
+            display: flex;
+            background: #fff;
+            border-radius: 12px 12px 0 0;
+            border-bottom: 1px solid var(--border-color, #e5e7eb);
+            padding: 0 20px;
+        }
+
+        .detail-page-tab {
+            padding: 14px 20px;
+            font-size: 14px;
+            color: #6b7280;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .detail-page-tab:hover {
+            color: #1677ff;
+        }
+
+        .detail-page-tab.active {
+            color: #1677ff;
+            font-weight: 600;
+            border-bottom-color: #1677ff;
+        }
+
+        .detail-stepper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 40px;
+            gap: 0;
+        }
+
+        .detail-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            flex: 1;
+        }
+
+        .detail-step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .detail-step-icon.completed {
+            background: #1677ff;
+            color: #fff;
+        }
+
+        .detail-step-icon.current {
+            background: #fff;
+            color: #1677ff;
+            border: 3px solid #1677ff;
+        }
+
+        .detail-step-icon.pending {
+            background: #f3f4f6;
+            color: #9ca3af;
+            border: 2px solid #e5e7eb;
+        }
+
+        .detail-step-label {
+            font-size: 13px;
+            color: #6b7280;
+            text-align: center;
+        }
+
+        .detail-step-label.active {
+            color: #1677ff;
+            font-weight: 600;
+        }
+
+        .detail-step-line {
+            flex: 1;
+            height: 2px;
+            background: #e5e7eb;
+            margin-bottom: 28px;
+        }
+
+        .detail-step-line.completed {
+            background: #1677ff;
+        }
+
+        .detail-step-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+            font-size: 12px;
+            color: #8c8c8c;
+        }
+
+        .detail-step-time {
+            color: #8c8c8c;
+        }
+
+        .detail-step-operator {
+            color: #1677ff;
+        }
+
+        .detail-refund-section {
+            background: #fafbfc;
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+        }
+
+        .detail-refund-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .detail-refund-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .detail-refund-badge {
+            padding: 3px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .detail-refund-badge.success {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .detail-refund-badge.pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .detail-refund-badge.info {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .detail-refund-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .detail-refund-label {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 4px;
+        }
+
+        .detail-refund-value {
+            font-size: 14px;
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .detail-refund-value.amount {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            font-family: "SF Mono", "Consolas", monospace;
+        }
+
+        .detail-section {
+            margin-bottom: 24px;
+        }
+
+        .detail-section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .detail-section-dot {
+            width: 4px;
+            height: 16px;
+            border-radius: 2px;
+            background: #1677ff;
+        }
+
+        .detail-section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+            white-space: nowrap;
+        }
+
+        .detail-info-table {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .detail-info-row {
+            display: flex;
+            padding: 12px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .detail-info-row:nth-child(odd) {
+            background: #fafbfc;
+        }
+
+        .detail-info-row:nth-child(even) {
+            background: #fff;
+        }
+
+        .detail-info-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-info-row.full {
+            grid-column: 1 / -1;
+            background: #fff !important;
+        }
+
+        .detail-info-label {
+            width: 100px;
+            flex-shrink: 0;
+            font-size: 13px;
+            color: #9ca3af;
+        }
+
+        .detail-info-value {
+            flex: 1;
+            font-size: 13px;
+            color: #1f2937;
+        }
+
+        .detail-product-section {
+            background: #fafbfc;
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+        }
+
+        .detail-product-card {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .detail-product-thumb {
+            width: 90px;
+            height: 90px;
+            border-radius: 10px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #f1f5fb 0%, #dfe8f6 100%);
+            border: 1px solid #eef2f7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-size: 12px;
+        }
+
+        .detail-product-info {
+            flex: 1;
+            min-width: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 24px;
+        }
+
+        .detail-product-field {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .detail-product-field-label {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .detail-product-field-value {
+            font-size: 14px;
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .detail-customer-section {
+            background: #fafbfc;
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+        }
+
+        .detail-customer-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px 24px;
+        }
+
+        .detail-customer-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-customer-label {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .detail-customer-value {
+            font-size: 14px;
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .detail-action-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px 24px;
+            border-top: 1px solid #e5e7eb;
+            background: #fafbfc;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .detail-breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .detail-breadcrumb a {
+            color: #1677ff;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .detail-breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .detail-breadcrumb .separator {
+            color: #d1d5db;
+        }
+
+        .detail-breadcrumb .current {
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        /* 供应链详情页 - 分区布局 */
+        .scm-section {
+            background: #fff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 1px solid #e8e8e8;
+        }
+
+        .scm-section-header {
+            background: #E6F0FA;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            border-bottom: 1px solid #d6e8f7;
+        }
+
+        .scm-section-body {
+            padding: 20px;
+        }
+
+        .scm-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px 32px;
+        }
+
+        .scm-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .scm-field-label {
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+
+        .scm-field-value {
+            font-size: 14px;
+            color: #1f2937;
+            font-weight: 500;
+            min-height: 22px;
+        }
+
+        .scm-field-value.amount {
+            color: #f5222d;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .scm-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .scm-table thead th {
+            background: #fafafa;
+            color: #8c8c8c;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 10px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            text-align: left;
+        }
+
+        .scm-table tbody td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f5f5f5;
+            color: #1f2937;
+        }
+
+        .scm-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .scm-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .scm-status.pending { background: #fef3c7; color: #d97706; }
+        .scm-status.info { background: #dbeafe; color: #2563eb; }
+        .scm-status.success { background: #dcfce7; color: #16a34a; }
+        .scm-status.fail { background: #fee2e2; color: #dc2626; }
+
+        .scm-action-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #e8e8e8;
+            margin-top: 4px;
+        }
+
+        .scm-action-left {
+            display: flex;
+            gap: 10px;
+        }
+
+        .scm-action-right {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .modal-body p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 14px;
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .decision-info {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            background: #f6fbff;
+            border: 1px solid #d6ebff;
+            border-radius: 8px;
+        }
+
+        .decision-info-icon,
+        .success-feedback-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 22px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .decision-info-icon {
+            background: #1890ff;
+            color: #fff;
+        }
+
+        .decision-info strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #262626;
+        }
+
+        .decision-info span {
+            color: #666;
+            line-height: 1.75;
+            font-size: 13px;
+        }
+
+        .decision-primary-btn {
+            width: 100%;
+            justify-content: center;
+            margin-top: 4px;
+            margin-bottom: 8px;
+        }
+
+        .decision-secondary-tip {
+            margin: 0;
+            color: #8c8c8c;
+            font-size: 13px;
+            line-height: 1.75;
+        }
+
+        .review-panel-title {
+            margin: 0 0 10px;
+            color: #262626;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .success-feedback {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 0 8px;
+            text-align: center;
+            gap: 12px;
+        }
+
+        .success-feedback-icon {
+            width: 42px;
+            height: 42px;
+            flex-basis: 42px;
+            background: rgba(82, 196, 26, 0.12);
+            color: var(--success-color);
+            font-size: 24px;
+        }
+
+        .success-feedback-text {
+            color: #262626;
+            font-size: 15px;
+            font-weight: 500;
+        }
+
+        @media (max-width: 1360px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filter-quick-grid,
+            .filter-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filter-card:not(.is-collapsed) .filter-grid-actions {
+                grid-column: 1 / -1;
+            }
+
+            .content-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="header-logo">
+                <div class="header-title">供应链管理后台</div>
+                <div class="header-subtitle">供应链管理系统</div>
+            </div>
+            <div class="header-actions">
+                <button class="header-link" type="button" id="messageBtn">消息 3</button>
+                <button class="header-link" type="button" id="userBtn">供应链专员</button>
+            </div>
+        </header>
+
+        <div class="main">
+            <aside class="sider">
+                <div class="menu-group">
+                    <div class="menu-label">品牌商城</div>
+                    <div class="menu-item" data-menu="dashboard">首页看板</div>
+                    <div class="menu-item" data-menu="order">订单管理</div>
+                    <div class="menu-item active" id="afterSalesMenu">
+                        <div class="menu-item-parent">
+                            <span>售后管理</span>
+                            <span class="menu-arrow">▾</span>
+                        </div>
+                    </div>
+                    <div class="submenu" id="afterSalesSubmenu">
+                        <div class="submenu-item active" data-subnav="audit">售后列表</div>
+                    </div>
+                    <div class="menu-item" data-menu="goods">商品管理</div>
+                </div>
+            </aside>
+
+            <main class="page-shell">
+                <div class="page-container">
+                    <div class="page-head">
+                        <div class="page-head-row">
+                        </div>
+                    </div>
+
+                    <div class="content-layout">
+                        <section class="left-panel">
+                            <div class="card filter-card is-collapsed" id="filterCard">
+                                <div class="filter-main-row">
+                                    <div class="filter-quick-grid">
+                                        <div class="form-item">
+                                            <div class="labeled-field">
+                                                <span class="field-prefix">主订单号：</span>
+                                                <input class="form-input inline-input" id="mainOrderInput" type="text" placeholder="请输入">
+                                            </div>
+                                        </div>
+                                        <div class="form-item">
+                                            <div class="labeled-field">
+                                                <span class="field-prefix">子订单号：</span>
+                                                <input class="form-input inline-input" id="subOrderInput" type="text" placeholder="请输入">
+                                            </div>
+                                        </div>
+                                        <div class="form-item">
+                                            <div class="labeled-field">
+                                                <span class="field-prefix">商品名称：</span>
+                                                <input class="form-input inline-input" id="productNameInput" type="text" placeholder="请输入">
+                                            </div>
+                                        </div>
+                                        <div class="form-item quick-extra">
+                                            <div class="labeled-field">
+                                                <span class="field-prefix">售后单号：</span>
+                                                <input class="form-input inline-input" id="aftersalesInput" type="text" placeholder="请输入">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="filter-actions">
+                                        <button class="btn btn-link toggle-filter-btn" type="button" id="toggleFilterBtn" data-filter-toggle="expand">展开</button>
+                                        <div class="filter-actions-primary">
+                                            <button class="btn" type="button" data-filter-action="reset">重置</button>
+                                            <button class="btn btn-primary" type="button" data-filter-action="search">查询</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="filter-advanced">
+                                    <div class="filter-grid">
+                                        <div class="form-item">
+                                            <div class="labeled-field">
+                                                <span class="field-prefix">SKU物流编码：</span>
+                                                <input class="form-input inline-input" id="skuLogisticsInput" type="text" placeholder="请输入">
+                                            </div>
+                                        </div>
+                                        <div class="form-item">
+                                            <div class="labeled-field">
+                                                <span class="field-prefix">供应商：</span>
+                                                <input class="form-input inline-input" id="supplierInput" type="text" placeholder="请输入">
+                                            </div>
+                                        </div>
+                                        <div class="form-item">
+                                            <div class="labeled-field">
+                                                <span class="field-prefix">收货人手机号码：</span>
+                                                <input class="form-input inline-input" id="receiverPhoneInput" type="text" placeholder="请输入">
+                                            </div>
+                                        </div>
+                                        <div class="form-item">
+                                            <div class="date-range-field">
+                                                <span class="date-range-prefix">申请售后时间：</span>
+                                                <div class="range-date-box">
+                                                    <div class="range-date-trigger is-empty" id="createdDateStartTrigger">
+                                                        <span class="range-date-display" id="createdDateStartDisplay">开始时间</span>
+                                                        <span class="range-date-actions">
+                                                            <button class="date-clear-btn" id="createdDateStartClear" type="button" aria-label="清空开始时间" hidden></button>
+                                                            <button class="date-picker-btn" id="createdDateStartPicker" type="button" aria-label="选择开始时间"></button>
+                                                        </span>
+                                                        <input class="range-date-input" id="createdDateStartInput" type="date" aria-label="申请售后开始时间">
+                                                    </div>
+                                                </div>
+                                                <span class="range-separator">-</span>
+                                                <div class="range-date-box">
+                                                    <div class="range-date-trigger is-empty" id="createdDateEndTrigger">
+                                                        <span class="range-date-display" id="createdDateEndDisplay">结束时间</span>
+                                                        <span class="range-date-actions">
+                                                            <button class="date-clear-btn" id="createdDateEndClear" type="button" aria-label="清空结束时间" hidden></button>
+                                                            <button class="date-picker-btn" id="createdDateEndPicker" type="button" aria-label="选择结束时间"></button>
+                                                        </span>
+                                                        <input class="range-date-input" id="createdDateEndInput" type="date" aria-label="申请售后结束时间">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-item">
+                                            <label class="sr-only" for="statusSelect">售后状态</label>
+                                            <div class="labeled-field">
+                                                <span class="field-prefix">售后状态：</span>
+                                                <select class="form-select" id="statusSelect">
+                                                    <option value="all">全部</option>
+                                                    <option value="待商家审核">待商家审核</option>
+                                                    <option value="待买家退货">待买家退货</option>
+                                                    <option value="待商家收货">待商家收货</option>
+                                                    <option value="待仓库发货">待仓库发货</option>
+                                                    <option value="待客户收货">待客户收货</option>
+                                                    <option value="待退款">待退款</option>
+                                                    <option value="退款中">退款中</option>
+                                                    <option value="退款成功">退款成功</option>
+                                                    <option value="退款失败">退款失败</option>
+                                                    <option value="换货成功">换货成功</option>
+                                                    <option value="已驳回">已驳回</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-item">
+                                            <label class="sr-only" for="auditStatusSelect">审核状态</label>
+                                            <div class="labeled-field">
+                                                <span class="field-prefix">审核状态：</span>
+                                                <select class="form-select" id="auditStatusSelect">
+                                                    <option value="all">全部</option>
+                                                    <option value="待审核">待审核</option>
+                                                    <option value="审核通过">审核通过</option>
+                                                    <option value="驳回">驳回</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-item">
+                                            <label class="sr-only" for="typeSelect">售后类型</label>
+                                            <div class="labeled-field">
+                                                <span class="field-prefix">售后类型：</span>
+                                                <select class="form-select" id="typeSelect">
+                                                    <option value="all">全部</option>
+                                                    <option value="仅退款">仅退款</option>
+                                                    <option value="退货退款">退货退款</option>
+                                                    <option value="换货">换货</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="form-item">
+                                            <label class="sr-only" for="channelSelect">渠道</label>
+                                            <div class="labeled-field">
+                                                <span class="field-prefix">渠道：</span>
+                                                <select class="form-select" id="channelSelect">
+                                                    <option value="all">全部</option>
+                                                    <option value="品牌商城">品牌商城</option>
+                                                    <option value="积分商城">积分商城</option>
+                                                    <option value="小程序">小程序</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="filter-grid-actions">
+                                        <button class="btn btn-link filter-footer-toggle" type="button" data-filter-toggle="collapse">收起</button>
+                                        <button class="btn" type="button" data-filter-action="reset">重置</button>
+                                        <button class="btn btn-primary" type="button" data-filter-action="search">查询</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card" style="display:flex;flex-direction:column;min-height:0;">
+                                <div class="audit-types" id="auditTypes" style="padding: 16px 16px 0;flex-shrink:0;">
+                                    <div class="audit-type-card active" data-audit-type="all">
+                                        <div class="audit-type-title">全部</div>
+                                    </div>
+                                    <div class="audit-type-card" data-audit-type="待审核">
+                                        <div class="audit-type-title">待审核</div>
+                                    </div>
+                                    <div class="audit-type-card" data-audit-type="审核通过">
+                                        <div class="audit-type-title">审核通过</div>
+                                    </div>
+                                    <div class="audit-type-card" data-audit-type="驳回">
+                                        <div class="audit-type-title">驳回</div>
+                                    </div>
+                                </div>
+                                <div class="panel-head">
+                                    <div class="panel-head-row">
+                                        <div>
+                                            <h3 id="tableTitle">售后审核列表</h3>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="table-wrap">
+                                    <table>
+                                        <thead>
+                                            <tr id="tableHeadRow"></tr>
+                                        </thead>
+                                        <tbody id="tableBody"></tbody>
+                                    </table>
+                                </div>
+
+                                <div class="pagination">
+                                    <span class="page-total" id="pageTotal">共 0 条</span>
+                                    <div id="paginationControls" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"></div>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title" id="modalTitle">功能说明</span>
+                <button class="modal-close" type="button" id="modalClose">×</button>
+            </div>
+            <div class="modal-body" id="modalText"></div>
+            <div class="modal-footer">
+                <button class="btn" type="button" id="modalCancel">关闭</button>
+                <button class="btn btn-primary" type="button" id="modalConfirm">我知道了</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const state = {
+            activeTab: "audit",
+            selectedId: "AF20260409001",
+            activeAuditType: "待审核",
+            pagination: {
+                audit: 1,
+                refund: 1,
+                return: 1
+            },
+            pageSize: 10
+        };
+
+        const statusClassMap = {
+            "待商家审核": "audit",
+            "待买家退货": "wait",
+            "待商家收货": "wait",
+            "待仓库发货": "audit",
+            "待客户收货": "wait",
+            "待退款": "audit",
+            "退款中": "wait",
+            "退款成功": "done",
+            "退款失败": "fail",
+            "换货成功": "done",
+            "已驳回": "fail",
+            "已作废": "fail",
+            "已完成": "done",
+            "待收货": "wait",
+            "已收货": "audit",
+            "已退款": "done",
+            "退货处理中": "audit",
+            "退货完成": "done",
+            "退货异常": "fail",
+            "已关闭": "fail"
+        };
+
+        const auditTypeStatusMap = {
+            "all": [],
+            "待审核": ["待商家审核"],
+            "审核通过": ["待买家退货", "待商家收货", "待仓库发货", "待客户收货", "待退款", "退款中", "退款成功", "退款失败", "换货成功"],
+            "驳回": ["已驳回"]
+        };
+
+        const dataMap = {
+            audit: [
+                {
+                    id: "AF20260409019",
+                    orderNo: "SO202604091108",
+                    subOrderNo: "SUB20260409110801",
+                    userName: "唐悦",
+                    memberId: "M2026041020",
+                    type: "仅退款",
+                    channel: "品牌商城",
+                    productName: "轻食套餐券",
+                    skuText: "电子券 / 单次",
+                    skuLogisticsCode: "SKU-ELEC-001",
+                    receiverPhone: "13812345678",
+                    userPhone: "13812345678",
+                    supplierName: "品牌权益供应商",
+                    status: "待商家审核",
+                    createdAt: "2026-04-10 09:18",
+                    reason: "客户取消订单，申请仅退款",
+                    amount: "¥59.00",
+                    productTotalPrice: "¥59.00",
+                    actualPaidAmount: "¥59.00",
+                    paymentMethodDetail: "现金支付",
+                    paymentMethod: "cash",
+                    node: "待商家审核",
+                    detailTags: ["仅退款", "仅退款审核", "支付回写"],
+                    recommend: "该单为仅退款，建议核验订单状态与支付状态后直接进入退款处理流程。",
+                    primaryText: "通过审核",
+                    secondaryText: "驳回并备注",
+                    baseInfo: [["订单号", "SO202604091108"], ["用户名称", "唐悦"], ["商品信息", "轻食套餐券"], ["商品名称", "轻食套餐券"], ["退货类型", "仅退款"], ["退款金额", "¥59.00"], ["售后渠道", "品牌商城"]],
+                    timeline: [["done", "客户提交仅退款", "客户取消订单并发起仅退款申请。", "2026-04-10 09:18", "唐悦"], ["active", "待商家审核", "商家核验订单状态、退款原因与支付信息。", "当前节点", "供应链专员"], ["", "执行退款", "发起原路退款请求。", "待处理", ""], ["", "完成退款", "退款完成并通知用户。", "待处理", ""]],
+                    process: [["仅退款审核", "仅退款主要走审核与退款建单流程。"], ["执行退款", "支持现金支付原路退款。"], ["完成退款", "结果回写订单与消息中心。"]]
+                },
+                {
+                    id: "AF20260409001",
+                    orderNo: "SO202604080123",
+                    subOrderNo: "SUB20260408012301",
+                    userName: "陈晓宁",
+                    memberId: "M2026031886",
+                    type: "退货退款",
+                    channel: "品牌商城",
+                    productName: "联名会员礼盒",
+                    skuText: "默认款 / 礼盒装",
+                    skuLogisticsCode: "SKU-GIFT-002",
+                    receiverPhone: "13987654321",
+                    userPhone: "13987654321",
+                    supplierName: "品牌商城自营供应商",
+                    supplierReturnAddresses: [{ region: "上海市浦东新区", detail: "张江路 88 号 3 号仓退货组", name: "品牌商城退货组", phone: "13800008801" }],
+                    customerReturnAddresses: [{ detail: "上海市浦东新区张江路 88 号 3 号仓退货组", name: "陈晓宁", phone: "13800008801" }],
+                    status: "待商家审核",
+                    createdAt: "2026-04-09 10:12",
+                    reason: "收到商品外盒破损，申请退货退款",
+                    amount: "¥329.00",
+                    productTotalPrice: "¥399.00",
+                    actualPaidAmount: "¥329.00",
+                    paymentMethodDetail: "现金支付",
+                    paymentMethod: "cash",
+                    couponAmount: "¥70",
+                    refundCoupon: "¥70",
+                    node: "待商家审核",
+                    detailTags: ["退货退款", "退货退款审核", "换货系统接口交互"],
+                    recommend: "当前售后单已进入商家审核节点，建议先核验订单签收状态与用户上传凭证，再决定直接退款或引导寄回。",
+                    primaryText: "通过审核",
+                    secondaryText: "驳回并备注",
+                    baseInfo: [["订单号", "SO202604080123"], ["用户名称", "陈晓宁"], ["商品信息", "联名会员礼盒"], ["商品名称", "联名会员礼盒"], ["退货类型", "退货退款"], ["退款金额", "¥329.00"], ["售后渠道", "品牌商城"]],
+                    timeline: [["done", "客户发起售后", "用户在订单详情页提交退货退款申请，并上传破损照片。", "2026-04-09 10:12", "陈晓宁"], ["active", "待商家审核", "商家审核退款原因、凭证及是否符合退货退款规则。", "当前节点", "供应链专员"], ["", "待买家退货", "审核通过后通知买家退货并填写退货物流单号。", "待处理", ""], ["", "待商家收货", "商家确认收到退回商品。", "待处理", ""], ["", "执行退款", "商家收货完成后发起退款请求。", "待处理", ""], ["", "完成退款", "退款完成并同步回调结果。", "待处理", ""]],
+                    process: [["商家审核", "当前仅保留仅退款、退货退款、换货三类审核流程。"], ["待买家退货", "退货退款场景需记录买家退货物流信息。"], ["待商家收货", "商家确认收货后才可推进退款。"]]
+                },
+                {
+                    id: "AF20260409008",
+                    orderNo: "SO202604070541",
+                    subOrderNo: "SUB20260407054103",
+                    userName: "赵一鸣",
+                    memberId: "M2026029041",
+                    type: "换货",
+                    channel: "品牌商城",
+                    productName: "品牌卫衣 XL",
+                    skuText: "黑色 / XL",
+                    skuLogisticsCode: "SKU-CLO-XL-003",
+                    receiverPhone: "15012349876",
+                    userPhone: "15012349876",
+                    supplierName: "华东服饰供应商",
+                    supplierReturnAddresses: [{ region: "江苏省苏州市工业园区", detail: "娄阳路 66 号华东服饰售后仓", name: "华东服饰售后仓", phone: "13900006688" }],
+                    status: "待商家审核",
+                    createdAt: "2026-04-09 09:30",
+                    reason: "尺码不合适，申请换货",
+                    amount: "¥0.00",
+                    productTotalPrice: "¥199.00",
+                    actualPaidAmount: "¥199.00",
+                    paymentMethodDetail: "现金支付",
+                    paymentMethod: "cash",
+                    node: "待商家审核",
+                    detailTags: ["换货", "客户寄回", "换货系统API交互"],
+                    recommend: "当前为换货审核流程，建议先核验订单签收状态、用户换货原因和目标SKU库存。",
+                    primaryText: "通过审核",
+                    secondaryText: "驳回并备注",
+                    baseInfo: [["订单号", "SO202604070541"], ["用户名称", "赵一鸣"], ["商品信息", "品牌卫衣 XL"], ["商品名称", "品牌卫衣"], ["退货类型", "换货"], ["换货目标", "品牌卫衣 L"], ["售后渠道", "品牌商城"]],
+                    timeline: [["done", "客户发起换货", "用户提交尺码换货申请。", "2026-04-09 09:30", "赵一鸣"], ["active", "待商家审核", "商家审核换货原因、签收状态与目标SKU库存。", "当前节点", "供应链专员"], ["", "待买家退货", "审核通过后通知买家退货并登记物流信息。", "待处理", ""], ["", "待商家收货", "商家确认收到退回商品后推进换货。", "待处理", ""], ["", "待仓库发货", "仓库为换货商品安排出库发货。", "待处理", ""], ["", "待客户收货", "换货商品已发出，等待客户确认收货。", "待处理", ""], ["", "换货成功", "客户收货后换货流程完成。", "待处理", ""]],
+                    process: [["待买家退货", "换货流程涉及买家填写退货单号，或商家代录物流信息。"], ["待商家收货", "商家确认收货后，才可进入发货流程。"], ["待仓库发货", "仓库发出换货商品后进入客户收货阶段。"]]
+                },
+                {
+                    id: "AF20260409011",
+                    orderNo: "SO202604061108",
+                    subOrderNo: "SUB20260406110802",
+                    userName: "林思雨",
+                    memberId: "M2026019088",
+                    type: "退货退款",
+                    channel: "小程序",
+                    productName: "轻量跑鞋",
+                    skuText: "白蓝 / 39",
+                    skuLogisticsCode: "SKU-SHO-039-004",
+                    receiverPhone: "18656781234",
+                    userPhone: "18656781234",
+                    supplierName: "华南鞋服供应商",
+                    supplierReturnAddresses: [{ region: "广东省广州市天河区", detail: "科韵路 18 号 2 楼售后仓", name: "华南鞋服售后仓", phone: "13700007766" }],
+                    status: "待买家退货",
+                    returnCompany: "顺丰速运",
+                    returnNo: "SF1234567890",
+                    createdAt: "2026-04-09 08:18",
+                    reason: "尺码偏小，申请退货退款",
+                    amount: "¥459.00",
+                    productTotalPrice: "¥459.00",
+                    actualPaidAmount: "¥409.00",
+                    paymentMethodDetail: "现金支付",
+                    paymentMethod: "points_cash",
+                    pointsAmount: "50",
+                    refundPoints: "50",
+                    node: "待买家填写退货单号",
+                    detailTags: ["退货退款", "客户已填物流", "自动推进"],
+                    recommend: "客户已在C端填写退货物流信息，系统应自动流转至待商家收货。",
+                    primaryText: "登记退货单号",
+                    secondaryText: "",
+                    baseInfo: [["订单号", "SO202604061108"], ["用户名称", "林思雨"], ["商品信息", "轻量跑鞋"], ["商品名称", "轻量跑鞋"], ["退货类型", "退货退款"], ["退款金额", "¥459.00"], ["售后渠道", "小程序"]],
+                    timeline: [["done", "客户发起售后", "用户提交退货退款申请。", "2026-04-09 08:18", "林思雨"], ["done", "待商家审核", "商家审核通过并回传退回地址。", "2026-04-09 08:30", "供应链专员"], ["active", "买家退货并填写单号", "客户已在C端填写物流公司与寄回单号。", "当前节点", "林思雨"], ["", "待商家收货", "系统自动推进至商家收货节点。", "待处理", ""], ["", "执行退款", "商家收货完成后发起退款请求。", "待处理", ""], ["", "完成退款", "退款完成并同步回调结果。", "待处理", ""]],
+                    process: [["自动推进", "客户填写物流公司与寄回单号后，售后单自动进入待商家收货。"], ["待商家收货", "商家确认收货后再进入退款。"]]
+                },
+                {
+                    id: "AF20260409016",
+                    orderNo: "SO202604050432",
+                    subOrderNo: "SUB20260405043205",
+                    userName: "周可",
+                    memberId: "M2026013208",
+                    type: "仅退款",
+                    channel: "积分商城",
+                    productName: "影院周边礼包",
+                    skuText: "积分专享款",
+                    skuLogisticsCode: "SKU-CINEMA-005",
+                    receiverPhone: "13743215678",
+                    userPhone: "13743215678",
+                    supplierName: "积分商城供应商",
+                    status: "待退款",
+                    createdAt: "2026-04-08 16:22",
+                    reason: "客户取消订单，申请仅退款",
+                    amount: "¥0.00 + 860积分",
+                    productTotalPrice: "¥99.00",
+                    actualPaidAmount: "¥0.00",
+                    paymentMethodDetail: "积分支付",
+                    paymentMethod: "points_coupon",
+                    pointsAmount: "860",
+                    couponAmount: "¥99",
+                    refundPoints: "860",
+                    refundCoupon: "¥99",
+                    node: "待执行退款",
+                    detailTags: ["仅退款", "积分回退", "优惠券满减分摊"],
+                    recommend: "该单为仅退款，需确认订单状态、积分和优惠券满减的拆分退款口径，并保持原路回退一致。",
+                    primaryText: "执行退款",
+                    secondaryText: "",
+                    baseInfo: [["订单号", "SO202604050432"], ["用户名称", "周可"], ["商品信息", "影院周边礼包"], ["商品名称", "影院周边礼包"], ["退货类型", "仅退款"], ["退款金额", "¥0.00 + 860积分"], ["售后渠道", "积分商城"]],
+                    timeline: [["done", "客户提交仅退款", "客户取消订单并申请仅退款。", "2026-04-08 16:22", "周可"], ["done", "售后审核通过", "进入退款处理流程。", "2026-04-08 16:35", "供应链专员"], ["active", "执行退款", "等待执行积分和优惠券拆分退款。", "当前节点", "供应链专员"], ["", "完成退款", "回写退款状态，完成用户账务通知。", "待处理", ""]],
+                    process: [["售后列表查询", "查询当前渠道售后单数据，展示退款状态及回退结果。"], ["执行退款", "覆盖现金支付、积分支付、混合支付和优惠券满减场景。"], ["失败重试", "若退款执行失败，可在售后列表重新发起退款。"]]
+                },
+                {
+                    id: "AF20260409025",
+                    orderNo: "SO202604040678",
+                    subOrderNo: "SUB20260404067802",
+                    userName: "王小明",
+                    memberId: "M2026015067",
+                    type: "退货退款",
+                    channel: "小程序",
+                    productName: "蓝牙耳机",
+                    skuText: "白色 / 标准版",
+                    skuLogisticsCode: "SKU-BT-WH-006",
+                    receiverPhone: "18600998877",
+                    userPhone: "18600998877",
+                    supplierName: "华南数码供应商",
+                    status: "已驳回",
+                    createdAt: "2026-04-07 14:30",
+                    reason: "商品有划痕，申请退货退款",
+                    rejectReason: "商品划痕不在退货范围内，不符合退货退款条件",
+                    amount: "¥259.00",
+                    productTotalPrice: "¥259.00",
+                    actualPaidAmount: "¥259.00",
+                    paymentMethodDetail: "现金支付",
+                    paymentMethod: "cash",
+                    node: "已驳回",
+                    detailTags: ["退货退款", "已驳回"],
+                    recommend: "该售后单已被驳回，驳回原因为：商品划痕不在退货范围内。",
+                    primaryText: "",
+                    secondaryText: "",
+                    baseInfo: [["订单号", "SO202604040678"], ["用户名称", "王小明"], ["商品信息", "蓝牙耳机"], ["商品名称", "蓝牙耳机"], ["退货类型", "退货退款"], ["退款金额", "¥259.00"], ["售后渠道", "小程序"]],
+                    timeline: [["done", "客户发起售后", "用户提交退货退款申请，上传划痕照片。", "2026-04-07 14:30", "王小明"], ["done", "待商家审核", "供应链专员审核售后申请。", "2026-04-07 15:10", "供应链专员"], ["done", "已驳回", "商品划痕不在退货范围内，驳回售后申请。", "2026-04-07 15:20", "供应链专员"]],
+                    process: [["审核驳回", "驳回原因：商品划痕不在退货范围内，不符合退货退款条件。"]]
+                }
+            ],
+            refund: [
+                {
+                    id: "RF20260409002",
+                    sourceAuditId: "AF20260409001",
+                    orderNo: "SO202604080123",
+                    subOrderNo: "SUB20260408012301",
+                    userName: "陈晓宁",
+                    memberId: "M2026031886",
+                    type: "退货退款",
+                    channel: "品牌商城",
+                    productName: "联名会员礼盒",
+                    skuText: "默认款 / 礼盒装",
+                    supplierName: "品牌商城自营供应商",
+                    status: "退款中",
+                    createdAt: "2026-04-09 11:08",
+                    reason: "仓库已确认收货，待支付渠道退款回调",
+                    amount: "¥329.00",
+                    productTotalPrice: "¥399.00",
+                    actualPaidAmount: "¥329.00",
+                    paymentMethodDetail: "现金支付",
+                    paymentMethod: "cash",
+                    couponAmount: "¥70",
+                    refundCoupon: "¥70",
+                    node: "退款处理中",
+                    detailTags: ["现金退款", "退货退款", "支付回调"],
+                    recommend: "退款单已进入支付通道处理中，建议继续跟踪回调状态；若超时未回调，可触发重试或人工介入。",
+                    primaryText: "查看退款进度",
+                    secondaryText: "",
+                    baseInfo: [["退款单号", "RF20260409002"], ["订单号", "SO202604080123"], ["用户名称", "陈晓宁"], ["退款金额", "¥329.00"], ["退款方式", "原路退款"], ["退款渠道", "微信支付"]],
+                    timeline: [["done", "退款流程开始", "审核通过后进入退款处理。", "2026-04-09 11:08", "供应链专员"], ["active", "执行退款", "支付渠道正在处理中，等待回调。", "当前节点", "供应链专员"], ["", "完成退款", "回写退款成功状态，并通知用户。", "待处理", ""]],
+                    process: [["列表查询", "查询当前渠道退款单数据。"], ["执行退款", "支持现金支付及原路退款。"], ["状态跟进", "持续跟踪支付通道返回结果。"]]
+                },
+                {
+                    id: "RF20260409009",
+                    sourceAuditId: "AF20260409016",
+                    orderNo: "SO202604050432",
+                    subOrderNo: "SUB20260405043205",
+                    userName: "周可",
+                    memberId: "M2026013208",
+                    type: "仅退款",
+                    channel: "积分商城",
+                    productName: "影院周边礼包",
+                    skuText: "积分专享款",
+                    supplierName: "积分商城供应商",
+                    status: "待退款",
+                    createdAt: "2026-04-08 16:35",
+                    reason: "需执行积分和优惠券联合退款",
+                    amount: "860积分 + 优惠券回补",
+                    productTotalPrice: "¥99.00",
+                    actualPaidAmount: "¥0.00",
+                    paymentMethodDetail: "积分支付",
+                    paymentMethod: "points_coupon",
+                    pointsAmount: "860",
+                    couponAmount: "¥99",
+                    refundPoints: "860",
+                    refundCoupon: "¥99",
+                    node: "执行退款",
+                    detailTags: ["积分退款", "优惠券回补", "混合退款"],
+                    recommend: "建议先按退款规则拆分积分和优惠券回补范围，再执行回退，避免账务结果不一致。",
+                    primaryText: "执行退款",
+                    secondaryText: "",
+                    baseInfo: [["退款单号", "RF20260409009"], ["订单号", "SO202604050432"], ["用户名称", "周可"], ["退款金额", "860积分 + 优惠券回补"], ["退款方式", "积分原路退回"], ["退款渠道", "积分账户"]],
+                    timeline: [["done", "退款流程开始", "售后审核通过后进入退款处理。", "2026-04-08 16:35", "供应链专员"], ["active", "执行退款", "等待财务规则确认后执行。", "当前节点", "供应链专员"], ["", "完成退款", "写回积分流水与优惠券状态。", "待处理", ""]],
+                    process: [["执行退款", "覆盖积分支付、混合支付、优惠券满减场景。"], ["数据同步", "完成后需同步账户资产与消息通知。"]]
+                }
+            ]
+        };
+
+        dataMap.return = [
+            {
+                id: "TH20260410001",
+                sourceRefundId: "RF20260409002",
+                sourceAuditId: "AF20260409001",
+                orderNo: "SO202604080123",
+                subOrderNo: "SUB20260408012301",
+                userName: "陈晓宁",
+                memberId: "M2026031886",
+                type: "退货退款",
+                channel: "品牌商城",
+                productName: "联名会员礼盒",
+                skuText: "默认款 / 礼盒装",
+                supplierName: "品牌商城自营供应商",
+                status: "退货处理中",
+                createdAt: "2026-04-09 14:30",
+                returnCompany: "圆通速递",
+                returnNo: "YT202604096688",
+                returnQty: 1,
+                amount: "¥329.00",
+                productTotalPrice: "¥399.00",
+                actualPaidAmount: "¥329.00",
+                paymentMethodDetail: "现金支付",
+                paymentMethod: "cash",
+                couponAmount: "¥70",
+                refundCoupon: "¥70",
+                node: "待商家收货",
+                detailTags: ["退货单", "关联退款单", "待收货"],
+                recommend: "退货物流已显示正在运输中，请关注物流状态并及时确认收货。",
+                baseInfo: [
+                    ["退货单号", "TH20260410001"],
+                    ["关联退款单", "RF20260409002"],
+                    ["关联售后单", "AF20260409001"],
+                    ["主订单号", "SO202604080123"],
+                    ["子订单号", "SUB20260408012301"],
+                    ["商品信息", "联名会员礼盒 / 默认款 / 礼盒装"],
+                    ["退货数量", "1"],
+                    ["退货总金额", "¥329.00"],
+                    ["退货类型", "退货退款"],
+                    ["售后渠道", "品牌商城"]
+                ],
+                timeline: [
+                    ["done", "退货单生成", "退款成功后自动创建退货单。", "2026-04-09 14:30", "系统"],
+                    ["done", "买家退货", "买家已寄出商品，快递单号：YT202604096688。", "2026-04-10 09:15", "陈晓宁"],
+                    ["active", "待商家收货", "等待商家确认收货。", "当前节点", "供应链专员"],
+                    ["", "仓库入库", "退货商品入库后进入退款处理。", "待处理", ""],
+                    ["", "退款完成", "退款完成并通知用户。", "待处理", ""]
+                ],
+                process: [
+                    ["退货单生成", "确认退款成功后自动生成退货单。"],
+                    ["物流跟踪", "跟踪买家退货物流信息。"],
+                    ["确认收货", "商家确认收货后进入退款流程。"],
+                    ["结果回写", "退货结果回写至售后与退款单。"]
+                ]
+            },
+            {
+                id: "TH20260409002",
+                sourceRefundId: "RF20260409003",
+                sourceAuditId: "AF20260408055",
+                orderNo: "SO202604070888",
+                subOrderNo: "SUB20260407088802",
+                userName: "林思雨",
+                memberId: "M2026040156",
+                type: "退货退款",
+                channel: "小程序",
+                productName: "轻量跑鞋",
+                skuText: "42码 / 黑色",
+                supplierName: "华南鞋服供应商",
+                status: "退货完成",
+                createdAt: "2026-04-08 10:20",
+                returnCompany: "顺丰速运",
+                returnNo: "SF1234567890",
+                returnQty: 1,
+                amount: "¥459.00",
+                productTotalPrice: "¥559.00",
+                actualPaidAmount: "¥409.00",
+                paymentMethodDetail: "现金支付",
+                paymentMethod: "points_cash",
+                pointsAmount: "100",
+                couponAmount: "¥50",
+                refundPoints: "100",
+                refundCoupon: "¥50",
+                node: "退货完成",
+                detailTags: ["退货单", "已完成", "退款成功"],
+                recommend: "该退货单已完成，退款已成功退回至用户原支付账户。",
+                baseInfo: [
+                    ["退货单号", "TH20260409002"],
+                    ["关联退款单", "RF20260409003"],
+                    ["关联售后单", "AF20260408055"],
+                    ["主订单号", "SO202604070888"],
+                    ["子订单号", "SUB20260407088802"],
+                    ["商品信息", "轻量跑鞋 / 42码 / 黑色"],
+                    ["退货数量", "1"],
+                    ["退货总金额", "¥459.00"],
+                    ["退货类型", "退货退款"],
+                    ["售后渠道", "小程序"]
+                ],
+                timeline: [
+                    ["done", "退货单生成", "退款成功后自动创建退货单。", "2026-04-08 10:20", "系统"],
+                    ["done", "买家退货", "买家已寄出商品，快递单号：SF1234567890。", "2026-04-08 14:30", "林思雨"],
+                    ["done", "商家收货", "商家已确认收货。", "2026-04-09 11:00", "供应链专员"],
+                    ["done", "仓库入库", "退货商品已入库。", "2026-04-09 15:20", "仓库"],
+                    ["done", "退款完成", "退款已成功退回至用户账户。", "2026-04-09 16:00", "系统"]
+                ],
+                process: [
+                    ["退货单生成", "确认退款成功后自动生成退货单。"],
+                    ["物流跟踪", "跟踪买家退货物流信息。"],
+                    ["确认收货", "商家确认收货后进入退款流程。"],
+                    ["结果回写", "退货结果回写至售后与退款单。"]
+                ]
+            }
+        ];
+
+        function inferPaymentMethod(item) {
+            const text = `${item.productName || ""} ${item.skuText || ""} ${item.amount || ""}`;
+            if (/电影票|观影|影院/.test(text)) {
+                return "积分支付";
+            }
+            if (text.includes("积分")) {
+                return "积分支付";
+            }
+            return "现金支付";
+        }
+
+        function upsertPaymentMethodBaseInfo(item) {
+            if (!Array.isArray(item.baseInfo)) {
+                return;
+            }
+            const paymentMethod = inferPaymentMethod(item);
+            const paymentRowIndex = item.baseInfo.findIndex(([label]) => String(label).includes("支付"));
+            if (paymentRowIndex >= 0) {
+                item.baseInfo[paymentRowIndex][1] = paymentMethod;
+                return;
+            }
+            // 支付方式已移除，不再添加到 baseInfo
+        }
+
+        function enrichItem(item, index = 0) {
+            const matchCode = (item.id || item.orderNo || "").replace(/[^\d]/g, "").slice(-6) || String(index + 1).padStart(6, "0");
+            item.skuCode = item.skuCode || `SKU-${matchCode}`;
+            item.logisticsCode = item.logisticsCode || `WL-${matchCode}`;
+            item.skuLogisticsCode = item.skuLogisticsCode || item.skuCode;
+            item.orderPhone = item.orderPhone || `1370000${String(5200 + index).slice(-4)}`;
+            item.receiverName = item.receiverName || item.userName || "-";
+            item.userPhone = item.userPhone || `1390000${String(6600 + index).slice(-4)}`;
+            item.receiverPhone = item.receiverPhone || `1380000${String(8800 + index).slice(-4)}`;
+            item.supplierCode = item.supplierCode || `GYS2025${matchCode}`;
+            item.aftersalesOrderNo = item.aftersalesOrderNo || item.id;
+            return item;
+        }
+
+        function normalizeReturnAddress(address) {
+            if (!address) {
+                return { region: "", detail: "", name: "", phone: "" };
+            }
+            if (typeof address === "object") {
+                return {
+                    region: address.region || "",
+                    detail: address.detail || "",
+                    name: address.name || "",
+                    phone: address.phone || ""
+                };
+            }
+            const parts = String(address).split("，");
+            return {
+                region: "",
+                detail: parts[0] || String(address),
+                name: parts[1] || "",
+                phone: parts[2] || ""
+            };
+        }
+
+        function formatReturnAddress(address) {
+            const normalized = normalizeReturnAddress(address);
+            return [normalized.region, normalized.detail, normalized.name, normalized.phone].filter(Boolean).join("，");
+        }
+
+        function getPreferredReturnAddresses(item) {
+            const manualAddresses = (Array.isArray(item.returnAddresses) ? item.returnAddresses : []).map(normalizeReturnAddress).filter(address => address.detail || address.name || address.phone);
+            if (manualAddresses.length) return manualAddresses;
+
+            const supplierAddresses = (Array.isArray(item.supplierReturnAddresses) ? item.supplierReturnAddresses : []).map(normalizeReturnAddress).filter(address => address.detail || address.name || address.phone);
+            if (supplierAddresses.length) return supplierAddresses;
+
+            return (Array.isArray(item.customerReturnAddresses) ? item.customerReturnAddresses : []).map(normalizeReturnAddress).filter(address => address.detail || address.name || address.phone);
+        }
+
+        function upsertReturnAddressBaseInfo(item, addresses) {
+            item.baseInfo = item.baseInfo.filter(([label]) => !["寄回地址", "退回地址", "确认收货地址"].includes(label));
+            if (Array.isArray(addresses) && addresses.length) {
+                item.baseInfo.push(["退回地址", addresses.map(formatReturnAddress).join("；")]);
+            }
+        }
+
+        function inferRegionFromDetail(detail) {
+            if (!detail) return "";
+            const text = String(detail).trim();
+            const regionMatch = text.match(/^(.{2,18}?(?:省|自治区|特别行政区|市).{0,10}?(?:市|州|盟)?(?:区|县|旗))/);
+            if (regionMatch) return regionMatch[1];
+            const shortMatch = text.match(/^(.{2,10}?(?:区|县|旗))/);
+            return shortMatch ? shortMatch[1] : "";
+        }
+
+        function getAddressRegionText(address) {
+            const normalized = normalizeReturnAddress(address);
+            return normalized.region || inferRegionFromDetail(normalized.detail) || "-";
+        }
+
+        const REGION_TREE = {
+            "上海市": {
+                "上海市": ["浦东新区", "闵行区"]
+            },
+            "江苏省": {
+                "苏州市": ["工业园区"]
+            },
+            "浙江省": {
+                "杭州市": ["余杭区"]
+            },
+            "广东省": {
+                "广州市": ["天河区"],
+                "深圳市": ["南山区"]
+            }
+        };
+
+        function buildSelectOptions(options, placeholder, selectedValue = "") {
+            return [`<option value="">${placeholder}</option>`].concat(
+                options.map(option => `<option value="${option}"${option === selectedValue ? " selected" : ""}>${option}</option>`)
+            ).join("");
+        }
+
+        function parseRegionParts(regionText = "") {
+            const text = String(regionText || "").trim();
+            for (const [province, cityMap] of Object.entries(REGION_TREE)) {
+                for (const [city, districts] of Object.entries(cityMap)) {
+                    for (const district of districts) {
+                        const combined = province === city ? `${province}${district}` : `${province}${city}${district}`;
+                        if (text === combined || text === `${province}${city}${district}` || (text.includes(province) && text.includes(city) && text.includes(district))) {
+                            return { province, city, district };
+                        }
+                    }
+                }
+            }
+            return { province: "", city: "", district: "" };
+        }
+
+        function composeRegionValue(province, city, district) {
+            if (!province || !city || !district) return "";
+            return province === city ? `${province}${district}` : `${province}${city}${district}`;
+        }
+
+        function buildRegionSelectorGroup(address) {
+            const regionText = getAddressRegionText(address);
+            const selectedParts = parseRegionParts(regionText === "-" ? "" : regionText);
+            return `
+                <div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:8px;">
+                    <select class="review-address-province" data-selected="${selectedParts.province}" style="width:100%;height:38px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;background:#fff;color:#1f1f1f;box-sizing:border-box;">
+                        ${buildSelectOptions(Object.keys(REGION_TREE), "请选择省", selectedParts.province)}
+                    </select>
+                    <select class="review-address-city" data-selected="${selectedParts.city}" style="width:100%;height:38px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;background:#fff;color:#1f1f1f;box-sizing:border-box;"></select>
+                    <select class="review-address-district" data-selected="${selectedParts.district}" style="width:100%;height:38px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;background:#fff;color:#1f1f1f;box-sizing:border-box;"></select>
+                </div>
+            `;
+        }
+
+        function initRegionCascade(container) {
+            const provinceSelect = container.querySelector(".review-address-province");
+            const citySelect = container.querySelector(".review-address-city");
+            const districtSelect = container.querySelector(".review-address-district");
+            if (!provinceSelect || !citySelect || !districtSelect) {
+                return;
+            }
+
+            const fillCities = (selectedCity = "") => {
+                const cityOptions = provinceSelect.value ? Object.keys(REGION_TREE[provinceSelect.value] || {}) : [];
+                citySelect.innerHTML = buildSelectOptions(cityOptions, "请选择市", selectedCity);
+            };
+
+            const fillDistricts = (selectedDistrict = "") => {
+                const districtOptions = provinceSelect.value && citySelect.value
+                    ? (REGION_TREE[provinceSelect.value]?.[citySelect.value] || [])
+                    : [];
+                districtSelect.innerHTML = buildSelectOptions(districtOptions, "请选择区", selectedDistrict);
+            };
+
+            const selectedProvince = provinceSelect.dataset.selected || "";
+            const selectedCity = citySelect.dataset.selected || citySelect.dataset.selectedValue || citySelect.getAttribute("data-selected") || "";
+            const selectedDistrict = districtSelect.dataset.selected || districtSelect.dataset.selectedValue || districtSelect.getAttribute("data-selected") || "";
+
+            provinceSelect.value = selectedProvince;
+            fillCities(selectedCity);
+            fillDistricts(selectedDistrict);
+
+            provinceSelect.addEventListener("change", () => {
+                fillCities("");
+                fillDistricts("");
+            });
+
+            citySelect.addEventListener("change", () => {
+                fillDistricts("");
+            });
+        }
+
+        function initRegionCascades(rootSelector) {
+            document.querySelectorAll(`${rootSelector} .review-address-row`).forEach(row => initRegionCascade(row));
+        }
+
+        function enrichAllData() {
+            dataMap.audit.forEach((item, index) => enrichItem(item, index));
+            dataMap.refund.forEach((item, index) => enrichItem(item, index));
+            dataMap.return.forEach((item, index) => enrichItem(item, index));
+        }
+
+        function buildReturnRecordFromRefund(refundItem) {
+            if (refundItem.status !== "退款成功") {
+                return null;
+            }
+            // 只有换货和退货退款才生成退货单
+            if (!["退货退款", "换货"].includes(refundItem.type)) {
+                return null;
+            }
+            const returnId = `RT${refundItem.id.slice(2)}`;
+            const returnStatusMap = {
+                "退款成功": "已退款",
+            };
+            const status = returnStatusMap[refundItem.status] || "待收货";
+            const node = status === "已关闭" ? "退货关闭" : status === "已退款" ? "退货处理中" : "仓库待收货";
+            const paymentMethod = inferPaymentMethod(refundItem);
+            const matchCode = (refundItem.id || "").replace(/[^\d]/g, "").slice(-6) || "000001";
+            const productCode = `HZ-A${matchCode}01-DF-A`;
+            const supplierCode = `GYS2025${matchCode}`;
+            const expressCompany = refundItem.type === "退货退款" ? "圆通" : "EMS";
+            const expressNo = `${matchCode}${matchCode}`;
+            const returnQty = refundItem.type === "退货退款" ? "1" : refundItem.type === "仅退款" ? "0" : "1";
+            const isClosed = status === "已关闭";
+            const handlingStep = isClosed
+                ? ["done", "退货关闭", "退款单已作废，退货单同步关闭。", nowText(), "供应链专员"]
+                : ["active", "退货处理", "供应链侧处理中，跟踪收货与回传。", "当前节点", "供应链专员"];
+            const callbackStep = isClosed
+                ? ["", "结果回传", "退货单已关闭，无需继续回传。", "无需处理", ""]
+                : ["", "结果回传", "退货结果回写至售后与退款单。", "待处理", ""];
+
+            return {
+                id: returnId,
+                sourceRefundId: refundItem.id,
+                sourceAuditId: refundItem.sourceAuditId || "",
+                orderNo: refundItem.orderNo,
+                subOrderNo: refundItem.subOrderNo,
+                userName: refundItem.userName,
+                memberId: refundItem.memberId,
+                receiverName: refundItem.receiverName,
+                userPhone: refundItem.userPhone,
+                receiverPhone: refundItem.receiverPhone,
+                type: refundItem.type,
+                channel: refundItem.channel,
+                productName: refundItem.productName,
+                skuText: refundItem.skuText,
+                skuCode: refundItem.skuCode,
+                logisticsCode: refundItem.logisticsCode,
+                skuLogisticsCode: refundItem.skuLogisticsCode,
+                supplierName: refundItem.supplierName,
+                mainOrderNo: refundItem.orderNo,
+                productCode,
+                supplierCode: refundItem.supplierCode || supplierCode,
+                expressCompany,
+                expressNo,
+                channelName: refundItem.channel,
+                returnQty,
+                status,
+                createdAt: refundItem.createdAt,
+                reason: `关联退款单 ${refundItem.id}`,
+                amount: refundItem.amount,
+                unitPrice: refundItem.amount,
+                totalPrice: refundItem.amount,
+                node,
+                detailTags: ["退货单", "关联退款单", "供应链协同"],
+                recommend: "该退货单在退款成功后自动生成，可查看退货进度、关联退款信息及回调状态。",
+                primaryText: "详情",
+                secondaryText: "",
+                baseInfo: [
+                    ["退货单号", returnId],
+                    ["关联退款单", refundItem.id],
+                    ["关联售后单", refundItem.sourceAuditId || "-"],
+                    ["主订单号", refundItem.orderNo],
+                    ["子订单号", refundItem.subOrderNo],
+                    ["商品信息", refundItem.productName || "-"],
+                    ["退货类型", refundItem.type || "-"],
+                    ["SKU物流编码", refundItem.skuLogisticsCode || refundItem.skuCode || productCode],
+                    ["供应商名称", refundItem.supplierName],
+                    ["供应商编号", refundItem.supplierCode || supplierCode],
+                    ["客户收货人", refundItem.receiverName || refundItem.userName],
+                    ["用户手机号", refundItem.userPhone || "-"],
+                    ["收货人手机号", refundItem.receiverPhone || "-"]
+                ],
+                timeline: [
+                    ["done", "退货单生成", "确认退款成功后自动创建退货单。", refundItem.createdAt, "供应链专员"],
+                    handlingStep,
+                    callbackStep
+                ],
+                process: [["退货单同步", "确认退款成功后自动生成退货单。"], ["状态跟进", "跟踪仓配收货、退款及结果回写。"], ["详情查看", "支持查看关联退款单、售后单和支付信息。"]]
+            };
+        }
+
+        function syncReturnFromRefund(refundItem) {
+            const existing = dataMap.return.find(returnItem => returnItem.sourceRefundId === refundItem.id);
+            const latest = buildReturnRecordFromRefund(refundItem);
+            if (!latest) {
+                if (existing) {
+                    dataMap.return = dataMap.return.filter(returnItem => returnItem.sourceRefundId !== refundItem.id);
+                }
+                return;
+            }
+            if (!existing) {
+                dataMap.return.unshift(latest);
+                return;
+            }
+            Object.assign(existing, latest);
+        }
+
+        function syncReturnListFromRefunds() {
+            dataMap.refund.forEach(item => syncReturnFromRefund(item));
+        }
+
+        function initRefundListFromAudit() {
+            dataMap.audit.forEach(item => {
+                if (canCreateRefund(item)) {
+                    syncRefundFromAudit(item);
+                }
+            });
+        }
+
+        function syncBaseInfoDetails() {
+            ["audit", "refund"].forEach(tab => {
+                dataMap[tab].forEach(item => {
+                    item.baseInfo = [
+                        [tab === "refund" ? "退款单号" : "售后订单号", item.id],
+                        ["主订单号", item.orderNo],
+                        ["子订单号", item.subOrderNo],
+                        ["客户收货人", item.receiverName || item.userName],
+                        ["用户手机号", item.userPhone || "-"],
+                        ["收货人手机号", item.receiverPhone || "-"],
+                        ["商品信息", `${item.productName} / ${item.skuText}`],
+                        ["SKU物流编码", item.skuLogisticsCode || item.skuCode || "-"],
+                        ["供应商名称", item.supplierName || "-"],
+                        ["供应商编号", item.supplierCode || "-"],
+                        ["退款金额", item.amount],
+                        ["售后渠道", item.channel]
+                    ];
+                });
+            });
+        }
+
+        function normalizeDataView() {
+            enrichAllData();
+            syncBaseInfoDetails();
+            dataMap.audit.forEach(item => {
+                syncAutoSubmittedReturnLogistics(item);
+                upsertPaymentMethodBaseInfo(item);
+                if (isRefundFlow(item)) {
+                    if (item.type === "退货退款" && canOperatePreRefundInAudit(item)) {
+                        if (item.status === "待商家审核") {
+                            item.primaryText = "通过审核";
+                            item.secondaryText = "驳回并备注";
+                        } else if (item.status === "待买家退货") {
+                            item.primaryText = "登记退货单号";
+                            item.secondaryText = "";
+                        } else if (item.status === "待商家收货") {
+                            item.primaryText = "商家收货";
+                            item.secondaryText = "";
+                        }
+                    } else if (item.type === "仅退款" && item.status === "待商家审核") {
+                        item.primaryText = "通过审核";
+                        item.secondaryText = "驳回并备注";
+                    } else if (item.status === "待退款") {
+                        item.node = "待执行退款";
+                        item.primaryText = "执行退款";
+                        item.secondaryText = "";
+                    } else if (item.status === "退款中") {
+                        item.node = "退款处理中";
+                        item.primaryText = "查看退款进度";
+                        item.secondaryText = "";
+                    } else if (item.status === "退款失败") {
+                        item.node = "退款失败重试";
+                        item.primaryText = "重新发起退款";
+                        item.secondaryText = "";
+                    } else if (item.status === "待仓库发货") {
+                        item.node = "待仓库发货";
+                        item.primaryText = "仓库发货";
+                        item.secondaryText = "";
+                    } else if (item.status === "待客户收货") {
+                        item.node = "待客户收货";
+                        item.primaryText = "查看物流";
+                        item.secondaryText = "";
+                    } else if (["退款成功", "已作废", "已驳回", "已完成", "换货成功"].includes(item.status)) {
+                        if (item.status === "退款成功") item.node = "退款完成";
+                        if (item.status === "换货成功") item.node = "换货成功";
+                        if (item.status === "退款成功" || item.status === "换货成功") {
+                            item.primaryText = "";
+                        } else {
+                            item.primaryText = "";
+                        }
+                        item.secondaryText = "";
+                    } else {
+                        item.primaryText = "";
+                        item.secondaryText = "";
+                    }
+                } else if (item.type === "换货") {
+                    if (item.status === "待商家审核") {
+                        item.node = "待商家审核";
+                        item.primaryText = "通过审核";
+                        item.secondaryText = "驳回并备注";
+                    } else if (item.status === "待买家退货") {
+                        item.node = "待买家退货";
+                        item.primaryText = "登记退货单号";
+                        item.secondaryText = "";
+                    } else if (item.status === "待商家收货") {
+                        item.node = "待商家收货";
+                        item.primaryText = "商家收货";
+                        item.secondaryText = "";
+                    } else if (item.status === "待仓库发货") {
+                        item.node = "待仓库发货";
+                        item.primaryText = "仓库发货";
+                        item.secondaryText = "";
+                    } else if (item.status === "待客户收货") {
+                        item.node = "待客户收货";
+                        item.primaryText = "查看结果";
+                        item.secondaryText = "";
+                    } else if (item.status === "换货成功") {
+                        item.node = "换货成功";
+                        item.primaryText = "申请退货退款";
+                        item.secondaryText = "申请仅退款";
+                    }
+                }
+            });
+            dataMap.refund.forEach(item => {
+                upsertPaymentMethodBaseInfo(item);
+                if (item.status === "待退款") {
+                    item.node = "待执行退款";
+                    item.primaryText = "执行退款";
+                } else if (item.status === "退款中") {
+                    item.node = "退款处理中";
+                    item.primaryText = "查看退款进度";
+                } else if (item.status === "退款失败") {
+                    item.node = "退款失败重试";
+                    item.primaryText = "重新发起退款";
+                } else {
+                    if (item.status === "退款成功") item.node = "退款完成";
+                    item.primaryText = "查看详情";
+                }
+                item.secondaryText = "";
+            });
+            dataMap.return.forEach(item => upsertPaymentMethodBaseInfo(item));
+        }
+
+        const tableHeadRow = document.getElementById("tableHeadRow");
+        const mainTable = document.querySelector(".table-wrap table");
+        const tableBody = document.getElementById("tableBody");
+        const tableTitle = document.getElementById("tableTitle");
+        const pageTotal = document.getElementById("pageTotal");
+        const paginationControls = document.getElementById("paginationControls");
+        const afterSalesSubmenu = document.getElementById("afterSalesSubmenu");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalText = document.getElementById("modalText");
+        const modalOverlay = document.getElementById("modalOverlay");
+        const modalCancel = document.getElementById("modalCancel");
+        const modalConfirm = document.getElementById("modalConfirm");
+        let modalConfirmHandler = null;
+        let modalCancelHandler = null;
+
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.classList.add("show");
+            clearTimeout(showToast.timer);
+            showToast.timer = setTimeout(() => toast.classList.remove("show"), 2200);
+        }
+
+        function nowText() {
+            const date = new Date();
+            const pad = value => String(value).padStart(2, "0");
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+        }
+
+        function openModal(config) {
+            modalTitle.textContent = config.title;
+            if (config.isHtml) {
+                modalText.innerHTML = config.content;
+            } else {
+                modalText.textContent = config.content;
+            }
+            modalCancel.textContent = config.cancelText || "取消";
+            modalConfirm.textContent = config.confirmText || "确定";
+            modalCancel.style.display = config.hideCancel ? "none" : "inline-flex";
+            modalConfirmHandler = config.onConfirm || null;
+            modalCancelHandler = config.onCancel || null;
+            modalOverlay.classList.add("show");
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove("show");
+            modalConfirmHandler = null;
+            modalCancelHandler = null;
+        }
+
+        function canCreateRefund(item) {
+            return ["退款", "仅退款", "退货退款"].includes(item.type);
+        }
+
+        function isRefundFlow(item) {
+            return ["退款", "仅退款", "退货退款"].includes(item.type);
+        }
+
+        function canOperatePreRefundInAudit(item) {
+            return item.type === "退货退款" && ["待商家审核", "待买家退货", "待商家收货"].includes(item.status);
+        }
+
+        function buildRefundRecordFromAudit(item) {
+            const stateMap = {
+                "待商家审核": { status: "待审核", node: "退款审核", primaryText: "通过审核", secondaryText: "驳回并备注" },
+                "待买家退货": { status: "待买家退货", node: "待买家退货", primaryText: "查看结果", secondaryText: "" },
+                "待商家收货": { status: "待商家收货", node: "待商家收货", primaryText: "查看结果", secondaryText: "" },
+                "待退款": { status: "待退款", node: "待执行退款", primaryText: "执行退款", secondaryText: "" },
+                "退款中": { status: "退款中", node: "退款处理中", primaryText: "查看退款进度", secondaryText: "" },
+                "退款成功": { status: "退款成功", node: "退款完成", primaryText: "", secondaryText: "" },
+                "退款失败": { status: "退款失败", node: "退款失败重试", primaryText: "重新发起退款", secondaryText: "" },
+                "已驳回": { status: "已驳回", node: "退款审核驳回", primaryText: "查看结果", secondaryText: "" },
+                "已作废": { status: "已作废", node: "退款单已作废", primaryText: "查看结果", secondaryText: "" }
+            };
+            const refundState = stateMap[item.status] || stateMap["待审核"];
+
+            return {
+                id: `RF${item.id.slice(2)}`,
+                sourceAuditId: item.id,
+                orderNo: item.orderNo,
+                subOrderNo: item.subOrderNo,
+                userName: item.userName,
+                memberId: item.memberId,
+                userPhone: item.userPhone,
+                receiverName: item.receiverName,
+                receiverPhone: item.receiverPhone,
+                type: item.type,
+                channel: item.channel,
+                productName: item.productName,
+                skuText: item.skuText,
+                skuCode: item.skuCode,
+                logisticsCode: item.logisticsCode,
+                skuLogisticsCode: item.skuLogisticsCode,
+                supplierName: item.supplierName,
+                status: refundState.status,
+                createdAt: item.createdAt,
+                reason: item.reason,
+                amount: item.amount,
+                node: refundState.node,
+                detailTags: [...item.detailTags],
+                recommend: item.recommend,
+                primaryText: refundState.primaryText,
+                secondaryText: refundState.secondaryText,
+                baseInfo: [["退款单号", `RF${item.id.slice(2)}`], ["订单号", item.orderNo], ["用户名称", item.userName], ["退款金额", item.amount], ["退款方式", "原路退款"], ["退款渠道", item.channel]],
+                timeline: [
+                    ["done", "客户提交退款", "用户提交退款申请，等待退款审核。", item.createdAt, item.userName],
+                    [refundState.status === "待审核" ? "active" : "done", "退款审核", "退款审核通过后进入待退款。", refundState.status === "待审核" ? "当前节点" : nowText(), "供应链专员"],
+                    [["待退款", "退款中", "退款成功", "退款失败"].includes(refundState.status) ? "active" : "", "执行退款", "由售后列表发起退款请求，进入退款处理中。", ["待退款", "退款中", "退款成功", "退款失败"].includes(refundState.status) ? "当前节点" : "待处理", ""],
+                    [refundState.status === "退款成功" ? "done" : "", "完成退款", "退款结果回写。", refundState.status === "退款成功" ? nowText() : "待处理", ""]
+                ],
+                process: []
+            };
+        }
+
+        function syncRefundFromAudit(item) {
+            if (!canCreateRefund(item)) {
+                return;
+            }
+            const existing = dataMap.refund.find(refund => refund.sourceAuditId === item.id);
+            if (!existing) {
+                const newRefund = buildRefundRecordFromAudit(item);
+                upsertPaymentMethodBaseInfo(newRefund);
+                dataMap.refund.unshift(newRefund);
+                syncReturnFromRefund(newRefund);
+                return;
+            }
+            existing.orderNo = item.orderNo;
+            existing.subOrderNo = item.subOrderNo;
+            existing.userName = item.userName;
+            existing.memberId = item.memberId;
+            existing.userPhone = item.userPhone;
+            existing.receiverName = item.receiverName;
+            existing.receiverPhone = item.receiverPhone;
+            existing.type = item.type;
+            existing.channel = item.channel;
+            existing.productName = item.productName;
+            existing.skuText = item.skuText;
+            existing.skuCode = item.skuCode;
+            existing.logisticsCode = item.logisticsCode;
+            existing.skuLogisticsCode = item.skuLogisticsCode;
+            existing.supplierName = item.supplierName;
+            existing.reason = item.reason;
+            existing.amount = item.amount;
+            existing.detailTags = [...item.detailTags];
+            existing.recommend = item.recommend;
+            upsertPaymentMethodBaseInfo(existing);
+            syncReturnFromRefund(existing);
+        }
+
+        function updateRefundStatusFromAudit(item, status, node, primaryText = "", secondaryText = "") {
+            const existing = dataMap.refund.find(refund => refund.sourceAuditId === item.id);
+            if (!existing) {
+                return;
+            }
+            existing.status = status;
+            existing.node = node;
+            existing.primaryText = status === "待退款" ? "执行退款" : status === "退款中" ? "查看退款进度" : primaryText;
+            existing.secondaryText = "";
+            if (status === "退款成功") {
+                setTimelineProgress(existing, "done", "完成退款");
+            } else if (status === "待退款" || status === "退款中") {
+                setTimelineProgress(existing, "active", "执行退款");
+            }
+            upsertPaymentMethodBaseInfo(existing);
+            syncReturnFromRefund(existing);
+        }
+
+        function findAuditByRefund(refundItem) {
+            if (!refundItem.sourceAuditId) {
+                return null;
+            }
+            return dataMap.audit.find(audit => audit.id === refundItem.sourceAuditId) || null;
+        }
+
+        function updateAuditStatusFromRefund(refundItem, status, node, primaryText = "", secondaryText = "") {
+            const relatedAudit = findAuditByRefund(refundItem);
+            if (!relatedAudit) {
+                return;
+            }
+            relatedAudit.status = status;
+            relatedAudit.node = node;
+            relatedAudit.primaryText = status === "待退款" ? "执行退款" : status === "退款中" ? "查看退款进度" : primaryText;
+            relatedAudit.secondaryText = ["待退款", "退款中"].includes(status) ? "" : secondaryText;
+            if (status === "退款成功" || status === "已完成") {
+                setTimelineProgress(relatedAudit, "done", "完成退款");
+            } else if (status === "待退款" || status === "退款中") {
+                setTimelineProgress(relatedAudit, "active", "执行退款");
+            }
+            upsertPaymentMethodBaseInfo(relatedAudit);
+        }
+
+        function setTimelineProgress(item, mode, targetTitle) {
+            const targetIndex = item.timeline.findIndex(step => step[1] === targetTitle);
+            if (targetIndex === -1) {
+                return;
+            }
+            const time = nowText();
+            item.timeline = item.timeline.map((step, index) => {
+                const [oldState, title, desc, oldTime, oldOperator] = step;
+                const operator = oldOperator || "供应链专员";
+                if (mode === "active") {
+                    if (index < targetIndex) {
+                        return ["done", title, desc, oldTime === "待处理" || oldTime === "当前节点" ? time : oldTime, operator];
+                    }
+                    if (index === targetIndex) {
+                        return ["active", title, desc, "当前节点", operator];
+                    }
+                    return ["", title, desc, "待处理", ""];
+                }
+                if (mode === "done") {
+                    if (index <= targetIndex) {
+                        return ["done", title, desc, oldTime === "待处理" || oldTime === "当前节点" ? time : oldTime, operator];
+                    }
+                    return ["", title, desc, "待处理", ""];
+                }
+                return [oldState, title, desc, oldTime, operator];
+            });
+        }
+
+        function appendTimelineEvent(item, title, desc) {
+            item.timeline = item.timeline.map(step => step[0] === "active" ? ["done", step[1], step[2], step[3], step[4] || "供应链专员"] : step);
+            item.timeline.push(["done", title, desc, nowText(), "供应链专员"]);
+        }
+
+        function moveItemToWarehousePending(item, message = "已登记退货单号，进入待商家收货") {
+            const confirmedAddresses = getPreferredReturnAddresses(item);
+            item.baseInfo = item.baseInfo.filter(([label]) => !["物流公司", "寄回单号", "寄回地址", "退回地址", "确认收货地址"].includes(label));
+            if (item.returnCompany) item.baseInfo.push(["物流公司", item.returnCompany]);
+            if (item.returnNo) item.baseInfo.push(["寄回单号", item.returnNo]);
+            if (confirmedAddresses.length) item.baseInfo.push(["退回地址", confirmedAddresses.map(formatReturnAddress).join("；")]);
+            item.status = "待商家收货";
+            item.node = "待商家收货";
+            item.primaryText = "商家收货";
+            item.secondaryText = "";
+            setTimelineProgress(item, "active", "待商家收货");
+            if (item.type === "退货退款") {
+                syncRefundFromAudit(item);
+                updateRefundStatusFromAudit(item, "待商家收货", "待商家收货", "查看结果", "");
+            }
+            if (message) {
+                showToast(message);
+            }
+        }
+
+        function syncAutoSubmittedReturnLogistics(item) {
+            if (item.status !== "待买家退货" || !item.returnCompany || !item.returnNo) {
+                return;
+            }
+            moveItemToWarehousePending(item, "");
+        }
+
+        function showResultModal(item, title, content) {
+            openModal({
+                title,
+                content: `<p style="margin:0 0 10px;color:#666;line-height:1.8;">售后单：${item.id}</p><p style="margin:0;color:#333;line-height:1.9;">${content}</p>`,
+                isHtml: true,
+                confirmText: "关闭",
+                hideCancel: true
+            });
+        }
+
+        function clearRefundFailureEvent(item) {
+            item.timeline = item.timeline.filter(step => step[1] !== "退款失败");
+        }
+
+        function markRefundPending(item) {
+            clearRefundFailureEvent(item);
+            setTimelineProgress(item, "active", "执行退款");
+        }
+
+        function markRefundSuccess(item) {
+            clearRefundFailureEvent(item);
+            setTimelineProgress(item, "done", "完成退款");
+        }
+
+        function markRefundFailure(item) {
+            clearRefundFailureEvent(item);
+            setTimelineProgress(item, "done", "执行退款");
+            item.timeline.push(["done", "退款失败", "支付渠道回调失败，可重新发起退款。", nowText(), "供应链专员"]);
+        }
+
+        function applyRefundCallback(item, isSuccess) {
+            if (isSuccess) {
+                item.status = "退款成功";
+                item.node = "退款完成";
+                item.primaryText = "";
+                item.secondaryText = "";
+                markRefundSuccess(item);
+                if (state.activeTab === "audit") {
+                    syncRefundFromAudit(item);
+                    updateRefundStatusFromAudit(item, "退款成功", "退款完成", "查看结果", "");
+                } else {
+                    updateAuditStatusFromRefund(item, "退款成功", "退款完成", "查看结果", "");
+                    syncReturnFromRefund(item);
+                }
+                render();
+                showToast("支付回调成功，退款已完成");
+                return;
+            }
+
+            item.status = "退款失败";
+            item.node = "退款失败重试";
+            item.primaryText = "重新发起退款";
+            item.secondaryText = "";
+            markRefundFailure(item);
+            if (state.activeTab === "audit") {
+                syncRefundFromAudit(item);
+                updateRefundStatusFromAudit(item, "退款失败", "退款失败重试", "重新发起退款", "");
+            } else {
+                updateAuditStatusFromRefund(item, "退款失败", "退款失败重试", "重新发起退款", "");
+                syncReturnFromRefund(item);
+            }
+            render();
+            showToast("支付回调失败，可重新发起退款");
+        }
+
+        function openRefundProgressModal(item) {
+            openModal({
+                title: "退款进度",
+                content: `
+                    <div style="line-height:1.8;color:#333;">
+                        <p style="margin:0 0 10px;color:#666;">售后单：${item.id}</p>
+                        <p style="margin:0 0 12px;">当前状态：<strong>${item.status}</strong>。退款请求已发起，等待支付渠道异步回调。</p>
+                        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                            <button class="btn btn-primary" type="button" id="refundCallbackSuccessBtn">模拟回调成功</button>
+                            <button class="btn" type="button" id="refundCallbackFailBtn">模拟回调失败</button>
+                        </div>
+                    </div>
+                `,
+                isHtml: true,
+                confirmText: "关闭",
+                hideCancel: true
+            });
+            const successBtn = document.getElementById("refundCallbackSuccessBtn");
+            const failBtn = document.getElementById("refundCallbackFailBtn");
+            if (successBtn) {
+                successBtn.addEventListener("click", () => {
+                    closeModal();
+                    applyRefundCallback(item, true);
+                });
+            }
+            if (failBtn) {
+                failBtn.addEventListener("click", () => {
+                    closeModal();
+                    applyRefundCallback(item, false);
+                });
+            }
+        }
+
+        function showDetailModal(item) {
+            // 状态映射
+            const statusClassMap2 = {
+                "待商家审核": "pending",
+                "待买家退货": "info",
+                "待商家收货": "info",
+                "待仓库发货": "pending",
+                "待客户收货": "info",
+                "待退款": "pending",
+                "退款中": "info",
+                "退款成功": "success",
+                "退款失败": "fail",
+                "换货成功": "success",
+                "已驳回": "fail",
+                "已作废": "fail",
+                "已完成": "success"
+            };
+            const scmStatusClass = statusClassMap2[item.status] || "info";
+
+            // 快递信息
+            const expressCompany = item.returnCompany || item.expressCompany || "-";
+            const expressNo = item.returnNo || item.expressNo || "-";
+
+            // 收货地址
+            const address = (item.customerReturnAddresses && item.customerReturnAddresses[0])
+                ? (item.customerReturnAddresses[0].region || "") + (item.customerReturnAddresses[0].detail || "")
+                : "-";
+
+            const tabName = state.activeTab === "return" ? "退货单列表" : "售后列表";
+            const detailTitle = state.activeTab === "return" ? "退货单详情" : "售后订单详情";
+
+            const pageContainer = document.querySelector(".page-container");
+            let detailPage = document.getElementById("detailPage");
+
+            if (!detailPage) {
+                detailPage = document.createElement("div");
+                detailPage.id = "detailPage";
+                detailPage.className = "detail-page";
+                pageContainer.parentNode.insertBefore(detailPage, pageContainer.nextSibling);
+            }
+
+            // 操作按钮
+            const showPrimary = item.primaryText && item.primaryText !== "" && item.primaryText !== "详情" && item.primaryText !== "查看详情";
+            const showSecondary = item.secondaryText && item.secondaryText !== "";
+
+            detailPage.innerHTML = `
+                <div class="detail-breadcrumb">
+                    <a onclick="closeDetailPage()" style="cursor:pointer">${tabName}</a>
+                    <span class="separator">/</span>
+                    <span class="current">${detailTitle}</span>
+                </div>
+
+                <!-- 售后基础信息 -->
+                <div class="scm-section">
+                    <div class="scm-section-header">售后基础信息</div>
+                    <div class="scm-section-body">
+                        <div class="scm-grid">
+                            <div class="scm-field">
+                                <div class="scm-field-label">售后单号</div>
+                                <div class="scm-field-value">${item.id}</div>
+                            </div>
+                            <div class="scm-field">
+                                <div class="scm-field-label">主订单号</div>
+                                <div class="scm-field-value">${item.orderNo}</div>
+                            </div>
+                            <div class="scm-field">
+                                <div class="scm-field-label">子订单号</div>
+                                <div class="scm-field-value">${item.subOrderNo}</div>
+                            </div>
+                        </div>
+                        <div class="scm-grid" style="margin-top:18px">
+                            <div class="scm-field">
+                                <div class="scm-field-label">售后类型</div>
+                                <div class="scm-field-value">${item.type}</div>
+                            </div>
+                            <div class="scm-field">
+                                <div class="scm-field-label">申请时间</div>
+                                <div class="scm-field-value">${item.createdAt}</div>
+                            </div>
+                            <div class="scm-field">
+                                <div class="scm-field-label">售后状态</div>
+                                <div class="scm-field-value"><span class="scm-status ${scmStatusClass}">${item.status}</span></div>
+                            </div>
+                        </div>
+                        <div class="scm-grid" style="margin-top:18px">
+                            <div class="scm-field">
+                                <div class="scm-field-label">退款金额</div>
+                                <div class="scm-field-value amount">${item.amount || "-"}</div>
+                            </div>
+                            <div class="scm-field">
+                                <div class="scm-field-label">供应商名称</div>
+                                <div class="scm-field-value">${item.supplierName || "-"}</div>
+                            </div>
+                            <div class="scm-field">
+                                <div class="scm-field-label">渠道来源</div>
+                                <div class="scm-field-value">${item.channel || "-"}</div>
+                            </div>
+                        </div>
+                        <div class="scm-grid" style="margin-top:18px">
+                            <div class="scm-field">
+                                <div class="scm-field-label">售后原因</div>
+                                <div class="scm-field-value">${item.reason || "-"}</div>
+                            </div>
+                            ${item.status === "已驳回" && item.rejectReason ? `
+                            <div class="scm-field">
+                                <div class="scm-field-label">驳回原因</div>
+                                <div class="scm-field-value">${item.rejectReason}</div>
+                            </div>` : ""}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 商品信息 -->
+                <div class="scm-section">
+                    <div class="scm-section-header">商品信息</div>
+                    <div class="scm-section-body" style="padding:0;">
+                        <table class="scm-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:8%;">序号</th>
+                                    <th style="width:18%;">SKU物流编码</th>
+                                    <th style="width:20%;">商品名称</th>
+                                    <th style="width:10%;">退货数量</th>
+                                    <th style="width:14%;">退款金额</th>
+                                    <th style="width:30%;">渠道名称</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>${item.skuLogisticsCode || "-"}</td>
+                                    <td>${item.productName || "-"}</td>
+                                    <td>${item.returnQty || item.quantity || "1"}</td>
+                                    <td>${item.amount || "-"}</td>
+                                    <td>${item.channel || "-"}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 客户信息 -->
+                <div class="scm-section">
+                    <div class="scm-section-header">客户信息</div>
+                    <div class="scm-section-body" style="padding:0;">
+                        <table class="scm-table">
+                            <thead>
+                                <tr>
+                                    <th style="width:15%;">收货人</th>
+                                    <th style="width:20%;">收货人电话</th>
+                                    <th style="width:20%;">用户电话</th>
+                                    <th style="width:45%;">详细地址</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>${item.receiverName || item.userName || "-"}</td>
+                                    <td>${item.receiverPhone || "-"}</td>
+                                    <td>${item.userPhone || "-"}</td>
+                                    <td>${address}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 操作区 -->
+                <div class="scm-action-bar">
+                    <div class="scm-action-left">
+                        ${showPrimary ? `<button class="btn btn-primary" type="button" onclick="handlePrimaryAction(dataMap.audit.find(x=>x.id==='${item.id}')||dataMap.refund.find(x=>x.id==='${item.id}')||dataMap.return.find(x=>x.id==='${item.id}'))">${item.primaryText}</button>` : ""}
+                        ${showSecondary ? `<button class="btn btn-danger" type="button" onclick="handleSecondaryAction(dataMap.audit.find(x=>x.id==='${item.id}')||dataMap.refund.find(x=>x.id==='${item.id}')||dataMap.return.find(x=>x.id==='${item.id}'))">${item.secondaryText}</button>` : ""}
+                    </div>
+                    <div class="scm-action-right">
+                        <button class="btn" type="button" onclick="closeDetailPage()">返回</button>
+                    </div>
+                </div>
+            `;
+
+            pageContainer.style.display = "none";
+            detailPage.classList.add("show");
+        }
+
+        function closeDetailPage() {
+            const pageContainer = document.querySelector(".page-container");
+            const detailPage = document.getElementById("detailPage");
+            if (detailPage) {
+                detailPage.classList.remove("show");
+            }
+            if (pageContainer) {
+                pageContainer.style.display = "";
+            }
+        }
+
+        function openRejectModal(item) {
+            openModal({
+                title: "驳回并备注",
+                content: `
+                    <p style="margin:0 0 12px;color:#666;line-height:1.8;">请填写驳回原因，提交后该售后单将进入已驳回状态。</p>
+                    <textarea id="rejectRemarkInput" style="width:100%;min-height:120px;padding:12px;border:1px solid #d9d9d9;border-radius:6px;resize:vertical;font:inherit;" placeholder="请输入驳回备注"></textarea>
+                `,
+                isHtml: true,
+                confirmText: "提交驳回",
+                cancelText: "取消",
+                onConfirm: () => {
+                    const remark = document.getElementById("rejectRemarkInput").value.trim();
+                    if (!remark) {
+                        showToast("请先填写驳回备注");
+                        return false;
+                    }
+                    item.status = "已驳回";
+                    item.node = "售后已驳回";
+                    item.rejectReason = remark;
+                    item.primaryText = "";
+                    item.secondaryText = "";
+                    appendTimelineEvent(item, "售后已驳回", `商家已驳回该申请，备注：${remark}`);
+                    closeModal();
+                    render();
+                    showToast("已驳回并记录备注");
+                }
+            });
+        }
+
+        function openRegisterReturnModal(item) {
+            const confirmedAddresses = getPreferredReturnAddresses(item);
+            openModal({
+                title: "登记退货单号",
+                content: `
+                    <p style="margin:0 0 12px;color:#666;line-height:1.8;">请登记买家退货物流信息，售后单将进入待商家收货。</p>
+                    <input id="returnCompanyInput" style="width:100%;height:40px;padding:0 12px;border:1px solid #d9d9d9;border-radius:6px;margin-bottom:10px;font:inherit;" placeholder="请输入物流公司" value="${item.returnCompany || ""}">
+                    <input id="returnNoInput" style="width:100%;height:40px;padding:0 12px;border:1px solid #d9d9d9;border-radius:6px;margin-bottom:12px;font:inherit;" placeholder="请输入寄回单号" value="${item.returnNo || ""}">
+                    <div style="font-weight:600;margin:8px 0 10px;color:#262626;">已确认退回地址</div>
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        ${confirmedAddresses.map(address => `
+                            <div style="padding:12px;border:1px solid #e5e6eb;border-radius:6px;background:#fafafa;color:#333;line-height:1.7;">
+                                <div><strong>详细地址：</strong>${address.detail || "-"}</div>
+                                <div><strong>姓名：</strong>${address.name || "-"}</div>
+                                <div><strong>电话：</strong>${address.phone || "-"}</div>
+                            </div>
+                        `).join("")}
+                    </div>
+                `,
+                isHtml: true,
+                confirmText: "确认登记",
+                cancelText: "取消",
+                onConfirm: () => {
+                    const company = document.getElementById("returnCompanyInput").value.trim();
+                    const no = document.getElementById("returnNoInput").value.trim();
+                    if (!company || !no) {
+                        showToast("请填写完整物流信息");
+                        return false;
+                    }
+                    item.returnCompany = company;
+                    item.returnNo = no;
+                    moveItemToWarehousePending(item);
+                    closeModal();
+                    render();
+                }
+            });
+        }
+
+        function approveRefundToPending(item, message = "审核已通过，请执行退款") {
+            item.status = "待退款";
+            item.node = "待执行退款";
+            item.primaryText = "执行退款";
+            item.secondaryText = "";
+            markRefundPending(item);
+            syncRefundFromAudit(item);
+            updateRefundStatusFromAudit(item, "待退款", "待执行退款", "执行退款", "");
+            render();
+            showToast(message);
+        }
+
+        function approveReturnRefundNeedReturn(item) {
+            item.status = "待买家退货";
+            item.node = "待买家填写退货单号";
+            item.primaryText = "登记退货单号";
+            item.secondaryText = "";
+            upsertReturnAddressBaseInfo(item, item.returnAddresses);
+            setTimelineProgress(item, "active", "买家退货并填写单号");
+            syncRefundFromAudit(item);
+            updateRefundStatusFromAudit(item, "待买家退货", "待买家退货", "查看结果", "");
+            render();
+            showToast("审核已通过，进入退货单号登记");
+        }
+
+        function approveExchangeNeedReturn(item) {
+            item.status = "待买家退货";
+            item.node = "待买家填写退货单号";
+            item.primaryText = "登记退货单号";
+            item.secondaryText = "";
+            upsertReturnAddressBaseInfo(item, item.returnAddresses);
+            setTimelineProgress(item, "active", "买家退货并填写单号");
+            render();
+            showToast("换货审核已通过，进入退货单号登记");
+        }
+
+        function directRefundSuccess(item, options = {}) {
+            item.status = "退款成功";
+            item.node = "退款完成";
+            item.primaryText = "";
+            item.secondaryText = "";
+            setTimelineProgress(item, "done", "完成退款");
+            syncRefundFromAudit(item);
+            updateRefundStatusFromAudit(item, "退款成功", "退款完成", "", "");
+            render();
+            if (!options.silentToast) {
+                showToast("已无需退回商品，退款已完成");
+            }
+        }
+
+        function openOperationSuccessModal(message = "操作成功！") {
+            openModal({
+                title: "提示",
+                content: `
+                    <div class="success-feedback">
+                        <span class="success-feedback-icon">✓</span>
+                        <div class="success-feedback-text">${message}</div>
+                    </div>
+                `,
+                isHtml: true,
+                confirmText: "知道了",
+                hideCancel: true
+            });
+        }
+
+        function openDirectRefundConfirmModal(item) {
+            openModal({
+                title: "同意退款",
+                content: `
+                    <div class="decision-info" style="margin-bottom:0;">
+                        <span class="decision-info-icon">i</span>
+                        <div>
+                            <strong>确认直接退款</strong>
+                            <span>买家无需退回商品，确认后系统将直接完成退款处理，并回写售后状态。该操作提交后不支持撤销，请谨慎操作。</span>
+                        </div>
+                    </div>
+                `,
+                isHtml: true,
+                confirmText: "确定",
+                cancelText: "取消",
+                onConfirm: () => {
+                    directRefundSuccess(item, { silentToast: true });
+                    openOperationSuccessModal("退款处理成功！");
+                    return false;
+                }
+            });
+        }
+
+        function openReturnRefundReviewModal(item) {
+            const customerAddresses = (Array.isArray(item.customerReturnAddresses) ? item.customerReturnAddresses : []).map(normalizeReturnAddress);
+            const supplierAddresses = (Array.isArray(item.supplierReturnAddresses) ? item.supplierReturnAddresses : []).map(normalizeReturnAddress);
+            const reviewAddresses = getPreferredReturnAddresses(item);
+            if (!reviewAddresses.length) {
+                reviewAddresses.push(normalizeReturnAddress({}));
+            }
+            const addressRows = reviewAddresses.map((address, index) => `
+                <div class="review-address-row" style="border:1px solid #e5e6eb;border-radius:8px;padding:12px;margin-bottom:10px;background:#fafafa;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                        <span style="font-weight:600;color:#262626;">退回地址 ${index + 1}</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:96px 1fr;gap:8px;align-items:center;margin-bottom:8px;">
+                        <label style="color:#8c8c8c;">省市区</label>
+                        ${buildRegionSelectorGroup(address)}
+                    </div>
+                    <div style="display:grid;grid-template-columns:96px 1fr;gap:8px;align-items:start;margin-bottom:8px;">
+                        <label style="color:#8c8c8c;margin-top:8px;">详细地址</label>
+                        <textarea class="review-address-detail" style="width:100%;min-height:72px;padding:8px 10px;border:1px solid #d9d9d9;border-radius:6px;resize:vertical;font:inherit;" placeholder="请输入详细退货地址">${address.detail || ""}</textarea>
+                    </div>
+                    <div style="display:grid;grid-template-columns:96px 1fr;gap:8px;align-items:center;margin-bottom:8px;">
+                        <label style="color:#8c8c8c;">收件人</label>
+                        <input class="review-address-name" style="width:100%;height:38px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font:inherit;" placeholder="请输入收件人姓名" value="${address.name || ""}">
+                    </div>
+                    <div style="display:grid;grid-template-columns:96px 1fr;gap:8px;align-items:center;">
+                        <label style="color:#8c8c8c;">收件人手机号</label>
+                        <input class="review-address-phone" style="width:100%;height:38px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font:inherit;" placeholder="请输入收件人手机号" value="${address.phone || ""}">
+                    </div>
+                </div>
+            `).join("");
+            openModal({
+                title: "退货退款审核",
+                content: `
+                    <div class="decision-info">
+                        <span class="decision-info-icon">i</span>
+                        <div>
+                            <strong>请选择处理方式</strong>
+                            <span id="returnRefundReviewHint">若买家无需退回商品，可直接退款；若买家需要寄回商品，请确认退回地址后再推进售后流程。</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary decision-primary-btn" type="button" id="skipReturnRefundBtn">无需退回商品，直接退款</button>
+                    <p class="decision-secondary-tip">如需买家寄回商品，请点击右下角“需要退回商品”并确认退回地址。</p>
+                    <div id="returnAddressReviewPanel" style="display:none;">
+                        <div class="review-panel-title">请确认退回地址</div>
+                        <div id="reviewAddressList">${addressRows}</div>
+                    </div>
+                `,
+                isHtml: true,
+                confirmText: "需要退回商品",
+                cancelText: "取消",
+                onConfirm: () => {
+                    const reviewPanel = document.getElementById("returnAddressReviewPanel");
+                    if (reviewPanel.style.display === "none") {
+                        reviewPanel.style.display = "block";
+                        document.getElementById("returnRefundReviewHint").textContent = supplierAddresses.length
+                            ? "已自动带出供应商退回地址，你也可以补充或调整后再确认。"
+                            : customerAddresses.length
+                                ? "已带出回传地址，请审核后确认；如无可用地址请由商家人工填写。"
+                                : "当前无供应商回传地址，请由商家人工填写退回地址后再确认。";
+                        modalConfirm.textContent = "确认退回地址";
+                        return false;
+                    }
+                    const rows = Array.from(document.querySelectorAll(".review-address-row"));
+                    const addresses = rows.map(row => ({
+                        region: composeRegionValue(
+                            row.querySelector(".review-address-province").value.trim(),
+                            row.querySelector(".review-address-city").value.trim(),
+                            row.querySelector(".review-address-district").value.trim()
+                        ),
+                        detail: row.querySelector(".review-address-detail").value.trim(),
+                        name: row.querySelector(".review-address-name").value.trim(),
+                        phone: row.querySelector(".review-address-phone").value.trim()
+                    })).filter(address => address.detail || address.name || address.phone);
+                    if (!addresses.length) {
+                        showToast("请先填写退回地址");
+                        return false;
+                    }
+                    if (addresses.some(address => !address.region)) {
+                        showToast("请选择省市区");
+                        return false;
+                    }
+                    if (addresses.some(address => !address.detail || !address.name || !address.phone)) {
+                        showToast("请填写完整的详细地址、姓名和电话");
+                        return false;
+                    }
+                    item.returnAddresses = addresses;
+                    approveReturnRefundNeedReturn(item);
+                    closeModal();
+                }
+            });
+            const reviewAddressList = document.getElementById("reviewAddressList");
+            initRegionCascades("#reviewAddressList");
+            document.getElementById("skipReturnRefundBtn").addEventListener("click", () => {
+                openDirectRefundConfirmModal(item);
+            });
+        }
+
+        function openExchangeReviewModal(item) {
+            const customerAddresses = (Array.isArray(item.customerReturnAddresses) ? item.customerReturnAddresses : []).map(normalizeReturnAddress);
+            const supplierAddresses = (Array.isArray(item.supplierReturnAddresses) ? item.supplierReturnAddresses : []).map(normalizeReturnAddress);
+            const reviewAddresses = getPreferredReturnAddresses(item);
+            if (!reviewAddresses.length) {
+                reviewAddresses.push(normalizeReturnAddress({}));
+            }
+            const addressRows = reviewAddresses.map((address, index) => `
+                <div class="review-address-row" style="border:1px solid #e5e6eb;border-radius:8px;padding:12px;margin-bottom:10px;background:#fafafa;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                        <span style="font-weight:600;color:#262626;">退回地址 ${index + 1}</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:96px 1fr;gap:8px;align-items:center;margin-bottom:8px;">
+                        <label style="color:#8c8c8c;">省市区</label>
+                        ${buildRegionSelectorGroup(address)}
+                    </div>
+                    <div style="display:grid;grid-template-columns:96px 1fr;gap:8px;align-items:start;margin-bottom:8px;">
+                        <label style="color:#8c8c8c;margin-top:8px;">详细地址</label>
+                        <textarea class="review-address-detail" style="width:100%;min-height:72px;padding:8px 10px;border:1px solid #d9d9d9;border-radius:6px;resize:vertical;font:inherit;" placeholder="请输入详细退货地址">${address.detail || ""}</textarea>
+                    </div>
+                    <div style="display:grid;grid-template-columns:96px 1fr;gap:8px;align-items:center;margin-bottom:8px;">
+                        <label style="color:#8c8c8c;">收件人</label>
+                        <input class="review-address-name" style="width:100%;height:38px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font:inherit;" placeholder="请输入收件人姓名" value="${address.name || ""}">
+                    </div>
+                    <div style="display:grid;grid-template-columns:96px 1fr;gap:8px;align-items:center;">
+                        <label style="color:#8c8c8c;">收件人手机号</label>
+                        <input class="review-address-phone" style="width:100%;height:38px;padding:0 10px;border:1px solid #d9d9d9;border-radius:6px;font:inherit;" placeholder="请输入收件人手机号" value="${address.phone || ""}">
+                    </div>
+                </div>
+            `).join("");
+            openModal({
+                title: "换货审核",
+                content: `
+                    <p id="exchangeReviewHint" style="margin:0 0 12px;color:#666;line-height:1.8;">${supplierAddresses.length ? "已自动带出供应商退回地址，请确认后审核通过。" : customerAddresses.length ? "已带出回传地址，请审核后确认；如无可用地址请由商家人工填写。" : "当前无供应商回传地址，请由商家人工填写退回地址后审核通过。"}</p>
+                    <div id="exchangeAddressReviewPanel">
+                        <div id="exchangeAddressList">${addressRows}</div>
+                    </div>
+                `,
+                isHtml: true,
+                confirmText: "审核通过",
+                cancelText: "取消",
+                onConfirm: () => {
+                    const rows = Array.from(document.querySelectorAll("#exchangeAddressList .review-address-row"));
+                    const addresses = rows.map(row => ({
+                        region: composeRegionValue(
+                            row.querySelector(".review-address-province").value.trim(),
+                            row.querySelector(".review-address-city").value.trim(),
+                            row.querySelector(".review-address-district").value.trim()
+                        ),
+                        detail: row.querySelector(".review-address-detail").value.trim(),
+                        name: row.querySelector(".review-address-name").value.trim(),
+                        phone: row.querySelector(".review-address-phone").value.trim()
+                    })).filter(address => address.detail || address.name || address.phone);
+                    if (!addresses.length) {
+                        showToast("请先填写退回地址");
+                        return false;
+                    }
+                    if (addresses.some(address => !address.region)) {
+                        showToast("请选择省市区");
+                        return false;
+                    }
+                    if (addresses.some(address => !address.detail || !address.name || !address.phone)) {
+                        showToast("请填写完整的详细地址、姓名和电话");
+                        return false;
+                    }
+                    item.returnAddresses = addresses;
+                    approveExchangeNeedReturn(item);
+                    closeModal();
+                }
+            });
+            const exchangeAddressList = document.getElementById("exchangeAddressList");
+            initRegionCascades("#exchangeAddressList");
+        }
+
+        function createFollowupAfterSales(sourceItem, type) {
+            const idSuffix = String(Date.now()).slice(-6);
+            const newItem = enrichItem({
+                id: `AF${idSuffix}`,
+                orderNo: sourceItem.orderNo,
+                subOrderNo: `${sourceItem.subOrderNo}-${type === "退货退款" ? "TH" : "TK"}`,
+                userName: sourceItem.userName,
+                receiverName: sourceItem.receiverName,
+                userPhone: sourceItem.userPhone,
+                receiverPhone: sourceItem.receiverPhone,
+                memberId: sourceItem.memberId,
+                type,
+                channel: sourceItem.channel,
+                productName: sourceItem.productName,
+                skuText: sourceItem.skuText,
+                skuCode: sourceItem.skuCode,
+                logisticsCode: sourceItem.logisticsCode,
+                skuLogisticsCode: sourceItem.skuLogisticsCode,
+                supplierName: sourceItem.supplierName,
+                supplierCode: sourceItem.supplierCode,
+                status: "待商家审核",
+                createdAt: nowText(),
+                reason: `换货完成后再次申请${type}`,
+                amount: type === "仅退款" ? "待核算" : sourceItem.amount,
+                node: `${type}审核`,
+                detailTags: ["换货后售后", type, "二次售后"],
+                recommend: `该单来源于换货完成后的二次${type}申请，需按订单管理中的主/子订单与SKU口径核验。`,
+                primaryText: "通过审核",
+                secondaryText: "驳回并备注",
+                baseInfo: [
+                    ["售后订单号", `AF${idSuffix}`],
+                    ["主订单号", sourceItem.orderNo],
+                    ["子订单号", `${sourceItem.subOrderNo}-${type === "退货退款" ? "TH" : "TK"}`],
+                    ["客户收货人", sourceItem.receiverName || sourceItem.userName],
+                    ["用户手机号", sourceItem.userPhone || "-"],
+                    ["收货人手机号", sourceItem.receiverPhone || "-"],
+                    ["商品信息", sourceItem.productName],
+                    ["SKU物流编码", sourceItem.skuLogisticsCode || sourceItem.skuCode],
+                    ["供应商名称", sourceItem.supplierName],
+                    ["供应商编号", sourceItem.supplierCode || "-"]
+                ],
+                timeline: [["active", `提交${type}`, `换货完成后再次发起${type}申请。`, "当前节点", "供应链专员"]],
+                process: [["二次售后", "换货完成后可再次发起退货退款或仅退款。"]]
+            }, dataMap.audit.length);
+            dataMap.audit.unshift(newItem);
+            state.activeTab = "audit";
+            state.activeAuditType = "all";
+            state.selectedId = newItem.id;
+            state.pagination.audit = 1;
+            render();
+            showToast(`已创建${type}售后单`);
+        }
+
+        function handlePrimaryAction(item) {
+            if (item.primaryText === "申请退货退款") {
+                createFollowupAfterSales(item, "退货退款");
+                return;
+            }
+
+            if (item.primaryText === "通过审核") {
+                const confirmMsg = `确认通过审核？售后单号：${item.id}，售后类型：${item.type}，退款金额：${item.amount}。`;
+                openModal({
+                    title: "审核确认",
+                    content: `<div style="line-height:1.8;color:#333;"><p style="margin:0 0 12px;color:#666;">${confirmMsg}</p><textarea id="auditRemarkInput" style="width:100%;min-height:80px;padding:12px;border:1px solid #d9d9d9;border-radius:6px;resize:vertical;font:inherit;margin-bottom:8px;" placeholder="审核备注（选填）"></textarea></div>`,
+                    isHtml: true,
+                    confirmText: "确认通过",
+                    cancelText: "取消",
+                    onConfirm: () => {
+                        const remark = document.getElementById("auditRemarkInput").value.trim();
+                        closeModal();
+                        if (state.activeTab === "refund") {
+                            item.status = "待退款";
+                            item.node = "待执行退款";
+                            item.primaryText = "执行退款";
+                            item.secondaryText = "";
+                            markRefundPending(item);
+                            updateAuditStatusFromRefund(item, "待退款", "待执行退款", "执行退款", "");
+                            syncReturnFromRefund(item);
+                            if (remark) appendTimelineEvent(item, "审核备注", remark);
+                            render();
+                            showToast("退款审核已通过");
+                            return;
+                        }
+
+                        if (state.activeTab === "audit" && item.type === "退货退款") {
+                            openReturnRefundReviewModal(item);
+                            return;
+                        }
+
+                        if (state.activeTab === "audit" && ["退款", "仅退款"].includes(item.type)) {
+                            approveRefundToPending(item);
+                            if (remark) appendTimelineEvent(item, "审核备注", remark);
+                            render();
+                            return;
+                        }
+
+                        if (state.activeTab === "audit" && item.type === "换货") {
+                            openExchangeReviewModal(item);
+                            return;
+                        }
+
+                        if (state.activeTab === "audit" && item.type === "补发") {
+                            item.status = "待确认收货";
+                            item.node = "代客户确认收货";
+                            item.primaryText = "确认收货";
+                            item.secondaryText = "";
+                            setTimelineProgress(item, "active", "确认收货");
+                            if (remark) appendTimelineEvent(item, "审核备注", remark);
+                            render();
+                            showToast("审核已通过，进入确认收货");
+                            return;
+                        }
+
+                        showResultModal(item, "操作说明", "当前售后单暂无可推进的审核流程。");
+                    }
+                });
+                return;
+            }
+
+            if (item.primaryText === "执行退款") {
+                const refundMsg = `确认执行退款？售后单号：${item.id}，退款金额：${item.amount}。`;
+                openModal({
+                    title: "退款确认",
+                    content: `<div style="line-height:1.8;color:#333;"><p style="margin:0 0 12px;color:#666;">${refundMsg}</p></div>`,
+                    isHtml: true,
+                    confirmText: "确认退款",
+                    cancelText: "取消",
+                    onConfirm: () => {
+                        closeModal();
+                        item.status = "退款中";
+                        item.node = "退款处理中";
+                        item.primaryText = "查看退款进度";
+                        item.secondaryText = "";
+                        markRefundPending(item);
+                        if (state.activeTab === "audit") {
+                            syncRefundFromAudit(item);
+                            updateRefundStatusFromAudit(item, "退款中", "退款处理中", "查看退款进度", "");
+                        } else {
+                            updateAuditStatusFromRefund(item, "退款中", "退款处理中", "查看退款进度", "");
+                            syncReturnFromRefund(item);
+                        }
+                        render();
+                        showToast("已发起退款，等待支付回调");
+                    }
+                });
+                return;
+            }
+
+            if (item.primaryText === "登记退货单号") {
+                openRegisterReturnModal(item);
+                return;
+            }
+
+            if (item.primaryText === "商家收货") {
+                if (item.type === "退货退款") {
+                    item.status = "待退款";
+                    item.node = "待执行退款";
+                    item.primaryText = "执行退款";
+                    item.secondaryText = "";
+                    markRefundPending(item);
+                    updateRefundStatusFromAudit(item, "待退款", "待执行退款", "执行退款", "");
+                } else if (item.type === "换货") {
+                    item.status = "待仓库发货";
+                    item.node = "待仓库发货";
+                    item.primaryText = "仓库发货";
+                    item.secondaryText = "";
+                    setTimelineProgress(item, "active", "待仓库发货");
+                } else if (item.type === "补发") {
+                    item.status = "已完成";
+                    item.node = "补发出库完成";
+                    item.primaryText = "查看结果";
+                    item.secondaryText = "";
+                    setTimelineProgress(item, "done", "完成回调");
+                }
+                render();
+                showToast(item.type === "换货" ? "已完成商家收货，进入待仓库发货" : "已完成商家收货");
+                return;
+            }
+
+            if (item.primaryText === "仓库发货") {
+                openModal({
+                    title: "登记发货单号",
+                    content: `
+                        <p style="margin:0 0 12px;color:#666;line-height:1.8;">请登记仓库发货物流信息，提交后售后单将进入待客户收货。</p>
+                        <input id="shipCompanyInput" style="width:100%;height:40px;padding:0 12px;border:1px solid #d9d9d9;border-radius:6px;margin-bottom:10px;font:inherit;" placeholder="请输入快递公司" value="">
+                        <input id="shipNoInput" style="width:100%;height:40px;padding:0 12px;border:1px solid #d9d9d9;border-radius:6px;margin-bottom:12px;font:inherit;" placeholder="请输入发货单号" value="">
+                    `,
+                    isHtml: true,
+                    confirmText: "确认登记",
+                    cancelText: "取消",
+                    onConfirm: () => {
+                        const company = document.getElementById("shipCompanyInput").value.trim();
+                        const no = document.getElementById("shipNoInput").value.trim();
+                        if (!company || !no) {
+                            showToast("请填写完整物流信息");
+                            return false;
+                        }
+                        item.expressCompany = company;
+                        item.expressNo = no;
+                        item.status = "待客户收货";
+                        item.node = "待客户收货";
+                        item.primaryText = "查看物流";
+                        item.secondaryText = "";
+                        setTimelineProgress(item, "active", "待客户收货");
+                        appendTimelineEvent(item, "仓库已发货", `快递公司：${company}，发货单号：${no}`);
+                        closeModal();
+                        render();
+                        showToast("已登记发货单号，进入待客户收货");
+                    }
+                });
+                return;
+            }
+
+            if (item.primaryText === "查看物流") {
+                openModal({
+                    title: "查看物流",
+                    content: `
+                        <p style="margin:0 0 12px;color:#666;line-height:1.8;">快递公司：${item.expressCompany || '-'}</p>
+                        <p style="margin:0 0 12px;color:#666;line-height:1.8;">发货单号：${item.expressNo || '-'}</p>
+                        <p style="margin:0;color:#999;font-size:12px;">换货商品已发出，等待客户确认收货。若客户15天未确认，系统将自动确认为换货成功。</p>
+                    `,
+                    isHtml: true,
+                    confirmText: "我知道了",
+                    hideCancel: true
+                });
+                return;
+            }
+
+            if (item.primaryText === "查看退款进度") {
+                openRefundProgressModal(item);
+                return;
+            }
+
+            if (item.primaryText === "查看详情" || item.primaryText === "详情") {
+                showDetailModal(item);
+                return;
+            }
+
+            if (item.primaryText === "重新发起退款") {
+                openModal({
+                    title: "重新发起退款",
+                    content: `<div style="line-height:1.8;color:#333;"><p style="margin:0 0 12px;color:#666;">确认重新发起退款？售后单号：${item.id}，退款金额：${item.amount}。</p><p style="margin:0;color:#999;font-size:13px;">上次退款失败，重新发起将再次请求支付渠道处理，请确认。</p></div>`,
+                    isHtml: true,
+                    confirmText: "确认退款",
+                    cancelText: "取消",
+                    onConfirm: () => {
+                        closeModal();
+                        item.status = "退款中";
+                        item.node = "退款处理中";
+                        item.primaryText = "查看退款进度";
+                        item.secondaryText = "";
+                        markRefundPending(item);
+                        if (state.activeTab === "audit") {
+                            syncRefundFromAudit(item);
+                            updateRefundStatusFromAudit(item, "退款中", "退款处理中", "查看退款进度", "");
+                        } else {
+                            updateAuditStatusFromRefund(item, "退款中", "退款处理中", "查看退款进度", "");
+                            syncReturnFromRefund(item);
+                        }
+                        render();
+                        showToast("已重新发起退款，等待支付回调");
+                    }
+                });
+                return;
+            }
+        }
+
+        function handleSecondaryAction(item) {
+            if (item.secondaryText === "驳回并备注") {
+                openRejectModal(item);
+                return;
+            }
+
+            if (item.secondaryText === "申请仅退款") {
+                createFollowupAfterSales(item, "仅退款");
+                return;
+            }
+
+        }
+
+        function getCurrentList() {
+            const mainOrderNo = document.getElementById("mainOrderInput").value.trim();
+            const subOrderNo = document.getElementById("subOrderInput").value.trim();
+            const aftersalesNo = document.getElementById("aftersalesInput").value.trim();
+            const productName = document.getElementById("productNameInput").value.trim();
+            const skuLogisticsCode = document.getElementById("skuLogisticsInput").value.trim();
+            const supplierInfo = document.getElementById("supplierInput").value.trim();
+            const receiverPhone = document.getElementById("receiverPhoneInput").value.trim();
+            const createdDateStart = document.getElementById("createdDateStartInput").value;
+            const createdDateEnd = document.getElementById("createdDateEndInput").value;
+            const status = document.getElementById("statusSelect").value;
+            const auditStatus = document.getElementById("auditStatusSelect").value;
+            const type = document.getElementById("typeSelect").value;
+            const channel = document.getElementById("channelSelect").value;
+
+            return dataMap[state.activeTab].filter(item => {
+                const matchMainOrder = !mainOrderNo || [item.orderNo, item.mainOrderNo].filter(Boolean).some(value => value.includes(mainOrderNo));
+                const matchSubOrder = !subOrderNo || (item.subOrderNo || "").includes(subOrderNo);
+                const matchAftersalesNo = !aftersalesNo || [item.id, item.aftersalesOrderNo, item.sourceAuditId, item.sourceRefundId].filter(Boolean).some(value => value.includes(aftersalesNo));
+                const matchProductName = !productName || (item.productName || "").includes(productName);
+                const matchSkuLogistics = !skuLogisticsCode || [item.skuLogisticsCode, item.skuCode, item.logisticsCode, item.productCode, item.expressNo].filter(Boolean).some(value => value.includes(skuLogisticsCode));
+                const matchSupplier = !supplierInfo || [item.supplierName, item.supplierCode].filter(Boolean).some(value => value.includes(supplierInfo));
+                const matchReceiverPhone = !receiverPhone || [item.receiverPhone, item.userPhone, item.orderPhone].filter(Boolean).some(value => value.includes(receiverPhone));
+                const itemCreatedDate = String(item.createdAt || "").split(" ")[0];
+                const matchCreatedDate = (!createdDateStart || itemCreatedDate >= createdDateStart) && (!createdDateEnd || itemCreatedDate <= createdDateEnd);
+                const matchStatus = state.activeTab !== "audit" || status === "all" || item.status === status;
+            const matchAuditStatus = state.activeTab !== "audit" || auditStatus === "all" || (auditTypeStatusMap[auditStatus] && auditTypeStatusMap[auditStatus].includes(item.status));
+                const matchType = type === "all" || item.type === type;
+                const matchChannel = channel === "all" || item.channel === channel;
+                const matchAuditType = state.activeTab !== "audit" || state.activeAuditType === "all" || (auditTypeStatusMap[state.activeAuditType] && auditTypeStatusMap[state.activeAuditType].includes(item.status));
+                return matchMainOrder && matchSubOrder && matchAftersalesNo && matchProductName && matchSkuLogistics && matchSupplier && matchReceiverPhone && matchCreatedDate && matchStatus && matchAuditStatus && matchType && matchChannel && matchAuditType;
+            });
+        }
+
+        function getPagedList(list) {
+            const currentPage = state.pagination[state.activeTab] || 1;
+            const start = (currentPage - 1) * state.pageSize;
+            return list.slice(start, start + state.pageSize);
+        }
+
+        function renderPagination(total) {
+            const totalPages = Math.max(1, Math.ceil(total / state.pageSize));
+            if (state.pagination[state.activeTab] > totalPages) {
+                state.pagination[state.activeTab] = totalPages;
+            }
+            const current = state.pagination[state.activeTab];
+
+            const controls = [
+                { label: "首页", page: 1, disabled: current === 1 },
+                { label: "上一页", page: Math.max(1, current - 1), disabled: current === 1 }
+            ];
+
+            for (let page = 1; page <= totalPages; page += 1) {
+                controls.push({ label: String(page), page, active: page === current });
+            }
+
+            controls.push({ label: "下一页", page: Math.min(totalPages, current + 1), disabled: current === totalPages });
+            controls.push({ label: "末页", page: totalPages, disabled: current === totalPages });
+
+            paginationControls.innerHTML = controls.map(control => `
+                <button
+                    class="page-btn ${control.active ? "active" : ""}"
+                    type="button"
+                    data-page="${control.page}"
+                    ${control.disabled ? "disabled" : ""}
+                >${control.label}</button>
+            `).join("");
+
+            paginationControls.querySelectorAll(".page-btn").forEach(button => {
+                button.addEventListener("click", () => {
+                    state.pagination[state.activeTab] = Number(button.dataset.page);
+                    render();
+                });
+            });
+        }
+
+        function renderTable() {
+            const list = getCurrentList();
+            const pagedList = getPagedList(list);
+            const tab = state.activeTab;
+            tableTitle.textContent = tab === "audit" ? "售后审核列表" : "退货单列表";
+            pageTotal.textContent = `共 ${list.length} 条`;
+            renderPagination(list.length);
+
+            if (!list.find(item => item.id === state.selectedId) && list.length) {
+                state.selectedId = list[0].id;
+            }
+
+            const commonHead = `
+                <th style="width:8%;">主订单号</th>
+                <th style="width:8%;">子订单号</th>
+                <th style="width:9%;">商品名称</th>
+                <th style="width:8%;">SKU物流编码</th>
+                <th style="width:9%;">供应商信息</th>
+                <th style="width:8%;">收货人电话</th>
+                <th style="width:8%;">用户电话</th>
+                <th style="width:6%;">售后类型</th>
+                <th style="width:7%;">退款金额</th>
+                <th style="width:7%;">申请时间</th>
+                <th style="width:7%;">售后状态</th>
+                <th style="width:7%;">渠道来源</th>
+                <th style="width:8%;">操作</th>
+            `;
+            const returnHead = `
+                <th style="width:14%;">退货单号</th>
+                <th style="width:12%;">主订单号</th>
+                <th style="width:12%;">子订单号</th>
+                <th style="width:14%;">商品名称</th>
+                <th style="width:8%;">退货数量</th>
+                <th style="width:10%;">退货总金额</th>
+                <th style="width:10%;">退货单状态</th>
+                <th style="width:12%;">制单时间</th>
+                <th style="width:8%;" class="action-col-header">操作</th>
+            `;
+            tableHeadRow.innerHTML = tab === "return" ? returnHead : commonHead;
+            mainTable.classList.toggle("return-table-mode", tab === "return");
+
+            const renderActionCell = item => {
+                const showPrimary = item.primaryText && item.primaryText !== "查看详情" && item.primaryText !== "详情";
+                const isReturnTab = tab === "return";
+                const actionClass = isReturnTab ? "table-action return-action" : "table-action";
+                return `
+                    <div class="${actionClass}">
+                        <button class="btn btn-link" type="button" data-action="detail" data-id="${item.id}">详情</button>
+                        ${showPrimary ? `<button class="btn btn-link" type="button" data-action="primary" data-id="${item.id}">${item.primaryText}</button>` : ""}
+                        ${item.secondaryText ? `<button class="btn btn-link" type="button" data-action="secondary" data-id="${item.id}">${item.secondaryText}</button>` : ""}
+                    </div>
+                `;
+            };
+
+            const rows = pagedList.map(item => {
+                if (tab === "return") {
+                    return `
+                        <tr data-id="${item.id}" class="${item.id === state.selectedId ? "active" : ""}">
+                            <td><div class="cell-title">${item.id}</div><div class="cell-sub">${item.channel}</div></td>
+                            <td>${item.mainOrderNo || item.orderNo || "-"}</td>
+                            <td>${item.subOrderNo || "-"}</td>
+                            <td><div class="cell-title">${item.productName}</div><div class="cell-sub">${item.skuText}</div></td>
+                            <td>${item.returnQty || "-"}</td>
+                            <td><div class="amount-main">${item.totalPrice || item.amount || "-"}</div></td>
+                            <td><span class="status ${statusClassMap[item.status] || "wait"}">${item.status}</span></td>
+                            <td>${item.createdAt || "-"}</td>
+                            <td class="action-col-cell">${renderActionCell(item)}</td>
+                        </tr>
+                    `;
+                }
+                return `
+                    <tr data-id="${item.id}" class="${item.id === state.selectedId ? "active" : ""}">
+                        <td>
+                            <div class="cell-title">${item.orderNo}</div>
+                        </td>
+                        <td>
+                            <div class="cell-title">${item.subOrderNo}</div>
+                        </td>
+                        <td>
+                            <div class="cell-title">${item.productName}</div>
+                        </td>
+                        <td>
+                            <div class="cell-title">${item.skuLogisticsCode || "-"}</div>
+                        </td>
+                        <td>
+                            <div class="cell-title">${item.supplierName || "-"}</div>
+                        </td>
+                        <td>
+                            <div class="cell-title">${item.receiverPhone || "-"}</div>
+                        </td>
+                        <td>
+                            <div class="cell-title">${item.userPhone || "-"}</div>
+                        </td>
+                        <td>
+                            <div class="cell-title">${item.type}</div>
+                        </td>
+                        <td>
+                            <div class="amount-main">${item.amount}</div>
+                        </td>
+                        <td>
+                            <div class="cell-title">${item.createdAt.split(" ")[0]}</div>
+                            <div class="cell-sub">${item.createdAt.split(" ")[1]}</div>
+                        </td>
+                        <td>
+                            <span class="status ${statusClassMap[item.status] || "wait"}">${item.status}</span>
+                        </td>
+                        <td>
+                            <div class="cell-title">${item.channel || "-"}</div>
+                        </td>
+                        <td>${renderActionCell(item)}</td>
+                    </tr>
+                `;
+            }).join("");
+
+            const colspan = tab === "return" ? 9 : 13;
+            tableBody.innerHTML = rows || `<tr><td colspan="${colspan}" style="text-align:center;padding:48px 0;color:#8c8c8c;">暂无符合条件的数据</td></tr>`;
+        }
+
+        function renderNav() {
+            document.querySelectorAll(".submenu-item").forEach(item => {
+                const isActive = item.dataset.subnav === state.activeTab;
+                item.classList.toggle("active", isActive);
+            });
+
+            document.querySelectorAll("[data-tab]").forEach(tab => {
+                tab.classList.toggle("active", tab.dataset.tab === state.activeTab);
+            });
+            document.querySelectorAll(".audit-type-card").forEach(card => {
+                card.classList.toggle("active", card.dataset.auditType === state.activeAuditType);
+            });
+            document.getElementById("auditTypes").style.display = state.activeTab === "audit" ? "inline-flex" : "none";
+        }
+
+        function syncTypeSelectState() {
+            const typeSelect = document.getElementById("typeSelect");
+            typeSelect.disabled = false;
+        }
+
+        function bindTableEvents() {
+            document.querySelectorAll("#tableBody tr[data-id]").forEach(row => {
+                row.onclick = event => {
+                    const action = event.target.dataset.action;
+                    const id = row.dataset.id;
+                    const item = dataMap[state.activeTab].find(entry => entry.id === id);
+                    state.selectedId = id;
+                    if (!item) {
+                        render();
+                        return;
+                    }
+
+                    if (action === "primary") {
+                        handlePrimaryAction(item);
+                        return;
+                    }
+
+                    if (action === "secondary") {
+                        handleSecondaryAction(item);
+                        return;
+                    }
+
+                    if (action === "detail") {
+                        showDetailModal(item);
+                        return;
+                    }
+
+                    render();
+                };
+            });
+        }
+
+        function render() {
+            renderNav();
+            syncTypeSelectState();
+            document.getElementById("statusSelect").parentElement.parentElement.style.display = state.activeTab === "audit" ? "flex" : "none";
+            document.getElementById("auditStatusSelect").parentElement.parentElement.style.display = state.activeTab === "audit" ? "flex" : "none";
+            renderTable();
+            bindTableEvents();
+        }
+
+        function switchTab(tabName) {
+            state.activeTab = tabName;
+            state.selectedId = dataMap[state.activeTab]?.[0]?.id || "";
+            state.activeAuditType = "all";
+            state.pagination[state.activeTab] = 1;
+            document.getElementById("mainOrderInput").value = "";
+            document.getElementById("subOrderInput").value = "";
+            document.getElementById("aftersalesInput").value = "";
+            document.getElementById("productNameInput").value = "";
+            document.getElementById("skuLogisticsInput").value = "";
+            document.getElementById("supplierInput").value = "";
+            document.getElementById("receiverPhoneInput").value = "";
+            document.getElementById("createdDateStartInput").value = "";
+            document.getElementById("createdDateEndInput").value = "";
+            document.getElementById("statusSelect").value = "all";
+            document.getElementById("auditStatusSelect").value = "all";
+            document.getElementById("typeSelect").value = "all";
+            document.getElementById("channelSelect").value = "all";
+            document.getElementById("statusSelect").parentElement.parentElement.style.display = tabName === "audit" ? "flex" : "none";
+            document.getElementById("auditStatusSelect").parentElement.parentElement.style.display = tabName === "audit" ? "flex" : "none";
+            syncDateFieldUI("createdDateStartInput", "开始时间");
+            syncDateFieldUI("createdDateEndInput", "结束时间");
+            render();
+        }
+
+        function syncDateFieldUI(inputId, emptyText) {
+            const input = document.getElementById(inputId);
+            const trigger = document.getElementById(inputId.replace("Input", "Trigger"));
+            const display = document.getElementById(inputId.replace("Input", "Display"));
+            const clearButton = document.getElementById(inputId.replace("Input", "Clear"));
+            if (!input || !trigger || !display || !clearButton) {
+                return;
+            }
+            const hasValue = Boolean(input.value);
+            trigger.classList.toggle("is-empty", !hasValue);
+            display.textContent = hasValue ? input.value : emptyText;
+            clearButton.hidden = !hasValue;
+        }
+
+        function openDatePicker(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input) {
+                return;
+            }
+            if (typeof input.showPicker === "function") {
+                input.showPicker();
+                return;
+            }
+            input.focus();
+            input.click();
+        }
+
+        function bindDateField(inputId, emptyText) {
+            const input = document.getElementById(inputId);
+            const trigger = document.getElementById(inputId.replace("Input", "Trigger"));
+            const pickerButton = document.getElementById(inputId.replace("Input", "Picker"));
+            const clearButton = document.getElementById(inputId.replace("Input", "Clear"));
+            if (!input || !trigger || !pickerButton || !clearButton) {
+                return;
+            }
+
+            const sync = () => syncDateFieldUI(inputId, emptyText);
+            sync();
+
+            pickerButton.addEventListener("click", event => {
+                event.preventDefault();
+                event.stopPropagation();
+                openDatePicker(inputId);
+            });
+
+            trigger.addEventListener("click", event => {
+                if (event.target === clearButton) {
+                    return;
+                }
+                openDatePicker(inputId);
+            });
+
+            clearButton.addEventListener("click", event => {
+                event.preventDefault();
+                event.stopPropagation();
+                input.value = "";
+                sync();
+            });
+
+            input.addEventListener("change", sync);
+            input.addEventListener("input", sync);
+        }
+
+        document.querySelectorAll("[data-tab]").forEach(button => {
+            button.addEventListener("click", () => switchTab(button.dataset.tab));
+        });
+
+        document.querySelectorAll(".submenu-item").forEach(item => {
+            item.addEventListener("click", () => switchTab(item.dataset.subnav));
+        });
+
+        document.querySelectorAll('[data-filter-toggle]').forEach(button => {
+            button.addEventListener("click", () => {
+                const filterCard = document.getElementById("filterCard");
+                const isCollapsed = button.dataset.filterToggle === "expand"
+                    ? false
+                    : button.dataset.filterToggle === "collapse"
+                        ? true
+                        : filterCard.classList.toggle("is-collapsed");
+                filterCard.classList.toggle("is-collapsed", isCollapsed);
+                document.getElementById("toggleFilterBtn").textContent = isCollapsed ? "展开" : "收起";
+            });
+        });
+
+        document.getElementById("afterSalesMenu").addEventListener("click", () => {
+            afterSalesSubmenu.style.display = afterSalesSubmenu.style.display === "none" ? "grid" : "none";
+        });
+
+        document.querySelectorAll(".audit-type-card").forEach(card => {
+            card.addEventListener("click", () => {
+                const type = card.dataset.auditType;
+                state.activeAuditType = type;
+                state.pagination.audit = 1;
+                // 同步下拉框
+                document.getElementById("auditStatusSelect").value = type;
+                if (type === "all") {
+                    const match = getCurrentList()[0];
+                    if (match) {
+                        state.selectedId = match.id;
+                    }
+                } else {
+                    const statusList = auditTypeStatusMap[type];
+                    if (statusList) {
+                        const match = getCurrentList().find(item => statusList.includes(item.status));
+                        if (match) {
+                            state.selectedId = match.id;
+                        }
+                    }
+                }
+                render();
+                const title = card.querySelector(".audit-type-title").textContent;
+                showToast(`已切换到${title}`);
+            });
+        });
+
+        document.querySelectorAll('[data-filter-action="search"]').forEach(button => {
+            button.addEventListener("click", () => {
+                // 下拉框切换时同步tab
+                const auditStatus = document.getElementById("auditStatusSelect").value;
+                state.activeAuditType = auditStatus;
+                state.pagination[state.activeTab] = 1;
+                render();
+            });
+        });
+        document.querySelectorAll('[data-filter-action="reset"]').forEach(button => {
+            button.addEventListener("click", () => {
+                document.getElementById("mainOrderInput").value = "";
+                document.getElementById("subOrderInput").value = "";
+                document.getElementById("aftersalesInput").value = "";
+                document.getElementById("productNameInput").value = "";
+                document.getElementById("skuLogisticsInput").value = "";
+                document.getElementById("supplierInput").value = "";
+                document.getElementById("receiverPhoneInput").value = "";
+                document.getElementById("createdDateStartInput").value = "";
+                document.getElementById("createdDateEndInput").value = "";
+                document.getElementById("statusSelect").value = "all";
+                document.getElementById("auditStatusSelect").value = "all";
+                document.getElementById("typeSelect").value = "all";
+                document.getElementById("typeSelect").disabled = false;
+                document.getElementById("channelSelect").value = "all";
+                // 重置时同步tab到全部
+                state.activeAuditType = "all";
+                state.pagination[state.activeTab] = 1;
+                syncDateFieldUI("createdDateStartInput", "开始时间");
+                syncDateFieldUI("createdDateEndInput", "结束时间");
+                render();
+            });
+        });
+
+        document.getElementById("messageBtn").addEventListener("click", () => showToast("消息中心待补充。"));
+        document.getElementById("userBtn").addEventListener("click", () => showToast("用户信息面板待补充。"));
+        document.querySelectorAll(".menu-item[data-menu]").forEach(item => {
+            item.addEventListener("click", () => {
+                showToast(`已点击${item.textContent.trim()}，当前先保留为占位入口。`);
+            });
+        });
+
+        document.getElementById("modalClose").addEventListener("click", () => {
+            if (modalCancelHandler) {
+                modalCancelHandler();
+            }
+            closeModal();
+        });
+        modalCancel.addEventListener("click", () => {
+            if (modalCancelHandler) {
+                modalCancelHandler();
+            }
+            closeModal();
+        });
+        modalConfirm.addEventListener("click", () => {
+            if (modalConfirmHandler) {
+                const result = modalConfirmHandler();
+                if (result === false) {
+                    return;
+                }
+            } else {
+                closeModal();
+            }
+        });
+        modalOverlay.addEventListener("click", event => {
+            if (event.target.id === "modalOverlay") closeModal();
+        });
+
+        bindDateField("createdDateStartInput", "开始时间");
+        bindDateField("createdDateEndInput", "结束时间");
+        initRefundListFromAudit();
+        syncReturnListFromRefunds();
+        normalizeDataView();
+        render();
+    </script>
+</body>
+</html>

@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>选择积分批次 - 福利商城</title>
+<link rel="stylesheet" href="../css/common.css">
+<style>
+  .sub-nav { background: var(--card-bg); }
+  .page-body {
+    background: var(--bg-color);
+    min-height: calc(100vh - 88px);
+    padding-bottom: 70px;
+  }
+
+  /* Product summary */
+  .product-summary {
+    background: var(--card-bg);
+    padding: var(--space-md);
+    margin-bottom: var(--space-sm);
+  }
+  .product-summary-title {
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-sm);
+  }
+  .product-summary-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-sm) 0;
+    font-size: var(--font-sm);
+    color: var(--text-color);
+  }
+  .product-summary-item + .product-summary-item {
+    border-top: 1px solid var(--bg-color);
+  }
+  .product-summary-item .ps-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-right: var(--space-sm);
+  }
+  .product-summary-item .ps-price {
+    color: var(--price-color);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .product-summary-item .ps-match {
+    font-size: var(--font-xs);
+    padding: 1px var(--space-xs);
+    border-radius: var(--radius-xs);
+    margin-left: var(--space-sm);
+    white-space: nowrap;
+  }
+  .ps-match.matched { background: var(--success-bg); color: var(--success-color); }
+  .ps-match.unmatched { background: var(--bg-color); color: var(--text-muted); }
+  .product-summary-item .ps-split-hint { width: 100%; margin-top: 6px; padding: 6px 8px; background: var(--bg-color); color: var(--price-color); font-size: var(--font-xs); border-radius: var(--radius-xs); line-height: 1.5; }
+
+  /* Batch selector */
+  .batch-section {
+    background: var(--card-bg);
+    padding: var(--space-md);
+    margin-bottom: var(--space-sm);
+  }
+  .batch-section-title {
+    font-size: var(--font-base);
+    font-weight: 500;
+    color: var(--text-color);
+    margin-bottom: var(--space-md);
+  }
+  .batch-grid {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  .batch-card {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: var(--space-md) 10px 10px 6px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .batch-card:active { transform: scale(.97); }
+  .batch-card.active {
+    border-color: var(--primary-start);
+    background: var(--card-bg)8f5;
+  }
+  .batch-card .bc-radio {
+    flex-shrink: 0;
+    width: 18px; height: 18px;
+    border: 2px solid var(--text-light);
+    border-radius: 50%;
+    margin: 2px var(--space-sm) 0 var(--space-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+  }
+  .batch-card.active .bc-radio {
+    border-color: var(--primary-start);
+  }
+  .batch-card .bc-radio::after {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: transparent;
+    transition: all .15s;
+  }
+  .batch-card.active .bc-radio::after {
+    background: var(--primary-start);
+  }
+  .batch-card .bc-body {
+    flex: 1;
+    min-width: 0;
+  }
+  .batch-card .bc-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+  }
+  .batch-card .bc-name {
+    font-size: var(--font-sm);
+    font-weight: 600;
+    color: var(--text-color);
+  }
+  .batch-card.active .bc-name { color: var(--primary-start); }
+  .batch-card .bc-balance {
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+  }
+  .batch-card .bc-balance b { color: var(--text-color); }
+  .batch-card.active .bc-balance b { color: var(--primary-start); }
+  .batch-card .bc-badge {
+    font-size: var(--font-xs);
+    padding: 1px var(--space-xs);
+    border-radius: var(--radius-xs);
+    background: var(--border-color);
+    color: var(--text-tertiary);
+  }
+  .batch-card.active .bc-badge {
+    background: var(--primary-start);
+    color: var(--card-bg);
+  }
+  .batch-card .bc-sublabel {
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+    margin-top: 1px;
+  }
+  .batch-card .bc-help {
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: var(--border-color);
+    color: var(--text-tertiary);
+    font-size: var(--font-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .batch-card .bc-match {
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+    margin-top: var(--space-xs);
+  }
+  .batch-card .bc-match .match-yes { color: var(--success-color); }
+  .batch-card .bc-match .match-no { color: var(--text-light); }
+  .batch-card .bc-expire-date {
+    margin-top: var(--space-xs);
+    font-size: var(--font-xs);
+    color: var(--text-muted);
+  }
+  .batch-card .bc-expire-date.expiring-soon {
+    color: var(--warning-dark);
+  }
+  .batch-card.unavailable {
+    opacity: .5;
+    pointer-events: none;
+  }
+  .batch-card.unavailable .bc-radio { border-color: var(--text-disabled); }
+
+  /* Popup */
+  .batch-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 400;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .batch-popup-overlay.show { display: flex; }
+  .batch-popup {
+    width: calc(100% - 48px);
+    max-width: 300px;
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    padding: var(--space-lg);
+    max-height: 60%;
+    overflow-y: auto;
+  }
+  .batch-popup-title {
+    font-size: var(--font-base);
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: var(--space-xs);
+  }
+  .batch-popup-match {
+    font-size: var(--font-sm);
+    color: var(--text-tertiary);
+    margin-bottom: var(--space-sm);
+  }
+  .batch-popup-item {
+    font-size: var(--font-sm);
+    color: var(--text-color);
+    padding: var(--space-sm) 0;
+    border-bottom: 1px solid var(--bg-color);
+  }
+  .batch-popup-item:last-child { border-bottom: none; }
+  .batch-popup-close {
+    text-align: center;
+    padding-top: var(--space-md);
+    font-size: var(--font-sm);
+    color: var(--primary-start);
+    cursor: pointer;
+  }
+
+  /* Bottom confirm */
+  .confirm-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--card-bg);
+    padding: var(--space-sm) 12px 12px;
+    border-top: 1px solid var(--border-color);
+    z-index: 200;
+  }
+  .confirm-bar .btn-confirm {
+    width: 100%;
+    height: 44px;
+    border: none;
+    border-radius: var(--radius-xl);
+    background: linear-gradient(135deg, var(--primary-start), var(--price-color));
+    color: var(--card-bg);
+    font-size: var(--font-md);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .confirm-bar .btn-confirm:active { opacity: .85; }
+  .confirm-bar .btn-confirm:disabled {
+    background: var(--text-light);
+    cursor: not-allowed;
+  }
+</style>
+</head>
+<body>
+<div class="phone-frame">
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="icons">
+      <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+    </div>
+  </div>
+
+  <div class="sub-nav">
+    <div class="nav-bar">
+      <div class="back-btn" onclick="goBack()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <span class="nav-title">选择积分批次</span>
+    </div>
+  </div>
+
+  <div class="page-body">
+    <!-- Product summary -->
+    <div class="product-summary">
+      <div class="product-summary-title">当前订单商品</div>
+      <div id="productList"></div>
+    </div>
+
+    <!-- Batch selector -->
+    <div class="batch-section">
+      <div class="batch-section-title">选择积分批次</div>
+      <div class="batch-grid" id="batchGrid"></div>
+    </div>
+  </div>
+
+  <!-- Confirm button -->
+  <div class="confirm-bar">
+    <button class="btn-confirm" id="btnConfirm" onclick="confirmSelect()">确认选择</button>
+  </div>
+
+  <!-- Popup container -->
+  <div id="popupContainer"></div>
+</div>
+
+<script src="../js/auth.js"></script>
+<script src="../js/auth-guard.js"></script>
+<script src="../js/common.js"></script>
+<script>
+(function() {
+  var POINTS_BATCHES = [
+    { id: 'B001', type: 'sku',      label: '指定商品积分', name: '5月生活积分', subLabel: '蓝牙耳机', balance: 5000,  matchAttr: 'sku',      matchValue: 'SKU002', expireDate: '2026-06-30 23:59:59' },
+    { id: 'B002', type: 'special',  label: '特殊商品积分', name: '劳动节积分', subLabel: '热销商品', balance: 2000,  matchAttr: 'tags',     matchValue: '热销', expireDate: '2026-06-01 23:59:59' },
+    { id: 'B003', type: 'brand',    label: '品牌商品积分', name: '品牌福利积分', subLabel: 'T恤品牌', balance: 3000,  matchAttr: 'brand',    matchValue: 'brand-tshirt', expireDate: '2026-06-03 16:00:00', scopeList: ['T恤品牌', '运动品牌', '潮牌'] },
+    { id: 'B004', type: 'category', label: '分类商品积分', name: '家居焕新积分', subLabel: '家居生活', balance: 8000,  matchAttr: 'category', matchValue: 'cat-home', expireDate: '2026-12-31 23:59:59', scopeList: ['家居生活', '数码配件', '个人护理'] },
+    { id: 'B005', type: 'general',  label: '通兑商品积分', name: '签到积分', subLabel: '全场通用', balance: 12000, matchAttr: null,       matchValue: null, expireDate: '2027-01-01 00:00:00' },
+    { id: 'B006', type: 'general',  label: '通兑商品积分', name: '活动积分', subLabel: '全场通用', balance: 50000, matchAttr: null,       matchValue: null, expireDate: '2027-06-30 00:00:00' }
+  ];
+
+  var products = [];
+  var selectedBatches = [];
+  function sameGroup(a, b) {
+    return a && b && a.type === b.type && a.matchAttr === b.matchAttr && a.matchValue === b.matchValue;
+  }
+  var orderType = localStorage.getItem('order_type') || 'product';
+
+  // Load products from localStorage
+  try {
+    var data = localStorage.getItem('order_products');
+    if (data) products = JSON.parse(data);
+  } catch(e) {}
+
+  // Load previously selected batch
+  var prevSelection = [];
+  try {
+    var rawIds = localStorage.getItem('selected_batch_ids');
+    if (rawIds) prevSelection = JSON.parse(rawIds) || [];
+    else if (localStorage.getItem('selected_batch_id')) prevSelection = [localStorage.getItem('selected_batch_id')];
+  } catch(e) {}
+
+  function getBatch(id) {
+    for (var i = 0; i < POINTS_BATCHES.length; i++) {
+      if (POINTS_BATCHES[i].id === id) return POINTS_BATCHES[i];
+    }
+    return null;
+  }
+
+  function isMatched(batchId, product) {
+    var b = getBatch(batchId);
+    if (!b) return false;
+    if (b.matchAttr === null) return true;
+    if (b.matchAttr === 'tags') {
+      var tags = (product.tags || '').split(',');
+      return tags.indexOf(b.matchValue) !== -1;
+    }
+    return product[b.matchAttr] === b.matchValue;
+  }
+
+  function getMatchedProducts(batchId) {
+    return products.filter(function(p) { return isMatched(batchId, p); });
+  }
+
+  function getMatchedTotal(batchId) {
+    return getMatchedProducts(batchId).reduce(function(s, p) { return s + p.price * p.qty; }, 0);
+  }
+
+  function getMaxConsumable(batchId) {
+    var b = getBatch(batchId);
+    if (!b) return 0;
+    var matchedTotal = Math.round(getMatchedTotal(batchId) * 100);
+    return Math.min(b.balance, matchedTotal);
+  }
+
+  function findBestBatch() {
+    var best = null, bestVal = 0;
+    POINTS_BATCHES.forEach(function(b) {
+      if ((orderType === 'movie' || orderType === 'cake' || orderType === 'virtual') && b.type !== 'general') return;
+      var v = getMaxConsumable(b.id);
+      if (v > bestVal) { bestVal = v; best = b.id; }
+    });
+    return best;
+  }
+  // 推荐组：可消耗最大的批次所在的同组（同 type+matchAttr+matchValue）全部 id
+  function findBestGroup() {
+    var best = null, bestVal = 0;
+    POINTS_BATCHES.forEach(function(b) {
+      if ((orderType === 'movie' || orderType === 'cake' || orderType === 'virtual') && b.type !== 'general') return;
+      var v = getMaxConsumable(b.id);
+      if (v > bestVal) { bestVal = v; best = b; }
+    });
+    if (!best) return [];
+    return POINTS_BATCHES.filter(function(b) {
+      return b.type === best.type && b.matchAttr === best.matchAttr && b.matchValue === best.matchValue;
+    }).map(function(b) { return b.id; });
+  }
+
+  function renderProductSummary() {
+    var html = '';
+    products.forEach(function(p) {
+      var matchHtml = '';
+      var splitHint = '';
+      if (selectedBatches.length) {
+        var isMatch = isMatched(selectedBatches[0], p);
+        if (isMatch) {
+          matchHtml = '<span class="ps-match matched">可用</span>';
+        } else {
+          matchHtml = '<span class="ps-match unmatched">不支持</span>';
+          splitHint = '<div class="ps-split-hint">该商品不适用所选积分，建议此商品分开下单以便使用积分</div>';
+        }
+      }
+      html += '<div class="product-summary-item">';
+      html += '<span class="ps-name">' + p.name + '</span>';
+      html += '<span class="ps-price">&yen;' + (p.price * p.qty).toFixed(2) + '</span>';
+      html += matchHtml;
+      html += splitHint;
+      html += '</div>';
+    });
+    document.getElementById('productList').innerHTML = html;
+  }
+
+  function renderBatchSelector() {
+    var html = '';
+    var bestGroup = findBestGroup();
+    // 多选：按到期先后升序，先扣最快过期的批次
+    var sorted = POINTS_BATCHES.slice().sort(function(a, b) {
+      return new Date(a.expireDate).getTime() - new Date(b.expireDate).getTime();
+    });
+    var selRep = selectedBatches.length ? getBatch(selectedBatches[0]) : null;
+
+    // "Not using" option
+    html += '<div class="batch-card' + (selectedBatches.length === 0 ? ' active' : '') + '" data-batch="" onclick="selectBatch(this)">';
+    html += '<div class="bc-radio"></div>';
+    html += '<div class="bc-body"><div class="bc-header"><span class="bc-name">不使用积分</span></div>';
+    html += '<div class="bc-sublabel" style="color:var(--text-tertiary)">不使用积分抵扣</div>';
+    html += '</div></div>';
+
+    sorted.forEach(function(b) {
+      var matched = getMatchedProducts(b.id);
+      var maxCons = getMaxConsumable(b.id);
+      var isActive = selectedBatches.indexOf(b.id) !== -1;
+      var isBest = bestGroup.indexOf(b.id) !== -1;
+      var baseDisabled = (orderType === 'movie' || orderType === 'cake' || orderType === 'virtual') && b.type !== 'general';
+      // 调整2：订单商品均未命中的批次置灰
+      var notMatchedDisabled = products.length > 0 && matched.length === 0;
+      // 调整1/2：已选某组后，与该组不同类型/范围的批次置灰（互斥不可叠加）
+      var groupDisabled = selRep && !sameGroup(selRep, b) && selectedBatches.indexOf(b.id) === -1;
+      var disabled = baseDisabled || notMatchedDisabled || groupDisabled;
+      var disabledLabel = baseDisabled ? (orderType === 'cake' ? '不支持蛋糕订单' : orderType === 'virtual' ? '不支持虚拟商品订单' : '不支持电影票') : notMatchedDisabled ? '未命中订单商品' : '与已选类型不同，不可叠加';
+      html += '<div class="batch-card' + (isActive ? ' active' : '') + (disabled ? ' unavailable' : '') + '" data-batch="' + b.id + '" onclick="selectBatch(this)">';
+      html += '<div class="bc-radio"></div>';
+      html += '<div class="bc-body">';
+      html += '<div class="bc-header"><span class="bc-name">' + b.name + '</span>';
+      html += '<span class="bc-balance">余额 <b>' + b.balance.toLocaleString() + '</b></span>';
+      if (isBest) html += '<span class="bc-badge">推荐</span>';
+      html += '</div>';
+      var showScope = b.type !== 'sku' && b.type !== 'special';
+      var scopeText = '';
+      if (b.scopeList) scopeText = b.scopeList[0] + '等';
+      else scopeText = b.subLabel;
+      html += '<div class="bc-sublabel">' + (showScope ? b.label + ' · ' + scopeText : b.label) + (disabled ? '<span style="color:var(--text-muted);margin-left:6px;">' + disabledLabel + '</span>' : '') + ' <span class="bc-help" onclick="event.stopPropagation();showHelp(\'' + b.id + '\')">?</span></div>';
+      html += '<div class="bc-match">';
+      if (matched.length > 0) {
+        html += '<span class="match-yes">匹配' + matched.length + '件商品</span>，可消耗' + maxCons + '积分';
+      } else {
+        html += '<span class="match-no">无匹配商品</span>';
+      }
+      var diffMs = new Date(b.expireDate).getTime() - Date.now();
+      var diffDays = Math.ceil(diffMs / 86400000);
+      if (diffDays <= 30) {
+        html += '<div class="bc-expire-date expiring-soon">该批次积分' + diffDays + '天后过期</div>';
+      } else {
+        html += '<div class="bc-expire-date">在' + b.expireDate + '前有效</div>';
+      }
+      html += '</div></div></div>';
+    });
+    document.getElementById('batchGrid').innerHTML = html;
+  }
+
+  window.selectBatch = function(el) {
+    var id = el.dataset.batch;
+    if (id === '') {
+      selectedBatches = [];
+    } else {
+      var idx = selectedBatches.indexOf(id);
+      if (idx !== -1) {
+        selectedBatches.splice(idx, 1);
+      } else {
+        // 调整3：已选积分已覆盖订单全额时，继续勾选同组批次给提示（不阻止）
+        if (selectedBatches.length) {
+          var rep = getBatch(selectedBatches[0]);
+          var newB = getBatch(id);
+          if (rep && newB && sameGroup(rep, newB)) {
+            var sumBal = selectedBatches.reduce(function(s,sid){ var bb=getBatch(sid); return s + (bb?bb.balance:0); },0);
+            var cap = Math.round(getMatchedTotal(selectedBatches[0]) * 100);
+            if (cap > 0 && sumBal >= cap) {
+              alert('当前积分已可全额抵扣订单金额，继续选择该批次不会扣减更多积分。');
+            }
+          }
+        }
+        selectedBatches.push(id);
+      }
+    }
+    renderBatchSelector();
+    renderProductSummary();
+  };
+
+  window.showHelp = function(batchId) {
+    var b = getBatch(batchId);
+    if (!b) return;
+    var matched = products.filter(function(p) { return isMatched(batchId, p); });
+    var matchInfo = '';
+    if (b.matchAttr === null) matchInfo = '全场通用';
+    else if (b.matchAttr === 'sku') matchInfo = '适用商品：' + b.subLabel;
+    else if (b.matchAttr === 'tags') matchInfo = '适用标签：' + b.matchValue;
+    else if (b.matchAttr === 'brand') matchInfo = '适用品牌：' + (b.scopeList ? b.scopeList.join('、') : b.subLabel);
+    else if (b.matchAttr === 'category') matchInfo = '适用分类：' + (b.scopeList ? b.scopeList.join('、') : b.subLabel);
+    var items = '';
+    if (b.scopeList) {
+      b.scopeList.forEach(function(s) {
+        items += '<div class="batch-popup-item">' + s + '</div>';
+      });
+    } else if (b.matchAttr === null) {
+      items = '<div class="batch-popup-item">全部商品均可使用</div>';
+    } else {
+      matched.forEach(function(p) {
+        items += '<div class="batch-popup-item">' + p.name + '</div>';
+      });
+      if (!matched.length) items = '<div class="batch-popup-item">当前订单无匹配商品</div>';
+    }
+    var popup = '<div class="batch-popup-overlay show" id="helpPopup" onclick="closeHelp(event)">';
+    popup += '<div class="batch-popup" onclick="event.stopPropagation()">';
+    popup += '<div class="batch-popup-title">' + b.name + '</div>';
+    popup += '<div class="batch-popup-match">' + matchInfo + '</div>';
+    popup += '<div style="font-size:var(--font-sm);color:var(--text-tertiary);margin:var(--space-sm) 0 var(--space-xs);">匹配商品：</div>';
+    popup += items;
+    popup += '<div class="batch-popup-close" onclick="closeHelp()">关闭</div>';
+    popup += '</div></div>';
+    document.getElementById('popupContainer').innerHTML = popup;
+  };
+
+  window.closeHelp = function(e) {
+    if (e && e.target !== e.currentTarget) return;
+    document.getElementById('popupContainer').innerHTML = '';
+  };
+
+  window.confirmSelect = function() {
+    if (selectedBatches.length) {
+      localStorage.setItem('selected_batch_ids', JSON.stringify(selectedBatches));
+      localStorage.setItem('selected_batch_id', selectedBatches[0]);  // 兼容订单页主流程的单值读取
+    } else {
+      localStorage.removeItem('selected_batch_ids');
+      localStorage.removeItem('selected_batch_id');
+    }
+    location.href = localStorage.getItem('return_page') || 'order_product.html';
+  };
+
+  window.goBack = function() {
+    location.href = localStorage.getItem('return_page') || 'order_product.html';
+  };
+
+  // V0.7 场景切换（供框外按钮调用）
+  window.setScene = function(ids) {
+    selectedBatches = (ids || []).slice();
+    renderBatchSelector();
+    renderProductSummary();
+  };
+  // 演示：余额已够提示（设小金额商品 + 选一张大余额批次；继续选同组会弹提示）
+  window.setSceneLimitDemo = function() {
+    products = [{ name: '演示商品（小金额）', price: 50, qty: 1 }];
+    selectedBatches = ['B005'];
+    renderBatchSelector();
+    renderProductSummary();
+  };
+  // 演示：拆单提示（选品牌积分→耳机不适用→商品处提示拆单）
+  window.setSceneSplitDemo = function() {
+    products = [
+      { name: '蓝牙耳机', price: 89, qty: 1, sku: 'SKU002' },
+      { name: 'T恤', price: 99, qty: 1, brand: 'brand-tshirt' }
+    ];
+    selectedBatches = ['B003']; // 选品牌积分（适用T恤），耳机不适用
+    renderBatchSelector();
+    renderProductSummary();
+  };
+  // 清除：恢复订单商品 + 清空选择
+  window.clearScene = function() {
+    try { var d = localStorage.getItem('order_products'); products = d ? JSON.parse(d) : []; } catch(e) { products = []; }
+    selectedBatches = [];
+    renderBatchSelector();
+    renderProductSummary();
+  };
+
+  // Init：回显之前选中的批次组（多选默认全部可选，不预选）
+  selectedBatches = prevSelection.slice();
+  if (orderType === 'movie' || orderType === 'cake' || orderType === 'virtual') {
+    selectedBatches = selectedBatches.filter(function(id) { var b = getBatch(id); return b && b.type === 'general'; });
+  }
+  renderBatchSelector();
+  renderProductSummary();
+})();
+</script>
+<script src="../js/theme-switcher.js"></script>
+<!-- V0.7 场景切换（框外，精简）-->
+<style>
+  .v07-scene { position: fixed; top: 8px; left: 8px; z-index: 100; display: flex; flex-wrap: wrap; gap: 6px; max-width: 180px; }
+  .v07-scene button { height: 26px; padding: 0 8px; font-size: 11px; line-height: 1; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-secondary); border-radius: var(--radius-xs); cursor: pointer; white-space: nowrap; }
+  .v07-scene button:hover { border-color: var(--primary-start); color: var(--primary-start); }
+</style>
+<div class="v07-scene">
+  <button onclick="setScene(['B005','B006'])">演示：两张通兑叠加</button>
+  <button onclick="setScene(['B001'])">演示：跨类型互斥</button>
+  <button onclick="setSceneLimitDemo()">演示：余额已够提示</button>
+  <button onclick="setSceneSplitDemo()">演示：拆单提示</button>
+  <button onclick="clearScene()">清除</button>
+</div>
+</body>
+</html>

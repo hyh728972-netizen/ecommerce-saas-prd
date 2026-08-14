@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>品牌商城数据看板 - 品牌商城运营后台</title>
+    <link rel="stylesheet" href="base.css">
+    <style>
+        .metrics-section { display: flex; flex-direction: column; gap: 16px; }
+        .metrics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+        .metric-item { min-height: 100px; padding: 16px; }
+        .metric-content { display: flex; justify-content: space-between; align-items: center; height: 100%; }
+        .metric-left { display: flex; flex-direction: column; }
+        .metric-right { width: 120px; height: 40px; flex-shrink: 0; }
+        .mini-chart { width: 100%; height: 100%; }
+        .metric-trend { font-size: 13px; margin-top: 8px; }
+        .metric-trend.positive { color: var(--success-color); }
+        .metric-trend.negative { color: var(--error-color); }
+        .btn-toggle { height: 32px; padding: 0 16px; border-radius: var(--border-radius-sm); font-size: 13px; cursor: pointer; border: 1px solid var(--primary-color); background: var(--card-bg); color: var(--primary-color); transition: all 0.3s; }
+        .btn-toggle:hover { background: var(--primary-color); color: var(--card-bg); }
+        .btn-toggle.active { background: var(--primary-color); color: var(--card-bg); }
+        .toggle-group { display: flex; border: 1px solid var(--primary-color); border-radius: var(--border-radius-sm); overflow: hidden; }
+        .toggle-group .btn-toggle { border-radius: 0; border: none; }
+        .toggle-group .btn-toggle:first-child { border-right: 1px solid var(--primary-color); }
+        .donut-chart-area { display: flex; flex-direction: column; align-items: center; padding: 16px; }
+        .donut-chart { width: 180px; height: 180px; }
+        .donut-legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; justify-content: center; }
+        .donut-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+        .donut-legend-item::before { content: ''; width: 10px; height: 10px; border-radius: 2px; background: var(--legend-color, #1890ff); }
+        .rank-tabs { display: flex; gap: 4px; background: #f0f0f0; padding: 4px; border-radius: 8px; }
+        .rank-tab { padding: 6px 16px; font-size: 13px; color: #595959; cursor: pointer; border-radius: 6px; transition: all 0.3s; }
+        .rank-tab:hover { color: #1890ff; }
+        .rank-tab.active { background: #fff; color: #1890ff; font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .sortable-header { cursor: pointer; user-select: none; }
+        .sortable-header:hover { color: #1890ff; }
+        .sort-arrow { font-size: 10px; margin-left: 2px; }
+        .pagination-info { font-size: 13px; color: #8c8c8c; margin-right: 12px; }
+        .page-btn { height: 28px; padding: 0 12px; border: 1px solid #d9d9d9; border-radius: 4px; background: #fff; font-size: 13px; cursor: pointer; margin-left: 4px; }
+        .page-btn:hover:not(:disabled) { border-color: #1890ff; color: #1890ff; }
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        /* 终端展示条 */
+        .terminal-bar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; background: var(--card-bg); padding: 14px 24px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; }
+        .mall-name { font-size: 15px; font-weight: 600; color: var(--text-color); }
+        .mode-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 500; }
+        .mode-badge.direct { background: #e6f7ff; color: #1890ff; border: 1px solid #91caff; }
+        .mode-badge.distributor { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+        .terminal-badge { display: inline-flex; align-items: center; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 500; background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sider">
+            <div class="sider-logo">
+                <div class="title">品牌商城运营后台</div>
+                <div class="subtitle">运营管理系统</div>
+            </div>
+            <div class="sider-menu">
+                <div class="menu-item active">首页</div>
+            </div>
+        </aside>
+
+        <div class="main">
+            <header class="header">
+                <div class="header-action icon-only"><span class="header-icon refresh"></span></div>
+                <div class="header-action icon-only"><span class="header-icon message"></span></div>
+                <div class="header-action manual"><span class="header-icon book"></span><span>操作手册</span></div>
+                <div class="header-avatar"></div>
+            </header>
+
+            <div class="tabs-bar">
+                <div class="tab-item">商品品牌 <span class="tab-close">×</span></div>
+                <div class="tab-item">商品类目 <span class="tab-close">×</span></div>
+                <div class="tab-item">商品列表 <span class="tab-close">×</span></div>
+                <div class="tab-item active" id="task-tab" style="display:none;"></div>
+            </div>
+
+            <div class="quick-nav">
+                <div class="quick-nav-list" id="quick-nav-list"></div>
+            </div>
+
+            <main class="content">
+                <div class="page-view" id="dashboard-page">
+                <div class="terminal-bar">
+                    <span class="mall-name" id="mall-name"></span>
+                    <span class="terminal-badge" id="terminal-badge"></span>
+                    <span class="mode-badge" id="mode-badge"></span>
+                </div>
+
+                <section style="margin-bottom: 16px;">
+                    <div class="metrics-section">
+                        <div class="metrics-row" id="metrics-row-1"></div>
+                        <div class="metrics-row" id="metrics-row-2"></div>
+                    </div>
+                </section>
+
+                <section class="panel-row" style="display: block;">
+                    <div class="card" style="width: 100%; box-sizing: border-box;">
+                        <div class="panel-header">
+                            <div><div class="panel-title">订单趋势</div></div>
+                            <div class="panel-tools">
+                                <select class="panel-select" id="brand-order-trend-period-select">
+                                    <option value="day">自然日</option>
+                                    <option value="month">自然月</option>
+                                    <option value="quarter">季度</option>
+                                    <option value="year">年</option>
+                                </select>
+                                <span id="brand-date-range-container">
+                                    <input type="date" class="panel-date" id="brand-order-trend-start-date"> -
+                                    <input type="date" class="panel-date" id="brand-order-trend-end-date">
+                                </span>
+                            </div>
+                        </div>
+                        <div class="chart-area" style="height: 320px;">
+                            <svg class="chart-svg" id="brand-order-trend-chart" viewBox="0 0 900 300" preserveAspectRatio="none"></svg>
+                        </div>
+                        <div class="legend" style="text-align: center; margin-top: 8px;">
+                            <span style="margin-right: 20px;"><span style="display: inline-block; width: 12px; height: 12px; background: #1890ff; opacity: 0.6; margin-right: 4px; vertical-align: middle;"></span>支付订单数</span>
+                            <span><span style="display: inline-block; width: 12px; height: 12px; background: #ff4d4f; margin-right: 4px; vertical-align: middle;"></span>产生订单金额</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel-row">
+                    <div class="card">
+                        <div class="panel-header">
+                            <div><div class="panel-title">商品销量排行</div></div>
+                            <div class="panel-tools">
+                                <button class="page-btn" id="show-more-btn">显示更多</button>
+                            </div>
+                        </div>
+                        <table class="product-rank-table">
+                            <thead><tr><th>排名</th><th>商品信息</th><th>商品编号</th><th>商品分类</th><th class="sortable-header" id="sales-sort-header">销量</th><th class="sortable-header" id="amount-sort-header">销售额</th></tr></thead>
+                            <tbody id="product-rank-body"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="card">
+                        <div class="panel-header">
+                            <div><div class="panel-title">各类目销售额占比</div></div>
+                        </div>
+                        <div class="donut-chart-area">
+                            <svg class="donut-chart" id="donut-chart" viewBox="0 0 200 200"></svg>
+                            <div class="donut-legend" id="donut-legend"></div>
+                        </div>
+                    </div>
+                </section>
+                </div>
+
+                <div class="page-view hidden" id="task-page">
+                    <div class="task-page">
+                        <div class="task-header">
+                            <div>
+                                <div class="task-title" id="task-page-title">问题处理页</div>
+                                <div class="task-desc" id="task-page-desc">进入对应问题处理页面后，可直接筛选、查看并处理待办任务。</div>
+                            </div>
+                            <button class="btn btn-default" type="button" id="back-dashboard-button">返回首页看板</button>
+                        </div>
+
+                        <div class="task-toolbar">
+                            <div class="task-filters">
+                                <input class="task-filter" id="task-filter-keyword" type="text" placeholder="请输入关键词">
+                                <select class="task-filter" id="task-filter-status"><option>全部状态</option></select>
+                            </div>
+                            <div class="task-actions">
+                                <button class="btn btn-primary" type="button">查询</button>
+                                <button class="btn btn-default" type="button">重置</button>
+                            </div>
+                        </div>
+
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead><tr id="task-table-head"></tr></thead>
+                                <tbody id="task-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="shortcut-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">添加快捷入口</div>
+                <button class="modal-close" type="button" id="shortcut-modal-close">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="shortcut-field">
+                    <div class="shortcut-label">选择菜单：</div>
+                    <div class="shortcut-select-box" id="shortcut-select-box"></div>
+                </div>
+                <div class="shortcut-dropdown" id="shortcut-dropdown"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" type="button" id="shortcut-save-button">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="base.js"></script>
+    <script>
+        const shortcutOptions = [
+            { key: 'order_list', name: '订单列表' },
+            { key: 'product_list', name: '商品列表' },
+            { key: 'inventory_manage', name: '库存管理' },
+            { key: 'settlement', name: '结算管理' },
+            { key: 'review_manage', name: '评价管理' },
+            { key: 'sales_report', name: '销售报表' },
+            { key: 'brand_manage', name: '品牌管理' },
+            { key: 'promotion', name: '营销活动' }
+        ];
+
+        const defaultShortcutKeys = ['order_list', 'product_list', 'inventory_manage'];
+        let selectedShortcutKeys = [...defaultShortcutKeys];
+        let draftShortcutKeys = [...selectedShortcutKeys];
+        let sortAscending = false;
+        let sortByAmount = false;
+        let currentPage = 1;
+        let displayCount = 15; // 默认显示15条
+        const maxDisplayCount = 100;
+
+        // 当前品牌商城（登录即对应一个具体品牌商城），含单一终端与整体指标值
+        const currentMall = {
+            name: '星悦美妆',
+            mode: 'direct', // 直销/分销，仅展示
+            terminal: 'miniapp', // 本商城开通的唯一终端（三选一）
+            metrics: { orderAmount: 118.6, orderCount: 3680, productTotal: 286, onShelf: 258, users: 5620 },
+        };
+
+        // 生成100条模拟数据
+        let productRankData = null;
+        function getProductRankData() {
+            if (!productRankData) {
+                productRankData = generateProductRankData();
+            }
+            return productRankData;
+        }
+        function generateProductRankData() {
+            const brands = ['某品牌'];
+            const products = ['面膜套装', '精华液', '口红', '粉底液', '面霜', '身体乳', '唇釉', '护手霜', '眉笔', '卸妆水', '乳液', '防晒霜', '眼影', '腮红', '睫毛膏', '香水', '沐浴露', '洗发水'];
+            const data = [];
+            for (let i = 1; i <= 100; i++) {
+                const product = products[Math.floor(Math.random() * products.length)];
+                const category = products.indexOf(product) < 5 ? '护肤' : products.indexOf(product) < 9 ? '彩妆' : products.indexOf(product) < 13 ? '香氛' : '个护';
+                const basePrice = Math.floor(Math.random() * 400) + 50;
+                const sales = Math.round((Math.floor(Math.random() * 2800) + 20));
+                const amount = sales * basePrice;
+                data.push({
+                    name: `${brands[0]}${product}`,
+                    code: `BP202604${String(i).padStart(5, '0')}`,
+                    price: `¥${basePrice}`,
+                    category: category,
+                    sales: sales,
+                    amount: amount
+                });
+            }
+            return data.sort((a, b) => b.sales - a.sales);
+        }
+
+        // 各类目占比基础数据
+        const categorySalesData = [
+            { name: '护肤', value: 45, color: '#1890ff' },
+            { name: '彩妆', value: 30, color: '#52c41a' },
+            { name: '香氛', value: 15, color: '#faad14' },
+            { name: '个护', value: 10, color: '#722ed1' },
+            { name: '美甲', value: 8, color: '#eb2f96' },
+            { name: '美容仪', value: 7, color: '#13c2c2' },
+            { name: '身体护理', value: 6, color: '#fa8c16' },
+            { name: '唇部护理', value: 5, color: '#a0d911' },
+            { name: '面部护理', value: 4, color: '#2f54eb' },
+            { name: '防晒护理', value: 3, color: '#722ed1' },
+            { name: '其他', value: 17, color: '#8c8c8c' }
+        ];
+
+        // 品牌商城订单趋势数据
+        const brandOrderTrendData = {
+            day: { labels: Array.from({length: 30}, (_, i) => `${i + 1}日`), volume: Array.from({length: 30}, () => Math.floor(Math.random() * 150) + 80), amount: Array.from({length: 30}, () => (Math.random() * 4 + 2).toFixed(1)) },
+            month: { labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'], volume: [6235, 5896, 7235, 6562, 7235, 7876, 8256, 7562, 6895, 7456, 8123, 9256], amount: [165.6, 148.5, 198.3, 175.6, 198.3, 226.5, 238.6, 205.8, 185.6, 208.5, 225.6, 265.6] },
+            quarter: { labels: ['2025Q4', '2025Q3', '2025Q2', '2026Q1'], volume: [18623, 17856, 20735, 21673], amount: [485.6, 458.2, 525.8, 568.5] },
+            year: { labels: Array.from({length: 12}, (_, i) => `${2014 + i}年`), volume: Array.from({length: 12}, (_, i) => Math.floor(Math.random() * 40000) + 60000), amount: Array.from({length: 12}, (_, i) => (Math.random() * 1500 + 1800).toFixed(1)) }
+        };
+
+        // 设置品牌商城默认日期范围
+        (function initBrandDefaultDates() {
+            updateBrandDateSelectors('day');
+        })();
+
+        // 根据周期类型更新品牌商城日期选择器
+        function updateBrandDateSelectors(period) {
+            const container = document.getElementById('brand-date-range-container');
+            let html = '';
+
+            if (period === 'day') {
+                html = '<input type="date" class="panel-date" id="brand-order-trend-start-date"> - <input type="date" class="panel-date" id="brand-order-trend-end-date">';
+            } else if (period === 'month') {
+                html = '<input type="month" class="panel-date" id="brand-order-trend-start-month"> - <input type="month" class="panel-date" id="brand-order-trend-end-month">';
+            } else if (period === 'quarter') {
+                html = '<select class="panel-select" id="brand-order-trend-start-quarter"></select> - <select class="panel-select" id="brand-order-trend-end-quarter"></select>';
+            } else if (period === 'year') {
+                html = '<select class="panel-select" id="brand-order-trend-start-year"></select> - <select class="panel-select" id="brand-order-trend-end-year"></select>';
+            }
+
+            container.innerHTML = html;
+
+            if (period === 'day') {
+                initBrandDaySelector();
+            } else if (period === 'month') {
+                initBrandMonthSelector();
+            } else if (period === 'quarter') {
+                initBrandQuarterSelector();
+            } else if (period === 'year') {
+                initBrandYearSelector();
+            }
+        }
+
+        // 初始化品牌商城日期选择器
+        function initBrandDaySelector() {
+            const today = new Date();
+            // 不包含当天，默认结束日期为昨天
+            const yesterday = new Date(today);
+            yesterday.setDate(today.getDate() - 1);
+            const thirtyDaysAgo = new Date(yesterday);
+            thirtyDaysAgo.setDate(yesterday.getDate() - 30);
+
+            const startDateInput = document.getElementById('brand-order-trend-start-date');
+            const endDateInput = document.getElementById('brand-order-trend-end-date');
+
+            if (startDateInput && endDateInput) {
+                startDateInput.value = thirtyDaysAgo.toISOString().split('T')[0];
+                endDateInput.value = yesterday.toISOString().split('T')[0];
+
+                startDateInput.max = yesterday.toISOString().split('T')[0];
+                endDateInput.min = thirtyDaysAgo.toISOString().split('T')[0];
+                endDateInput.max = yesterday.toISOString().split('T')[0];
+                startDateInput.min = '2023-01-01';
+
+                // 起始日期变化时限制结束日期并刷新图表
+                startDateInput.addEventListener('change', function() {
+                    const start = new Date(this.value);
+                    const maxEnd = new Date(start);
+                    maxEnd.setDate(start.getDate() + 30);
+                    const maxEndStr = maxEnd.toISOString().split('T')[0];
+                    const yesterdayStr = yesterday.toISOString().split('T')[0];
+                    endDateInput.max = maxEndStr > yesterdayStr ? yesterdayStr : maxEndStr;
+
+                    if (new Date(endDateInput.value) > maxEnd) {
+                        endDateInput.value = maxEndStr > yesterdayStr ? yesterdayStr : maxEndStr;
+                    }
+                    endDateInput.min = this.value;
+                    renderBrandOrderTrendChart();
+                });
+
+                // 结束日期变化时限制起始日期并刷新图表
+                endDateInput.addEventListener('change', function() {
+                    const end = new Date(this.value);
+                    const minStart = new Date(end);
+                    minStart.setDate(end.getDate() - 30);
+                    const minStartStr = minStart.toISOString().split('T')[0];
+                    startDateInput.min = minStartStr;
+
+                    if (new Date(startDateInput.value) < minStart) {
+                        startDateInput.value = minStartStr;
+                    }
+                    startDateInput.max = this.value;
+                    renderBrandOrderTrendChart();
+                });
+            }
+        }
+
+        // 初始化品牌商城月份选择器
+        function initBrandMonthSelector() {
+            const today = new Date();
+            // 包含当月，但不包含当天的数据，默认结束月份为当月
+            const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            const twelveMonthsAgo = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 12, 1);
+
+            const startMonthInput = document.getElementById('brand-order-trend-start-month');
+            const endMonthInput = document.getElementById('brand-order-trend-end-month');
+
+            if (startMonthInput && endMonthInput) {
+                startMonthInput.value = twelveMonthsAgo.toISOString().slice(0, 7);
+                endMonthInput.value = currentMonth.toISOString().slice(0, 7);
+
+                startMonthInput.max = currentMonth.toISOString().slice(0, 7);
+                endMonthInput.min = twelveMonthsAgo.toISOString().slice(0, 7);
+                endMonthInput.max = currentMonth.toISOString().slice(0, 7);
+                startMonthInput.min = '2023-01';
+
+                // 起始月份变化时限制结束月份并刷新图表
+                startMonthInput.addEventListener('change', function() {
+                    const start = new Date(this.value + '-01');
+                    const maxEnd = new Date(start.getFullYear(), start.getMonth() + 12, 1);
+                    const maxEndStr = maxEnd.toISOString().slice(0, 7);
+                    const currentMonthStr = currentMonth.toISOString().slice(0, 7);
+                    endMonthInput.max = maxEndStr > currentMonthStr ? currentMonthStr : maxEndStr;
+
+                    if (new Date(endMonthInput.value + '-01') > maxEnd) {
+                        endMonthInput.value = maxEndStr > currentMonthStr ? currentMonthStr : maxEndStr;
+                    }
+                    endMonthInput.min = this.value;
+                    renderBrandOrderTrendChart();
+                });
+
+                // 结束月份变化时限制起始月份并刷新图表
+                endMonthInput.addEventListener('change', function() {
+                    const end = new Date(this.value + '-01');
+                    const minStart = new Date(end.getFullYear(), end.getMonth() - 12, 1);
+                    const minStartStr = minStart.toISOString().slice(0, 7);
+                    startMonthInput.min = minStartStr;
+
+                    if (new Date(startMonthInput.value + '-01') < minStart) {
+                        startMonthInput.value = minStartStr;
+                    }
+                    startMonthInput.max = this.value;
+                    renderBrandOrderTrendChart();
+                });
+            }
+        }
+
+        // 初始化品牌商城季度选择器
+        function initBrandQuarterSelector() {
+            const today = new Date();
+            const currentYear = today.getFullYear();
+            const currentQuarter = Math.floor((today.getMonth() + 3) / 3);
+            // 包含当前季度
+
+            const startSelect = document.getElementById('brand-order-trend-start-quarter');
+            const endSelect = document.getElementById('brand-order-trend-end-quarter');
+
+            if (startSelect && endSelect) {
+                const startYear = 2023;
+                let options = '';
+                for (let year = currentYear; year >= startYear; year--) {
+                    for (let q = (year === currentYear ? currentQuarter : 4); q >= 1; q--) {
+                        const value = `${year}Q${q}`;
+                        options += `<option value="${value}">${value}</option>`;
+                    }
+                }
+                startSelect.innerHTML = options;
+                endSelect.innerHTML = options;
+
+                const fourQuartersAgo = new Date(currentYear, currentQuarter * 3 - 12, 1);
+                let defaultStartQ = `${fourQuartersAgo.getFullYear()}Q${Math.floor((fourQuartersAgo.getMonth() + 3) / 3)}`;
+                startSelect.value = defaultStartQ;
+                endSelect.value = `${currentYear}Q${currentQuarter}`;
+
+                startSelect.addEventListener('change', function() {
+                    const [startYear, startQ] = [parseInt(this.value), parseInt(this.value.slice(-1))];
+                    const startDate = new Date(startYear, (startQ - 1) * 3, 1);
+                    const maxEndDate = new Date(startDate.getFullYear(), startDate.getMonth() + 12, 1);
+
+                    let endOptions = '';
+                    for (let year = currentYear; year >= startYear; year--) {
+                        for (let q = (year === currentYear ? currentQuarter : 4); q >= 1; q--) {
+                            const qDate = new Date(year, (q - 1) * 3, 1);
+                            if (qDate <= maxEndDate) {
+                                const value = `${year}Q${q}`;
+                                endOptions += `<option value="${value}">${value}</option>`;
+                            }
+                        }
+                    }
+                    endSelect.innerHTML = endOptions;
+                    if (new Date(endSelect.value) > maxEndDate) {
+                        endSelect.value = endSelect.options[endSelect.options.length - 1].value;
+                    }
+                    renderBrandOrderTrendChart();
+                });
+
+                endSelect.addEventListener('change', function() {
+                    const [endYear, endQ] = [parseInt(this.value), parseInt(this.value.slice(-1))];
+                    const endDate = new Date(endYear, (endQ - 1) * 3, 1);
+                    const minStartDate = new Date(endDate.getFullYear(), endDate.getMonth() - 12, 1);
+
+                    let startOptions = '';
+                    for (let year = currentYear; year >= startYear; year--) {
+                        for (let q = (year === currentYear ? currentQuarter : 4); q >= 1; q--) {
+                            const qDate = new Date(year, (q - 1) * 3, 1);
+                            if (qDate >= minStartDate) {
+                                const value = `${year}Q${q}`;
+                                startOptions += `<option value="${value}">${value}</option>`;
+                            }
+                        }
+                    }
+                    startSelect.innerHTML = startOptions;
+                    if (new Date(startSelect.value) < minStartDate) {
+                        startSelect.value = startSelect.options[0].value;
+                    }
+                    renderBrandOrderTrendChart();
+                });
+            }
+        }
+
+        // 初始化品牌商城年份选择器
+        function initBrandYearSelector() {
+            const startSelect = document.getElementById('brand-order-trend-start-year');
+            const endSelect = document.getElementById('brand-order-trend-end-year');
+
+            if (startSelect && endSelect) {
+                // 生成年份选项（从2023年开始，包含今年）
+                const currentYear = new Date().getFullYear();
+                const startYear = 2023;
+                let options = '';
+                for (let year = currentYear; year >= startYear; year--) {
+                    options += `<option value="${year}">${year}年</option>`;
+                }
+                startSelect.innerHTML = options;
+                endSelect.innerHTML = options;
+
+                startSelect.value = startYear;
+                endSelect.value = currentYear;
+
+                startSelect.addEventListener('change', function() {
+                    if (parseInt(this.value) > parseInt(endSelect.value)) {
+                        endSelect.value = this.value;
+                    }
+                    renderBrandOrderTrendChart();
+                });
+
+                endSelect.addEventListener('change', function() {
+                    if (parseInt(this.value) < parseInt(startSelect.value)) {
+                        startSelect.value = this.value;
+                    }
+                    renderBrandOrderTrendChart();
+                });
+            }
+        }
+
+        // 取本商城整体趋势数据
+        function getTrendForTerminal(period) {
+            return brandOrderTrendData[period];
+        }
+
+        // 渲染品牌商城头部（名称 + 终端类型 + 经营模式）
+        function renderMallHeader() {
+            const tMap = { miniapp: '小程序商城', pc: 'PC端商城', h5: 'H5商城' };
+            document.getElementById('mall-name').textContent = currentMall.name;
+            document.getElementById('terminal-badge').textContent = tMap[currentMall.terminal];
+            const badge = document.getElementById('mode-badge');
+            badge.textContent = currentMall.mode === 'direct' ? '直销模式' : '分销模式';
+            badge.className = 'mode-badge ' + currentMall.mode;
+        }
+
+        // 渲染关键指标
+        function renderMetrics() {
+            const m = currentMall.metrics;
+            const cards = [
+                { label: '订单金额（实时）', value: '¥' + m.orderAmount.toFixed(1) + '万', trend: '昨日：¥' + (m.orderAmount * 0.9).toFixed(1) + '万' },
+                { label: '订单量（实时）', value: m.orderCount.toLocaleString(), trend: '昨日：' + Math.round(m.orderCount * 0.92).toLocaleString() },
+                { label: '商品总数/在架商品数', value: m.productTotal + '/' + m.onShelf, trend: '' },
+                { label: '用户数', value: m.users.toLocaleString(), trend: '' },
+            ];
+            const html = (arr) => arr.map(c => `
+                <div class="card metric-item" style="padding: 12px 16px;">
+                    <div class="metric-content"><div class="metric-left">
+                        <div class="metric-label">${c.label}</div>
+                        <div class="metric-value">${c.value}</div>
+                        ${c.trend ? `<div class="metric-trend">${c.trend}</div>` : ''}
+                    </div></div>
+                </div>`).join('');
+            document.getElementById('metrics-row-1').innerHTML = html(cards.slice(0, 3));
+            document.getElementById('metrics-row-2').innerHTML = html(cards.slice(3));
+        }
+
+        // 渲染品牌商城订单趋势图
+        function renderBrandOrderTrendChart() {
+            const period = document.getElementById('brand-order-trend-period-select').value;
+
+            let startDate, endDate;
+            if (period === 'day') {
+                startDate = document.getElementById('brand-order-trend-start-date')?.value;
+                endDate = document.getElementById('brand-order-trend-end-date')?.value;
+            } else if (period === 'month') {
+                startDate = document.getElementById('brand-order-trend-start-month')?.value;
+                endDate = document.getElementById('brand-order-trend-end-month')?.value;
+            } else if (period === 'quarter') {
+                startDate = document.getElementById('brand-order-trend-start-quarter')?.value;
+                endDate = document.getElementById('brand-order-trend-end-quarter')?.value;
+            } else if (period === 'year') {
+                startDate = document.getElementById('brand-order-trend-start-year')?.value;
+                endDate = document.getElementById('brand-order-trend-end-year')?.value;
+            }
+
+            const data = getTrendForTerminal(period);
+
+            const left = 60;
+            const right = 60;
+            const top = 24;
+            const bottom = 42;
+            const width = 900;
+            const height = 300;
+            const usableWidth = width - left - right;
+            const usableHeight = height - top - bottom;
+
+            const maxVolume = Math.max(...data.volume) * 1.2;
+            const maxAmount = Math.max(...data.amount.map(Number)) * 1.2;
+
+            let svgContent = '<g stroke="#f0f0f0" stroke-width="1">';
+            for (let i = 0; i <= 4; i++) {
+                const y = top + (usableHeight / 4) * i;
+                svgContent += `<line x1="${left}" y1="${y}" x2="${width - right}" y2="${y}"></line>`;
+            }
+            svgContent += '</g>';
+
+            // 柱状图 - 订单量（蓝色）
+            const barWidth = (usableWidth / data.labels.length) * 0.5;
+            data.volume.forEach((value, index) => {
+                const x = left + (usableWidth / data.labels.length) * index + (usableWidth / data.labels.length - barWidth) / 2;
+                const barHeight = (value / maxVolume) * usableHeight;
+                svgContent += `<rect x="${x}" y="${top + usableHeight - barHeight}" width="${barWidth}" height="${barHeight}" fill="#1890ff" opacity="0.6"></rect>`;
+            });
+
+            // 折线图 - 订单金额（红色）
+            const linePath = data.amount.map((value, index) => {
+                const x = left + (usableWidth / data.labels.length) * index + (usableWidth / data.labels.length) / 2;
+                const y = top + usableHeight - (Number(value) / maxAmount) * usableHeight;
+                return `${index === 0 ? 'M' : 'L'}${x.toFixed(1)} ${y.toFixed(1)}`;
+            }).join(' ');
+            svgContent += `<path d="${linePath}" stroke="#ff4d4f" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>`;
+
+            // 数据点
+            data.amount.forEach((value, index) => {
+                const x = left + (usableWidth / data.labels.length) * index + (usableWidth / data.labels.length) / 2;
+                const y = top + usableHeight - (Number(value) / maxAmount) * usableHeight;
+                svgContent += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="#ff4d4f"></circle>`;
+            });
+
+            // 左侧Y轴
+            svgContent += '<g fill="#1890ff" font-size="12" font-family="Arial, sans-serif" text-anchor="end">';
+            for (let i = 0; i <= 4; i++) {
+                const y = top + (usableHeight / 4) * i;
+                const value = Math.round(maxVolume - (maxVolume / 4) * i);
+                svgContent += `<text x="${left - 8}" y="${y + 4}">${value}</text>`;
+            }
+            svgContent += '</g>';
+
+            // 右侧Y轴
+            svgContent += '<g fill="#ff4d4f" font-size="12" font-family="Arial, sans-serif" text-anchor="start">';
+            for (let i = 0; i <= 4; i++) {
+                const y = top + (usableHeight / 4) * i;
+                const value = (maxAmount - (maxAmount / 4) * i).toFixed(1);
+                svgContent += `<text x="${width - right + 8}" y="${y + 4}">${value}万</text>`;
+            }
+            svgContent += '</g>';
+
+            // X轴标签
+            svgContent += '<g fill="#8c8c8c" font-size="12" font-family="Arial, sans-serif" text-anchor="middle">';
+            data.labels.forEach((label, index) => {
+                const x = left + (usableWidth / data.labels.length) * index + (usableWidth / data.labels.length) / 2;
+                svgContent += `<text x="${x.toFixed(1)}" y="${height - 12}">${label}</text>`;
+            });
+            svgContent += '</g>';
+
+            document.getElementById('brand-order-trend-chart').innerHTML = svgContent;
+        }
+
+        function renderProductRankTable() {
+            // 排序数据（按销量或销售额，从高到低或从低到高）
+            let sortedData = [...getProductRankData()];
+            if (sortByAmount) {
+                sortedData.sort((a, b) => sortAscending ? a.amount - b.amount : b.amount - a.amount);
+            } else {
+                sortedData.sort((a, b) => sortAscending ? a.sales - b.sales : b.sales - a.sales);
+            }
+
+            // 显示前displayCount条
+            const rows = sortedData.slice(0, displayCount);
+
+            // 渲染表格
+            document.getElementById('product-rank-body').innerHTML = rows.map((item, index) => {
+                const rankClass = index < 3 ? 'top3' : '';
+                return `<tr><td class="rank-num ${rankClass}">${index + 1}</td><td class="product-name" title="${item.name}">${item.name}</td><td>${item.code}</td><td>${item.category}</td><td>${item.sales.toLocaleString()}</td><td>¥${item.amount.toLocaleString()}</td></tr>`;
+            }).join('');
+
+            // 更新"显示更多/更少"按钮状态
+            const showMoreBtn = document.getElementById('show-more-btn');
+            if (displayCount >= maxDisplayCount) {
+                showMoreBtn.textContent = '显示更少';
+                showMoreBtn.disabled = false;
+            } else {
+                showMoreBtn.textContent = '显示更多';
+                showMoreBtn.disabled = false;
+            }
+        }
+
+        function renderDonutChart() {
+            const svg = document.getElementById('donut-chart');
+
+            // 只取前10个，其余归入"其他"
+            let displayData = categorySalesData.slice(0, 10);
+            const otherValue = categorySalesData.slice(10).reduce((sum, item) => sum + item.value, 0);
+            if (otherValue > 0) {
+                displayData.push({ name: '其他', value: otherValue, color: '#8c8c8c' });
+            }
+
+            const total = displayData.reduce((sum, item) => sum + item.value, 0);
+            const radius = 70, innerRadius = 45, cx = 100, cy = 100;
+            let startAngle = -90, paths = '';
+
+            displayData.forEach((item) => {
+                const angle = (item.value / total) * 360;
+                const endAngle = startAngle + angle;
+                const startRad = (startAngle * Math.PI) / 180;
+                const endRad = (endAngle * Math.PI) / 180;
+                const x1 = cx + radius * Math.cos(startRad), y1 = cy + radius * Math.sin(startRad);
+                const x2 = cx + radius * Math.cos(endRad), y2 = cy + radius * Math.sin(endRad);
+                const x3 = cx + innerRadius * Math.cos(endRad), y3 = cy + innerRadius * Math.sin(endRad);
+                const x4 = cx + innerRadius * Math.cos(startRad), y4 = cy + innerRadius * Math.sin(startRad);
+                const largeArcFlag = angle > 180 ? 1 : 0;
+                paths += `<path d="M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} L ${x3} ${y3} A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x4} ${y4} Z" fill="${item.color}"/>`;
+                startAngle = endAngle;
+            });
+
+            svg.innerHTML = paths;
+            document.getElementById('donut-legend').innerHTML = displayData.map((item) => {
+                const ratio = ((item.value / total) * 100).toFixed(1);
+                return `<div class="donut-legend-item" style="--legend-color:${item.color}">${item.name} ${ratio}%</div>`;
+            }).join('');
+        }
+
+        function bindDashboardPanelEvents() {
+            document.getElementById('sales-sort-header').addEventListener('click', function() {
+                sortByAmount = false;
+                sortAscending = !sortAscending;
+                renderProductRankTable();
+            });
+            document.getElementById('amount-sort-header').addEventListener('click', function() {
+                sortByAmount = true;
+                sortAscending = !sortAscending;
+                renderProductRankTable();
+            });
+            document.getElementById('show-more-btn').addEventListener('click', function() {
+                if (displayCount >= maxDisplayCount) {
+                    // 显示更少，回到15条
+                    displayCount = 15;
+                } else {
+                    // 显示更多，直接显示全部100条
+                    displayCount = maxDisplayCount;
+                }
+                renderProductRankTable();
+            });
+            // 品牌商城订单趋势事件绑定
+            document.getElementById('brand-order-trend-period-select').addEventListener('change', function() {
+                updateBrandDateSelectors(this.value);
+                renderBrandOrderTrendChart();
+            });
+        }
+
+        renderQuickNav();
+        bindShortcutEvents();
+        bindTodoEvents();
+        bindDashboardPanelEvents();
+        renderMallHeader();
+        renderMetrics();
+        renderProductRankTable();
+        renderDonutChart();
+        renderBrandOrderTrendChart();
+    </script>
+</body>
+</html>

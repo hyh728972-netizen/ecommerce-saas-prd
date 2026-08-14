@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>数据仪表盘 — 客服模块</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="js/cs-modal.js"></script>
+  <style>
+    /* ===== admin-dashboard.html 专属样式 ===== */
+
+    /* 会话量趋势 — 柱状图撑满卡片 */
+    .chart-card { display: flex; flex-direction: column; }
+    .chart-canvas {
+      flex: 1;                 /* 撑满卡片剩余高度（与右侧排行卡等高） */
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      padding: var(--cs-space-4) 0 28px;
+    }
+    .fake-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+      flex: 1;                 /* 撑满高度（原固定 180px） */
+      padding-top: 24px;       /* 为柱顶数值标签留位 */
+    }
+    .fake-bars .bar {
+      flex: 1;                 /* 撑满宽度（原固定 22px） */
+      min-width: 12px;
+      background: linear-gradient(180deg, var(--cs-primary-hover), var(--cs-primary));
+      border-radius: var(--cs-radius-xs) var(--cs-radius-xs) 0 0;
+      position: relative;
+      transition: opacity 0.2s;
+    }
+    .fake-bars .bar:hover { opacity: 0.8; }
+    .fake-bars .bar .bar-val {
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-secondary);
+      white-space: nowrap;
+    }
+    .fake-bars .bar .bar-label {
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      white-space: nowrap;
+    }
+
+    /* ---------- 排行榜 (客服绩效) ---------- */
+    .rank-list { display: flex; flex-direction: column; }
+    .rank-item {
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-3);
+      padding: var(--cs-space-3) 0;
+      border-bottom: 1px solid var(--cs-border-lighter);
+    }
+    .rank-item:last-child { border-bottom: none; }
+    .rank-no {
+      width: var(--cs-avatar-xs);
+      height: var(--cs-avatar-xs);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--cs-font-size-sm);
+      font-weight: var(--cs-font-weight-semibold);
+      flex-shrink: 0;
+      background: var(--cs-border-light);
+      color: var(--cs-text-tertiary);
+    }
+    .rank-no.top1 { background: var(--cs-orange-bg); color: var(--cs-orange); }
+    .rank-no.top2 { background: var(--cs-border-light); color: var(--cs-text-secondary); }
+    .rank-no.top3 { background: #fff2e8; color: #d4651a; }
+    .rank-avatar {
+      width: var(--cs-avatar-md); height: var(--cs-avatar-md);
+      border-radius: 50%;
+      background: var(--cs-primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--cs-font-size-base);
+      flex-shrink: 0;
+    }
+    .rank-info { flex: 1; min-width: 0; }
+    .rank-name { font-size: var(--cs-font-size-md); color: var(--cs-text); font-weight: var(--cs-font-weight-medium); }
+    .rank-bar {
+      height: 6px;
+      background: var(--cs-border-light);
+      border-radius: 3px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .rank-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cs-primary), var(--cs-primary-hover));
+      border-radius: 3px;
+    }
+    .rank-score {
+      font-size: var(--cs-font-size-md);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-primary);
+      flex-shrink: 0;
+    }
+
+    /* ---------- 待处理事项 summary ---------- */
+    .todo-summary-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--cs-space-3) 0;
+      border-bottom: 1px solid var(--cs-border-lighter);
+    }
+    .todo-summary-item:last-child { border-bottom: none; }
+    .todo-summary-left { display: flex; align-items: center; gap: 10px; }
+    .todo-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .todo-dot.urgent { background: var(--cs-danger); }
+    .todo-dot.warn   { background: var(--cs-warning); }
+    .todo-dot.normal { background: var(--cs-primary); }
+    .todo-count {
+      font-size: var(--cs-font-size-base);
+      color: var(--cs-text);
+    }
+    .todo-num {
+      font-size: var(--cs-font-size-2xl);
+      font-weight: var(--cs-font-weight-bold);
+      color: var(--cs-danger);
+    }
+    .todo-num.warn { color: var(--cs-warning); }
+    .todo-num.normal { color: var(--cs-primary); }
+
+    .view-all-link {
+      display: inline-block;
+      margin-top: var(--cs-space-3);
+      color: var(--cs-primary);
+      font-size: var(--cs-font-size-base);
+    }
+
+    /* ---------- 实时概况小标签 ---------- */
+    .live-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--cs-space-1);
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text);
+    }
+    .live-tag::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--cs-success);
+      flex-shrink: 0;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.4; }
+      100% { opacity: 1; }
+    }
+
+    .section-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .section-row h3 {
+      font-size: var(--cs-font-size-xl);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+      margin: 0;
+    }
+
+    /* 评价管理迁入：满意度排名表格的评分数字 */
+    .score-num {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+      margin-left: 4px;
+    }
+
+    /* avatar in header */
+    .header-avatar {
+      width: var(--cs-avatar-md); height: var(--cs-avatar-md);
+      border-radius: 50%;
+      background: var(--cs-primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--cs-font-size-base);
+    }
+
+    @media (max-width: 768px) {
+      .admin-sidebar { display: none; }
+    }
+
+    /* 指标卡子指标组：主指标下方横向排列的子项 */
+    .metric-sub {
+      display: flex; gap: var(--cs-space-4);
+      padding-top: var(--cs-space-3); margin-top: var(--cs-space-3);
+      border-top: 1px solid var(--cs-border-lighter);
+    }
+    .metric-sub .sub-item { display: flex; flex-direction: column; gap: 2px; flex: 1 1 0; min-width: 0; }
+    .metric-sub .sub-label { font-size: var(--cs-font-size-xs); color: var(--cs-text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .metric-sub .sub-val { font-size: var(--cs-font-size-md); font-weight: var(--cs-font-weight-semibold); color: var(--cs-text); }
+  </style>
+</head>
+<body>
+
+  <div class="admin-layout">
+
+    <!-- ===== Sidebar ===== -->
+    <aside class="admin-sidebar" id="sidebar-nav" data-active="dashboard"></aside>
+
+    <!-- ===== Main ===== -->
+    <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="breadcrumb"><span style="color:var(--cs-text);font-weight:600;">数据仪表盘</span></div>
+        <div class="user-info">
+          <span class="live-tag">实时</span>
+          <div class="header-avatar">张</div>
+          <span style="font-size:var(--cs-font-size-base);">张客服主管</span>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="admin-content">
+
+        <!-- ===== 统一筛选条（日期范围 / 客服）——驱动下方指标 + 前2图 ===== -->
+        <div class="card mb-16" style="padding:12px 16px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <span style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary); font-weight:var(--cs-font-weight-medium);">数据范围</span>
+          <input type="date" id="dashDateStart" class="ipt" style="padding:6px 10px; min-width:150px; color:var(--cs-text);" />
+          <span style="color:var(--cs-text-tertiary);">~</span>
+          <input type="date" id="dashDateEnd" class="ipt" style="padding:6px 10px; min-width:150px; color:var(--cs-text);" />
+          <select id="dashStaff" class="select" style="min-width:140px;">
+            <option value="all">全部客服</option>
+            <option value="lj">李静</option>
+            <option value="zxm">张小明</option>
+            <option value="wl">王磊</option>
+            <option value="zl">赵丽</option>
+            <option value="ch">陈昊</option>
+          </select>
+          <span id="freshness-hint" style="margin-left:auto; font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary);">指标与会话量趋势近实时（约 5 分钟），满意度排行每小时更新</span>
+        </div>
+
+        <!-- ===== 顶部指标卡片 ===== -->
+        <div class="grid grid-4 mb-24">
+
+          <!-- 总会话量：主 + 接入/未接入/客服发起 -->
+          <div class="metric-card">
+            <div class="metric-body">
+              <div class="metric-value" id="m-sessions">1,286<span class="unit">次</span></div>
+              <div class="metric-label" id="m-sessions-label">今日总会话量</div>
+              <div class="metric-trend up" id="m-sessions-trend">▲ 12.5% 较昨日</div>
+              <div class="metric-sub">
+                <div class="sub-item"><span class="sub-label">接入会话</span><span class="sub-val" id="m-sessions-pickup">1,180</span></div>
+                <div class="sub-item"><span class="sub-label">未接入</span><span class="sub-val" id="m-sessions-miss">58</span></div>
+                <div class="sub-item"><span class="sub-label">客服发起</span><span class="sub-val" id="m-sessions-cs">48</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 在线客服数：主 + 总客服数/离线客服数 -->
+          <div class="metric-card">
+            <div class="metric-body">
+              <div class="metric-value" id="m-online">18<span class="unit">人</span></div>
+              <div class="metric-label">在线客服数</div>
+              <div class="metric-trend up" id="m-online-trend">▲ 3 人新上线</div>
+              <div class="metric-sub">
+                <div class="sub-item"><span class="sub-label">总客服数</span><span class="sub-val" id="m-online-total">24</span></div>
+                <div class="sub-item"><span class="sub-label">离线客服</span><span class="sub-val" id="m-online-offline">6</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 平均首次响应时间：主 + 平均响应时间/15s应答率 -->
+          <div class="metric-card">
+            <div class="metric-body">
+              <div class="metric-value" id="m-response">42<span class="unit">秒</span></div>
+              <div class="metric-label">平均首次响应时间</div>
+              <div class="metric-trend down" id="m-response-trend">▼ 8.3% 提速</div>
+              <div class="metric-sub">
+                <div class="sub-item"><span class="sub-label">平均响应时间</span><span class="sub-val" id="m-response-avg">38秒</span></div>
+                <div class="sub-item"><span class="sub-label">15s应答率</span><span class="sub-val" id="m-response-rate">92.5%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 满意度：主 + 参评率/邀评率/邀评成功率 -->
+          <div class="metric-card">
+            <div class="metric-body">
+              <div class="metric-value" id="m-sat">4.82<span class="unit">/ 5.0</span></div>
+              <div class="metric-label">满意度评分</div>
+              <div class="metric-trend up" id="m-sat-trend">▲ 0.06 较昨日</div>
+              <div class="metric-sub">
+                <div class="sub-item"><span class="sub-label">参评率</span><span class="sub-val" id="m-sat-join">78%</span></div>
+                <div class="sub-item"><span class="sub-label">邀评率</span><span class="sub-val" id="m-sat-invite">85%</span></div>
+                <div class="sub-item"><span class="sub-label">邀评成功率</span><span class="sub-val" id="m-sat-ok">92%</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ===== 工单概览(PRD 十.1 工单指标卡;满意度本期不做 TE,故不展示;点击 → 工单列表) ===== -->
+        <div class="card mb-24" style="cursor:pointer;" onclick="location.href='admin-ticket.html'">
+          <div class="section-row">
+            <h3>工单概览</h3>
+            <span style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary);">今日 · 全部客服 · 点击查看工单列表 &gt;</span>
+          </div>
+          <div style="display:flex; gap:var(--cs-space-4); flex-wrap:wrap;">
+            <div style="flex:1 1 0; min-width:120px;">
+              <div style="font-size:var(--cs-font-size-2xl); font-weight:var(--cs-font-weight-bold); color:var(--cs-primary);">26</div>
+              <div style="font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); margin-top:2px;">今日新建工单</div>
+            </div>
+            <div style="flex:1 1 0; min-width:120px;">
+              <div style="font-size:var(--cs-font-size-2xl); font-weight:var(--cs-font-weight-bold); color:var(--cs-text);">5</div>
+              <div style="font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); margin-top:2px;">待处理（未处理）</div>
+            </div>
+            <div style="flex:1 1 0; min-width:120px;">
+              <div style="font-size:var(--cs-font-size-2xl); font-weight:var(--cs-font-weight-bold); color:var(--cs-text);">14</div>
+              <div style="font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); margin-top:2px;">处理中</div>
+            </div>
+            <div style="flex:1 1 0; min-width:120px;">
+              <div style="font-size:var(--cs-font-size-2xl); font-weight:var(--cs-font-weight-bold); color:var(--cs-success);">7</div>
+              <div style="font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); margin-top:2px;">今日完工</div>
+            </div>
+            <div style="flex:1 1 0; min-width:120px;">
+              <div style="font-size:var(--cs-font-size-2xl); font-weight:var(--cs-font-weight-bold); color:var(--cs-text);">6.2<span style="font-size:var(--cs-font-size-sm); font-weight:var(--cs-font-weight-normal); color:var(--cs-text-tertiary);"> 小时</span></div>
+              <div style="font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); margin-top:2px;">平均处理时长</div>
+            </div>
+            <div style="flex:1 1 0; min-width:120px;">
+              <div style="font-size:var(--cs-font-size-2xl); font-weight:var(--cs-font-weight-bold); color:var(--cs-danger);">6</div>
+              <div style="font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); margin-top:2px;">超期工单</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== V0.5 十.1 客服工单绩效(按 handler 聚合) ===== -->
+        <div class="card mb-24">
+          <div class="section-row">
+            <h3>客服工单绩效</h3>
+            <span style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary);">本周 · 按处理人聚合</span>
+          </div>
+          <table class="data-table" style="margin-top:8px;">
+            <thead>
+              <tr><th>客服</th><th>处理量</th><th>平均处理时长</th><th>已完工</th><th>超期</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>张小明</td><td>42</td><td>5.8 小时</td><td>35</td><td><span style="color:var(--cs-danger);font-weight:600;">3</span></td></tr>
+              <tr><td>李静</td><td>38</td><td>6.5 小时</td><td>30</td><td><span style="color:var(--cs-danger);font-weight:600;">2</span></td></tr>
+              <tr><td>王芳</td><td>29</td><td>7.1 小时</td><td>22</td><td><span style="color:var(--cs-danger);font-weight:600;">1</span></td></tr>
+              <tr><td>赵磊</td><td>24</td><td>5.2 小时</td><td>20</td><td><span style="color:var(--cs-text-tertiary);">0</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ===== 图表区 ===== -->
+        <div class="grid grid-2 mb-24">
+
+          <!-- 会话量趋势 -->
+          <div class="card chart-card">
+            <div class="section-row">
+              <h3>会话量趋势</h3>
+              <span id="trend-hint" style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary);">今天 · 全部客服</span>
+            </div>
+            <div class="chart-canvas">
+                <div class="fake-bars" id="trend-bars">
+                  <div class="bar" style="height:55%;">
+                    <span class="bar-val">98</span>
+                    <span class="bar-label">09:00</span>
+                  </div>
+                  <div class="bar" style="height:72%;">
+                    <span class="bar-val">128</span>
+                    <span class="bar-label">10:00</span>
+                  </div>
+                  <div class="bar" style="height:88%;">
+                    <span class="bar-val">156</span>
+                    <span class="bar-label">11:00</span>
+                  </div>
+                  <div class="bar" style="height:95%;">
+                    <span class="bar-val">168</span>
+                    <span class="bar-label">12:00</span>
+                  </div>
+                  <div class="bar" style="height:78%;">
+                    <span class="bar-val">138</span>
+                    <span class="bar-label">13:00</span>
+                  </div>
+                  <div class="bar" style="height:100%;">
+                    <span class="bar-val">176</span>
+                    <span class="bar-label">14:00</span>
+                  </div>
+                  <div class="bar" style="height:84%;">
+                    <span class="bar-val">149</span>
+                    <span class="bar-label">15:00</span>
+                  </div>
+                  <div class="bar" style="height:66%;">
+                    <span class="bar-val">117</span>
+                    <span class="bar-label">16:00</span>
+                  </div>
+                </div>
+            </div>
+          </div>
+
+          <!-- 客服满意度排行 -->
+          <div class="card">
+            <div class="section-row">
+              <h3>客服满意度排行</h3>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); background:var(--cs-bg-header); padding:2px 8px; border-radius:10px;">每小时更新</span>
+                <span id="rank-hint" style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary);">今日</span>
+              </div>
+            </div>
+            <table class="data-table" style="font-size:var(--cs-font-size-base);">
+              <thead>
+                <tr><th>客服</th><th>评价数</th><th>平均分</th><th>差评数</th></tr>
+              </thead>
+              <tbody>
+                <tr data-staff="lj">
+                  <td><div class="col-user"><div class="mini-avatar green">李</div><div>李静</div></div></td>
+                  <td>286</td>
+                  <td><span class="stars">★★★★★</span></td>
+                  <td><span style="color:var(--cs-text-tertiary);">3</span></td>
+                </tr>
+                <tr data-staff="zxm">
+                  <td><div class="col-user"><div class="mini-avatar">张</div><div>张小明</div></div></td>
+                  <td>342</td>
+                  <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.7</span></td>
+                  <td><span style="color:var(--cs-warning);">9</span></td>
+                </tr>
+                <tr data-staff="wl">
+                  <td><div class="col-user"><div class="mini-avatar orange">王</div><div>王磊</div></div></td>
+                  <td>198</td>
+                  <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.4</span></td>
+                  <td><span style="color:var(--cs-danger);">12</span></td>
+                </tr>
+                <tr data-staff="zl">
+                  <td><div class="col-user"><div class="mini-avatar purple">赵</div><div>赵丽</div></div></td>
+                  <td>151</td>
+                  <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.2</span></td>
+                  <td><span style="color:var(--cs-danger);">10</span></td>
+                </tr>
+                <tr data-staff="ch">
+                  <td><div class="col-user"><div class="mini-avatar green">陈</div><div>陈昊</div></div></td>
+                  <td>106</td>
+                  <td><span class="stars">★★★★<span class="empty">★</span></span> <span class="score-num">4.0</span></td>
+                  <td><span style="color:var(--cs-danger);">8</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- ===== 待处理事项 + 概况 ===== -->
+        <div class="grid grid-2">
+
+          <!-- 待处理事项 summary -->
+          <div class="card">
+            <div class="section-row">
+              <h3>待处理事项</h3>
+              <a class="view-all-link" href="admin-todo.html" style="margin-top:0;">查看全部待办 &gt;</a>
+            </div>
+
+            <div class="todo-panel">
+              <div class="todo-summary-item">
+                <div class="todo-summary-left">
+                  <span class="todo-dot urgent"></span>
+                  <span class="todo-count">超时未响应会话</span>
+                </div>
+                <span class="todo-num">3</span>
+              </div>
+
+              <div class="todo-summary-item">
+                <div class="todo-summary-left">
+                  <span class="todo-dot warn"></span>
+                  <span class="todo-count">待转接确认</span>
+                </div>
+                <span class="todo-num warn">2</span>
+              </div>
+
+              <div class="todo-summary-item">
+                <div class="todo-summary-left">
+                  <span class="todo-dot warn"></span>
+                  <span class="todo-count">差评待跟进</span>
+                </div>
+                <span class="todo-num warn">4</span>
+              </div>
+
+              <div class="todo-summary-item">
+                <div class="todo-summary-left">
+                  <span class="todo-dot normal"></span>
+                  <span class="todo-count">未读留言</span>
+                </div>
+                <span class="todo-num normal">7</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 今日概况 -->
+          <div class="card">
+            <div class="section-row">
+              <h3>今日概况</h3>
+            </div>
+            <div class="customer-info-panel">
+              <div class="info-row">
+                <span class="info-label">当前排队</span>
+                <span style="color:var(--cs-warning); font-weight:600;">6 人</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">已接入会话</span>
+                <span>1,280</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">已结束会话</span>
+                <span>1,124</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">转接次数</span>
+                <span>38</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">首次响应率</span>
+                <span style="color:var(--cs-text-secondary);">96.4%</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+
+  </div>
+
+<script src="js/cs-icons.js"></script>
+<script src="nav.js"></script>
+<script>
+/* ============================================================
+   admin-dashboard.html 交互
+   - 顶部统一筛选（时间 / 客服）驱动：4 指标卡 + 会话量趋势 + 客服满意度排行
+   - 待处理事项 / 今日概况 为实时/今日快照，不受筛选影响
+   ============================================================ */
+(function () {
+  'use strict';
+  var $ = function (s) { return document.querySelector(s); };
+  var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
+  var fmt = function (n) { return Math.round(n).toLocaleString('en-US'); };
+
+  var STAFF = {
+    all: {
+      sessions: { total: 1286, pickup: 1180, miss: 58, cs: 48 },
+      response: { first: 42, avg: 38, rate: '92.5%' },
+      sat:      { score: 4.82, join: '78%', invite: '85%', ok: '92%' },
+      sessionTrend: '▲ 12.5% 较昨日', respTrend: '▼ 8.3% 提速', satTrend: '▲ 0.06 较昨日'
+    },
+    lj: {
+      sessions: { total: 286, pickup: 260, miss: 12, cs: 14 },
+      response: { first: 38, avg: 35, rate: '95.0%' },
+      sat:      { score: 4.90, join: '82%', invite: '88%', ok: '93%' },
+      sessionTrend: '▲ 9.2% 较昨日', respTrend: '▼ 5.1% 提速', satTrend: '▲ 0.04 较昨日'
+    },
+    zxm: {
+      sessions: { total: 342, pickup: 318, miss: 10, cs: 14 },
+      response: { first: 45, avg: 42, rate: '88.0%' },
+      sat:      { score: 4.70, join: '75%', invite: '82%', ok: '90%' },
+      sessionTrend: '▲ 15.6% 较昨日', respTrend: '▲ 2.0% 变慢', satTrend: '▼ 0.03 较昨日'
+    },
+    wl: {
+      sessions: { total: 198, pickup: 175, miss: 15, cs: 8 },
+      response: { first: 51, avg: 48, rate: '80.0%' },
+      sat:      { score: 4.40, join: '70%', invite: '78%', ok: '86%' },
+      sessionTrend: '▲ 6.8% 较昨日', respTrend: '▲ 4.5% 变慢', satTrend: '▼ 0.08 较昨日'
+    },
+    zl: {
+      sessions: { total: 151, pickup: 135, miss: 13, cs: 3 },
+      response: { first: 48, avg: 45, rate: '82.0%' },
+      sat:      { score: 4.20, join: '72%', invite: '80%', ok: '85%' },
+      sessionTrend: '▼ 3.2% 较昨日', respTrend: '▼ 1.2% 提速', satTrend: '▼ 0.05 较昨日'
+    },
+    ch: {
+      sessions: { total: 106, pickup: 94, miss: 9, cs: 3 },
+      response: { first: 55, avg: 52, rate: '75.0%' },
+      sat:      { score: 4.00, join: '68%', invite: '76%', ok: '84%' },
+      sessionTrend: '▲ 11.0% 较昨日', respTrend: '▲ 6.0% 变慢', satTrend: '▲ 0.02 较昨日'
+    }
+  };
+  var STAFF_NAME = { all: '全部客服', lj: '李静', zxm: '张小明', wl: '王磊', zl: '赵丽', ch: '陈昊' };
+  var ONLINE = { total: 24, online: 18, offline: 6, trend: '▲ 3 人新上线' }; /* 团队实时快照，不随筛选变化 */
+
+  var TREND_TODAY = { labels: ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00'], vals: [98,128,156,168,138,176,149,117] };
+  var WAVE = [0.85, 1.00, 0.92, 1.08, 0.96, 1.04, 0.88, 1.02, 0.94, 1.10, 0.90, 1.00];
+
+  var dashStart = $('#dashDateStart'), dashEnd = $('#dashDateEnd'), dashStaff = $('#dashStaff');
+
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+  function iso(d) { return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  function todayISO() { return iso(new Date()); }
+  function fmtMD(s) { var d = new Date(s); return (d.getMonth() + 1) + '.' + d.getDate(); }
+  function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000) + 1; }
+
+  function trendClass(txt) { return txt.indexOf('▲') !== -1 ? 'up' : 'down'; }
+  function setVal(id, val, unit) { var el = $('#' + id); if (el) el.innerHTML = val + '<span class="unit">' + unit + '</span>'; }
+  function setText(id, val) { var el = $('#' + id); if (el) el.textContent = val; }
+  function setTrend(id, txt) { var el = $('#' + id); if (el) { el.textContent = txt; el.className = 'metric-trend ' + trendClass(txt); } }
+
+  function renderBars(labels, vals) {
+    var max = Math.max.apply(null, vals);
+    var html = '';
+    for (var i = 0; i < vals.length; i++) {
+      var h = max > 0 ? Math.round(vals[i] / max * 100) : 0;
+      html += '<div class="bar" style="height:' + Math.max(h, 3) + '%;">' +
+              '<span class="bar-val">' + fmt(vals[i]) + '</span>' +
+              '<span class="bar-label">' + labels[i] + '</span></div>';
+    }
+    $('#trend-bars').innerHTML = html;
+  }
+
+  /* 按日期范围生成趋势柱：1 天=按小时，2-7 天=按日，>7 天=按周 */
+  function buildTrend(startStr, days, dailyAvg) {
+    if (days <= 1) return { labels: TREND_TODAY.labels.slice(), vals: TREND_TODAY.vals.slice() };
+    if (days <= 7) {
+      var labels = [], vals = [], base = new Date(startStr);
+      for (var i = 0; i < days; i++) {
+        var d = new Date(base.getTime()); d.setDate(d.getDate() + i);
+        labels.push(fmtMD(iso(d)));
+        vals.push(Math.round(dailyAvg * WAVE[i % WAVE.length]));
+      }
+      return { labels: labels, vals: vals };
+    }
+    var weeks = Math.min(Math.ceil(days / 7), 5), wlabels = [], wvals = [];
+    for (var j = 0; j < weeks; j++) {
+      wlabels.push('第' + (j + 1) + '周');
+      wvals.push(Math.round(dailyAvg * 7 * WAVE[j % WAVE.length]));
+    }
+    return { labels: wlabels, vals: wvals };
+  }
+
+  function render() {
+    var startStr = dashStart.value, endStr = dashEnd.value, staff = dashStaff.value;
+    if (startStr > endStr) { var tmp = startStr; startStr = endStr; endStr = tmp; }
+    var days = Math.max(1, daysBetween(startStr, endStr));
+    var todayStr = todayISO();
+    var span = addOneMonth(startStr); if (span > todayStr) span = todayStr;
+    if (endStr > span) { endStr = span; if (dashEnd && dashEnd.value !== span) dashEnd.value = span; days = Math.max(1, daysBetween(startStr, endStr)); }
+    var hasToday = startStr <= todayStr && todayStr <= endStr;
+    var s = STAFF[staff], ses = s.sessions;
+    var isToday = (startStr === todayStr && endStr === todayStr);
+    var title = isToday ? '今天' : (startStr === endStr ? fmtMD(startStr) : fmtMD(startStr) + ' ~ ' + fmtMD(endStr));
+
+    // —— 卡1 总会话量（主 + 子，按天数 × 客服体量）——
+    setVal('m-sessions', fmt(ses.total * days), '次');
+    setText('m-sessions-label', isToday ? '今日总会话量' : title + '总会话量');
+    setText('m-sessions-pickup', fmt(ses.pickup * days));
+    setText('m-sessions-miss', fmt(ses.miss * days));
+    setText('m-sessions-cs', fmt(ses.cs * days));
+    setTrend('m-sessions-trend', s.sessionTrend);
+
+    // —— 卡2 在线客服数（团队实时快照，不随筛选变化）——
+    setVal('m-online', ONLINE.online, '人');
+    setText('m-online-total', ONLINE.total);
+    setText('m-online-offline', ONLINE.offline);
+    setTrend('m-online-trend', ONLINE.trend);
+
+    // —— 卡3 平均首次响应时间（主 + 平均响应/15s应答率，随客服）——
+    var rs = s.response;
+    setVal('m-response', rs.first, '秒');
+    setText('m-response-avg', rs.avg + '秒');
+    setText('m-response-rate', rs.rate);
+    setTrend('m-response-trend', s.respTrend);
+
+    // —— 卡4 满意度（主 + 参评/邀评/邀评成功，随客服）——
+    var st = s.sat;
+    setVal('m-sat', st.score.toFixed(2), '/ 5.0');
+    setText('m-sat-join', st.join);
+    setText('m-sat-invite', st.invite);
+    setText('m-sat-ok', st.ok);
+    setTrend('m-sat-trend', s.satTrend);
+
+    // —— 会话量趋势：按日期范围生成柱子，客服按体量缩放 ——
+    var trend = buildTrend(startStr, days, STAFF.all.sessions.total);
+    var scale = staff === 'all' ? 1 : ses.total / STAFF.all.sessions.total;
+    renderBars(trend.labels, trend.vals.map(function (v) { return v * scale; }));
+    $('#trend-hint').textContent = title + ' · ' + STAFF_NAME[staff];
+
+    // —— 客服满意度排行：选具体客服只显示该行 ——
+    Array.prototype.forEach.call(document.querySelectorAll('.data-table tbody tr'), function (tr) {
+      tr.style.display = (staff === 'all' || tr.getAttribute('data-staff') === staff) ? '' : 'none';
+    });
+    $('#rank-hint').textContent = title;
+
+    // —— 时效说明：含今天 → 近实时；纯历史 → T+1 ——
+    setText('freshness-hint', hasToday
+      ? '指标与会话量趋势近实时（约 5 分钟），满意度排行每小时更新'
+      : '历史数据已结算（T+1），满意度排行每小时更新');
+
+    toast('已切换：' + title + ' · ' + STAFF_NAME[staff]);
+  }
+
+  function addOneMonth(dateStr) {
+    var d = new Date(dateStr), day = d.getDate();
+    d.setMonth(d.getMonth() + 1);
+    if (d.getDate() !== day) d.setDate(0); /* 月末溢出（如 1/31 +1 月）回退到 N+1 月末 */
+    return iso(d);
+  }
+  /* 限制结束日：不早于开始日、不晚于「开始日 + 1 月」、不晚于今天 */
+  function syncEndMax() {
+    var s = dashStart.value;
+    if (!s) return;
+    if (dashEnd.value && dashEnd.value < s) dashEnd.value = s;
+    var lim = addOneMonth(s);
+    var today = todayISO();
+    if (lim > today) lim = today;
+    dashEnd.max = lim;
+    if (dashEnd.value > lim) dashEnd.value = lim;
+  }
+
+  [dashStart, dashEnd, dashStaff].forEach(function (el) {
+    if (!el) return;
+    if (el === dashStart) el.addEventListener('change', function () { syncEndMax(); render(); });
+    else el.addEventListener('change', render);
+  });
+
+  /* 初始化：默认当日、禁止选未来日期、跨度上限一个月（N 月 X 日 ~ N+1 月 X 日） */
+  var _t = todayISO();
+  if (dashStart) { dashStart.value = _t; dashStart.max = _t; }
+  if (dashEnd) { dashEnd.value = _t; dashEnd.max = _t; }
+  syncEndMax();
+
+  render();
+})();
+</script>
+</body>
+</html>

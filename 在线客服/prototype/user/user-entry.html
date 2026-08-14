@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>场景咨询入口 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="mobile.css" />
+  <style>
+    /* ===== user-entry.html 专属样式 ===== */
+
+    .page-wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 28px 24px 64px;
+    }
+
+    /* ---------- Page Header ---------- */
+    .page-header {
+      background: linear-gradient(135deg, var(--cs-primary) 0%, var(--cs-primary-active) 100%);
+      color: #fff;
+      border-radius: 14px;
+      padding: 32px 28px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-header::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(circle at 85% 20%, rgba(255,255,255,.12) 0, transparent 40%);
+      pointer-events: none;
+    }
+    .page-header h1 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      font-weight: 700;
+      position: relative;
+    }
+    .page-header .crumb {
+      font-size: 13px;
+      opacity: 0.85;
+      position: relative;
+    }
+    .page-header .crumb a { color: #fff; opacity: 0.9; }
+    .page-header .crumb a:hover { opacity: 1; }
+    .page-header .meta-row {
+      margin-top: 14px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+    .page-header .pill {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.28);
+      color: #fff;
+      padding: 3px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
+    /* ---------- Overview Bar ---------- */
+    .overview-bar {
+      background: var(--cs-bg-card);
+      border: 1px solid var(--cs-border-light);
+      border-radius: var(--cs-radius-lg);
+      padding: var(--cs-space-4) var(--cs-space-5);
+      margin-bottom: var(--cs-space-5);
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-6);
+      flex-wrap: wrap;
+      box-shadow: var(--cs-shadow-md);
+    }
+    .overview-bar .ov-item {
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-2);
+      font-size: var(--cs-font-size-base);
+      color: var(--cs-text-secondary);
+    }
+    .overview-bar .ov-num {
+      font-size: var(--cs-font-size-2xl);
+      font-weight: var(--cs-font-weight-bold);
+      color: var(--cs-primary);
+    }
+    .overview-bar .ov-sep {
+      width: 1px;
+      height: 28px;
+      background: var(--cs-border-light);
+    }
+
+    /* ---------- Entry Grid ---------- */
+    .entry-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 1100px) { .entry-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 720px)  { .entry-grid { grid-template-columns: 1fr; } }
+
+    /* ---------- Entry Card ---------- */
+    .entry-card {
+      background: var(--cs-bg-card);
+      border: 1px solid var(--cs-border-light);
+      border-radius: var(--cs-radius-xl);
+      overflow: hidden;
+      box-shadow: var(--cs-shadow-md);
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .entry-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 2px 8px rgba(238, 10, 36,.10), 0 8px 24px rgba(0,0,0,.12);
+      border-color: var(--cs-border-light);
+    }
+
+    .entry-card-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--cs-border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--cs-bg-header);
+    }
+    .entry-card-head .scene-name {
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-2);
+      font-size: var(--cs-font-size-lg);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+    }
+    .entry-card-head .scene-emoji {
+      display: inline-flex;
+      align-items: center;
+    }
+    .entry-card-head .entry-tag-chip {
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+      border: 1px solid var(--cs-border-light);
+      border-radius: var(--cs-radius-xs);
+      padding: 2px 8px;
+      font-size: var(--cs-font-size-xs);
+      font-weight: var(--cs-font-weight-semibold);
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+
+    /* ---------- Mock Mall Page (phone-ish snippet) ---------- */
+    .mock-page {
+      position: relative;
+      height: 280px;
+      background: #f5f7fa;
+      overflow: hidden;
+    }
+
+    /* mock browser/url bar */
+    .mock-urlbar {
+      height: 26px;
+      background: #e8eaed;
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 6px;
+      border-bottom: 1px solid #dfe1e5;
+    }
+    .mock-urlbar .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .mock-urlbar .dot.r { background: #ff5f57; }
+    .mock-urlbar .dot.y { background: #febc2e; }
+    .mock-urlbar .dot.g { background: #28c840; }
+    .mock-urlbar .url {
+      flex: 1;
+      background: #fff;
+      border-radius: 10px;
+      height: 16px;
+      font-size: 10px;
+      color: #8c8c8c;
+      padding: 0 8px;
+      display: flex;
+      align-items: center;
+      margin-left: 4px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    .mock-body {
+      padding: 10px 12px;
+      height: calc(100% - 26px);
+      position: relative;
+    }
+
+    /* generic mock skeleton lines */
+    .sk { background: #e8ecf1; border-radius: 4px; }
+    .sk-line { height: 8px; margin-bottom: 6px; }
+    .sk-block { height: 40px; margin-bottom: 8px; }
+
+    /* scene-specific mock accents */
+    .mock-banner {
+      height: 40px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .mock-banner.home    { background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover)); }
+    .mock-banner.product { background: linear-gradient(135deg, #52c41a, #73d13d); }
+    .mock-banner.order   { background: linear-gradient(135deg, #fa8c16, #ffa940); }
+    .mock-banner.cart    { background: linear-gradient(135deg, #722ed1, #9254de); }
+    .mock-banner.help    { background: linear-gradient(135deg, #13c2c2, #36cfc9); }
+    .mock-banner.profile { background: linear-gradient(135deg, #eb2f96, #ff85c0); }
+    .mock-banner.logistics { background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover)); }
+    .mock-banner.refund { background: linear-gradient(135deg, #fa541c, #ff7a45); }
+    .mock-banner.phone-banner { background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover)); }
+
+    /* mock chat bubbles (机器人客服问候 + 场景卡片预览) */
+    .mock-bubble {
+      max-width: 75%;
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+    .mock-bubble.agent {
+      background: #fff;
+      border: 1px solid #f0f0f0;
+      color: #333;
+      border-top-left-radius: 2px;
+    }
+    .mock-bubble.user {
+      background: var(--cs-primary);
+      color: #fff;
+      margin-left: auto;
+      border-top-right-radius: 2px;
+    }
+    .mock-bubble.card {
+      background: #fff;
+      border: 1px solid #f0f0f0;
+      border-radius: 6px;
+      padding: 8px;
+      width: 80%;
+      margin-bottom: 6px;
+    }
+    .mock-bubble.card .card-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--cs-primary);
+      margin-bottom: 4px;
+    }
+    .mock-bubble.card .card-line {
+      height: 5px;
+      background: #e8ecf1;
+      border-radius: 2px;
+      margin-bottom: 3px;
+    }
+    .mock-input-bar {
+      position: absolute;
+      bottom: 8px;
+      left: 12px;
+      right: 12px;
+      height: 28px;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 6px;
+      font-size: 10px;
+      color: #8c8c8c;
+    }
+    .mock-input-bar .mi-icon {
+      width: 16px; height: 16px;
+      background: #f0f0f0;
+      border-radius: 3px;
+    }
+
+    /* floating circular button (全站悬浮组件) */
+    .floating-circle-btn {
+      position: absolute;
+      right: 16px;
+      bottom: 18px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(238, 10, 36,.4);
+      z-index: 5;
+      animation: fab-pulse 2.4s ease-in-out infinite;
+    }
+    .floating-circle-btn .drag-hint {
+      position: absolute;
+      bottom: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      color: #8c8c8c;
+      white-space: nowrap;
+    }
+
+    /* phone call button in chat header */
+    .phone-call-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #fff;
+      border: 1px solid #d9d9d9;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      color: var(--cs-primary);
+      font-weight: 600;
+    }
+
+    /* ---------- 咨询方式选择面板（居中卡片弹窗） ---------- */
+    .cs-sheet-mask {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 10000;
+      opacity: 0; visibility: hidden;
+      transition: opacity .25s, visibility .25s;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .cs-sheet-mask.show { opacity: 1; visibility: visible; }
+    .cs-sheet {
+      background: #fff;
+      border-radius: 20px;
+      width: 100%; max-width: 340px;
+      z-index: 10001;
+      transform: scale(.9); opacity: 0;
+      transition: transform .28s cubic-bezier(.32,.72,.35,1), opacity .28s;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      overflow: hidden;
+    }
+    .cs-sheet.show { transform: scale(1); opacity: 1; }
+    .cs-sheet-head {
+      position: relative;
+      padding: 22px 20px 8px;
+      text-align: center;
+    }
+    .cs-sheet-head .cs-sheet-title {
+      font-size: 17px; font-weight: 600; color: #262626;
+      margin: 0;
+    }
+    .cs-sheet-close {
+      position: absolute; top: 14px; right: 14px;
+      width: 28px; height: 28px;
+      border: none; background: #f5f5f5;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: #8c8c8c;
+      transition: background .15s;
+    }
+    .cs-sheet-close:hover { background: #e8e8e8; color: #595959; }
+    .cs-sheet-options {
+      display: flex; gap: 12px;
+      padding: 12px 20px 24px;
+    }
+    .cs-sheet-opt {
+      flex: 1;
+      display: flex; flex-direction: column; align-items: center;
+      background: #fafbfc;
+      border: 1px solid transparent;
+      border-radius: 16px;
+      padding: 22px 12px 18px;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: inherit;
+    }
+    .cs-sheet-opt:hover {
+      background: var(--cs-primary-bg);
+      border-color: var(--cs-primary);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(238, 10, 36,.12);
+    }
+    .cs-sheet-opt .opt-icon {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+    .cs-sheet-opt .opt-icon.online {
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+      box-shadow: 0 6px 16px rgba(238, 10, 36,.35);
+    }
+    .cs-sheet-opt .opt-icon.phone {
+      background: linear-gradient(135deg, #ff4d4f, #ff7875);
+      box-shadow: 0 6px 16px rgba(255,77,79,.35);
+    }
+    .cs-sheet-opt .opt-name {
+      font-size: 15px; font-weight: 600; color: #262626;
+      margin-bottom: 4px;
+    }
+    .cs-sheet-opt .opt-desc {
+      font-size: 11px; color: #8c8c8c; text-align: center;
+      line-height: 1.5;
+    }
+
+    /* logistics tracking mock */
+    .track-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 10px;
+    }
+    .track-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .track-dot.active { background: var(--cs-primary); }
+    .track-dot.done { background: #52c41a; }
+    .track-dot.pending { background: #d9d9d9; }
+    .track-line { flex: 1; }
+    .track-line .track-time { color: #8c8c8c; font-size: 9px; }
+
+    /* refund mock */
+    .refund-item {
+      background: #fff;
+      border: 1px solid #f0f0f0;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      font-size: 11px;
+    }
+    .refund-btn-mock {
+      display: inline-block;
+      background: #fff1f0;
+      color: #f5222d;
+      border: 1px solid #ffa39e;
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    /* product thumb */
+    .prod-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    .prod-thumb {
+      width: 50px; height: 50px;
+      background: #e8ecf1;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+    .prod-info { flex: 1; }
+    .price-tag {
+      color: #f5222d;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    /* order card */
+    .order-card {
+      background: #fff;
+      border: 1px solid #f0f0f0;
+      border-radius: 6px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      font-size: 11px;
+    }
+    .order-status {
+      display: inline-block;
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 3px;
+      background: #fff7e6;
+      color: #d46b08;
+    }
+
+    /* help list */
+    .help-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 10px;
+      background: #fff;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      border: 1px solid #f0f0f0;
+    }
+
+    /* profile list */
+    .profile-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      background: #fff;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      border: 1px solid #f0f0f0;
+    }
+    .profile-cell .pico {
+      width: 18px; height: 18px;
+      border-radius: 4px;
+      background: #e8ecf1;
+    }
+
+    /* ---------- Floating "联系客服" Button ---------- */
+    .cs-fab {
+      position: absolute;
+      right: 12px;
+      bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+      color: #fff;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(238, 10, 36,.35);
+      cursor: pointer;
+      z-index: 5;
+      animation: fab-pulse 2.4s ease-in-out infinite;
+    }
+    .cs-fab .cs-fab-icon {
+      width: 14px; height: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .cs-fab .badge-dot {
+      position: absolute;
+      top: -2px; right: -2px;
+      width: 8px; height: 8px;
+      background: #f5222d;
+      border: 1.5px solid #fff;
+      border-radius: 50%;
+    }
+    @keyframes fab-pulse {
+      0%, 100% { box-shadow: 0 4px 12px rgba(238, 10, 36,.35); }
+      50%      { box-shadow: 0 4px 18px rgba(238, 10, 36,.55); }
+    }
+
+    /* alternate fab positions for variety */
+    .cs-fab.pos-tr { right: 12px; bottom: auto; top: 40px; }
+    .cs-fab.pos-br { right: 12px; bottom: 14px; }
+
+    /* ---------- Entry Card Footer ---------- */
+    .entry-card-foot {
+      padding: var(--cs-space-3) var(--cs-space-4);
+      border-top: 1px solid var(--cs-border-light);
+      background: var(--cs-bg-header);
+    }
+    .entry-card-foot .entry-detail {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-secondary);
+      line-height: 1.6;
+    }
+    .entry-card-foot .entry-detail code {
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: var(--cs-font-size-xs);
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+    .entry-card-foot .kv {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+    }
+
+    /* ---------- Back link ---------- */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: var(--cs-font-size-base);
+      color: var(--cs-primary);
+      margin-bottom: var(--cs-space-4);
+      cursor: pointer;
+    }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <div class="page-wrap">
+
+    <!-- ===== Page Header ===== -->
+    <div class="page-header">
+      <div class="crumb">
+        <a href="index.html">原型首页</a> / 用户端 / 场景咨询入口
+      </div>
+      <h1>场景咨询入口 — 8 页面客服入口嵌入</h1>
+      <div class="meta-row">
+        <span class="pill">US-MVP-16</span>
+        <span class="pill">1期 MVP</span>
+        <span class="pill">用户端 · Taro</span>
+        <span class="pill">entry_tag 场景透传</span>
+        <span class="pill">更新于 2026-06-11</span>
+      </div>
+    </div>
+
+    <!-- ===== Overview ===== -->
+    <div class="overview-bar">
+      <div class="ov-item">
+        <span class="ov-num">8</span>
+        <span>商城页面入口</span>
+      </div>
+      <div class="ov-sep"></div>
+      <div class="ov-item">
+        <span class="ov-num">8</span>
+        <span>entry_tag 场景标签</span>
+      </div>
+      <div class="ov-sep"></div>
+      <div class="ov-item">
+        <span style="font-size:13px;">点击即进入会话，并自动携带页面上下文（商品/订单/分类）</span>
+      </div>
+    </div>
+
+    <span class="back-link" onclick="history.back()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><polyline points="15 18 9 12 15 6"/></svg> 返回上一页</span>
+
+    <!-- ===== Entry Grid ===== -->
+    <div class="entry-grid">
+
+      <!-- ===== 1. 首页 ===== -->
+      <div class="entry-card">
+        <div class="entry-card-head">
+          <div class="scene-name">
+            <span class="scene-emoji"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
+            首页
+          </div>
+          <span class="entry-tag-chip">entry_tag: home</span>
+        </div>
+        <div class="mock-page">
+          <div class="mock-urlbar">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="url">mall.com / 首页</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-banner home">智能客服 · 在线</div>
+            <div class="mock-bubble agent">您好，我是智能客服小助手，请问有什么可以帮您？</div>
+            <div class="mock-bubble card">
+              <div class="card-title">🏠 首页咨询</div>
+              <div class="card-line" style="width:90%;"></div>
+              <div class="card-line" style="width:60%;"></div>
+            </div>
+            <div class="mock-input-bar">
+              <span class="mi-icon"></span>
+              <span style="flex:1;">请输入消息...</span>
+              <span class="mi-icon"></span>
+            </div>
+          </div>
+        </div>
+        <div class="entry-card-foot">
+          <div class="entry-detail">
+            首页右下角悬浮「联系客服」按钮，全天候可见。<br>
+            entry_tag: <code>home</code> · 通用咨询入口
+          </div>
+          <div class="kv">
+            <span>入口位置</span>
+            <span>全局悬浮 · 右下角</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 2. 商品详情 ===== -->
+      <div class="entry-card">
+        <div class="entry-card-head">
+          <div class="scene-name">
+            <span class="scene-emoji"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+            商品详情
+          </div>
+          <span class="entry-tag-chip">entry_tag: product</span>
+        </div>
+        <div class="mock-page">
+          <div class="mock-urlbar">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="url">mall.com / product / 10086</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-banner product">智能客服 · 商品咨询</div>
+            <div class="mock-bubble agent">您好，我是智能客服小助手，请问有什么可以帮您？</div>
+            <div class="mock-bubble card">
+              <div class="card-title">🛒 商品 · YONEX 天斧100ZZ</div>
+              <div class="card-line" style="width:90%;"></div>
+              <div class="card-line" style="width:60%;"></div>
+              <div class="card-line" style="width:40%;"></div>
+            </div>
+            <div class="mock-input-bar">
+              <span class="mi-icon"></span>
+              <span style="flex:1;">请输入消息...</span>
+              <span class="mi-icon"></span>
+            </div>
+          </div>
+        </div>
+        <div class="entry-card-foot">
+          <div class="entry-detail">
+            商品详情页右下角「商品咨询」按钮，点击自动发送商品卡片。<br>
+            entry_tag: <code>product</code> + <code>product_id</code> · 带商品咨询
+          </div>
+          <div class="kv">
+            <span>携带上下文</span>
+            <span>商品ID · 名称 · 价格</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 3. 订单详情 ===== -->
+      <div class="entry-card">
+        <div class="entry-card-head">
+          <div class="scene-name">
+            <span class="scene-emoji"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span>
+            订单详情
+          </div>
+          <span class="entry-tag-chip">entry_tag: order</span>
+        </div>
+        <div class="mock-page">
+          <div class="mock-urlbar">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="url">mall.com / order / 202606110001</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-banner order">智能客服 · 订单咨询</div>
+            <div class="mock-bubble agent">您好，我是智能客服小助手，请问有什么可以帮您？</div>
+            <div class="mock-bubble card">
+              <div class="card-title">📦 订单 · 待发货</div>
+              <div class="card-line" style="width:90%;"></div>
+              <div class="card-line" style="width:60%;"></div>
+              <div class="card-line" style="width:40%;"></div>
+            </div>
+            <div class="mock-input-bar">
+              <span class="mi-icon"></span>
+              <span style="flex:1;">请输入消息...</span>
+              <span class="mi-icon"></span>
+            </div>
+          </div>
+        </div>
+        <div class="entry-card-foot">
+          <div class="entry-detail">
+            订单详情页「订单咨询」按钮，点击自动附带订单卡片。<br>
+            entry_tag: <code>order</code> + <code>order_id</code> + <code>order_status</code>
+          </div>
+          <div class="kv">
+            <span>携带上下文</span>
+            <span>订单号 · 状态 · 金额</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 4. 购物车 ===== -->
+      <div class="entry-card">
+        <div class="entry-card-head">
+          <div class="scene-name">
+            <span class="scene-emoji"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></span>
+            购物车
+          </div>
+          <span class="entry-tag-chip">entry_tag: cart</span>
+        </div>
+        <div class="mock-page">
+          <div class="mock-urlbar">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="url">mall.com / cart</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-banner cart">智能客服 · 购物车咨询</div>
+            <div class="mock-bubble agent">您好，我是智能客服小助手，请问有什么可以帮您？</div>
+            <div class="mock-bubble card">
+              <div class="card-title">🛒 购物车 · 3 件商品</div>
+              <div class="card-line" style="width:90%;"></div>
+              <div class="card-line" style="width:60%;"></div>
+              <div class="card-line" style="width:40%;"></div>
+            </div>
+            <div class="mock-input-bar">
+              <span class="mi-icon"></span>
+              <span style="flex:1;">请输入消息...</span>
+              <span class="mi-icon"></span>
+            </div>
+          </div>
+        </div>
+        <div class="entry-card-foot">
+          <div class="entry-detail">
+            购物车页右下角「联系客服」按钮，常用于凑单、优惠、库存咨询。<br>
+            entry_tag: <code>cart</code> + <code>cart_items[]</code> · 购物车咨询
+          </div>
+          <div class="kv">
+            <span>携带上下文</span>
+            <span>商品列表 · 总金额</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 6. 个人中心 ===== -->
+      <div class="entry-card">
+        <div class="entry-card-head">
+          <div class="scene-name">
+            <span class="scene-emoji"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+            个人中心
+          </div>
+          <span class="entry-tag-chip">entry_tag: profile</span>
+        </div>
+        <div class="mock-page">
+          <div class="mock-urlbar">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="url">mall.com / profile</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-banner profile">智能客服 · 账户咨询</div>
+            <div class="mock-bubble agent">您好，我是智能客服小助手，请问有什么可以帮您？</div>
+            <div class="mock-bubble card">
+              <div class="card-title">👤 账户 · 黄金会员</div>
+              <div class="card-line" style="width:90%;"></div>
+              <div class="card-line" style="width:60%;"></div>
+              <div class="card-line" style="width:40%;"></div>
+            </div>
+            <div class="mock-input-bar">
+              <span class="mi-icon"></span>
+              <span style="flex:1;">请输入消息...</span>
+              <span class="mi-icon"></span>
+            </div>
+          </div>
+        </div>
+        <div class="entry-card-foot">
+          <div class="entry-detail">
+            个人中心「联系客服」按钮，处理账户、会员、地址类问题。<br>
+            entry_tag: <code>profile</code> · 账户类咨询
+          </div>
+          <div class="kv">
+            <span>携带上下文</span>
+            <span>会员等级 · 账户信息</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 7. 物流详情页 ===== -->
+      <div class="entry-card">
+        <div class="entry-card-head">
+          <div class="scene-name">
+            <span class="scene-emoji"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
+            物流详情页
+          </div>
+          <span class="entry-tag-chip">entry_tag: logistics</span>
+        </div>
+        <div class="mock-page">
+          <div class="mock-urlbar">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="url">mall.com / logistics / SF1234567890</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-banner logistics">智能客服 · 物流咨询</div>
+            <div class="mock-bubble agent">您好，我是智能客服小助手，请问有什么可以帮您？</div>
+            <div class="mock-bubble card">
+              <div class="card-title">🚚 物流 · 顺丰 SF1234567890</div>
+              <div class="card-line" style="width:90%;"></div>
+              <div class="card-line" style="width:60%;"></div>
+              <div class="card-line" style="width:40%;"></div>
+            </div>
+            <div class="mock-input-bar">
+              <span class="mi-icon"></span>
+              <span style="flex:1;">请输入消息...</span>
+              <span class="mi-icon"></span>
+            </div>
+          </div>
+        </div>
+        <div class="entry-card-foot">
+          <div class="entry-detail">
+            物流详情页「物流咨询」按钮，点击自动附带物流单号与订单信息。<br>
+            entry_tag: <code>logistics</code> + <code>tracking_no</code> + <code>order_id</code>
+          </div>
+          <div class="kv">
+            <span>携带上下文</span>
+            <span>物流单号 · 快递公司 · 当前状态</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 8. 退换货 ===== -->
+      <div class="entry-card">
+        <div class="entry-card-head">
+          <div class="scene-name">
+            <span class="scene-emoji"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-3px;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/><path d="M10 9V4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v5"/></svg></span>
+            退换货
+          </div>
+          <span class="entry-tag-chip">entry_tag: refund</span>
+        </div>
+        <div class="mock-page">
+          <div class="mock-urlbar">
+            <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+            <span class="url">mall.com / order / refund</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-banner refund">智能客服 · 退款咨询</div>
+            <div class="mock-bubble agent">您好，我是智能客服小助手，请问有什么可以帮您？</div>
+            <div class="mock-bubble card">
+              <div class="card-title">↩️ 售后 · 退货退款 · 待商家审核</div>
+              <div class="card-line" style="width:90%;"></div>
+              <div class="card-line" style="width:60%;"></div>
+              <div class="card-line" style="width:40%;"></div>
+            </div>
+            <div class="mock-input-bar">
+              <span class="mi-icon"></span>
+              <span style="flex:1;">请输入消息...</span>
+              <span class="mi-icon"></span>
+            </div>
+          </div>
+        </div>
+        <div class="entry-card-foot">
+          <div class="entry-detail">
+            退换货页面「退换货咨询」按钮，自动附带订单及退货商品信息。<br>
+            entry_tag: <code>refund</code> + <code>order_id</code> + <code>refund_type</code>
+          </div>
+          <div class="kv">
+            <span>携带上下文</span>
+            <span>订单号 · 商品信息 · 退款原因</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- /.entry-grid -->
+
+    <!-- ===== Entry Tag Mapping Table ===== -->
+    <div class="card" style="margin-top:20px;">
+      <div class="card-title">entry_tag 场景标签对照表</div>
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <thead>
+          <tr style="background:#fafbfc; border-bottom:1px solid #f0f0f0;">
+            <th style="text-align:left; padding:10px 12px; font-weight:600;">页面</th>
+            <th style="text-align:left; padding:10px 12px; font-weight:600;">entry_tag</th>
+            <th style="text-align:left; padding:10px 12px; font-weight:600;">携带参数</th>
+            <th style="text-align:left; padding:10px 12px; font-weight:600;">典型咨询场景</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid #f5f5f5;">
+            <td style="padding:10px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> 首页</td>
+            <td style="padding:10px 12px;"><code style="background:var(--cs-primary-bg);color:var(--cs-primary);padding:1px 5px;border-radius:3px;">home</code></td>
+            <td style="padding:10px 12px; color:#595959;">—</td>
+            <td style="padding:10px 12px; color:#595959;">活动咨询、通用问题</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f5f5f5;">
+            <td style="padding:10px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> 商品详情</td>
+            <td style="padding:10px 12px;"><code style="background:var(--cs-primary-bg);color:var(--cs-primary);padding:1px 5px;border-radius:3px;">product</code></td>
+            <td style="padding:10px 12px; color:#595959;">product_id, product_name, price</td>
+            <td style="padding:10px 12px; color:#595959;">尺码、库存、规格咨询</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f5f5f5;">
+            <td style="padding:10px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> 订单详情</td>
+            <td style="padding:10px 12px;"><code style="background:var(--cs-primary-bg);color:var(--cs-primary);padding:1px 5px;border-radius:3px;">order</code></td>
+            <td style="padding:10px 12px; color:#595959;">order_id, order_status, amount</td>
+            <td style="padding:10px 12px; color:#595959;">物流、催发货、退款</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f5f5f5;">
+            <td style="padding:10px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> 购物车</td>
+            <td style="padding:10px 12px;"><code style="background:var(--cs-primary-bg);color:var(--cs-primary);padding:1px 5px;border-radius:3px;">cart</code></td>
+            <td style="padding:10px 12px; color:#595959;">cart_items[], total_amount</td>
+            <td style="padding:10px 12px; color:#595959;">凑单、优惠、满减</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f5f5f5;">
+            <td style="padding:10px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> 帮助中心</td>
+            <td style="padding:10px 12px;"><code style="background:var(--cs-primary-bg);color:var(--cs-primary);padding:1px 5px;border-radius:3px;">help</code></td>
+            <td style="padding:10px 12px; color:#595959;">faq_category</td>
+            <td style="padding:10px 12px; color:#595959;">FAQ 兜底、政策咨询</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> 个人中心</td>
+            <td style="padding:10px 12px;"><code style="background:var(--cs-primary-bg);color:var(--cs-primary);padding:1px 5px;border-radius:3px;">profile</code></td>
+            <td style="padding:10px 12px; color:#595959;">member_level</td>
+            <td style="padding:10px 12px; color:#595959;">账户、会员、地址</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f5f5f5;">
+            <td style="padding:10px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> 物流详情</td>
+            <td style="padding:10px 12px;"><code style="background:var(--cs-primary-bg);color:var(--cs-primary);padding:1px 5px;border-radius:3px;">logistics</code></td>
+            <td style="padding:10px 12px; color:#595959;">tracking_no, carrier, order_id</td>
+            <td style="padding:10px 12px; color:#595959;">物流延误、地址变更、签收问题</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f5f5f5;">
+            <td style="padding:10px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/><path d="M10 9V4a1 1 0 0 1 1-1h7a1 1 0 0 1 1 1v5"/></svg> 退换货</td>
+            <td style="padding:10px 12px;"><code style="background:var(--cs-primary-bg);color:var(--cs-primary);padding:1px 5px;border-radius:3px;">refund</code></td>
+            <td style="padding:10px 12px; color:#595959;">order_id, refund_type, reason</td>
+            <td style="padding:10px 12px; color:#595959;">退货、换货、退款进度</td>
+          </tr>
+          <tr style="border-bottom:1px solid #f5f5f5;">
+            <td style="padding:10px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg> 全站悬浮按钮</td>
+            <td style="padding:10px 12px;"><code style="background:var(--cs-primary-bg);color:var(--cs-primary);padding:1px 5px;border-radius:3px;">floating</code></td>
+            <td style="padding:10px 12px; color:#595959;">auto-detect from current page</td>
+            <td style="padding:10px 12px; color:#595959;">全站通用 · 自动识别场景</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> 电话咨询</td>
+            <td style="padding:10px 12px;"><code style="background:var(--cs-primary-bg);color:var(--cs-primary);padding:1px 5px;border-radius:3px;">phone</code></td>
+            <td style="padding:10px 12px; color:#595959;">session_id</td>
+            <td style="padding:10px 12px; color:#595959;">语音沟通 · 仅H5</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ===== Footer ===== -->
+    <div style="text-align:center; padding:32px 0 16px; color:#8c8c8c; font-size:12px;">
+      <a href="javascript:history.back()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;"><polyline points="15 18 9 12 15 6"/></svg> 返回上一页</a>
+      <span style="margin:0 8px; opacity:.5;">|</span>
+      CS 商城客服系统 · 用户端原型 · US-MVP-16（8页面入口嵌入）
+    </div>
+
+  </div>
+
+<!-- ===== 真实可交互悬浮按钮（AC-U-06 拖拽 / AC-U-07 松手吸边） ===== -->
+<a href="javascript:void(0)" class="cs-fab" id="csFab" title="拖动我，松手吸附屏幕边缘">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14v-2a9 9 0 0 1 18 0v2"/><path d="M21 14v3a2 2 0 0 1-2 2h-2v-7h2a2 2 0 0 1 2 2z"/><path d="M3 14v3a2 2 0 0 0 2 2h2v-7H5a2 2 0 0 0-2 2z"/><path d="M18 19v1a3 3 0 0 1-3 3h-3"/></svg>
+</a>
+<style>
+  .cs-fab {
+    position: fixed;
+    right: 20px; bottom: 90px;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px rgba(238, 10, 36,.45);
+    z-index: 9999;
+    cursor: grab;
+    transition: transform 0.15s ease, opacity 0.15s ease, right 0.3s cubic-bezier(.2,.8,.2,1), left 0.3s cubic-bezier(.2,.8,.2,1);
+    touch-action: none; /* 让 pointer 事件接管，避免页面滚动 */
+    user-select: none;
+  }
+  .cs-fab.dragging { cursor: grabbing; transform: scale(1.12); opacity: 0.9; transition: none; }
+  .cs-fab:hover { transform: scale(1.06); }
+  .cs-fab-label {
+    position: fixed; bottom: 96px; z-index: 9998;
+    font-size: 12px; color: #fff; background: rgba(0,0,0,.7);
+    padding: 4px 10px; border-radius: 12px; pointer-events: none;
+    white-space: nowrap; opacity: 0; transition: opacity .2s;
+  }
+</style>
+<script>
+    // ===== 入口卡片点击 > 直接跳转对应小程序业务页 =====
+    // 说明：咨询方式选择弹窗已移除，统一由 mini-program 端 cs-panel.js 接管。
+    //       本页仅保留：1) 入口卡片点击跳转业务页；2) 卡片内电话按钮直接拨打。
+    (function () {
+      // 每个场景对应的 mock 业务参数（与卡片内展示内容一致）
+      var ENTRY_PARAMS = {
+        home:      {},
+        product:   { product_id: '10086', product_name: 'YONEX 天斧100ZZ 碳纤维羽毛球拍', price: '1580' },
+        order:     { order_id: '202606110001', order_status: '待发货', amount: '1580' },
+        cart:      { cart_items: '3', total_amount: '1800' },
+        help:      { faq_category: '物流查询' },
+        profile:   { member_level: '黄金会员' },
+        logistics: { tracking_no: 'SF1234567890', carrier: '顺丰速运', order_id: '202606110001' },
+        refund:    { order_id: '202606110001', refund_type: '退货退款' },
+        phone:     { session_id: 'CS2026061109' }
+      };
+
+      // 每个场景对应的小程序页面路径（点击入口卡片先跳到对应业务页，再由该页悬浮客服按钮触发咨询）
+      // user-entry.html 位于 OCS/prototype-cs/user/，mini-program 位于 根目录/mini-program/pages/，需回退三层
+      var MINI_PAGES = {
+        home:      '../../mini-program/pages/home_page.html',       // 首页
+        product:   '../../mini-program/pages/product_detail.html',  // 商品详情
+        order:     '../../mini-program/pages/order_detail.html',    // 订单详情
+        cart:      '../../mini-program/pages/cart.html',            // 购物车
+        help:      '../../mini-program/pages/help.html',            // 帮助中心
+        profile:   '../../mini-program/pages/profile.html',         // 个人中心
+        logistics: '../../mini-program/pages/logistics.html',       // 物流详情
+        refund:    '../../mini-program/pages/refund.html'           // 退款/售后
+      };
+
+      var CS_PHONE = '400-888-8888';
+
+      // 遍历每张入口卡片，解析 entry_tag
+      document.querySelectorAll('.entry-card').forEach(function (card) {
+        var chip = card.querySelector('.entry-tag-chip');
+        if (!chip) return;
+        var tag = chip.textContent.replace('entry_tag:', '').trim();
+
+        // 有对应小程序页面的卡片 > 点击整个卡片直接跳转
+        var miniPage = MINI_PAGES[tag];
+        if (miniPage) {
+          card.style.cursor = 'pointer';
+          card.addEventListener('click', function (e) {
+            // 如果点击的是电话按钮，不拦截（走电话直拨）
+            if (e.target.closest('.phone-call-btn')) return;
+            // 携带 entry_tag，使目标业务页能识别来源场景
+            location.href = miniPage + (miniPage.indexOf('?') > -1 ? '&' : '?') + 'entry_tag=' + encodeURIComponent(tag);
+          });
+        }
+
+        // 电话咨询卡片里的 phone-call-btn > 直接拨打（tel: 协议，由手机系统接管）
+        var phoneBtnInCard = card.querySelector('.phone-call-btn');
+        if (phoneBtnInCard) {
+          phoneBtnInCard.style.cursor = 'pointer';
+          phoneBtnInCard.setAttribute('href', 'tel:' + CS_PHONE.replace(/[^0-9+]/g, ''));
+          phoneBtnInCard.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            // 直接跳转 tel: 协议，由手机系统拨号界面接管
+            location.href = 'tel:' + CS_PHONE.replace(/[^0-9+]/g, '');
+          });
+        }
+      });
+    })();
+</script>
+
+<script>
+  (function () {
+    var fab = document.getElementById('csFab');
+    if (!fab) return;
+    var SIZE = 52, MARGIN = 20;
+    var dragging = false, moved = false;
+    var startX = 0, startY = 0, offsetX = 0, offsetY = 0;
+
+    // 用 left/top 定位（拖拽期），初始沿用 right/bottom
+    function toAbsolute() {
+      var r = fab.getBoundingClientRect();
+      fab.style.right = 'auto'; fab.style.bottom = 'auto';
+      fab.style.left = r.left + 'px';
+      fab.style.top = r.top + 'px';
+    }
+
+    fab.addEventListener('pointerdown', function (e) {
+      dragging = true; moved = false;
+      fab.setPointerCapture(e.pointerId);
+      var r = fab.getBoundingClientRect();
+      toAbsolute();
+      startX = e.clientX; startY = e.clientY;
+      offsetX = e.clientX - r.left; offsetY = e.clientY - r.top;
+      fab.classList.add('dragging');
+      e.preventDefault();
+    });
+
+    fab.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      var dx = e.clientX - startX, dy = e.clientY - startY;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+      var x = e.clientX - offsetX, y = e.clientY - offsetY;
+      // 限制在视口内
+      var maxX = window.innerWidth - SIZE - MARGIN;
+      var maxY = window.innerHeight - SIZE - MARGIN;
+      x = Math.max(MARGIN, Math.min(maxX, x));
+      y = Math.max(MARGIN, Math.min(maxY, y));
+      fab.style.left = x + 'px'; fab.style.top = y + 'px';
+    });
+
+    fab.addEventListener('pointerup', function (e) {
+      if (!dragging) return;
+      dragging = false;
+      fab.classList.remove('dragging');
+      // AC-U-07：松手吸附最近屏幕边缘（左/右）
+      var r = fab.getBoundingClientRect();
+      var centerX = r.left + SIZE / 2;
+      var snapLeft = centerX < window.innerWidth / 2;
+      var y = parseFloat(fab.style.top) || r.top;
+      y = Math.max(MARGIN, Math.min(window.innerHeight - SIZE - MARGIN, y));
+      // 切换为 left+top / right+top 定位，触发 transition 吸边动画
+      fab.style.left = ''; fab.style.right = '';
+      if (snapLeft) { fab.style.left = MARGIN + 'px'; }
+      else { fab.style.right = MARGIN + 'px'; }
+      fab.style.top = y + 'px';
+      // 若未真正拖动，则视为点击 > 直接进入在线咨询聊天页
+      if (!moved) {
+        location.href = 'user-chat-basic.html?entry_tag=floating';
+        return;
+      }
+      e.preventDefault();
+    });
+
+    fab.addEventListener('click', function (e) {
+      // 拖动发生过则阻止跳转
+      if (moved) { e.preventDefault(); moved = false; }
+    });
+  })();
+</script>
+
+</body>
+</html>

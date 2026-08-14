@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>编辑工单 · 抽屉</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <script src="../js/ticket-dict.js"></script>
+  <style>
+    body { background:#fff; margin:0; }
+    .dw-body { display:flex; flex-direction:column; height:100vh; }
+    .drawer-head { padding:16px 24px; border-bottom:1px solid var(--cs-border-light); display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+    .drawer-head .title { font-size:16px; font-weight:600; }
+    .drawer-head .close { font-size:20px; color:var(--cs-text-tertiary); cursor:pointer; line-height:1; }
+    .drawer-body { flex:1; min-height:0; overflow-y:auto; padding:20px 24px; }
+    .drawer-foot { padding:12px 24px; border-top:1px solid var(--cs-border-light); display:flex; justify-content:flex-end; gap:8px; flex-shrink:0; }
+
+    /* 分区标题(与工单详情一致的蓝条样式) */
+    .fm-sec { font-size:var(--cs-font-size-sm); font-weight:var(--cs-font-weight-semibold); color:var(--cs-text-secondary); margin:18px 0 12px; display:flex; align-items:center; gap:6px; }
+    .fm-sec:first-child { margin-top:0; }
+    .fm-sec::before { content:""; width:3px; height:13px; background:var(--cs-primary); border-radius:2px; }
+    .fm-sec .sec-tip { font-size:var(--cs-font-size-xs); color:var(--cs-text-tertiary); font-weight:normal; margin-left:6px; }
+
+    .fm-row { display:flex; gap:14px; margin-bottom:12px; }
+    .fm-row:last-child { margin-bottom:0; }
+    .fm-field { display:flex; align-items:center; gap:8px; flex:1 1 240px; min-width:0; }
+    .fm-label { width:92px; flex-shrink:0; font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary); white-space:nowrap; }
+    .fm-label .req { color:var(--cs-danger); margin-left:2px; }
+    .fm-label .opt { color:var(--cs-text-placeholder); font-weight:normal; margin-left:2px; }
+    .fm-input, .fm-select { flex:1; min-width:0; border:1px solid var(--cs-border); border-radius:var(--cs-radius-sm); padding:7px 10px; font-size:var(--cs-font-size-sm); font-family:inherit; background:#fff; outline:none; transition:border-color .2s; }
+    .fm-input:focus, .fm-select:focus { border-color:var(--cs-primary); box-shadow:0 0 0 2px rgba(22,119,255,0.1); }
+    .fm-static { flex:1; min-width:0; font-size:var(--cs-font-size-sm); color:var(--cs-text); }
+    .conditional { display:none; }
+    .conditional.show { display:flex; }
+    .collapsible { display:none; margin-top:10px; }
+    .collapsible.open { display:block; }
+    /* 与建单页「添加新联系人」按钮统一(mo 页内覆盖 13px/5px 14px) */
+    #newContactToggle { font-size:var(--cs-font-size-base); padding:5px 14px; }
+  </style>
+</head>
+<body>
+  <div class="dw-body">
+    <div class="drawer-head">
+      <div class="title">编辑工单</div>
+      <div class="close" onclick="window.csModalBridge.close()">×</div>
+    </div>
+    <div class="drawer-body">
+
+      <div class="fm-sec">基本信息</div>
+      <!-- 2026-07-28:工单业务类型改三级级联组件,值=一级>二级>三级 -->
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">工单业务类型<span class="req">*</span></label><div id="fBizType" class="cascader"></div></div>
+        <div class="fm-field conditional" id="responsibleWrap"><label class="fm-label">责任承担方<span class="req">*</span></label><select class="fm-select" id="fResponsible"><option value="">请选择</option></select></div>
+      </div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">优先级</label><select class="fm-select" id="fPriority"><option value="">请选择</option><option>一般</option><option>紧急</option><option>特急</option></select></div>
+        <div class="fm-field"><label class="fm-label">完成期限</label><select class="fm-select" id="fDeadline"><option value="">请选择</option><option value="1天">1天</option><option value="7天">7天</option><option value="15天">15天</option></select></div>
+      </div>
+      <div class="fm-row">
+        <!-- 2026-07-28 十三轮:项目名称 → 企业名称+品牌商城(字典见 ticket-dict.js) -->
+        <div class="fm-field"><label class="fm-label">企业名称<span class="req">*</span></label><select class="fm-select" id="fEnterprise"><option value="">请选择</option></select></div>
+        <div class="fm-field"><label class="fm-label">商城名称<span class="req">*</span></label><select class="fm-select" id="fMall"><option value="">请选择</option></select></div>
+      </div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">反馈方式<span class="req">*</span></label><select class="fm-select" id="fFeedback"></select></div>
+        <div class="fm-field"><label class="fm-label">协助部门<span class="req">*</span></label><select class="fm-select" id="fDept"></select></div>
+      </div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">二次投诉</label><select class="fm-select" id="fSecondary"><option value="否">否</option><option value="是">是</option></select></div>
+        <!-- 2026-07-28 十七轮:受理客服(跟进人),取代原「指派」动作 -->
+        <div class="fm-field"><label class="fm-label">受理客服<span class="req">*</span></label><select class="fm-select" id="fAcceptor"></select></div>
+      </div>
+
+      <div class="fm-sec">联系方式<span class="sec-tip">改动不影响订单收货信息</span></div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">联系人</label><input class="fm-input" id="fContactName" placeholder="联系人姓名" /></div>
+        <div class="fm-field"><label class="fm-label">移动电话</label><input class="fm-input" id="fContactPhone" placeholder="移动电话" /></div>
+      </div>
+      <div class="fm-row">
+        <div class="fm-field"><label class="fm-label">来电电话</label><input class="fm-input" id="fIncomingCall" placeholder="来电电话" /></div>
+        <div class="fm-field"><label class="fm-label">联系地址</label><input class="fm-input" id="fContactAddr" placeholder="联系地址" /></div>
+      </div>
+      <button class="btn-default" type="button" id="newContactToggle" style="margin-top:2px;" title="收货人以外的实际联系人">添加新联系人</button>
+      <div class="collapsible" id="newContactBox">
+        <div class="fm-row" style="margin-top:8px;">
+          <div class="fm-field"><label class="fm-label">新联系人</label><input class="fm-input" id="fNewName" placeholder="新联系人" /></div>
+          <div class="fm-field"><label class="fm-label">新移动电话</label><input class="fm-input" id="fNewPhone" placeholder="新移动电话" /></div>
+        </div>
+        <div class="fm-row">
+          <div class="fm-field"><label class="fm-label">新座机</label><input class="fm-input" id="fNewTel" placeholder="新座机电话" /></div>
+          <div class="fm-field"><label class="fm-label">新地址</label><input class="fm-input" id="fNewAddr" placeholder="新联系地址" /></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="drawer-foot">
+      <button class="btn-default" onclick="window.csModalBridge.close()">取消</button>
+      <button class="btn-primary" id="saveBtn">保存</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script src="../js/cascader.js"></script>
+  <script>
+    var P = new URLSearchParams(location.search);
+    function gv(k) { return P.get(k) || ''; }
+
+    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
+    var RESPONSIBLE_PARTIES = window.TICKET_DICT.RESPONSIBLE_PARTIES;
+    function fillSelect(sel, arr, placeholder, keep) {
+      var cur = keep ? sel.value : '';
+      sel.innerHTML = '<option value="">' + placeholder + '</option>' + arr.map(function (o) { return '<option>' + o + '</option>'; }).join('');
+      if (cur && arr.indexOf(cur) >= 0) sel.value = cur;
+    }
+    /* 工单业务类型:三级级联组件(2026-07-28:替换单选下拉);值=一级>二级>三级,isComplain 驱动责任承担方 */
+    function isComplain(biz) { return (biz || '').split('>')[0] === '投诉业务'; }
+    var fBizType = createCascader(document.getElementById('fBizType'), { placeholder: '请选择' });
+    var fResponsible = document.getElementById('fResponsible');
+
+    fillSelect(fResponsible, RESPONSIBLE_PARTIES, '请选择');
+    fillSelect(document.getElementById('fEnterprise'), window.TICKET_DICT.ENTERPRISES, '请选择');
+    fillSelect(document.getElementById('fMall'), window.TICKET_DICT.MALLS, '请选择');
+    fillSelect(document.getElementById('fFeedback'), window.TICKET_DICT.FEEDBACK_METHODS, '请选择');
+    fillSelect(document.getElementById('fDept'), window.TICKET_DICT.DEPTS, '请选择');
+    fillSelect(document.getElementById('fAcceptor'), window.TICKET_DICT.ACCEPTORS, '请选择');
+
+    /* 投诉类责任承担方必填 */
+    function syncResponsible(biz) {
+      document.getElementById('responsibleWrap').classList.toggle('show', isComplain(biz));
+      if (!isComplain(biz)) fResponsible.value = '';
+    }
+    fBizType.onChange(syncResponsible);
+
+    /* 回填(2026-07-24 三轮:标题/客户/座机电话字段已移除;2026-07-28:三字段拼回单字段) */
+    var _cat = gv('category'), _sub = gv('sub'), _typ = gv('type');
+    if (_cat) fBizType.setValue([_cat, _sub, _typ].filter(Boolean).join('>'));
+    fResponsible.value = gv('responsible');
+    syncResponsible(fBizType.getValue());
+    document.getElementById('fPriority').value = gv('priority');
+    document.getElementById('fDeadline').value = gv('deadline');
+    document.getElementById('fContactName').value = gv('contact_name');
+    document.getElementById('fContactPhone').value = gv('contact_phone');
+    document.getElementById('fIncomingCall').value = gv('incoming_call');
+    document.getElementById('fContactAddr').value = gv('contact_addr');
+    document.getElementById('fEnterprise').value = gv('enterprise');
+    document.getElementById('fMall').value = gv('mall');
+    document.getElementById('fFeedback').value = gv('feedback');
+    document.getElementById('fDept').value = gv('dept');
+    document.getElementById('fAcceptor').value = gv('agent');
+    document.getElementById('fSecondary').value = gv('secondary') || '否';
+    document.getElementById('fNewName').value = gv('new_name');
+    document.getElementById('fNewPhone').value = gv('new_phone');
+    document.getElementById('fNewTel').value = gv('new_tel');
+    document.getElementById('fNewAddr').value = gv('new_addr');
+    if (gv('new_name') || gv('new_phone')) document.getElementById('newContactBox').classList.add('open');
+
+    var ncb = document.getElementById('newContactBox');
+    document.getElementById('newContactToggle').addEventListener('click', function () {
+      ncb.classList.toggle('open');
+    });
+
+    function invalid(el) { el.style.borderColor = 'var(--cs-danger)'; el.focus(); setTimeout(function () { el.style.borderColor = ''; }, 1500); }
+
+    document.getElementById('saveBtn').addEventListener('click', function () {
+      if (!fBizType.getValue()) { invalid(fBizType.triggerEl); return; }
+      if (isComplain(fBizType.getValue()) && !fResponsible.value) { invalid(fResponsible); return; }
+      var enterprise = document.getElementById('fEnterprise');
+      if (!enterprise.value) { invalid(enterprise); return; }
+      var mall = document.getElementById('fMall');
+      if (!mall.value) { invalid(mall); return; }
+      var feedback = document.getElementById('fFeedback');
+      if (!feedback.value) { invalid(feedback); return; }
+      var dept = document.getElementById('fDept');
+      if (!dept.value) { invalid(dept); return; }
+      var acceptor = document.getElementById('fAcceptor');
+      if (!acceptor.value) { invalid(acceptor); return; }
+      var _parts = fBizType.getValue().split('>');
+      window.csModalBridge.confirm({
+        category: _parts[0] || '',
+        sub: _parts[1] || '',
+        type: _parts[2] || '',
+        priority: document.getElementById('fPriority').value || '一般',
+        deadline: document.getElementById('fDeadline').value,
+        responsible: _parts[0] === '投诉业务' ? fResponsible.value : '',
+        enterprise: enterprise.value,
+        mall: mall.value,
+        feedback: feedback.value,
+        dept: dept.value,
+        agent: acceptor.value,
+        secondary: document.getElementById('fSecondary').value,
+        contactName: document.getElementById('fContactName').value.trim(),
+        contactPhone: document.getElementById('fContactPhone').value.trim(),
+        incomingCall: document.getElementById('fIncomingCall').value.trim(),
+        contactAddr: document.getElementById('fContactAddr').value.trim(),
+        newName: document.getElementById('fNewName').value.trim(),
+        newPhone: document.getElementById('fNewPhone').value.trim(),
+        newTel: document.getElementById('fNewTel').value.trim(),
+        newAddr: document.getElementById('fNewAddr').value.trim()
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>富媒体卡片样本 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="mobile.css" />
+  <link rel="stylesheet" href="chat.css" />
+  <script src="js/cs-modal.js"></script>
+  <script src="js/cs-common.js"></script>
+  <style>
+    /* ===== user-chat-cards.html 专属样式 ===== */
+    /* 与 user-chat-basic.html 的卡片样式保持完全一致，确保样本展示 == 实际会话表现 */
+    body {
+      background: #ededed;
+      min-height: 100vh;
+      padding: 24px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .page-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    /* 样本容器：不再伪装成手机，直接用卡片网格展示 */
+    .samples-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+    @media (max-width: 560px) {
+      .samples-grid { grid-template-columns: 1fr; }
+    }
+
+    .sample-block {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.06);
+      overflow: hidden;
+    }
+    .sample-head {
+      padding: 10px 14px;
+      background: #fafafa;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sample-head .sh-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #262626;
+    }
+    .sample-head .sh-tag {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+    }
+    .sample-head .sh-tag.state {
+      background: #fff7e6;
+      color: #fa8c16;
+    }
+    .sample-body {
+      padding: 14px;
+      display: flex;
+      justify-content: center;
+      background: #f5f5f5;
+    }
+
+    .page-head {
+      max-width: 720px;
+      margin: 0 auto 6px;
+      text-align: center;
+    }
+    .page-head h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #262626;
+      margin: 0 0 4px;
+    }
+    .page-head .back-link {
+      font-size: 12px;
+      color: #8c8c8c;
+    }
+    .page-head .back-link a { color: var(--cs-primary); }
+
+    .page-intro {
+      max-width: 720px;
+      margin: 0 auto 10px;
+      padding: 10px 14px;
+      background: var(--cs-primary-bg);
+      border: 1px dashed var(--cs-border-light);
+      border-radius: 6px;
+      font-size: 12px;
+      color: var(--cs-primary);
+      line-height: 1.6;
+    }
+
+    .section-title {
+      grid-column: 1 / -1;
+      font-size: 14px;
+      font-weight: 600;
+      color: #595959;
+      margin: 10px 0 -6px;
+      padding-left: 2px;
+      border-left: 3px solid var(--cs-primary);
+      padding-left: 8px;
+    }
+
+    .page-footer {
+      max-width: 720px;
+      margin: 24px auto 0;
+      text-align: center;
+      font-size: 12px;
+      color: #8c8c8c;
+      line-height: 1.8;
+    }
+    .page-footer a { color: var(--cs-primary); }
+
+
+
+    /* 单按钮（信息类卡片：商品/物流/账户）——描边主色 */
+
+    /* 按钮组（操作类卡片：订单/退款/购物车）——内联多按钮 */
+    /* 联动禁用态：取消订单后同卡片退款按钮置灰 */
+    .thread-card .card-actions .card-action-btn.disabled,
+
+    /* 物流轨迹 */
+
+    /* FAQ 列表 */
+
+    /* 媒体消息：图片 / 语音 */
+    .msg-media {
+      max-width: 200px; border-radius: 8px; overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .msg-media .media-placeholder {
+      width: 200px; height: 150px;
+      background: linear-gradient(135deg, var(--cs-primary-bg), var(--cs-border-light));
+      display: flex; align-items: center; justify-content: center;
+      color: #8c8c8c;
+    }
+    .msg-voice {
+      display: flex; align-items: center; gap: 8px;
+      min-width: 100px; padding: 10px 14px;
+      background: #fff; border-radius: 8px;
+      border-top-left-radius: 2px; border: 1px solid #eee;
+    }
+    .msg-voice .voice-icon { color: var(--cs-primary); display: inline-flex; }
+    .msg-voice .voice-wave { display: flex; align-items: center; gap: 2px; flex: 1; }
+    .msg-voice .voice-wave span {
+      display: inline-block; width: 3px; background: var(--cs-primary);
+      border-radius: 2px; opacity: 0.4;
+    }
+    .msg-voice .voice-wave span:nth-child(1) { height: 8px; }
+    .msg-voice .voice-wave span:nth-child(2) { height: 14px; }
+    .msg-voice .voice-wave span:nth-child(3) { height: 18px; }
+    .msg-voice .voice-wave span:nth-child(4) { height: 12px; }
+    .msg-voice .voice-wave span:nth-child(5) { height: 16px; }
+    .msg-voice .voice-wave span:nth-child(6) { height: 10px; }
+    .msg-voice .voice-duration { font-size: 12px; color: #8c8c8c; }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- Page heading -->
+  <div class="page-head">
+    <h1>富媒体卡片样本（用户端）</h1>
+    <div class="back-link"><a href="javascript:history.back()">&lt; 返回上一页</a> · 与 user-chat-basic.html 实际会话卡片 1:1 同步</div>
+  </div>
+
+  <div class="page-intro">
+    本页展示 <b>user-chat-basic.html</b> 中所有富媒体卡片类型及其状态变体，用于核对视觉与交互一致性。<br />
+    订单卡片覆盖 <b>6 种状态</b>，售后卡片覆盖 <b>3 种类型 × 关键状态</b>（仅退款 5 态 + 退货退款 7 态 + 换货 7 态 = 19 个状态，会切换的状态对只展示前一个，单一终态全部展示），其余类型为单一形态。所有卡片均由 <code>cardHtml()</code> 生成，与实际会话完全一致。
+  </div>
+
+  <!-- 样本网格 -->
+  <div class="samples-grid" id="samplesGrid">
+
+    <!-- ===== 订单卡片：6 种状态 ===== -->
+    <div class="section-title">订单卡片 · 6 种状态变体</div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">订单 · 待发货</span><span class="sh-tag state">状态 1/6</span></div>
+      <div class="sample-body" id="order-1"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">订单 · 运输中</span><span class="sh-tag state">状态 2/6</span></div>
+      <div class="sample-body" id="order-2"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">订单 · 已签收</span><span class="sh-tag state">状态 3/6</span></div>
+      <div class="sample-body" id="order-3"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">订单 · 售后中</span><span class="sh-tag state">状态 4/6</span></div>
+      <div class="sample-body" id="order-4"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">订单 · 已完成</span><span class="sh-tag state">状态 5/6</span></div>
+      <div class="sample-body" id="order-5"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">订单 · 已取消</span><span class="sh-tag state">状态 6/6</span></div>
+      <div class="sample-body" id="order-6"></div>
+    </div>
+
+    <!-- ===== 售后卡片：3 种类型 × 关键状态（会切换的状态对只展示前一个，单一终态全部展示） ===== -->
+    <div class="section-title">售后卡片 · 3 种类型 × 关键状态覆盖</div>
+
+    <!-- ---- 仅退款：待商家审核（切换对前一个） → 待退款（切换对前一个） → 完成 / 申请已拒绝 / 已取消（单一终态） ---- -->
+    <div class="section-title" style="font-size:14px;color:var(--cs-text-secondary);margin-top:12px;">① 仅退款（5 个关键状态）</div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">仅退款 · 待商家审核</span><span class="sh-tag state">进行中</span></div>
+      <div class="sample-body" id="refund-rf-1"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">仅退款 · 待退款</span><span class="sh-tag state">进行中</span></div>
+      <div class="sample-body" id="refund-rf-2"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">仅退款 · 完成</span><span class="sh-tag state">终态</span></div>
+      <div class="sample-body" id="refund-rf-3"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">仅退款 · 申请已拒绝</span><span class="sh-tag state">终态</span></div>
+      <div class="sample-body" id="refund-rf-4"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">仅退款 · 已取消</span><span class="sh-tag state">终态</span></div>
+      <div class="sample-body" id="refund-rf-5"></div>
+    </div>
+
+    <!-- ---- 退货退款：待商家审核 → 待寄回商品 → 待商家收货 → 待退款（4个切换对前一个） → 完成 / 申请已拒绝 / 已取消（单一终态） ---- -->
+    <div class="section-title" style="font-size:14px;color:var(--cs-text-secondary);margin-top:12px;">② 退货退款（7 个关键状态）</div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">退货退款 · 待商家审核</span><span class="sh-tag state">进行中</span></div>
+      <div class="sample-body" id="refund-rr-1"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">退货退款 · 待寄回商品</span><span class="sh-tag state">进行中</span></div>
+      <div class="sample-body" id="refund-rr-2"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">退货退款 · 待商家收货</span><span class="sh-tag state">进行中</span></div>
+      <div class="sample-body" id="refund-rr-3"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">退货退款 · 待退款</span><span class="sh-tag state">进行中</span></div>
+      <div class="sample-body" id="refund-rr-4"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">退货退款 · 完成</span><span class="sh-tag state">终态</span></div>
+      <div class="sample-body" id="refund-rr-5"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">退货退款 · 申请已拒绝</span><span class="sh-tag state">终态</span></div>
+      <div class="sample-body" id="refund-rr-6"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">退货退款 · 已取消</span><span class="sh-tag state">终态</span></div>
+      <div class="sample-body" id="refund-rr-7"></div>
+    </div>
+
+    <!-- ---- 换货：待商家审核 → 待寄回商品 → 待商家收货 → 待商家重新发货（4个切换对前一个） → 完成 / 申请已拒绝 / 已取消（单一终态） ---- -->
+    <div class="section-title" style="font-size:14px;color:var(--cs-text-secondary);margin-top:12px;">③ 换货（7 个关键状态）</div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">换货 · 待商家审核</span><span class="sh-tag state">进行中</span></div>
+      <div class="sample-body" id="refund-ex-1"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">换货 · 待寄回商品</span><span class="sh-tag state">进行中</span></div>
+      <div class="sample-body" id="refund-ex-2"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">换货 · 待商家收货</span><span class="sh-tag state">进行中</span></div>
+      <div class="sample-body" id="refund-ex-3"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">换货 · 待商家重新发货</span><span class="sh-tag state">进行中</span></div>
+      <div class="sample-body" id="refund-ex-4"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">换货 · 完成</span><span class="sh-tag state">终态</span></div>
+      <div class="sample-body" id="refund-ex-5"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">换货 · 申请已拒绝</span><span class="sh-tag state">终态</span></div>
+      <div class="sample-body" id="refund-ex-6"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">换货 · 已取消</span><span class="sh-tag state">终态</span></div>
+      <div class="sample-body" id="refund-ex-7"></div>
+    </div>
+
+    <!-- ===== 单一形态卡片 ===== -->
+    <div class="section-title">其它卡片类型 · 单一形态</div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">商品卡片</span><span class="sh-tag">在售</span></div>
+      <div class="sample-body" id="product-1"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">物流卡片</span><span class="sh-tag">运输中</span></div>
+      <div class="sample-body" id="logistics-1"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">物流卡片 · 多包裹（一单多快递）</span><span class="sh-tag">部分签收</span></div>
+      <div class="sample-body" id="logistics-2"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">FAQ 卡片</span><span class="sh-tag">推荐</span></div>
+      <div class="sample-body" id="faq-1"></div>
+    </div>
+
+    <!-- ===== 评价卡片 ===== -->
+    <div class="section-title">服务评价卡片 · 会话内嵌</div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">评价卡片（未提交）</span><span class="sh-tag">交互态</span></div>
+      <div class="sample-body" id="rating-1"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">评价卡片（已提交）</span><span class="sh-tag">完成态</span></div>
+      <div class="sample-body" id="rating-2"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">评价卡片（已过期）</span><span class="sh-tag">过期禁用态</span></div>
+      <div class="sample-body" id="rating-3"></div>
+    </div>
+
+    <!-- ===== 媒体消息 ===== -->
+    <div class="section-title">媒体消息 · 图片 / 语音</div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">图片消息</span><span class="sh-tag">用户发送</span></div>
+      <div class="sample-body" id="media-img"></div>
+    </div>
+
+    <div class="sample-block">
+      <div class="sample-head"><span class="sh-title">语音消息</span><span class="sh-tag">用户发送</span></div>
+      <div class="sample-body" id="media-voice"></div>
+    </div>
+
+  </div>
+
+  <!-- Page footer -->
+  <div class="page-footer">
+    所有卡片均由 <code>cardHtml()</code> 生成，与 user-chat-basic.html 实际会话卡片 1:1 同步<br />
+    覆盖需求：US-MVP-17（订单）· US-MVP-18（商品）· 订单 6 状态 / 售后 3 类型 × 关键状态（仅退款 5 + 退货退款 7 + 换货 7 = 19 态，会切换的状态对只展示前一个）· 评价/购物车/物流/账户/FAQ · 图片/语音消息<br />
+    转人工入口：快捷卡片入口条"转人工"项（位于第一位，统一由 CsCommon.quickCardsBar() 公共组件生成）；卡片内"转人工"按钮已移除<br />
+    <a href="javascript:history.back()">&lt; 返回上一页</a>
+  </div>
+
+</div>
+
+<script>
+  // ============================================================
+  // 渲染所有样本到对应容器（卡片 HTML 由 CsCommon.cardHtml 生成）
+  // ============================================================
+  function render(id, html) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = html;
+  }
+
+  // 订单 6 状态
+  render('order-1', CsCommon.cardHtml('order', { order_id: 'JS20260408001', order_status: '待发货', amount: '196.90' }));
+  render('order-2', CsCommon.cardHtml('order', { order_id: 'JS20260408002', order_status: '运输中', amount: '299.00' }));
+  render('order-3', CsCommon.cardHtml('order', { order_id: 'JS20260408003', order_status: '已签收', amount: '88.00' }));
+  render('order-4', CsCommon.cardHtml('order', { order_id: 'JS20260408004', order_status: '售后中', amount: '459.00' }));
+  render('order-5', CsCommon.cardHtml('order', { order_id: 'JS20260408005', order_status: '已完成', amount: '128.00' }));
+  render('order-6', CsCommon.cardHtml('order', { order_id: 'JS20260408006', order_status: '已取消', amount: '76.00' }));
+
+  // 售后卡片：3 种类型 × 关键状态（会切换的状态对只展示前一个，单一终态全部展示）
+  // ① 仅退款：待商家审核（切换对前一个） → 待退款（切换对前一个） → 完成 / 申请已拒绝 / 已取消（单一终态）
+  render('refund-rf-1', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408001', aftersale_type: '仅退款', aftersale_status: '待商家审核', product_name: '日本进口保温杯', refund_amount: '25.00', refund_points: 43, reason: '商品质量问题', apply_time: '2026-04-08 10:30' }));
+  render('refund-rf-2', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408002', aftersale_type: '仅退款', aftersale_status: '待退款', product_name: '日本进口保温杯', refund_amount: '25.00', refund_points: 43, reason: '商品质量问题', apply_time: '2026-04-08 10:30', merchant_opinion: '同意退款，等待退款打款' }));
+  render('refund-rf-3', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408003', aftersale_type: '仅退款', aftersale_status: '完成', product_name: '日本进口保温杯', refund_amount: '25.00', refund_points: 43, reason: '商品质量问题', apply_time: '2026-04-08 10:30', merchant_opinion: '同意退款，已原路退回' }));
+  render('refund-rf-4', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408004', aftersale_type: '仅退款', aftersale_status: '申请已拒绝', product_name: '智能手表', refund_amount: '1299.00', reason: '不想要了', apply_time: '2026-04-05 16:00', merchant_opinion: '商品已拆封使用，影响二次销售，拒绝退款' }));
+  render('refund-rf-5', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408005', aftersale_type: '仅退款', aftersale_status: '已取消', product_name: '智能手表', refund_amount: '1299.00', reason: '不想要了', apply_time: '2026-04-05 16:00' }));
+
+  // ② 退货退款：待商家审核 → 待寄回商品 → 待商家收货 → 待退款（4个切换对前一个） → 完成 / 申请已拒绝 / 已取消（单一终态）
+  render('refund-rr-1', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408011', aftersale_type: '退货退款', aftersale_status: '待商家审核', product_name: '无线降噪耳机 H9', refund_amount: '899.00', reason: '商品与描述不符', apply_time: '2026-04-07 14:20' }));
+  render('refund-rr-2', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408012', aftersale_type: '退货退款', aftersale_status: '待寄回商品', product_name: '无线降噪耳机 H9', refund_amount: '899.00', reason: '商品与描述不符', apply_time: '2026-04-07 14:20', merchant_opinion: '同意退货退款，请寄回商品' }));
+  render('refund-rr-3', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408013', aftersale_type: '退货退款', aftersale_status: '待商家收货', product_name: '无线降噪耳机 H9', refund_amount: '899.00', reason: '商品与描述不符', apply_time: '2026-04-07 14:20', merchant_opinion: '同意退货退款，请寄回商品' }));
+  render('refund-rr-4', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408014', aftersale_type: '退货退款', aftersale_status: '待退款', product_name: '无线降噪耳机 H9', refund_amount: '899.00', reason: '商品与描述不符', apply_time: '2026-04-07 14:20', merchant_opinion: '已收到退回商品，等待退款打款' }));
+  render('refund-rr-5', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408015', aftersale_type: '退货退款', aftersale_status: '完成', product_name: '无线降噪耳机 H9', refund_amount: '899.00', reason: '商品与描述不符', apply_time: '2026-04-07 14:20', merchant_opinion: '已收到退回商品，退款已原路退回' }));
+  render('refund-rr-6', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408016', aftersale_type: '退货退款', aftersale_status: '申请已拒绝', product_name: '纯棉短袖T恤', refund_amount: '39.90', reason: '尺码不合适', apply_time: '2026-04-06 11:00', merchant_opinion: '商品已洗涤，影响二次销售，拒绝退货' }));
+  render('refund-rr-7', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408017', aftersale_type: '退货退款', aftersale_status: '已取消', product_name: '纯棉短袖T恤', refund_amount: '39.90', reason: '尺码不合适', apply_time: '2026-04-06 11:00' }));
+
+  // ③ 换货：待商家审核 → 待寄回商品 → 待商家收货 → 待商家重新发货（4个切换对前一个） → 完成 / 申请已拒绝 / 已取消（单一终态）
+  render('refund-ex-1', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408021', aftersale_type: '换货', aftersale_status: '待商家审核', product_name: '运动跑鞋（黑色 42 码）', reason: '尺码偏小', apply_time: '2026-04-06 09:15' }));
+  render('refund-ex-2', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408022', aftersale_type: '换货', aftersale_status: '待寄回商品', product_name: '运动跑鞋（黑色 42 码）', reason: '尺码偏小', apply_time: '2026-04-06 09:15', merchant_opinion: '同意换货，请寄回原商品' }));
+  render('refund-ex-3', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408023', aftersale_type: '换货', aftersale_status: '待商家收货', product_name: '运动跑鞋（黑色 42 码）', reason: '尺码偏小', apply_time: '2026-04-06 09:15', merchant_opinion: '同意换货，请寄回原商品' }));
+  render('refund-ex-4', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408024', aftersale_type: '换货', aftersale_status: '待商家重新发货', product_name: '运动跑鞋（黑色 42 码）', reason: '尺码偏小', apply_time: '2026-04-06 09:15', merchant_opinion: '已收到退回商品，换货商品正在发出' }));
+  render('refund-ex-5', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408025', aftersale_type: '换货', aftersale_status: '完成', product_name: '运动跑鞋（黑色 42 码）', reason: '尺码偏小', apply_time: '2026-04-06 09:15', merchant_opinion: '换货商品已签收，换货完成' }));
+  render('refund-ex-6', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408026', aftersale_type: '换货', aftersale_status: '申请已拒绝', product_name: '蓝牙音箱', reason: '颜色发错', apply_time: '2026-04-05 15:30', merchant_opinion: '核实商品颜色无误，拒绝换货申请' }));
+  render('refund-ex-7', CsCommon.cardHtml('aftersale', { aftersale_id: 'AS20260408027', aftersale_type: '换货', aftersale_status: '已取消', product_name: '蓝牙音箱', reason: '颜色发错', apply_time: '2026-04-05 15:30' }));
+
+  // 单一形态卡片
+  render('product-1', CsCommon.cardHtml('product', { product_name: '日本进口保温杯 不锈钢真空便携水杯', price: '68' }));
+  render('logistics-1', CsCommon.cardHtml('logistics', { tracking_no: 'SF1234567890', carrier: '顺丰速运' }));
+  // 多包裹：一单多快递（对齐小程序 order_detail 包裹块）
+  render('logistics-2', CsCommon.cardHtml('logistics', { packages: [
+    { no: '包裹1', carrier: '顺丰速运', tracking_no: 'SF2026040888001', status: 'shipping', status_text: '运输中', goods: 'A4打印纸 ×3', trace_tip: '【成都】快件运输中，正发往分拨中心' },
+    { no: '包裹2', carrier: '中通快递', tracking_no: 'ZT2026040888002', status: 'delivered', status_text: '已签收', goods: 'A4打印纸 ×2', trace_tip: '【成都】已签收，签收人：本人签收' }
+  ] }));
+  render('faq-1', CsCommon.cardHtml('faq', {}));
+
+  // 评价卡片：未提交态（HTML 由 CsCommon.ratingCard 生成）
+  render('rating-1', CsCommon.ratingCard());
+
+  // 评价卡片：已过期态（HTML 由 CsCommon.ratingCardExpired 生成，灰色禁用）
+  render('rating-3', CsCommon.ratingCardExpired());
+
+  // 评价卡片：已提交态
+  render('rating-2',
+    '<div class="msg-rating-card done">' +
+      '<div class="rc-title">服务评价</div>' +
+      '<div class="rc-sub">感谢您的咨询，请对本次服务打分</div>' +
+      '<div class="rc-stars">' +
+        '<span class="rc-star active">★</span>' +
+        '<span class="rc-star active">★</span>' +
+        '<span class="rc-star active">★</span>' +
+        '<span class="rc-star active">★</span>' +
+        '<span class="rc-star active">★</span>' +
+      '</div>' +
+      '<div class="rc-resolve">' +
+        '<span class="rc-resolve-q">请问您的问题解决了吗?</span>' +
+        '<div class="rc-resolve-btns">' +
+          '<button type="button" class="rc-resolve-btn active" data-v="resolved">已解决</button>' +
+          '<button type="button" class="rc-resolve-btn" data-v="unresolved">未解决</button>' +
+        '</div>' +
+      '</div>' +
+      '<button class="rc-submit" disabled>已提交</button>' +
+      '<div class="rc-thanks">感谢您的评价，祝您生活愉快！</div>' +
+    '</div>'
+  );
+
+  // 媒体消息
+  render('media-img',
+    '<div class="msg-media"><div class="media-placeholder">' +
+    '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>' +
+    '</div></div>'
+  );
+  render('media-voice',
+    '<div class="msg-voice">' +
+      '<span class="voice-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 14a3 3 0 003-3V6a3 3 0 00-6 0v5a3 3 0 003 3z"/><path d="M19 11a7 7 0 01-14 0M12 18v3"/></svg></span>' +
+      '<div class="voice-wave"><span></span><span></span><span></span><span></span><span></span><span></span></div>' +
+      '<span class="voice-duration">12"</span>' +
+    '</div>'
+  );
+  // ============================================================
+  // 评价卡片交互（绑定到未提交态卡片）
+  // ============================================================
+  CsCommon.bindRating(document.getElementById('chatMessages') || document.querySelector('.msg-rating-card').parentElement);
+  // FAQ 卡片换一换绑定
+  CsCommon.bindFaqRefresh();
+
+  // ============================================================
+  // 按钮交互：演示 toast（实际跳转逻辑见 user-chat-basic.html）
+  // ============================================================
+  (function () {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.card-action-btn');
+      if (!btn) return;
+      var act = btn.getAttribute('data-cs-action');
+      var label = btn.textContent.trim();
+      if (window.csModal) {
+        csModal.toast('【样本演示】' + label + ' → action: ' + act);
+      } else {
+        alert('【样本演示】' + label + '\naction: ' + act);
+      }
+    });
+  })();
+</script>
+
+</body>
+</html>

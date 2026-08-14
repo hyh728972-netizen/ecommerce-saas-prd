@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>会话详情 · 弹窗</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <style>
+    body { background: transparent; margin: 0; }
+    .csm-body { width: 540px; max-width: 94vw; }
+    .sd-body { padding: 18px 20px; }
+    .sd-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; font-size: 13px; }
+    .sd-meta .row { display: flex; gap: 6px; }
+    .sd-meta .k { color: var(--cs-text-tertiary); flex-shrink: 0; min-width: 64px; }
+    .sd-meta .v { color: var(--cs-text); font-weight: 500; }
+    .sd-section-title { font-size: 13px; font-weight: 600; color: var(--cs-text); margin: 18px 0 10px; }
+    .stars { color: var(--cs-warning); letter-spacing: 1px; }
+    .stars .empty { color: #e8e8e8; }
+    .no-rate { color: #c0c0c0; font-size: 12px; }
+    .s-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--cs-text); }
+    .s-tag::before { content: ""; width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .s-tag.ongoing::before { background: var(--cs-primary); }
+    .s-tag.closed::before { background: #bfbfbf; }
+    .s-tag.transferred::before { background: var(--cs-purple); }
+    .timeline { position: relative; padding-left: 18px; }
+    .timeline::before { content: ''; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 2px; background: var(--cs-border-light); }
+    .tl-item { position: relative; padding-bottom: 12px; font-size: 13px; }
+    .tl-item:last-child { padding-bottom: 0; }
+    .tl-item::before { content: ''; position: absolute; left: -16px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--cs-primary); border: 2px solid #fff; }
+    .tl-time { font-size: 12px; color: var(--cs-text-tertiary); }
+    .tl-text { color: var(--cs-text); margin-top: 2px; }
+    .rtag { display: inline-block; padding: 1px 7px; border-radius: 4px; font-size: 11px; margin-right: 4px; }
+    .rtag.positive { background: var(--cs-success-bg); color: var(--cs-success); }
+    .comment-box { background: var(--cs-bg-header); border-radius: 6px; padding: 10px 12px; font-size: 13px; color: var(--cs-text-secondary); line-height: 1.6; }
+    .msg-list { max-height: 300px; overflow-y: auto; border: 1px solid var(--cs-border-light); border-radius: 6px; padding: 8px 12px; }
+    .msg-line { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--cs-border-lighter); font-size: 13px; align-items: flex-start; }
+    .msg-line:last-child { border-bottom: none; }
+    .msg-line .msg-time { color: var(--cs-text-tertiary); flex-shrink: 0; font-size: 12px; min-width: 36px; }
+    .msg-line .msg-role { font-size: 12px; flex-shrink: 0; min-width: 28px; font-weight: 600; }
+    .msg-line.user .msg-role { color: var(--cs-text-tertiary); }
+    .msg-line.agent .msg-role { color: var(--cs-primary); }
+    .msg-line .msg-text { color: var(--cs-text-secondary); line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="csm-body">
+    <div class="csm-head">
+      <span id="dlgTitle">会话详情</span>
+      <span class="csm-close" onclick="window.csModalBridge.close()">×</span>
+    </div>
+    <div class="sd-body" id="dlgBody">
+      <div class="sd-meta">
+        <div class="row"><span class="k">会话号</span><span class="v">#CS20260611002</span></div>
+        <div class="row"><span class="k">用户</span><span class="v">王志强 · 普通会员</span></div>
+        <div class="row"><span class="k">服务客服</span><span class="v">李静</span></div>
+        <div class="row"><span class="k">状态</span><span class="v"><span class="s-tag closed">已关闭</span></span></div>
+        <div class="row"><span class="k">企业客户</span><span class="v">客户A</span></div>
+        <div class="row"><span class="k">商城名称</span><span class="v">品牌商城1</span></div>
+        <div class="row"><span class="k">应用端</span><span class="v">H5</span></div>
+        <div class="row"><span class="k">开始时间</span><span class="v">2026-06-11 08:52</span></div>
+        <div class="row"><span class="k">会话时长</span><span class="v">06分12秒</span></div>
+      </div>
+      <div id="extraArea"></div>
+    </div>
+    <div class="csm-foot">
+      <button class="btn-default" onclick="window.csModalBridge.close()">关闭</button>
+    </div>
+  </div>
+
+  <script src="../js/cs-modal.js"></script>
+  <script>
+    // ?type=detail | transfer | rating
+    (function () {
+      var p = new URLSearchParams(location.search);
+      var type = p.get('type') || 'detail';
+      var extra = document.getElementById('extraArea');
+      var title = document.getElementById('dlgTitle');
+
+      if (type === 'transfer') {
+        title.textContent = '转接记录 · #CS20260611003';
+        extra.innerHTML =
+          '<div class="sd-section-title">转接轨迹</div>' +
+          '<div class="timeline">' +
+            '<div class="tl-item"><div class="tl-time">2026-06-11 09:10</div><div class="tl-text">张小明 接待，会话开始</div></div>' +
+            '<div class="tl-item"><div class="tl-time">2026-06-11 09:16</div><div class="tl-text">张小明 发起转接，原因：技能不匹配（退款问题）</div></div>' +
+            '<div class="tl-item"><div class="tl-time">2026-06-11 09:17</div><div class="tl-text">李静 接收转接，会话继续</div></div>' +
+          '</div>';
+      } else if (type === 'rating') {
+        title.textContent = '查看评价 · #CS20260611002';
+        extra.innerHTML =
+          '<div class="sd-section-title">用户评价</div>' +
+          '<div class="row" style="margin-bottom:8px;"><span class="k" style="color:var(--cs-text-tertiary);min-width:64px;">评分</span><span class="stars">★★★★<span class="empty">★</span></span> <span style="font-weight:600;">4.0</span></div>' +
+          '<div class="row"><span class="k" style="color:var(--cs-text-tertiary);min-width:64px;">问题解决</span><span style="color:var(--cs-success);font-weight:600;">已解决</span></div>';
+      } else {
+        title.textContent = '会话详情 · #CS20260611001';
+        extra.innerHTML =
+          '<div class="sd-section-title">聊天记录</div>' +
+          '<div class="msg-list">' +
+            '<div class="msg-line user"><span class="msg-time">09:24</span><span class="msg-role">用户</span><span class="msg-text">您好，我想查一下我的订单什么时候能发货，已经下单两天了</span></div>' +
+            '<div class="msg-line agent"><span class="msg-time">09:25</span><span class="msg-role">客服</span><span class="msg-text">您好，请提供一下订单号，我帮您查询物流信息</span></div>' +
+            '<div class="msg-line user"><span class="msg-time">09:26</span><span class="msg-role">用户</span><span class="msg-text">订单号是 #20260611001</span></div>' +
+            '<div class="msg-line agent"><span class="msg-time">09:28</span><span class="msg-role">客服</span><span class="msg-text">已为您查询，您的订单已于昨日发货，顺丰速运，运单号 SF1234567890，预计明天送达</span></div>' +
+            '<div class="msg-line user"><span class="msg-time">09:29</span><span class="msg-role">用户</span><span class="msg-text">好的，谢谢</span></div>' +
+            '<div class="msg-line agent"><span class="msg-time">09:30</span><span class="msg-role">客服</span><span class="msg-text">不客气，如有其他问题随时联系我们，祝您生活愉快！</span></div>' +
+          '</div>';
+      }
+    })();
+  </script>
+</body>
+</html>

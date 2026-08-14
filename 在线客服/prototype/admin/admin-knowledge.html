@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>知识库管理 — 客服模块</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="js/cs-modal.js"></script>
+  <style>
+    /* ===== admin-knowledge.html 专属样式 ===== */
+
+    /* 两栏布局：左侧分类树 + 右侧文章列表 */
+    .kb-layout {
+      display: flex;
+      gap: var(--cs-space-4);
+      align-items: stretch;
+    }
+    .kb-sidebar {
+      width: 240px;
+      flex-shrink: 0;
+    }
+    .kb-main {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ---------- 分类树 ---------- */
+    .category-tree {
+      background: var(--cs-bg-card);
+      border-radius: var(--cs-radius-md);
+      border: 1px solid var(--cs-border-light);
+      box-shadow: var(--cs-shadow-card);
+      padding: var(--cs-space-3) 0;
+      height: 100%;
+      overflow-y: auto;
+    }
+    .category-tree .tree-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px var(--cs-space-4) var(--cs-space-3);
+      border-bottom: 1px solid var(--cs-border-lighter);
+    }
+    .category-tree .tree-header .tree-title {
+      font-size: var(--cs-font-size-md);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+    }
+    .category-tree .tree-header .tree-add {
+      font-size: var(--cs-font-size-xl);
+      color: var(--cs-primary);
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+    }
+    .category-tree .tree-header .tree-add:hover { color: var(--cs-primary-hover); }
+
+    .tree-node {
+      display: flex;
+      align-items: center;
+      padding: var(--cs-space-2) var(--cs-space-4);
+      font-size: var(--cs-font-size-base);
+      color: var(--cs-text);
+      cursor: pointer;
+      transition: var(--cs-transition-fast);
+      gap: 6px;
+      position: relative;
+    }
+    .tree-node:hover { background: var(--cs-border-lighter); }
+    .tree-node.active {
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+      font-weight: var(--cs-font-weight-medium);
+    }
+    .tree-node.active::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--cs-primary);
+    }
+    .tree-node .tree-icon {
+      width: 16px;
+      text-align: center;
+      font-size: var(--cs-font-size-md);
+      flex-shrink: 0;
+    }
+    .tree-node .tree-label { flex: 1; }
+    .tree-node .tree-count {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      background: var(--cs-border-light);
+      border-radius: 10px;
+      padding: 0 7px;
+      line-height: 16px;
+    }
+    .tree-node.active .tree-count {
+      color: var(--cs-primary);
+      background: var(--cs-bg-card);
+    }
+    .tree-node .tree-actions {
+      display: none;
+      gap: 4px;
+    }
+    .tree-node:hover .tree-actions { display: flex; }
+    .tree-node .tree-actions a {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+      cursor: pointer;
+      padding: 0 2px;
+    }
+    .tree-node .tree-actions a:hover { color: var(--cs-primary); }
+
+    .tree-group-title {
+      padding: var(--cs-space-3) var(--cs-space-4) 6px;
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-tertiary);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ---------- 搜索 & 工具条 ---------- */
+    .kb-toolbar {
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-3);
+      flex-wrap: wrap;
+      margin-bottom: var(--cs-space-4);
+    }
+    .kb-toolbar .ipt.input-search {
+      min-width: 260px;
+      color: var(--cs-text-placeholder);
+    }
+
+    /* ---------- 文章标题列 ---------- */
+    .data-table .col-title {
+      font-weight: var(--cs-font-weight-medium);
+      color: var(--cs-text);
+    }
+    .data-table .col-title .title-sub {
+      display: block;
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+      font-weight: var(--cs-font-weight-normal);
+      margin-top: 2px;
+      max-width: 380px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 分类行内标签（纯文本，无配色无图标） */
+    .cat-tag {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-secondary);
+    }
+    .cat-tag svg { display: none; }
+
+    /* 状态标签（彩色圆点 + 黑色字，无彩色底） */
+    .s-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: var(--cs-font-size-sm);
+      line-height: 1.5;
+      color: var(--cs-text);
+    }
+    .s-tag::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .s-tag.published::before { background: var(--cs-success); }
+    .s-tag.draft::before     { background: #bfbfbf; }
+    .s-tag.offline::before   { background: var(--cs-danger); }
+
+    /* 操作列扩展 */
+    .row-actions a.danger { color: var(--cs-danger); }
+    .row-actions a.danger:hover { color: var(--cs-danger-hover); }
+
+    /* 统计摘要条 */
+    .stat-summary {
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-6);
+      padding: var(--cs-space-3) var(--cs-space-4);
+      background: var(--cs-bg-header);
+      border-radius: var(--cs-radius-sm);
+      margin-bottom: var(--cs-space-4);
+      font-size: var(--cs-font-size-base);
+      color: var(--cs-text-secondary);
+    }
+    .stat-summary .stat-item .num {
+      font-size: 18px;
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+      margin-right: 4px;
+    }
+    .stat-summary .stat-item.accent .num { color: var(--cs-primary); }
+
+    /* ===== Top-level Tabs ===== */
+    .top-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--cs-border-light);
+      margin-bottom: var(--cs-space-5);
+    }
+    .top-tab {
+      padding: 10px 24px;
+      font-size: var(--cs-font-size-md);
+      color: var(--cs-text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: var(--cs-transition-normal);
+      position: relative;
+      top: 2px;
+      font-weight: var(--cs-font-weight-medium);
+      user-select: none;
+    }
+    .top-tab:hover { color: var(--cs-primary); }
+    .top-tab.active {
+      color: var(--cs-primary);
+      border-bottom-color: var(--cs-primary);
+    }
+    .top-tab .tab-badge {
+      display: inline-block;
+      margin-left: 6px;
+      padding: 0 7px;
+      min-width: 22px;
+      height: 18px;
+      line-height: 18px;
+      text-align: center;
+      background: var(--cs-border-light);
+      color: var(--cs-text-tertiary);
+      border-radius: 10px;
+      font-size: var(--cs-font-size-xs);
+      font-weight: var(--cs-font-weight-medium);
+    }
+    .top-tab.active .tab-badge {
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+    }
+
+    /* Tab panels */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ===== Modal Overlay ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal-box {
+      background: var(--cs-bg-card);
+      border-radius: var(--cs-radius-lg);
+      width: 560px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.12);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--cs-space-4) var(--cs-space-5);
+      border-bottom: 1px solid var(--cs-border-light);
+      font-size: var(--cs-font-size-lg);
+      font-weight: var(--cs-font-weight-semibold);
+    }
+    .modal-header .modal-close {
+      font-size: 20px;
+      color: var(--cs-text-tertiary);
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+    }
+    .modal-header .modal-close:hover { color: var(--cs-text); }
+    .modal-body { padding: var(--cs-space-5); }
+    .form-group {
+      margin-bottom: var(--cs-space-4);
+    }
+    .form-group label {
+      display: block;
+      font-size: var(--cs-font-size-md);
+      color: var(--cs-text-secondary);
+      margin-bottom: 6px;
+      font-weight: var(--cs-font-weight-medium);
+    }
+    .form-group .form-ipt {
+      width: 100%;
+      height: 36px;
+      border: 1px solid var(--cs-border);
+      border-radius: var(--cs-radius-sm);
+      padding: 0 11px;
+      font-size: var(--cs-font-size-md);
+      color: var(--cs-text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group .form-ipt:focus { border-color: var(--cs-primary); }
+    .form-group textarea.form-ipt {
+      height: 100px;
+      padding: 8px 11px;
+      resize: vertical;
+    }
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--cs-space-3);
+      padding: var(--cs-space-4) var(--cs-space-5);
+      border-top: 1px solid var(--cs-border-light);
+    }
+
+    /* ===== Rich Text Editor ===== */
+    .editor-container {
+      border: 1px solid var(--cs-border);
+      border-radius: var(--cs-radius-md);
+      overflow: hidden;
+      background: var(--cs-bg-card);
+    }
+    .editor-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 10px;
+      background: var(--cs-bg-header);
+      border-bottom: 1px solid var(--cs-border-light);
+      flex-wrap: wrap;
+    }
+    .editor-toolbar .tb-btn {
+      width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      border-radius: var(--cs-radius-xs);
+      cursor: pointer;
+      color: var(--cs-text-secondary);
+      transition: var(--cs-transition-fast);
+    }
+    .editor-toolbar .tb-btn:hover {
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+    }
+    .editor-toolbar .tb-btn.active {
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+    }
+    .editor-toolbar .tb-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+    .editor-toolbar .tb-sep {
+      width: 1px;
+      height: 20px;
+      background: var(--cs-border-light);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+    .editor-toolbar .tb-select {
+      height: 28px;
+      border: 1px solid var(--cs-border);
+      border-radius: var(--cs-radius-xs);
+      padding: 0 6px;
+      font-size: var(--cs-font-size-sm);
+      background: var(--cs-bg-card);
+      color: var(--cs-text);
+      outline: none;
+      cursor: pointer;
+    }
+    .editor-content {
+      min-height: 300px;
+      padding: 16px 20px;
+      font-size: var(--cs-font-size-md);
+      line-height: 1.8;
+      color: var(--cs-text);
+      outline: none;
+      background: var(--cs-bg-card);
+    }
+    .editor-content h2 {
+      font-size: 18px;
+      font-weight: var(--cs-font-weight-semibold);
+      margin-bottom: 8px;
+      color: var(--cs-text);
+    }
+    .editor-content h3 {
+      font-size: 15px;
+      font-weight: var(--cs-font-weight-semibold);
+      margin-bottom: 6px;
+      color: var(--cs-text);
+    }
+    .editor-content p {
+      margin-bottom: 10px;
+    }
+    .editor-content ul, .editor-content ol {
+      margin: 8px 0 12px 20px;
+    }
+    .editor-content li {
+      margin-bottom: 4px;
+    }
+    .editor-content code {
+      background: var(--cs-border-lighter);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: var(--cs-font-size-sm);
+      font-family: "SFMono-Regular", Consolas, monospace;
+    }
+    .editor-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--cs-space-3);
+      padding: var(--cs-space-4) 0 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== 侧边导航 ===== -->
+  <aside class="admin-sidebar" id="sidebar-nav" data-active="knowledge"></aside>
+
+  <!-- ===== 主区域 ===== -->
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+
+    <!-- 顶栏 -->
+    <header class="admin-header">
+      <div class="breadcrumb">知识库 / <span style="color:var(--cs-text);font-weight:600;">知识文档</span></div>
+      <div class="user-info">
+        <span class="status-badge online">客服A 在线</span>
+        <span style="font-size:var(--cs-font-size-base);color:var(--cs-text-secondary);">张小明</span>
+      </div>
+    </header>
+
+    <!-- 内容 -->
+    <main class="admin-content">
+
+      <!-- 页面标题 + 操作按钮 -->
+      <div class="flex-between mb-16">
+        <div>
+          <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">维护帮助文档，按分类组织，供客服查阅与用户端自助查询</p>
+        </div>
+        <div class="flex gap-8" style="flex-shrink:0;">
+          <button class="btn-default">导入文档</button>
+          <button class="btn-primary" onclick="document.getElementById('editor-section').style.display='block';">+ 新建文章</button>
+        </div>
+      </div>
+
+      <!-- ============================================ -->
+      <!-- 知识库内容                                    -->
+      <!-- ============================================ -->
+      <div class="tab-panel active" id="panel-knowledge">
+
+        <!-- 两栏：分类树 + 文章列表 -->
+        <div class="kb-layout">
+
+          <!-- ===== 左侧：分类树 ===== -->
+          <div class="kb-sidebar">
+            <div class="category-tree">
+              <div class="tree-header">
+                <span class="tree-title">内容分类</span>
+                <span class="tree-add" title="新增分类">+</span>
+                
+              </div>
+
+              <div class="tree-node active" data-cat="all">
+                
+                <span class="tree-label">全部文章</span>
+                <span class="tree-count">128</span>
+              </div>
+
+              <div class="tree-node" data-cat="order">
+                
+                <span class="tree-label">订单</span>
+                <span class="tree-count">32</span>
+                
+              </div>
+
+              <div class="tree-node" data-cat="return">
+                
+                <span class="tree-label">退换货</span>
+                <span class="tree-count">28</span>
+                
+              </div>
+
+              <div class="tree-node" data-cat="pay">
+                
+                <span class="tree-label">支付</span>
+                <span class="tree-count">25</span>
+                
+              </div>
+
+              <div class="tree-node" data-cat="logistic">
+                
+                <span class="tree-label">物流</span>
+                <span class="tree-count">24</span>
+                
+              </div>
+
+              <div class="tree-node" data-cat="account">
+                
+                <span class="tree-label">账户</span>
+                <span class="tree-count">19</span>
+                
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== 右侧：文章列表 ===== -->
+          <div class="kb-main">
+            <div class="card" style="padding:16px;">
+              <!-- 工具条：搜索 + 筛选 -->
+              <div class="kb-toolbar">
+                <input type="text" id="kbSearch" class="ipt input-search" placeholder="搜索文章标题 / 关键词" style="min-width:260px;color:var(--cs-text);" />
+                <select id="kbStatus" class="select" style="min-width:110px;">
+                  <option value="">全部状态</option>
+                  <option value="published">已发布</option>
+                  <option value="draft">草稿</option>
+                  <option value="offline">已下线</option>
+                </select>
+                <select id="kbTime" class="select" style="min-width:110px;">
+                  <option value="">更新时间</option>
+                  <option value="today">今天</option>
+                  <option value="3d">近 3 天</option>
+                  <option value="7d">近 7 天</option>
+                  <option value="30d">近 30 天</option>
+                </select>
+                <div style="margin-left:auto;" class="flex gap-8">
+                  <button id="kbBtnReset" class="btn-default">重置</button>
+                  <button id="kbBtnQuery" class="btn-primary">查询</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- 文章表格 -->
+            <div class="card mt-16" style="padding:0;">
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th style="width:42%;">文章标题</th>
+                      <th>分类</th>
+                      <th>状态</th>
+                      <th>浏览量</th>
+                      <th>更新时间</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          如何查询我的订单状态？
+                          <span class="title-sub">用户可在「我的-订单」中查看订单详情与实时物流状态，支持按状态筛选…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag order"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> 订单</span></td>
+                      <td><span class="s-tag published">已发布</span></td>
+                      <td>1,284</td>
+                      <td>2026-06-11<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">09:42</span></td>
+                      <td class="row-actions">
+                        <a>预览</a><span class="divider">|</span>
+                        <a class="kb-edit-btn">编辑</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          7天无理由退货流程详解
+                          <span class="title-sub">签收后7天内可申请无理由退货，商品需保持原包装完好，部分品类不支持退换…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag return"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> 退换货</span></td>
+                      <td><span class="s-tag published">已发布</span></td>
+                      <td>986</td>
+                      <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">16:18</span></td>
+                      <td class="row-actions">
+                        <a>预览</a><span class="divider">|</span>
+                        <a class="kb-edit-btn">编辑</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          支付失败常见原因与解决方案
+                          <span class="title-sub">支付失败可能由余额不足、网络超时、银行卡限额等引起，建议按步骤排查…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag pay"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> 支付</span></td>
+                      <td><span class="s-tag published">已发布</span></td>
+                      <td>742</td>
+                      <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">11:05</span></td>
+                      <td class="row-actions">
+                        <a>预览</a><span class="divider">|</span>
+                        <a class="kb-edit-btn">编辑</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          物流多久可以到货？运费怎么算？
+                          <span class="title-sub">默认顺丰/中通发货，大城市1-3天可达，偏远地区3-7天；满99元包邮…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag logistic"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> 物流</span></td>
+                      <td><span class="s-tag published">已发布</span></td>
+                      <td>1,103</td>
+                      <td>2026-06-09<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">14:36</span></td>
+                      <td class="row-actions">
+                        <a>预览</a><span class="divider">|</span>
+                        <a class="kb-edit-btn">编辑</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          如何修改账户绑定手机号？
+                          <span class="title-sub">前往「设置-账户安全」通过原手机号验证码校验后即可更换绑定手机号…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag account"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> 账户</span></td>
+                      <td><span class="s-tag published">已发布</span></td>
+                      <td>658</td>
+                      <td>2026-06-09<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">10:22</span></td>
+                      <td class="row-actions">
+                        <a>预览</a><span class="divider">|</span>
+                        <a class="kb-edit-btn">编辑</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          仅退款与退货退款有什么区别？
+                          <span class="title-sub">仅退款适用于未发货或协商不退货场景；退货退款需寄回商品经仓库验收…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag return"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> 退换货</span></td>
+                      <td><span class="s-tag draft">草稿</span></td>
+                      <td>0</td>
+                      <td>2026-06-08<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">17:51</span></td>
+                      <td class="row-actions">
+                        <a class="kb-edit-btn">编辑</a><span class="divider">|</span>
+                        <a>发布</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          如何申请开具发票？
+                          <span class="title-sub">用户可在订单完成后申请开具电子发票或纸质发票，支持个人和单位抬头…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag order"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> 订单</span></td>
+                      <td><span class="s-tag published">已发布</span></td>
+                      <td>0</td>
+                      <td>2026-06-08<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">14:22</span></td>
+                      <td class="row-actions">
+                        <a>预览</a><span class="divider">|</span>
+                        <a class="kb-edit-btn">编辑</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          支持哪些支付方式？能否分期？
+                          <span class="title-sub">支持微信、支付宝、银行卡、花呗分期，部分商品支持白条与信用卡分期…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag pay"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> 支付</span></td>
+                      <td><span class="s-tag draft">草稿</span></td>
+                      <td>0</td>
+                      <td>2026-06-08<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">09:14</span></td>
+                      <td class="row-actions">
+                        <a class="kb-edit-btn">编辑</a><span class="divider">|</span>
+                        <a>发布</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          如何取消未发货的订单？
+                          <span class="title-sub">未发货订单可在订单详情页点击「取消订单」，款项原路退回，预计1-3工作日…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag order"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> 订单</span></td>
+                      <td><span class="s-tag published">已发布</span></td>
+                      <td>879</td>
+                      <td>2026-06-07<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">15:43</span></td>
+                      <td class="row-actions">
+                        <a>预览</a><span class="divider">|</span>
+                        <a class="kb-edit-btn">编辑</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          快递显示已签收但我没收到怎么办？
+                          <span class="title-sub">请先联系快递员核实，若仍未解决可在订单页申请售后或联系客服介入…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag logistic"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> 物流</span></td>
+                      <td><span class="s-tag offline">已下线</span></td>
+                      <td>412</td>
+                      <td>2026-06-06<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">13:28</span></td>
+                      <td class="row-actions">
+                        <a>预览</a><span class="divider">|</span>
+                        <a class="kb-edit-btn">编辑</a><span class="divider">|</span>
+                        <a>上线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>
+                        <div class="col-title">
+                          忘记密码如何找回？
+                          <span class="title-sub">登录页点击「忘记密码」，通过绑定手机号或邮箱验证后重置登录密码…</span>
+                        </div>
+                      </td>
+                      <td><span class="cat-tag account"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="vertical-align:-1px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> 账户</span></td>
+                      <td><span class="s-tag published">已发布</span></td>
+                      <td>534</td>
+                      <td>2026-06-05<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">10:09</span></td>
+                      <td class="row-actions">
+                        <a>预览</a><span class="divider">|</span>
+                        <a class="kb-edit-btn">编辑</a><span class="divider">|</span>
+                        <a>下线</a><span class="divider">|</span>
+                        <a class="danger">删除</a>
+                      </td>
+                    </tr>
+
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- 分页 -->
+              <div class="pagination" style="padding: 16px;">
+                <span class="pg-info">共 128 条</span>
+                <span class="pg-btn disabled">&#8249;</span>
+                <span class="pg-num active">1</span>
+                <span class="pg-num">2</span>
+                <span class="pg-num">3</span>
+                <span class="pg-num">4</span>
+                <span style="color:var(--cs-text-placeholder);">...</span>
+                <span class="pg-num">13</span>
+                <span class="pg-btn">&#8250;</span>
+              </div>
+
+            </div>
+
+            <!-- ===== 富文本编辑器区域 ===== -->
+            <div id="editor-section" class="card mt-16" style="display:none; padding:0;">
+              <div style="padding: 16px 20px; border-bottom: 1px solid var(--cs-border-light); display:flex; align-items:center; justify-content:space-between;">
+                <div>
+                  <h3 style="font-size:var(--cs-font-size-lg); font-weight:var(--cs-font-weight-semibold); margin-bottom:2px;">编辑文章</h3>
+                  <p style="font-size:var(--cs-font-size-sm); color:var(--cs-text-tertiary);">编辑知识库文章内容，支持富文本格式</p>
+                </div>
+                <button class="btn-default btn-sm" onclick="document.getElementById('editor-section').style.display='none';">收起编辑器</button>
+              </div>
+
+              <!-- 文章标题 -->
+              <div style="padding: 16px 20px 0;">
+                <div class="form-group" style="margin-bottom:12px;">
+                  <label>文章标题</label>
+                  <input type="text" class="form-ipt" value="如何查询我的订单状态？" style="font-weight:var(--cs-font-weight-medium);">
+                </div>
+              </div>
+
+              <!-- 编辑器 -->
+              <div style="padding: 0 20px 16px;">
+                <div class="form-group">
+                  <label>文章内容</label>
+                  <div class="editor-container">
+                    <!-- Toolbar -->
+                    <div class="editor-toolbar">
+                      <!-- Bold -->
+                      <button class="tb-btn" title="加粗">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>
+                      </button>
+                      <!-- Italic -->
+                      <button class="tb-btn" title="斜体">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
+                      </button>
+                      <!-- Underline -->
+                      <button class="tb-btn" title="下划线">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
+                      </button>
+                      <!-- Strikethrough -->
+                      <button class="tb-btn" title="删除线">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4H9a3 3 0 0 0 0 6h6a3 3 0 0 1 0 6H8"/><line x1="4" y1="12" x2="20" y2="12"/></svg>
+                      </button>
+
+                      <span class="tb-sep"></span>
+
+                      <!-- Heading -->
+                      <select class="tb-select" title="标题">
+                        <option>正文</option>
+                        <option>标题1</option>
+                        <option>标题2</option>
+                        <option>标题3</option>
+                      </select>
+
+                      <span class="tb-sep"></span>
+
+                      <!-- Ordered List -->
+                      <button class="tb-btn" title="有序列表">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="20" y2="6"/><line x1="10" y1="12" x2="20" y2="12"/><line x1="10" y1="18" x2="20" y2="18"/><text x="2" y="8" font-size="7" fill="currentColor" stroke="none" font-weight="600">1</text><text x="2" y="14" font-size="7" fill="currentColor" stroke="none" font-weight="600">2</text><text x="2" y="20" font-size="7" fill="currentColor" stroke="none" font-weight="600">3</text></svg>
+                      </button>
+                      <!-- Unordered List -->
+                      <button class="tb-btn" title="无序列表">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4.5" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4.5" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4.5" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
+                      </button>
+
+                      <span class="tb-sep"></span>
+
+                      <!-- Link -->
+                      <button class="tb-btn" title="插入链接">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                      </button>
+                      <!-- Image -->
+                      <button class="tb-btn" title="插入图片">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                      </button>
+
+                      <span class="tb-sep"></span>
+
+                      <!-- Align Left -->
+                      <button class="tb-btn" title="左对齐">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="17" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="3" y2="18"/></svg>
+                      </button>
+                      <!-- Align Center -->
+                      <button class="tb-btn" title="居中">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="10" x2="6" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="18" y1="14" x2="6" y2="14"/><line x1="21" y1="18" x2="3" y2="18"/></svg>
+                      </button>
+                      <!-- Align Right -->
+                      <button class="tb-btn" title="右对齐">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="7" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/><line x1="21" y1="14" x2="7" y2="14"/><line x1="21" y1="18" x2="3" y2="18"/></svg>
+                      </button>
+
+                      <span class="tb-sep"></span>
+
+                      <!-- Code Block -->
+                      <button class="tb-btn" title="代码块">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                      </button>
+                    </div>
+
+                    <!-- Content area -->
+                    <div class="editor-content" contenteditable="true">
+                      <h2>如何查询我的订单状态？</h2>
+                      <p>用户可在「我的-订单」中查看订单详情与实时物流状态，支持按状态筛选订单。以下是查询订单的几种方式：</p>
+                      <h3>方式一：通过「我的订单」页面查询</h3>
+                      <ul>
+                        <li>打开 APP，点击底部导航栏「我的」</li>
+                        <li>进入「我的订单」页面</li>
+                        <li>可按 <code>全部/待付款/待发货/待收货/已完成</code> 等状态筛选</li>
+                      </ul>
+                      <h3>方式二：通过搜索查询</h3>
+                      <p>在订单列表页顶部搜索框中输入订单号或SKU名称，快速定位目标订单。</p>
+                      <h3>常见问题</h3>
+                      <ol>
+                        <li><strong>订单显示「处理中」</strong> — 商家正在准备发货，请耐心等待</li>
+                        <li><strong>订单显示「已发货」但无物流信息</strong> — 物流信息通常在发货后24小时内更新</li>
+                        <li><strong>需要修改收货地址</strong> — 仅在「待发货」状态下可修改，请联系客服协助</li>
+                      </ol>
+                      <p>如以上方式仍无法查询到您的订单，请联系在线客服获取帮助。</p>
+                    </div>
+                  </div>
+
+                  <!-- Editor footer buttons -->
+                  <div class="editor-footer">
+                    <button class="btn-default" onclick="document.getElementById('editor-section').style.display='none';">取消</button>
+                    <button class="btn-primary">保存</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /kb-main -->
+        </div><!-- /kb-layout -->
+
+      </div><!-- /panel-knowledge -->
+      <!-- 底部说明 -->
+      <p style="margin-top:16px; font-size:12px; color:var(--cs-text-placeholder);">
+        数据模型：customer_chat_knowledge_base（文章）+ customer_chat_kb_categories（分类树）+ customer_chat_auto_messages（快捷回复）· 快捷回复分类：通用/问候/售前/售后/投诉/物流
+      </p>
+
+    </main>
+  </div>
+
+</div>
+
+
+<script src="js/cs-icons.js"></script>
+<script src="nav.js"></script>
+<script src="js/kb-tree-crud.js"></script>
+<script>
+    // ===== cs-modal 接线：删除确认 =====
+    (function () {
+      function openDeleteConfirm(articleTitle) {
+        csModal.open('modals/modal-delete-confirm.html?title=' + encodeURIComponent('确认删除该文章？') +
+          '&desc=' + encodeURIComponent(articleTitle ? ('文章《' + articleTitle + '》删除后不可恢复。') : '删除后不可恢复，请谨慎操作。'),
+          { variant: 'center', width: 380,
+            onConfirm: function () { /* 原型：删除即时反馈 */ } });
+      }
+
+      // 删除链接（静态 .danger 与动态 .kb-del-btn 统一走删除确认）
+      document.addEventListener('click', function (e) {
+        var delBtn = e.target.closest('a.danger, a.kb-del-btn');
+        if (delBtn && delBtn.classList.contains('danger')) {
+          e.preventDefault();
+          var row = delBtn.closest('tr');
+          var titleEl = row && row.querySelector('.col-title');
+          var t = titleEl ? (titleEl.textContent || '').trim() : '';
+          openDeleteConfirm(t);
+        }
+      });
+    })();
+
+(function() {
+  // ===== Knowledge base edit buttons open editor =====
+  var editBtns = document.querySelectorAll('.kb-edit-btn');
+  var editorSection = document.getElementById('editor-section');
+  editBtns.forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      editorSection.style.display = 'block';
+      editorSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // ===== Editor toolbar button active toggle (visual only) =====
+  var tbBtns = document.querySelectorAll('.editor-toolbar .tb-btn');
+  tbBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      btn.classList.toggle('active');
+    });
+  });
+
+  // ===== 文章列表：筛选 + 查询/重置 + 分页 + 行操作委派 =====
+  var $$k = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var $k = function (s, c) { return (c || document).querySelector(s); };
+  var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
+  var CATByCls = { 'order': 'order', 'return': 'return', 'pay': 'pay', 'logistic': 'logistic', 'account': 'account' };
+  var STByCls = { 'published': 'published', 'draft': 'draft', 'offline': 'offline' };
+  function kbRows() { return $$k('#panel-knowledge .data-table tbody tr'); }
+  kbRows().forEach(function (tr) {
+    var catTag = $k('.cat-tag', tr);
+    var catKey = '';
+    if (catTag) { for (var k in CATByCls) { if (catTag.classList.contains(k)) { catKey = CATByCls[k]; break; } } }
+    tr.setAttribute('data-cat', catKey);
+    var sTag = $k('.s-tag', tr);
+    var stKey = '';
+    if (sTag) { for (var kk in STByCls) { if (sTag.classList.contains(kk)) { stKey = STByCls[kk]; break; } } }
+    tr.setAttribute('data-kbstatus', stKey);
+  });
+  var _kbCat = '';
+  function applyKbFilters() {
+    var kw = ($k('#kbSearch') ? $k('#kbSearch').value : '').trim().toLowerCase();
+    var cat = _kbCat;
+    var st = $k('#kbStatus') ? $k('#kbStatus').value : '';
+    kbRows().forEach(function (tr) {
+      var ok = (!cat || tr.getAttribute('data-cat') === cat)
+        && (!st || tr.getAttribute('data-kbstatus') === st);
+      if (ok && kw) { ok = (tr.textContent || '').toLowerCase().indexOf(kw) !== -1; }
+      tr.style.display = ok ? '' : 'none';
+    });
+  }
+  [$k('#kbSearch'), $k('#kbStatus')].forEach(function (el) {
+    if (!el) return;
+    el.addEventListener('change', applyKbFilters);
+    if (el.id === 'kbSearch') el.addEventListener('input', applyKbFilters);
+  });
+  var kbQuery = $k('#kbBtnQuery'), kbReset = $k('#kbBtnReset');
+  if (kbQuery) kbQuery.addEventListener('click', function () { applyKbFilters(); toast('已应用筛选条件'); });
+  if (kbReset) kbReset.addEventListener('click', function () {
+    ['#kbSearch', '#kbStatus', '#kbTime'].forEach(function (id) { var el = $k(id); if (el) el.value = ''; });
+    _kbCat = ''; applyKbFilters(); toast('已重置筛选');
+  });
+  // 分类树点击 > 按分类过滤
+  $$k('.tree-node[data-cat]').forEach(function (node) {
+    node.addEventListener('click', function () {
+      $$k('.tree-node').forEach(function (n) { n.classList.remove('active'); });
+      node.classList.add('active');
+      var cat = node.getAttribute('data-cat');
+      _kbCat = cat || '';
+      applyKbFilters(); toast('已筛选分类：' + node.querySelector('.tree-label').textContent.trim());
+    });
+  });
+
+  // ===== 分页 active =====
+  $$k('.pg-num').forEach(function (n) {
+    n.addEventListener('click', function () {
+      var panel = n.closest('.tab-panel'); if (!panel) return;
+      $$('.pg-num', panel).forEach(function (x) { x.classList.remove('active'); });
+      n.classList.add('active');
+    });
+  });
+
+  // ===== 文章行操作委派（预览/下线/上线/发布） =====
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('.data-table .row-actions a');
+    if (!a) return;
+    if (a.classList.contains('danger') || a.classList.contains('kb-del-btn')) return; // 删除走原逻辑
+    if (a.classList.contains('kb-edit-btn')) return; // 编辑走原逻辑
+    var txt = (a.textContent || '').trim();
+    var tr = a.closest('tr');
+    e.preventDefault();
+    if (txt === '预览') { toast('新窗口预览文章'); }
+    else if (txt === '下线') {
+      var st1 = $k('.s-tag', tr);
+      if (st1) { st1.className = 's-tag offline'; st1.textContent = '已下线'; if (tr) tr.setAttribute('data-kbstatus', 'offline'); }
+      a.textContent = '上线'; toast('文章已下线');
+    } else if (txt === '上线') {
+      var st2 = $k('.s-tag', tr);
+      if (st2) { st2.className = 's-tag published'; st2.textContent = '已发布'; if (tr) tr.setAttribute('data-kbstatus', 'published'); }
+      a.textContent = '下线'; toast('文章已上线');
+    } else if (txt === '发布') {
+      var st3 = $k('.s-tag', tr);
+      if (st3) { st3.className = 's-tag published'; st3.textContent = '已发布'; if (tr) tr.setAttribute('data-kbstatus', 'published'); }
+      var cell = a.closest('td'); if (cell) cell.innerHTML = '<a>预览</a><span class="divider">|</span><a class="kb-edit-btn">编辑</a><span class="divider">|</span><a>下线</a><span class="divider">|</span><a class="danger">删除</a>';
+      toast('文章已发布');
+    }
+  });
+
+})();
+</script>
+</body>
+</html>

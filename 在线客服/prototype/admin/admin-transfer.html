@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>会话转接 — 客服模块</title>
+  <link rel="stylesheet" href="styles.css" />
+<script src="js/cs-modal.js"></script>
+  <style>
+    /* ===== admin-transfer.html 专属样式 ===== */
+
+    /* ---------- 会话列（头像+ID+用户名） ---------- */
+    .data-table .col-session {
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-2);
+    }
+
+    /* ---------- 客服单元（头像+名字） ---------- */
+    .agent-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .agent-cell .agent-avatar {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      color: #fff;
+      font-size: var(--cs-font-size-xs);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .agent-cell .agent-avatar.a1 { background: var(--cs-primary); }
+    .agent-cell .agent-avatar.a2 { background: var(--cs-primary); }
+    .agent-cell .agent-avatar.a3 { background: var(--cs-primary); }
+    .agent-cell .agent-avatar.a4 { background: var(--cs-primary); }
+    .agent-cell .agent-avatar.a5 { background: #1677ff; }
+
+    /* ---------- 转接流向箭头 ---------- */
+    .transfer-arrow {
+      color: var(--cs-text-placeholder);
+      font-size: var(--cs-font-size-base);
+      margin: 2px 0;
+    }
+
+    /* ---------- 转接状态标签（彩色圆点 + 黑色字，无彩色底） ---------- */
+    .t-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: var(--cs-font-size-sm);
+      line-height: 1.5;
+      white-space: nowrap;
+      color: var(--cs-text);
+    }
+    .t-tag::before {
+      content: "";
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .t-tag.success::before    { background: var(--cs-success); }
+    .t-tag.pending::before    { background: var(--cs-warning); }
+    .t-tag.rejected::before   { background: var(--cs-danger); }
+    .t-tag.accepted::before   { background: var(--cs-primary); }
+    .t-tag.cancelled::before  { background: #bfbfbf; }
+    .t-tag.timeout::before    { background: var(--cs-orange); }
+
+    /* ---------- 转接原因 ---------- */
+    .reason-text {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-secondary);
+      max-width: 200px;
+      line-height: 1.5;
+    }
+    /* ---------- 转接原因标签（纯文本，不区分颜色） ---------- */
+    .reason-tag {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: var(--cs-font-size-xs);
+      margin-right: 4px;
+      color: var(--cs-text-secondary);
+    }
+
+    /* ---------- 统计摘要 ---------- */
+    .stat-summary {
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-6);
+      padding: var(--cs-space-3) var(--cs-space-4);
+      background: var(--cs-bg-header);
+      border-radius: var(--cs-radius-sm);
+      margin-bottom: var(--cs-space-4);
+      font-size: var(--cs-font-size-base);
+      color: var(--cs-text-secondary);
+    }
+    .stat-summary .stat-item .num {
+      font-size: var(--cs-font-size-2xl);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+      margin-right: 4px;
+    }
+    .stat-summary .stat-item.accent .num { color: var(--cs-primary); }
+    .stat-summary .stat-item.warn .num { color: var(--cs-warning); }
+    .stat-summary .stat-item.danger .num { color: var(--cs-danger); }
+
+    /* ---------- 在线客服列表 ---------- */
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: var(--cs-space-3);
+    }
+    .agent-card {
+      background: var(--cs-bg-card);
+      border: 1px solid var(--cs-border-light);
+      border-radius: var(--cs-radius-md);
+      padding: 14px;
+      transition: var(--cs-transition-normal);
+      cursor: default;   /* 只读负载监控卡，发起转接走顶部弹窗 */
+      position: relative;
+    }
+    .agent-card:hover {
+      border-color: var(--cs-primary);
+      box-shadow: 0 2px 8px rgba(22,119,255,0.12);
+    }
+    .agent-card.selected {
+      border-color: var(--cs-primary);
+      background: var(--cs-primary-bg);
+    }
+    .agent-card .agent-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .agent-card .agent-avatar-lg {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      color: #fff;
+      font-size: var(--cs-font-size-md);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .agent-card .agent-avatar-lg .online-dot {
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--cs-success);
+      border: 2px solid #fff;
+    }
+    .agent-card .agent-avatar-lg.busy .online-dot { background: var(--cs-warning); }
+    .agent-card .agent-name {
+      font-size: var(--cs-font-size-md);
+      font-weight: var(--cs-font-weight-medium);
+      color: var(--cs-text);
+    }
+    .agent-card .agent-role {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+      margin-top: 2px;
+    }
+    .agent-card .agent-stats {
+      display: flex;
+      justify-content: space-between;
+      padding-top: 10px;
+      border-top: 1px solid var(--cs-border-lighter);
+      font-size: var(--cs-font-size-sm);
+    }
+    .agent-card .agent-stats .stat-col .val {
+      font-size: var(--cs-font-size-xl);
+      font-weight: var(--cs-font-weight-semibold);
+      color: var(--cs-text);
+    }
+    .agent-card .agent-stats .stat-col .lbl {
+      color: var(--cs-text-tertiary);
+      margin-top: 2px;
+    }
+    .agent-card .agent-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 8px;
+    }
+    .agent-card .skill-tag {
+      display: inline-block;
+      padding: 1px 6px;
+      font-size: var(--cs-font-size-xs);
+      border-radius: 3px;
+      background: #e6f4ff;
+      color: #1677ff;
+    }
+    .agent-card .capacity-bar {
+      height: 4px;
+      background: var(--cs-border-light);
+      border-radius: 2px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .agent-card .capacity-bar .fill {
+      height: 100%;
+      background: var(--cs-primary);
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+    .agent-card .capacity-bar .fill.full { background: var(--cs-danger); }
+    .agent-card .agent-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .agent-card .agent-footer .transfer-btn {
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-primary);
+      cursor: pointer;
+    }
+    .agent-card .agent-footer .transfer-btn:hover { color: var(--cs-primary-hover); }
+
+    /* ---------- 双栏布局（转接记录 + 在线客服） ---------- */
+    .two-col-layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: var(--cs-space-4);
+      align-items: start;
+    }
+    @media (max-width: 1200px) {
+      .two-col-layout { grid-template-columns: 1fr; }
+    }
+
+    /* .agents-panel：不使用 sticky（会导致初始顶部偏移）；与左栏顶部对齐由 .two-col-layout 的 align-items: start 保证 */
+    .agents-panel .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--cs-space-3);
+    }
+    .agents-panel .panel-head .panel-title {
+      font-size: var(--cs-font-size-lg);
+      font-weight: var(--cs-font-weight-semibold);
+      display: flex;
+      align-items: center;
+      gap: var(--cs-space-2);
+    }
+    .agents-panel .panel-head .panel-title .live-count {
+      font-size: var(--cs-font-size-sm);
+      background: var(--cs-success-bg);
+      color: var(--cs-success);
+      padding: 1px 8px;
+      border-radius: 10px;
+      border: 1px solid #b7eb8f;
+      font-weight: var(--cs-font-weight-medium);
+    }
+
+    /* ---------- 排序/筛选小切换 ---------- */
+    .agent-sort {
+      display: flex;
+      gap: 4px;
+      font-size: var(--cs-font-size-sm);
+    }
+    .agent-sort .sort-item {
+      padding: 2px 8px;
+      border-radius: var(--cs-radius-xs);
+      cursor: pointer;
+      color: var(--cs-text-tertiary);
+      transition: var(--cs-transition-fast);
+    }
+    .agent-sort .sort-item:hover { color: var(--cs-primary); }
+    .agent-sort .sort-item.active {
+      background: var(--cs-primary-bg);
+      color: var(--cs-primary);
+    }
+  </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- ===== 侧边导航 ===== -->
+  <aside class="admin-sidebar" id="sidebar-nav" data-active="transfer"></aside>
+
+  <!-- ===== 主区域 ===== -->
+  <div style="flex:1; display:flex; flex-direction:column; min-width:0;">
+
+    <!-- 顶栏 -->
+    <header class="admin-header">
+      <div class="breadcrumb">会话管理 / <span style="color:var(--cs-text);font-weight:600;">会话转接</span></div>
+      <div class="user-info">
+        <span class="status-badge online">客服A 在线</span>
+        <span style="font-size:var(--cs-font-size-base);color:var(--cs-text-secondary);">张小明</span>
+      </div>
+    </header>
+
+    <!-- 内容 -->
+    <main class="admin-content">
+
+      <!-- 页面标题 -->
+      <div class="flex-between mb-16">
+        <div>
+          <p style="font-size:var(--cs-font-size-base); color:var(--cs-text-tertiary);">管理会话转接记录，查看在线客服负载以选择合适的转接目标（对应功能 F-EX-02 会话转接）</p>
+        </div>
+        <div class="flex gap-8">
+          <button class="btn-default" id="btnExport">导出记录</button>
+        </div>
+      </div>
+
+      <!-- 双栏布局 -->
+      <div class="two-col-layout">
+
+        <!-- ===== 左栏：转接记录表 ===== -->
+        <div class="card" style="padding:0;">
+
+          <!-- 筛选条 -->
+          <div style="padding: 16px 16px 0;">
+            <div class="filter-bar" style="margin-bottom: 12px;">
+              <div class="field">
+                <span class="field-label">日期</span>
+                <span class="ipt">2026-06-01</span>
+                <span style="color:var(--cs-text-placeholder);">~</span>
+                <span class="ipt">2026-06-11</span>
+              </div>
+              <div class="field">
+                <span class="field-label">原客服</span>
+                <select class="select" id="fFrom">
+                  <option value="">全部</option>
+                  <option>张小明</option>
+                  <option>李静</option>
+                  <option>王磊</option>
+                  <option>赵敏</option>
+                  <option>周涛</option>
+                </select>
+              </div>
+              <div class="field">
+                <span class="field-label">目标客服</span>
+                <select class="select" id="fTo">
+                  <option value="">全部</option>
+                  <option>张小明</option>
+                  <option>李静</option>
+                  <option>王磊</option>
+                  <option>赵敏</option>
+                  <option>周涛</option>
+                </select>
+              </div>
+              <div class="field">
+                <span class="field-label">转接原因</span>
+                <select class="select" id="fReason">
+                  <option value="">全部</option>
+                  <option value="vip">VIP</option>
+                  <option value="skill">技能</option>
+                  <option value="busy">繁忙</option>
+                  <option value="timeout">超时</option>
+                </select>
+              </div>
+              <div style="margin-left:auto;" class="flex gap-8">
+                <button class="btn-default">重置</button>
+                <button class="btn-primary">查询</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 状态 Tab -->
+          <div class="status-tabs" style="padding: 0 16px;">
+            <div class="status-tab active">全部 <span class="tab-count">328</span></div>
+            <div class="status-tab">待处理 <span class="tab-count">4</span></div>
+            <div class="status-tab">已接受 <span class="tab-count">312</span></div>
+            <div class="status-tab">已拒绝 <span class="tab-count">8</span></div>
+            <div class="status-tab">已取消 <span class="tab-count">2</span></div>
+            <div class="status-tab">超时 <span class="tab-count">2</span></div>
+          </div>
+
+          <!-- 表格 -->
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>会话</th>
+                  <th>原客服</th>
+                  <th>目标客服</th>
+                  <th>转接时间</th>
+                  <th>状态</th>
+                  <th>原因</th>
+                  <th>备注</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                <tr>
+                  <td>
+                    <div class="col-session">
+                      <div class="mini-avatar purple">陈</div>
+                      <div>
+                        <div class="col-id">#CS20260611007</div>
+                        <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">陈思雨 · VIP2</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a1">张</div>
+                      <span>张小明</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a2">李</div>
+                      <span>李静</span>
+                    </div>
+                  </td>
+                  <td>2026-06-11<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">10:42:18</span></td>
+                  <td><span class="t-tag pending">待处理</span><span style="background:#fffbe6;color:#d48806;font-size:11px;padding:2px 6px;border-radius:4px;margin-left:6px;">⏱ 剩余 3:42</span></td>
+                  <td>
+                    <span class="reason-tag vip">VIP</span>
+                    
+                  </td>
+                  <td>客户指定</td>
+                  <td class="row-actions">
+                    <a>催办</a><span class="divider">|</span>
+                    <a>详情</a><span class="divider">|</span>
+                    <a>取消</a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="col-session">
+                      <div class="mini-avatar orange">王</div>
+                      <div>
+                        <div class="col-id">#CS20260611005</div>
+                        <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">王志强 · 普通</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a3">王</div>
+                      <span>王磊</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a1">张</div>
+                      <span>张小明</span>
+                    </div>
+                  </td>
+                  <td>2026-06-11<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">09:31:05</span></td>
+                  <td><span class="t-tag accepted">已接受</span></td>
+                  <td>
+                    <span class="reason-tag skill">技能</span>
+                    
+                  </td>
+                  <td>—</td>
+                  <td class="row-actions">
+                    <a>详情</a><span class="divider">|</span>
+                    <a>查看会话</a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="col-session">
+                      <div class="mini-avatar green">刘</div>
+                      <div>
+                        <div class="col-id">#CS20260611003</div>
+                        <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">刘大伟 · 普通</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a1">张</div>
+                      <span>张小明</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a4">赵</div>
+                      <span>赵敏</span>
+                    </div>
+                  </td>
+                  <td>2026-06-11<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">08:55:42</span></td>
+                  <td><span class="t-tag accepted">已接受</span></td>
+                  <td>
+                    <span class="reason-tag busy">繁忙</span>
+                    
+                  </td>
+                  <td>—</td>
+                  <td class="row-actions">
+                    <a>详情</a><span class="divider">|</span>
+                    <a>查看会话</a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="col-session">
+                      <div class="mini-avatar red">孙</div>
+                      <div>
+                        <div class="col-id">#CS20260611001</div>
+                        <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">孙建国 · 普通</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a2">李</div>
+                      <span>李静</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a5">周</div>
+                      <span>周涛</span>
+                    </div>
+                  </td>
+                  <td>2026-06-11<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">08:12:37</span></td>
+                  <td><span class="t-tag timeout">超时</span></td>
+                  <td>
+                    <span class="reason-tag timeout">超时</span>
+                    
+                  </td>
+                  <td>超时自动发起</td>
+                  <td class="row-actions">
+                    <a>详情</a><span class="divider">|</span>
+                    <a>重新转接</a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="col-session">
+                      <div class="mini-avatar">李</div>
+                      <div>
+                        <div class="col-id">#CS20260610098</div>
+                        <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">李小红 · VIP3</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a3">王</div>
+                      <span>王磊</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a1">张</div>
+                      <span>张小明</span>
+                    </div>
+                  </td>
+                  <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">19:48:11</span></td>
+                  <td><span class="t-tag accepted">已接受</span></td>
+                  <td>
+                    <span class="reason-tag vip">VIP</span>
+                    
+                  </td>
+                  <td>—</td>
+                  <td class="row-actions">
+                    <a>详情</a><span class="divider">|</span>
+                    <a>查看会话</a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="col-session">
+                      <div class="mini-avatar orange">马</div>
+                      <div>
+                        <div class="col-id">#CS20260610092</div>
+                        <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">马晓军 · VIP2</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a4">赵</div>
+                      <span>赵敏</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a2">李</div>
+                      <span>李静</span>
+                    </div>
+                  </td>
+                  <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">17:22:54</span></td>
+                  <td><span class="t-tag accepted">已接受</span></td>
+                  <td>
+                    <span class="reason-tag skill">技能</span>
+                    
+                  </td>
+                  <td>—</td>
+                  <td class="row-actions">
+                    <a>详情</a><span class="divider">|</span>
+                    <a>查看会话</a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="col-session">
+                      <div class="mini-avatar green">吴</div>
+                      <div>
+                        <div class="col-id">#CS20260610085</div>
+                        <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">吴婷婷 · VIP3</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a1">张</div>
+                      <span>张小明</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a3">王</div>
+                      <span>王磊</span>
+                    </div>
+                  </td>
+                  <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">15:09:33</span></td>
+                  <td><span class="t-tag cancelled">已取消</span></td>
+                  <td>
+                    <span class="reason-tag busy">繁忙</span>
+                    
+                  </td>
+                  <td>客户主动取消</td>
+                  <td class="row-actions">
+                    <a>详情</a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="col-session">
+                      <div class="mini-avatar purple">周</div>
+                      <div>
+                        <div class="col-id">#CS20260610071</div>
+                        <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">周晓彤 · VIP1</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a5">周</div>
+                      <span>周涛</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a2">李</div>
+                      <span>李静</span>
+                    </div>
+                  </td>
+                  <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">11:38:27</span></td>
+                  <td><span class="t-tag accepted">已接受</span></td>
+                  <td>
+                    <span class="reason-tag skill">技能</span>
+                    
+                  </td>
+                  <td>—</td>
+                  <td class="row-actions">
+                    <a>详情</a><span class="divider">|</span>
+                    <a>查看会话</a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="col-session">
+                      <div class="mini-avatar">郑</div>
+                      <div>
+                        <div class="col-id">#CS20260610058</div>
+                        <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">郑国华 · 普通</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a2">李</div>
+                      <span>李静</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a1">张</div>
+                      <span>张小明</span>
+                    </div>
+                  </td>
+                  <td>2026-06-10<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">09:14:50</span></td>
+                  <td><span class="t-tag accepted">已接受</span></td>
+                  <td>
+                    <span class="reason-tag busy">繁忙</span>
+                    
+                  </td>
+                  <td>VIP升级处理</td>
+                  <td class="row-actions">
+                    <a>详情</a><span class="divider">|</span>
+                    <a>查看会话</a>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>
+                    <div class="col-session">
+                      <div class="mini-avatar red">赵</div>
+                      <div>
+                        <div class="col-id">#CS20260610044</div>
+                        <div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">赵丽丽 · VIP4</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a3">王</div>
+                      <span>王磊</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="agent-cell">
+                      <div class="agent-avatar a4">赵</div>
+                      <span>赵敏</span>
+                    </div>
+                  </td>
+                  <td>2026-06-09<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">21:05:19</span></td>
+                  <td><span class="t-tag accepted">已接受</span></td>
+                  <td>
+                    <span class="reason-tag vip">VIP</span>
+                    
+                  </td>
+                  <td>—</td>
+                  <td class="row-actions">
+                    <a>详情</a><span class="divider">|</span>
+                    <a>查看会话</a>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 分页 -->
+          <div class="pagination" style="padding: 16px;">
+            <span class="pg-info">共 326 条</span>
+            <span class="pg-btn disabled">&#8249;</span>
+            <span class="pg-num active">1</span>
+            <span class="pg-num">2</span>
+            <span class="pg-num">3</span>
+            <span class="pg-num">4</span>
+            <span class="pg-num">5</span>
+            <span style="color:var(--cs-text-placeholder);">...</span>
+            <span class="pg-num">33</span>
+            <span class="pg-btn">&#8250;</span>
+          </div>
+
+        </div>
+
+        <!-- ===== 右栏：在线客服列表（转接目标选择） ===== -->
+        <div class="card agents-panel">
+          <div class="panel-head">
+            <div class="panel-title">
+              在线客服
+            </div>
+          </div>
+
+          <!-- 转接超时设置已在「会话规则 · 会话超时 · 转接超时」统一配置 -->
+
+          <div class="agents-grid" style="grid-template-columns: 1fr;">
+
+            <!-- 客服 1 -->
+            <div class="agent-card">
+              <div class="agent-head">
+                <div class="agent-avatar-lg" style="background:var(--cs-primary);">
+                  李
+                  <span class="online-dot"></span>
+                </div>
+                <div>
+                  <div class="agent-name">李静</div>
+                  <div class="agent-role">高级客服</div>
+                </div>
+              </div>
+              <div class="capacity-bar">
+                <div class="fill" style="width: 30%;"></div>
+              </div>
+              <div class="agent-stats">
+                <div class="stat-col">
+                  <div class="val">3<span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">/10</span></div>
+                  <div class="lbl">当前会话</div>
+                </div>
+                <div class="stat-col">
+                  <div class="val" style="color:var(--cs-warning);">4.8</div>
+                  <div class="lbl">服务评分</div>
+                </div>
+                <div class="stat-col">
+                  <div class="val">238</div>
+                  <div class="lbl">累计服务</div>
+                </div>
+              </div>
+              <div class="agent-footer">
+                <span style="font-size:var(--cs-font-size-sm);color:var(--cs-success);">&#9679; 空闲</span>
+                <span class="transfer-btn">选为目标 &#8594;</span>
+              </div>
+            </div>
+
+            <!-- 客服 2 -->
+            <div class="agent-card">
+              <div class="agent-head">
+                <div class="agent-avatar-lg" style="background:var(--cs-primary);">
+                  赵
+                  <span class="online-dot"></span>
+                </div>
+                <div>
+                  <div class="agent-name">赵敏</div>
+                  <div class="agent-role">客服专员</div>
+                </div>
+              </div>
+              <div class="capacity-bar">
+                <div class="fill" style="width: 60%;"></div>
+              </div>
+              <div class="agent-stats">
+                <div class="stat-col">
+                  <div class="val">6<span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">/10</span></div>
+                  <div class="lbl">当前会话</div>
+                </div>
+                <div class="stat-col">
+                  <div class="val" style="color:var(--cs-warning);">4.5</div>
+                  <div class="lbl">服务评分</div>
+                </div>
+                <div class="stat-col">
+                  <div class="val">186</div>
+                  <div class="lbl">累计服务</div>
+                </div>
+              </div>
+              <div class="agent-footer">
+                <span style="font-size:var(--cs-font-size-sm);color:var(--cs-warning);">&#9679; 较忙</span>
+                <span class="transfer-btn">选为目标 &#8594;</span>
+              </div>
+            </div>
+
+            <!-- 客服 3 -->
+            <div class="agent-card">
+              <div class="agent-head">
+                <div class="agent-avatar-lg busy" style="background:var(--cs-primary);">
+                  王
+                  <span class="online-dot"></span>
+                </div>
+                <div>
+                  <div class="agent-name">王磊</div>
+                  <div class="agent-role">客服专员</div>
+                </div>
+              </div>
+              <div class="capacity-bar">
+                <div class="fill full" style="width: 100%;"></div>
+              </div>
+              <div class="agent-stats">
+                <div class="stat-col">
+                  <div class="val" style="color:var(--cs-danger);">10<span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">/10</span></div>
+                  <div class="lbl">当前会话</div>
+                </div>
+                <div class="stat-col">
+                  <div class="val" style="color:var(--cs-warning);">4.3</div>
+                  <div class="lbl">服务评分</div>
+                </div>
+                <div class="stat-col">
+                  <div class="val">312</div>
+                  <div class="lbl">累计服务</div>
+                </div>
+              </div>
+              <div class="agent-footer">
+                <span style="font-size:var(--cs-font-size-sm);color:var(--cs-danger);">&#9679; 满载</span>
+                <span class="transfer-btn" style="color:var(--cs-border);cursor:not-allowed;">无法转接</span>
+              </div>
+            </div>
+
+            <!-- 客服 4 -->
+            <div class="agent-card">
+              <div class="agent-head">
+                <div class="agent-avatar-lg" style="background:#1677ff;">
+                  周
+                  <span class="online-dot"></span>
+                </div>
+                <div>
+                  <div class="agent-name">周涛</div>
+                  <div class="agent-role">客服专员</div>
+                </div>
+              </div>
+              <div class="capacity-bar">
+                <div class="fill" style="width: 20%;"></div>
+              </div>
+              <div class="agent-stats">
+                <div class="stat-col">
+                  <div class="val">2<span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">/10</span></div>
+                  <div class="lbl">当前会话</div>
+                </div>
+                <div class="stat-col">
+                  <div class="val" style="color:var(--cs-warning);">4.7</div>
+                  <div class="lbl">服务评分</div>
+                </div>
+                <div class="stat-col">
+                  <div class="val">154</div>
+                  <div class="lbl">累计服务</div>
+                </div>
+              </div>
+              <div class="agent-footer">
+                <span style="font-size:var(--cs-font-size-sm);color:var(--cs-primary);">&#10003; 已选为目标</span>
+                <span class="transfer-btn">取消选择</span>
+              </div>
+            </div>
+
+            <!-- 客服 5 -->
+            <div class="agent-card">
+              <div class="agent-head">
+                <div class="agent-avatar-lg" style="background:var(--cs-primary);">
+                  孙
+                  <span class="online-dot"></span>
+                </div>
+                <div>
+                  <div class="agent-name">孙莉</div>
+                  <div class="agent-role">客服专员</div>
+                </div>
+              </div>
+              <div class="capacity-bar">
+                <div class="fill" style="width: 40%;"></div>
+              </div>
+              <div class="agent-stats">
+                <div class="stat-col">
+                  <div class="val">4<span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">/10</span></div>
+                  <div class="lbl">当前会话</div>
+                </div>
+                <div class="stat-col">
+                  <div class="val" style="color:var(--cs-warning);">4.6</div>
+                  <div class="lbl">服务评分</div>
+                </div>
+                <div class="stat-col">
+                  <div class="val">201</div>
+                  <div class="lbl">累计服务</div>
+                </div>
+              </div>
+              <div class="agent-footer">
+                <span style="font-size:var(--cs-font-size-sm);color:var(--cs-success);">&#9679; 空闲</span>
+                <span class="transfer-btn">选为目标 &#8594;</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 底部说明 -->
+      <p style="margin-top:var(--cs-space-4); font-size:var(--cs-font-size-sm); color:var(--cs-text-placeholder);">
+        数据来源：customer_chat_transfers 表 · WebSocket Action：<code style="background:var(--cs-border-lighter);padding:1px 4px;border-radius:var(--cs-radius-xs);">user-transfer</code> 触发转接通知 · 转接原因分类：VIP / 技能 / 繁忙 / 超时
+      </p>
+
+      <!-- 超时自动回退机制说明 -->
+      <div style="background:#fffbe6;border:1px solid #ffe58f;border-radius:8px;padding:12px 16px;margin-top:16px;">
+        <div style="font-size:13px;font-weight:600;color:#d48806;margin-bottom:4px;">⏱ 超时自动回退机制</div>
+        <div style="font-size:12px;color:#8c8c8c;line-height:1.8;">
+          转接请求发出后，目标客服需在设定时间内响应。超时未响应时系统自动触发回退策略：<br/>
+          • <b>回退至原客服</b>：会话自动归还给原客服继续服务<br/>
+          • <b>重新排队分配</b>：会话进入排队队列，由路由引擎重新分配<br/>
+          • <b>自动取消并通知</b>：转接取消，原客服和用户均收到通知<br/>
+          <span style="color:#d48806;">建议：高峰期使用「重新排队分配」，低峰期使用「回退至原客服」</span>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+</div>
+
+<script src="js/cs-icons.js"></script>
+<script src="nav.js"></script>
+<script>
+/* ============================================================
+   admin-transfer.html 交互（F-EX-02 会话转接）
+   约定对齐兄弟页：状态 Tab 过滤、行操作事件委派 → csModal、
+   csModal.toast 反馈。行/卡的状态从已渲染 DOM 推断 data-*，
+   避免逐行改模板。
+   ============================================================ */
+(function () {
+  'use strict';
+  var $  = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var toast = function (t) { if (window.csModal && csModal.toast) csModal.toast(t); };
+
+  /* ---------- 0. 行 data-* 标记（推断） ---------- */
+  var REASONByText = { 'VIP': 'vip', '技能': 'skill', '繁忙': 'busy', '超时': 'timeout' };
+  function refreshRows() { return $$('.data-table tbody tr'); }
+  function annotateRow(tr) {
+    var tag = $('.t-tag', tr);
+    if (tag) {
+      var cls = ['pending', 'accepted', 'rejected', 'cancelled', 'timeout']
+        .filter(function (c) { return tag.classList.contains(c); })[0];
+      if (cls) tr.setAttribute('data-status', cls);
+    }
+    var cells = $$('td', tr);
+    var fromSpan = cells[1] ? $('.agent-cell span', cells[1]) : null;
+    var toSpan   = cells[2] ? $('.agent-cell span', cells[2]) : null;
+    if (fromSpan) tr.setAttribute('data-from', fromSpan.textContent.trim());
+    if (toSpan)   tr.setAttribute('data-to',   toSpan.textContent.trim());
+    var rtag = $('.reason-tag', tr);
+    if (rtag) {
+      var rt = rtag.textContent.trim();
+      for (var k in REASONByText) { if (rt.indexOf(k) === 0) { tr.setAttribute('data-reason', REASONByText[k]); break; } }
+    }
+  }
+  var rows = refreshRows();
+  rows.forEach(annotateRow);
+
+  /* ---------- 1. 状态 Tab 过滤 ---------- */
+  var TABByText = { '全部': 'all', '待处理': 'pending', '已接受': 'accepted', '已拒绝': 'rejected', '已取消': 'cancelled', '超时': 'timeout' };
+  var statusTabs = $$('.status-tab');
+  var currentStatus = 'all';
+  function tabKey(tab) { return tab.textContent.replace(/[0-9]/g, '').trim(); }
+  statusTabs.forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      statusTabs.forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      currentStatus = TABByText[tabKey(tab)] || 'all';
+      applyFilters();
+    });
+  });
+
+  /* ---------- 2. 筛选下拉 + 查询/重置 ---------- */
+  var fFrom = $('#fFrom'), fTo = $('#fTo'), fReason = $('#fReason');
+  var btnQuery = $('.filter-bar .btn-primary');
+  var btnReset = $('.filter-bar .btn-default');
+  function applyFilters() {
+    var from = fFrom ? fFrom.value : '';
+    var to = fTo ? fTo.value : '';
+    var reason = fReason ? fReason.value : '';
+    rows.forEach(function (tr) {
+      var ok = (currentStatus === 'all' || tr.getAttribute('data-status') === currentStatus)
+        && (!from || tr.getAttribute('data-from') === from)
+        && (!to || tr.getAttribute('data-to') === to)
+        && (!reason || tr.getAttribute('data-reason') === reason);
+      tr.style.display = ok ? '' : 'none';
+    });
+  }
+  if (btnQuery) btnQuery.addEventListener('click', function () { applyFilters(); toast('已应用筛选条件'); });
+  if (btnReset) btnReset.addEventListener('click', function () {
+    if (fFrom) fFrom.value = ''; if (fTo) fTo.value = ''; if (fReason) fReason.value = '';
+    currentStatus = 'all';
+    statusTabs.forEach(function (t) { t.classList.toggle('active', tabKey(t) === '全部'); });
+    applyFilters(); toast('已重置筛选');
+  });
+  [fFrom, fTo, fReason].forEach(function (sel) { if (sel) sel.addEventListener('change', applyFilters); });
+
+  /* ---------- 3. 在线客服卡：只读负载监控（发起转接走顶部弹窗） ---------- */
+  var cards = $$('.agent-card');
+  function cardName(c)    { return $('.agent-name', c) ? $('.agent-name', c).textContent.trim() : ''; }
+  function cardLoadPct(c) { var f = $('.capacity-bar .fill', c); return f ? (parseInt(f.style.width, 10) || 0) : 0; }
+  function cardCur(c)     { var v = $('.agent-stats .stat-col .val', c); return v ? (parseInt(v.textContent, 10) || 0) : 0; }
+  function cardRating(c)  { var vs = $$('.agent-stats .stat-col .val', c); return vs[1] ? (parseFloat(vs[1].textContent) || 0) : 0; }
+  function cardGroup(c)   { var r = $('.agent-role', c); if (!r) return ''; var p = r.textContent.split('·'); return (p[1] || p[0] || '').trim(); }
+  function footerStatus(pct, cur) {
+    var color, label;
+    if (pct >= 100)      { color = 'var(--cs-danger)';  label = '满载'; }
+    else if (pct >= 50)  { color = 'var(--cs-primary)'; label = '较忙'; }
+    else                 { color = 'var(--cs-primary)'; label = '空闲'; }
+    var cap = pct >= 100 ? '已满载' : '可接 ' + Math.max(0, 10 - cur) + ' 单';
+    return '<span style="font-size:var(--cs-font-size-sm);color:' + color + ';">&#9679; ' + label + '</span>' +
+           '<span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">' + cap + '</span>';
+  }
+  cards.forEach(function (c) {
+    var pct = cardLoadPct(c), cur = cardCur(c);
+    c.setAttribute('data-agent', cardName(c));
+    c.setAttribute('data-load', cur);
+    c.setAttribute('data-loadpct', pct);
+    c.setAttribute('data-rating', cardRating(c));
+    c.setAttribute('data-group', cardGroup(c));
+    c.classList.remove('selected');
+    var foot = $('.agent-footer', c); if (foot) foot.innerHTML = footerStatus(pct, cur);
+  });
+
+  /* ---------- 5. 发起 / 确认转接（新增待处理记录 + 计数自增） ---------- */
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function escapeHtml(s) { return String(s).replace(/[&<>"]/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]; }); }
+  function bumpTab(label, delta) {
+    statusTabs.forEach(function (t) {
+      if (tabKey(t) === label) { var c = $('.tab-count', t); if (c) c.textContent = (parseInt(c.textContent, 10) || 0) + delta; }
+    });
+  }
+  function bumpStat(cls, delta) {
+    var el = $('.stat-summary .stat-item.' + cls + ' .num');
+    if (el) { el.textContent = el.textContent.replace(/[\d.]+/, function (x) { return String((parseFloat(x) || 0) + delta); }); }
+  }
+  function bumpPgInfo(delta) {
+    var el = $('.pg-info'); if (!el) return;
+    el.textContent = el.textContent.replace(/\d+/, function (x) { return String((parseInt(x, 10) || 0) + delta); });
+  }
+  function addPendingRow(data) {
+    data = data || {};
+    var target = data.target || '目标客服';
+    var reasonMap = { 'VIP 用户': 'vip', '技能不匹配': 'skill', '当前繁忙': 'busy', '响应超时': 'timeout', 'vip': 'vip', 'skill': 'skill', 'busy': 'busy', 'timeout': 'timeout' };
+    var rKey = reasonMap[data.reason] || 'busy';
+    var rLabel = { 'vip': 'VIP', 'skill': '技能', 'busy': '繁忙', 'timeout': '超时' }[rKey];
+    var note = data.note || ('会话转接至 ' + target);
+    var now = new Date();
+    var ds = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+    var ts = pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds());
+    var sid = '#CS' + now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate()) + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds());
+    var tbody = $('.data-table tbody'); if (!tbody) return;
+    var tr = document.createElement('tr');
+    tr.setAttribute('data-status', 'pending');
+    tr.setAttribute('data-from', '张小明');
+    tr.setAttribute('data-to', target);
+    tr.setAttribute('data-reason', rKey);
+    tr.style.background = '#fffbe6';
+    tr.innerHTML =
+      '<td><div class="col-session"><div class="mini-avatar purple">新</div><div>' +
+        '<div class="col-id">' + sid + '</div>' +
+        '<div style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">当前会话 · 发起转接</div></div></div></td>' +
+      '<td><div class="agent-cell"><div class="agent-avatar a1">张</div><span>张小明</span></div></td>' +
+      '<td><div class="agent-cell"><div class="agent-avatar a5">' + escapeHtml(target.charAt(0)) + '</div><span>' + escapeHtml(target) + '</span></div></td>' +
+      '<td>' + ds + '<br/><span style="font-size:var(--cs-font-size-sm);color:var(--cs-text-tertiary);">' + ts + '</span></td>' +
+      '<td><span class="t-tag pending">待处理</span><span style="background:#fffbe6;color:#d48806;font-size:11px;padding:2px 6px;border-radius:4px;margin-left:6px;">⏱ 剩余 5:00</span></td>' +
+      '<td><span class="reason-tag ' + rKey + '">' + rLabel + '</span></td>' +
+      '<td class="row-actions"><a>催办</a><span class="divider">|</span><a>详情</a><span class="divider">|</span><a>取消</a></td>';
+    tbody.insertBefore(tr, tbody.firstChild);
+    rows = refreshRows();
+    applyFilters();
+    bumpTab('全部', 1); bumpTab('待处理', 1);
+    bumpStat('accent', 1); bumpStat('warn', 1);
+    bumpPgInfo(1);
+  }
+  var btnExp = $('#btnExport');
+  if (btnExp) btnExp.addEventListener('click', function () { toast('正在导出转接记录…'); });
+
+  /* ---------- 6. 行操作（按文案委派） ---------- */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('.row-actions a');
+    if (!a) return;
+    e.preventDefault();
+    var txt = (a.textContent || '').trim();
+    var tr = a.closest('tr');
+    if (txt === '详情') {
+      csModal.open('modals/modal-session-detail.html?type=transfer', { variant: 'center', width: 540 });
+    } else if (txt === '查看会话') {
+      var sid = tr ? ($('.col-id', tr) ? $('.col-id', tr).textContent.trim() : '') : '';
+      location.href = 'admin-workbench.html' + (sid ? '?session=' + encodeURIComponent(sid) : '');
+    } else if (txt === '催办') {
+      toast('已向 ' + (tr ? tr.getAttribute('data-to') : '目标客服') + ' 催办，将再次提醒响应');
+    } else if (txt === '取消') {
+      cancelRow(tr);
+    } else if (txt === '重新转接') {
+      csModal.open('modals/modal-transfer.html', { variant: 'center', width: 420,
+        onConfirm: function (d) { if (tr) setRowPending(tr, d); toast('已重新发起转接'); }
+      });
+    }
+  });
+  function setStatusCell(tr, html) { var td = $$('td', tr)[4]; if (td) td.innerHTML = html; }
+  function cancelRow(tr) {
+    if (!tr) return;
+    setStatusCell(tr, '<span class="t-tag cancelled">已取消</span>');
+    tr.setAttribute('data-status', 'cancelled');
+    var act = $$('td', tr)[6]; if (act) act.innerHTML = '<a>详情</a>';
+    tr.style.background = '';
+    applyFilters(); toast('已取消该转接');
+  }
+  function setRowPending(tr, d) {
+    if (!tr) return; d = d || {};
+    setStatusCell(tr, '<span class="t-tag pending">待处理</span><span style="background:#fffbe6;color:#d48806;font-size:11px;padding:2px 6px;border-radius:4px;margin-left:6px;">⏱ 剩余 5:00</span>');
+    tr.setAttribute('data-status', 'pending');
+    if (d.target) {
+      var toTd = $$('td', tr)[2];
+      if (toTd) toTd.innerHTML = '<div class="agent-cell"><div class="agent-avatar a5">' + escapeHtml(d.target.charAt(0)) + '</div><span>' + escapeHtml(d.target) + '</span></div>';
+      tr.setAttribute('data-to', d.target);
+    }
+    var act = $$('td', tr)[6]; if (act) act.innerHTML = '<a>催办</a><span class="divider">|</span><a>详情</a><span class="divider">|</span><a>取消</a>';
+    tr.style.background = '#fffbe6';
+    applyFilters();
+  }
+
+  /* ---------- 7. 超时策略 / 分页 ---------- */
+  var panel = $('.agents-panel');
+  var tMin = panel ? $('input[type=number]', panel) : null;
+  var tAct = panel ? $('select', panel) : null;
+  if (tMin) tMin.addEventListener('change', function () { toast('超时阈值已设为 ' + this.value + ' 分钟'); });
+  if (tAct) tAct.addEventListener('change', function () { toast('超时回退策略：' + this.value); });
+  $$('.pg-num').forEach(function (n) {
+    n.addEventListener('click', function () {
+      $$('.pg-num').forEach(function (x) { x.classList.remove('active'); });
+      n.classList.add('active');
+    });
+  });
+
+  applyFilters();
+})();
+  </script>
+
+<script>
+/* 三层归属：会话副行追加「企业客户 · 品牌商城 · 应用端」（原型按行轮转示意） */
+(function () {
+  var belong = [
+    ['客户A', '品牌商城1', '小程序'],
+    ['客户A', '品牌商城1', 'H5'],
+    ['客户B', '品牌商城2', 'PC'],
+    ['客户C', '品牌商城3', '小程序'],
+    ['客户B', '品牌商城2', 'H5'],
+    ['客户A', '品牌商城1', '小程序'],
+    ['客户B', '品牌商城2', 'PC'],
+    ['客户C', '品牌商城3', 'H5'],
+    ['客户A', '品牌商城2', '小程序']
+  ];
+  var i = 0;
+  document.querySelectorAll('.col-session').forEach(function (cs) {
+    var nameLine = null;
+    Array.prototype.forEach.call(cs.querySelectorAll('div'), function (d) {
+      if (!nameLine && d.children.length === 0 && d.textContent.indexOf('·') !== -1) nameLine = d;
+    });
+    if (!nameLine) return;
+    var b = belong[i % belong.length]; i++;
+    var line = document.createElement('div');
+    line.style.cssText = 'font-size:var(--cs-font-size-xs);color:var(--cs-text-tertiary);margin-top:2px;';
+    line.textContent = b[0] + ' · ' + b[1] + ' · ' + b[2];
+    nameLine.parentNode.appendChild(line);
+  });
+})();
+</script>
+
+</body>
+</html>

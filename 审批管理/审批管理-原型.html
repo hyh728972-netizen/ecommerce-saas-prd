@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>审批管理 - 商城运营后台</title>
+<style>
+:root{
+  --bg-app:#f5f5f5; --bg-surface:#ffffff; --bg-hover:#f0f5ff; --bg-input:#f8faff;
+  --border:#e8e8e8; --border-light:#f0f0f0;
+  --text-primary:#1a1a1c; --text-secondary:#6b6b70; --text-muted:#99999d;
+  --accent:#1890ff; --accent-soft:#e6f7ff;
+  --blue:#1890ff; --blue-bg:#e6f7ff; --blue-border:#91d5ff;
+  --red:#da3e3a; --red-bg:#fef4f3; --red-border:#fcd9d7;
+  --green:#16a34a; --green-bg:#f4fdf6; --green-border:#c6f0d4;
+  --orange:#d97706; --orange-bg:#fffbf0; --orange-border:#fde8c4;
+  --purple:#7c3aed; --purple-bg:#faf8ff; --purple-border:#e4dcfc;
+  --teal:#0d9488; --teal-bg:#f5fdfc; --teal-border:#c4f2ed;
+  --gray:#6b7280; --gray-bg:#f8f8f7; --gray-border:#e8e6e3;
+  --yellow:#e6a817; --yellow-bg:#fffdf0; --yellow-border:#fbe8a0;
+  --radius-sm:4px; --radius:8px; --radius-lg:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.06); --shadow-card:0 2px 8px rgba(0,0,0,.06);
+  --transition:160ms ease;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei","Helvetica Neue",sans-serif;background:var(--bg-app);color:var(--text-primary);display:flex;min-height:100vh;-webkit-font-smoothing:antialiased;}
+button{font-family:inherit;}
+
+/* 侧边栏 */
+.sidebar{width:200px;min-width:200px;background:var(--bg-surface);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:10;box-shadow:2px 0 8px rgba(0,0,0,.06);}
+.sidebar-brand{padding:20px 16px 24px;border-bottom:1px solid var(--border);}
+.sidebar-brand .logo{font-size:18px;font-weight:600;color:var(--accent);letter-spacing:-.01em;}
+.sidebar-brand .sub{font-size:12px;color:var(--text-muted);margin-top:3px;}
+.sidebar-nav{flex:1;padding:8px;display:flex;flex-direction:column;gap:2px;}
+.nav-label{font-size:11px;letter-spacing:.04em;color:var(--text-muted);padding:14px 10px 6px;font-weight:500;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:6px;color:var(--text-primary);font-size:13.5px;cursor:pointer;transition:all var(--transition);}
+.nav-item:hover{background:var(--bg-hover);color:var(--accent);}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:500;}
+.nav-item .ni-icon{width:16px;height:16px;opacity:.55;flex-shrink:0;}
+.nav-item.active .ni-icon{opacity:1;}
+.sidebar-foot{padding:14px 20px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);}
+
+
+/* 主区 */
+.main{flex:1;display:flex;flex-direction:column;min-width:0;}
+.topbar{height:52px;min-height:52px;background:var(--bg-surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 28px;gap:16px;z-index:5;position:sticky;top:0;}
+.topbar .breadcrumb{font-size:13px;color:var(--text-muted);}
+.topbar .breadcrumb b{color:var(--text-primary);font-weight:500;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:16px;}
+.topbar-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:all var(--transition);font-size:13px;}
+.topbar-icon:hover{background:var(--bg-hover);color:var(--text-primary);}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--accent);font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;color:#fff;}
+.content{flex:1;display:flex;flex-direction:column;overflow-y:auto;}
+
+/* 按钮 */
+.btn{display:inline-flex;align-items:center;padding:5px 12px;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;border:1px solid transparent;transition:all var(--transition);white-space:nowrap;font-weight:500;gap:5px;text-decoration:none;font-family:inherit;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{opacity:.88;}
+.btn-outline{border-color:var(--border);color:var(--text-primary);background:var(--bg-surface);}
+.btn-outline:hover{border-color:var(--text-muted);background:var(--bg-hover);}
+.btn-text{color:var(--blue);border:none;background:none;padding:2px 6px;cursor:pointer;font-size:12.5px;font-family:inherit;text-decoration:none;}
+.btn-text:hover{text-decoration:underline;}
+
+/* 面板标题 */
+.section-title{font-size:14px;font-weight:600;padding-left:12px;color:var(--text-primary);position:relative;display:flex;align-items:center;}
+.section-title::before{content:'';position:absolute;left:0;top:2px;bottom:2px;width:3px;background:var(--accent);border-radius:2px;}
+.panel-title{font-size:14px;font-weight:600;padding-left:12px;color:var(--text-primary);position:relative;}
+.panel-title::before{content:'';position:absolute;left:0;top:2px;bottom:2px;width:3px;background:var(--accent);border-radius:2px;}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.panel-tools{display:flex;align-items:center;gap:8px;}
+
+/* 卡片 */
+.card{background:var(--bg-surface);border-radius:var(--radius-lg);box-shadow:var(--shadow-card);padding:20px;}
+.page-view.hidden{display:none;}
+
+/* 标签 */
+.tag{display:inline-flex;align-items:center;padding:1px 8px;border-radius:100px;font-size:10.5px;font-weight:500;white-space:nowrap;}
+.tag-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
+.tag-orange{background:var(--orange-bg);color:var(--orange);border:1px solid var(--orange-border);}
+.tag-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);}
+.tag-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+.tag-gray{background:var(--gray-bg);color:var(--gray);border:1px solid var(--gray-border);}
+.tag-purple{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-border);}
+
+/* 状态徽章 */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:1px 8px;border-radius:100px;font-size:10.5px;font-weight:500;white-space:nowrap;}
+.badge::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor;}
+.badge.PENDING::before{animation:badge-pulse 1.8s ease-in-out infinite;}
+@keyframes badge-pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(.7);}}
+.badge.PENDING{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);}
+.badge.APPROVED{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+.badge.WITHDRAWN{background:var(--gray-bg);color:var(--gray);border:1px solid var(--gray-border);}
+.badge.TERMINATED{background:var(--gray-bg);color:var(--gray);border:1px solid var(--gray-border);}
+
+/* 视图切换 */
+.view-tabs{display:flex;gap:0;align-items:center;}
+.view-tab{padding:0;border:none;background:transparent;font-size:12px;font-weight:400;font-family:inherit;color:var(--text-muted);cursor:pointer;margin-right:18px;display:flex;align-items:center;gap:6px;}
+.view-tab.active{font-size:14px;font-weight:600;color:var(--text-primary);}
+.view-tab:hover:not(.active){color:var(--text-secondary);}
+.view-tab .count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 6px;border-radius:100px;font-size:10.5px;background:var(--gray-bg);color:var(--text-muted);}
+.view-tab.active .count{background:var(--blue-bg);color:var(--blue);}
+
+/* 筛选栏 V3：下拉框网格（图一风格） */
+.filter-bar-v3{display:flex;flex-direction:column;gap:14px;}
+.fb3-row{display:flex;gap:16px;align-items:flex-end;}
+.fb3-field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0;}
+.fb3-field > label{font-size:12px;color:var(--text-secondary);font-weight:500;}
+.fb3-field input,.fb3-field select{height:32px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;background:var(--bg-surface);color:var(--text-primary);outline:none;transition:border-color var(--transition);}
+.fb3-field input:focus,.fb3-field select:focus{border-color:var(--blue);}
+.fb3-time{flex:1.0;}
+.fb3-date-range{display:flex;align-items:center;gap:4px;}
+.fb3-date-range input{width:116px;flex:none;font-size:12px;padding:0 6px;}
+.fb3-sep{font-size:12px;color:var(--text-muted);}
+.fb3-actions{display:flex;gap:8px;margin-left:auto;align-self:flex-end;}
+.fb3-btn{height:32px;padding:0 18px;border-radius:var(--radius-sm);font-size:13px;font-family:inherit;cursor:pointer;transition:all var(--transition);}
+.fb3-reset{background:var(--bg-surface);border:1px solid var(--border);color:var(--text-secondary);}
+.fb3-reset:hover{border-color:var(--blue);color:var(--blue);}
+.fb3-query{background:var(--blue);border:1px solid var(--blue);color:#fff;}
+.fb3-query:hover{opacity:.9;}
+
+/* 卡片列表 */
+.card-list{display:flex;flex-direction:column;gap:10px;}
+/* 审批列表表格 */
+.approval-table-wrap{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;}
+.approval-table{width:100%;border-collapse:collapse;font-size:13px;}
+.approval-table thead th{background:var(--bg-input);color:var(--text-secondary);font-weight:500;text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);font-size:12px;white-space:nowrap;}
+.approval-table thead .th-op{text-align:right;}
+.approval-table tbody td{padding:11px 12px;border-bottom:1px solid var(--border-light);color:var(--text-primary);vertical-align:middle;}
+.approval-table tbody tr:last-child td{border-bottom:none;}
+.approval-table tbody tr{cursor:pointer;transition:background var(--transition);}
+.approval-table tbody tr:hover{background:var(--bg-hover);}
+.approval-table .mono{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:12px;color:var(--text-secondary);}
+.approval-table .cell-summary{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-secondary);}
+.approval-table .cell-time,.approval-table .cell-node{font-size:12px;color:var(--text-muted);white-space:nowrap;}
+.approval-table .cell-op{text-align:right;white-space:nowrap;display:flex;gap:6px;justify-content:flex-end;align-items:center;}
+.approval-table .row-action{height:26px;padding:0 10px;border:1px solid var(--border);background:var(--bg-surface);color:var(--text-secondary);border-radius:var(--radius-sm);font-size:12px;font-family:inherit;cursor:pointer;transition:all var(--transition);}
+.approval-table .row-action:hover{border-color:var(--blue);color:var(--blue);}
+.approval-table .row-action.row-danger:hover{border-color:var(--red);color:var(--red);}
+.approval-table .view-link{color:var(--blue);font-size:12px;}
+.approval-table .cell-type{font-weight:500;color:var(--text-primary);white-space:nowrap;}
+
+/* 分页 */
+.pagination{margin-top:14px;display:flex;align-items:center;justify-content:space-between;color:var(--text-muted);font-size:12px;}
+.pager{display:flex;gap:4px;}
+.pager button{min-width:28px;height:28px;border:1px solid var(--border);background:var(--bg-surface);border-radius:var(--radius-sm);cursor:pointer;color:var(--text-secondary);font-size:12px;padding:0 6px;font-family:inherit;transition:all var(--transition);}
+.pager button:hover{border-color:var(--accent);color:var(--accent);}
+.pager button.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.pager button.disabled{color:var(--text-muted);cursor:not-allowed;background:var(--bg-input);}
+
+/* 空状态/加载 */
+.state-block{padding:64px 0;text-align:center;color:var(--text-muted);}
+.state-block .icon{font-size:36px;opacity:.4;margin-bottom:10px;}
+.state-block .title-s{font-size:14px;color:var(--text-secondary);margin-bottom:4px;}
+.state-block .desc{font-size:12px;color:var(--text-muted);}
+.skeleton-row{padding:10px 14px;border-bottom:1px solid var(--border-light);}
+.skeleton-line{height:12px;background:linear-gradient(90deg,#f0f0f0 25%,#fafafa 37%,#f0f0f0 63%);background-size:400% 100%;border-radius:4px;animation:skeleton 1.4s ease infinite;}
+@keyframes skeleton{0%{background-position:100% 50%;}100%{background-position:0 50%;}}
+
+/* 详情页 */
+.detail-back{display:inline-flex;align-items:center;gap:4px;color:var(--text-secondary);cursor:pointer;font-size:13px;margin-bottom:14px;transition:color var(--transition);}
+.detail-back:hover{color:var(--accent);}
+.detail-back svg{width:14px;height:14px;}
+
+.detail-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border);}
+.detail-title-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.detail-title{font-size:18px;font-weight:600;}
+.detail-meta{color:var(--text-muted);font-size:12px;display:flex;gap:20px;flex-wrap:wrap;}
+.detail-meta b{color:var(--text-secondary);font-weight:500;margin-right:2px;}
+
+.detail-body{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start;}
+@media(max-width:1100px){.detail-body{grid-template-columns:1fr;}}
+.detail-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:11000px){.detail-cols{grid-template-columns:1fr;}}
+
+.panel{border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--bg-surface);overflow:hidden;}
+.panel-head{padding:12px 16px;background:var(--bg-input);font-size:13px;font-weight:500;color:var(--text-primary);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.panel-body{padding:16px;}
+
+.biz-grid{display:grid;grid-template-columns:100px 1fr;gap:10px 14px;font-size:13px;}
+.biz-grid .k{color:var(--text-muted);}
+.biz-grid .v{color:var(--text-primary);}
+.biz-grid .v.highlight{color:var(--red);font-weight:600;}
+.biz-grid .v.success{color:var(--green);font-weight:600;}
+.biz-grid .v.compare{display:inline-flex;align-items:center;gap:8px;}
+.biz-grid .v.compare .old{color:var(--text-muted);text-decoration:line-through;font-size:12px;}
+.biz-grid .v.compare .arrow{color:var(--text-muted);font-size:12px;}
+.biz-grid .v.compare .new{color:var(--red);font-weight:600;}
+.biz-grid .v.compare .new.pos{color:var(--green);}
+
+/* 审批时间线 */
+.timeline{position:relative;padding:0;}
+.timeline::before{content:"";position:absolute;left:14px;top:0;bottom:0;width:2px;background:var(--border);}
+.node{position:relative;padding:0 0 18px 0;min-height:24px;}
+.node:last-child{padding-bottom:0;}
+.node .dot{position:absolute;left:6px;top:2px;width:18px;height:18px;border-radius:50%;background:var(--bg-surface);border:3px solid var(--border);z-index:1;}
+.node.done .dot{border-color:var(--green);background:var(--green);}
+.node.current .dot{border-color:var(--blue);background:var(--bg-surface);box-shadow:0 0 0 4px rgba(24,144,255,.15);}
+.node.rejected .dot{border-color:var(--red);background:var(--red);}
+.node.withdraw .dot{border-color:var(--gray);background:var(--gray);}
+.node .name{font-weight:500;font-size:13px;color:var(--text-primary);display:flex;align-items:center;gap:8px;margin-left:32px;}
+.node .approver{color:var(--text-secondary);font-size:12px;margin-top:2px;margin-left:32px;}
+.node .time{color:var(--text-muted);font-size:11px;margin-top:3px;margin-left:32px;}
+.node .comment{margin-top:6px;margin-left:32px;padding:6px 10px;background:var(--bg-input);border-radius:var(--radius-sm);font-size:12px;color:var(--text-secondary);max-width:280px;}
+.node.end{padding:0;min-height:auto;}
+.node.end .dot{background:var(--border);border-color:var(--border);}
+.node.end .name{color:var(--text-muted);font-size:12px;font-weight:400;}
+.node.end.end-pass .dot{background:var(--green);border-color:var(--green);}
+.node.end.end-pass .name{color:var(--green);font-weight:500;}
+.node.end.end-refuse .dot{background:var(--red);border-color:var(--red);}
+.node.end.end-refuse .name{color:var(--red);font-weight:500;}
+.node-status{font-size:10.5px;padding:1px 8px;border-radius:100px;font-weight:500;}
+.node-status.wait{background:var(--gray-bg);color:var(--gray);border:1px solid var(--gray-border);}
+.node-status.doing{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border);}
+.node-status.pass{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);}
+.node-status.refuse{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
+.node-status.withdraw{background:var(--gray-bg);color:var(--gray);border:1px solid var(--gray-border);}
+
+/* Toast */
+.toast-container{position:fixed;top:24px;right:24px;z-index:200;display:flex;flex-direction:column;gap:8px;}
+.toast{background:#1e1e22;color:#fff;padding:12px 18px;border-radius:var(--radius);font-size:13px;box-shadow:0 4px 16px rgba(0,0,0,.1);max-width:320px;}
+.toast.info{border-left:3px solid var(--blue);}
+.toast.success{border-left:3px solid var(--green);}
+
+/* 危险按钮 */
+.btn-danger{background:var(--red);color:#fff;border:1px solid var(--red);}
+.btn-danger:hover{opacity:.9;}
+
+/* 撤回弹窗 */
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:none;align-items:center;justify-content:center;}
+.modal-mask.show{display:flex;}
+.modal-box{background:var(--bg-surface);border-radius:var(--radius-lg);padding:24px;width:400px;max-width:calc(100vw - 32px);box-shadow:0 8px 32px rgba(0,0,0,.16);}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:8px;}
+.modal-warn{font-size:12.5px;color:var(--orange);background:var(--orange-bg);border:1px solid var(--orange-border);padding:8px 10px;border-radius:var(--radius-sm);margin-bottom:14px;}
+.modal-field-label{font-size:12.5px;color:var(--text-secondary);margin-bottom:6px;}
+.modal-textarea{width:100%;border:1px solid var(--border);border-radius:var(--radius);padding:8px 10px;font-size:13px;font-family:inherit;resize:vertical;outline:none;transition:border-color var(--transition);}
+.modal-textarea:focus{border-color:var(--accent);}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+
+.strip{display:flex;gap:4px;align-items:center;font-size:11px;height:22px;padding:0 8px;border-radius:100px;background:var(--blue-bg);color:var(--blue);}
+
+/* 视角切换器 */
+.view-switcher{display:inline-flex;align-items:center;background:var(--gray-bg);border:1px solid var(--gray-border);border-radius:100px;padding:2px;flex-shrink:0;}
+.vs-btn{border:none;background:transparent;font-size:11px;font-family:inherit;color:var(--text-muted);padding:3px 10px;border-radius:100px;cursor:pointer;transition:all var(--transition);white-space:nowrap;line-height:1.2;}
+.vs-btn.active{background:#fff;color:var(--accent);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+.vs-btn:hover:not(.active){color:var(--text-secondary);}
+
+/* 业务信息Tabs */
+.biz-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:12px;}
+.biz-tab{padding:6px 14px;font-size:12px;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;}
+.biz-tab:hover{color:var(--text-primary);}
+.biz-tab.active{color:var(--accent);font-weight:500;border-bottom-color:var(--accent);}
+.biz-section{margin-bottom:16px;}
+.biz-section-title{font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:500;}
+.biz-section:last-child{margin-bottom:0;}
+
+/* 节点字段分区：上游引用 + 本节点填写 */
+.node-ref-block{background:var(--bg-input);border-radius:var(--radius);padding:12px 14px;margin-bottom:12px;border:1px solid var(--border);}
+.node-ref-block .biz-grid .k{color:var(--text-muted);}
+.node-ref-block .biz-grid .v{color:var(--text-secondary);}
+.node-ref-title{font-size:12px;color:var(--text-muted);font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:4px;}
+.node-self-block{background:var(--bg-surface);border-radius:var(--radius);padding:12px 14px;border:1px solid var(--blue-border);box-shadow:0 1px 3px rgba(24,144,255,.06);}
+.node-self-block .biz-grid .k{color:var(--text-primary);font-weight:500;}
+.node-self-block .biz-grid .v{color:var(--text-primary);}
+.node-self-title{font-size:12px;color:var(--blue);font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:4px;}
+
+/* 业务信息表格 */
+.biz-table-wrap{margin-top:10px;}
+.biz-table-title{font-size:12px;color:var(--text-muted);font-weight:500;margin-bottom:6px;}
+.biz-table-scroll{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-surface);}
+.biz-table{width:100%;border-collapse:collapse;font-size:12px;}
+.biz-table thead th{background:var(--bg-input);color:var(--text-secondary);font-weight:500;text-align:left;padding:8px 10px;white-space:nowrap;border-bottom:1px solid var(--border);}
+.biz-table tbody td{padding:8px 10px;color:var(--text-primary);border-bottom:1px solid var(--border);white-space:nowrap;}
+.biz-table tbody tr:last-child td{border-bottom:none;}
+.biz-table tbody tr:hover{background:var(--blue-bg);}
+.node-ref-block .biz-table thead th{background:rgba(0,0,0,.03);}
+.node-ref-block .biz-table tbody td{color:var(--text-secondary);}
+
+/* 证照图片占位 */
+.cert-img-area{margin-bottom:14px;}
+.cert-img-area .cert-label{font-size:12px;color:var(--text-secondary);margin-bottom:6px;font-weight:500;}
+.cert-img-single{width:200px;height:140px;border:1px dashed var(--border);border-radius:var(--radius);background:var(--bg-input);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);font-size:11px;gap:6px;cursor:pointer;transition:all var(--transition);}
+.cert-img-single:hover{border-color:var(--blue);background:var(--blue-bg);color:var(--blue);}
+.cert-img-single svg{width:32px;height:32px;opacity:.4;}
+.cert-img-dual{display:flex;gap:12px;}
+.cert-img-dual .cert-img-single{width:160px;height:110px;}
+.cert-img-dual .cert-img-single .cert-tag{position:absolute;bottom:6px;font-size:10px;background:rgba(0,0,0,.05);padding:1px 6px;border-radius:100px;}
+</style>
+</head>
+<body>
+
+
+<!-- ===== 侧边栏 ===== -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">商城运营后台</div>
+    <div class="sub">运营管理系统</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="location.href='审批管理-原型.html'"><svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>审批管理</div>
+    <div class="nav-item" onclick="location.href='待处理选品-原型页面-审批联动.html'"><svg class="ni-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>待处理选品</div>
+  </nav>
+  <div class="sidebar-foot">V2.0 · 2026</div>
+</aside>
+
+<!-- ===== 主区 ===== -->
+<div class="main">
+  <div class="topbar">
+    <div class="breadcrumb">商城运营 / <b>审批管理</b></div>
+    <div class="topbar-right">
+      <div class="view-switcher" id="view-switcher"><button class="vs-btn active" data-view="admin" onclick="switchView('admin')">管理员视角</button><button class="vs-btn" data-view="mine" onclick="switchView('mine')">我的视角</button></div>
+      <span id="user-role" style="font-size:12px;color:var(--text-muted);">管理员 · 张明</span>
+      <div class="user-avatar">张</div>
+    </div>
+  </div>
+
+  <div class="content" style="padding:16px 24px 24px;">
+
+    <!-- ============ 列表页 ============ -->
+    <div class="page-view" id="page-list">
+      <div class="card" style="margin-bottom:12px; padding:14px 20px;">
+        <!-- 筛选栏 V3：下拉框网格 + 自定义时间范围 -->
+        <div class="filter-bar-v3">
+          <div class="fb3-row">
+            <div class="fb3-field"><label>审批单号</label><input id="f-id" placeholder="请输入" onkeydown="if(event.key==='Enter')applyFilter()" /></div>
+            <div class="fb3-field"><label>申请人</label><input id="f-applicant" placeholder="请输入" onkeydown="if(event.key==='Enter')applyFilter()" /></div>
+            <div class="fb3-field"><label>类型</label>
+              <select id="f-type" onchange="onSelectChange('type',this.value)">
+                <option value="">全部</option>
+                <option value="A2">指定供应商审核</option>
+                <option value="B1">亏损特批申请</option>
+                <option value="B2">卡券模板</option>
+                <option value="B3">平台代发卡券</option>
+                <option value="B6">平台代发积分</option>
+                <option value="B4">售后补偿卡券</option>
+                <option value="B7">售后补偿积分</option>
+                <option value="B5">新增企业客户申请</option>
+              </select>
+            </div>
+            <div class="fb3-field" id="f-status-field"><label>状态</label>
+              <select id="f-status" onchange="onSelectChange('status',this.value)">
+                <option value="">全部</option>
+                <option value="PENDING">审批中</option>
+                <option value="APPROVED">已通过</option>
+                <option value="REJECTED">已驳回</option>
+                <option value="WITHDRAWN">已撤回</option>
+              </select>
+            </div>
+            <div class="fb3-field fb3-time"><label>提交时间</label>
+              <div class="fb3-date-range">
+                <input type="date" id="f-date-start" onchange="onDateChange()" />
+                <span class="fb3-sep">至</span>
+                <input type="date" id="f-date-end" onchange="onDateChange()" />
+              </div>
+            </div>
+          </div>
+          <div class="fb3-row">
+            <div class="fb3-actions">
+              <button class="fb3-btn fb3-reset" onclick="resetFilter()">重置</button>
+              <button class="fb3-btn fb3-query" onclick="applyFilter()">查询</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 工作台 Tab（移至筛选区下方） -->
+      <div class="view-tabs" id="view-tabs" style="margin-bottom:12px;"></div>
+
+      <!-- 卡片列表 -->
+      <div class="card-list" id="card-list"></div>
+
+      <!-- 分页 -->
+      <div class="pagination" id="pager">
+        <span id="page-info">共 0 条</span>
+        <div class="pager" id="page-btns"></div>
+      </div>
+    </div>
+
+    <!-- ============ 详情页 ============ -->
+    <div class="page-view hidden" id="page-detail">
+      <div class="detail-back" onclick="showList()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>返回列表
+      </div>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div class="detail-head">
+          <div>
+            <div class="detail-title-row">
+              <span class="detail-title" id="d-title">--</span>
+              <span class="badge" id="d-status">--</span>
+            </div>
+            <div class="detail-meta">
+              <span><b>审批编号</b> <span id="d-code">--</span></span>
+              <span><b>申请人</b> <span id="d-applicant">--</span></span>
+              <span><b>发起时间</b> <span id="d-time">--</span></span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+            <button class="btn btn-outline" id="d-withdraw-btn" style="display:none;color:var(--red);border-color:var(--red-border);" onclick="openWithdraw()">撤回</button>
+          </div>
+        </div>
+
+        <div class="detail-body">
+          <div id="d-biz-col">
+            <div class="detail-cols" id="d-biz-cols" style="display:none;">
+              <div class="panel" style="margin-bottom:0;">
+                <div class="panel-head">
+                  <span id="d-biz-supplier-title">供应商填写信息</span>
+                  <span class="tag tag-blue" id="d-biz-supplier-tag">供应商提交</span>
+                </div>
+                <div class="panel-body">
+                  <div id="d-biz-supplier"></div>
+                </div>
+              </div>
+              <div class="panel" style="margin-bottom:0;">
+                <div class="panel-head">
+                  <span>节点信息</span>
+                  <span class="tag tag-orange">审批节点</span>
+                </div>
+                <div class="panel-body">
+                  <div id="d-node-tabs"></div>
+                  <div id="d-node-content"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 业务信息（B5类型使用分组Tab，其余类型使用此单栏） -->
+            <div class="panel" style="margin-bottom:16px; display:none;" id="d-biz-panel-single">
+              <div class="panel-head">
+                <span>业务信息</span>
+                <span class="tag tag-blue" id="d-type-code-single">业务提交</span>
+              </div>
+              <div class="panel-body">
+                <div id="d-biz-simple"></div>
+              </div>
+            </div>
+
+            <!-- 节点信息（单栏，与B5的分组节点面板互斥） -->
+            <div class="panel" style="margin-bottom:16px; display:none;" id="d-node-panel-single">
+              <div class="panel-head">
+                <span>节点信息</span>
+                <span class="tag tag-orange">审批节点</span>
+              </div>
+              <div class="panel-body">
+                <div id="d-node-tabs-single"></div>
+                <div id="d-node-content-single"></div>
+              </div>
+            </div>
+
+            <!-- 同类型其他审批 · 跳转入口 -->
+            <div id="same-type-toggle" style="margin-top:12px; text-align:center; display:none;">
+              <button class="btn btn-outline" id="same-type-btn" onclick="viewSameTypeList()">查看全部「<span id="same-type-name"></span>」审批 →</button>
+            </div>
+          </div>
+          <div>
+            <div class="panel">
+              <div class="panel-head">
+                <span>审批流程</span>
+              </div>
+              <div class="panel-body">
+                <div class="timeline" id="d-timeline"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- 撤回确认弹窗 -->
+<div class="modal-mask" id="withdraw-mask">
+  <div class="modal-box">
+    <div class="modal-title">确认撤回该审批？</div>
+    <div class="modal-warn">⚠ 撤回后流程终止、不可恢复，需重新发起</div>
+    <div class="modal-field-label">撤回原因 <span style="color:var(--red);">*</span></div>
+    <textarea class="modal-textarea" id="withdraw-reason" placeholder="请填写撤回原因，便于后续追溯" rows="4"></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeWithdraw()">取消</button>
+      <button class="btn btn-danger" id="withdraw-confirm" onclick="doWithdraw()">确认撤回</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =============================================
+   审批管理 · Mock 数据 & 交互逻辑
+   ============================================= */
+
+const TYPE_META = {
+  A2: { code:'A2', name:'指定供应商审核', icon:'指' },
+  B1: { code:'B1', name:'亏损特批申请', icon:'亏' },
+  B2: { code:'B2', name:'新建卡券模板', icon:'券' },
+  B3: { code:'B3', name:'平台代发卡券', icon:'发' },
+  B6: { code:'B6', name:'平台代发积分', icon:'分' },
+  B4: { code:'B4', name:'售后补偿卡券', icon:'偿' },
+  B7: { code:'B7', name:'售后补偿积分', icon:'补' },
+  B5: { code:'B5', name:'新增企业客户申请', icon:'客' }
+};
+
+const STATUS_META = {
+  PENDING:   { text:'审批中', cls:'PENDING' },
+  APPROVED:  { text:'已通过', cls:'APPROVED' },
+  WITHDRAWN: { text:'已撤回', cls:'WITHDRAWN' },
+  TERMINATED:{ text:'已失效', cls:'TERMINATED' }
+};
+
+/* 全部 mock 数据，用于详情页"同类型其他审批"切换 */
+const ALL_MOCK = [
+  {
+    id:'AP20260721005', type:'B5', status:'PENDING', applicant:'道馨',
+    time:'2026-07-21 14:30',
+    applicantSelf:false, approverCurrent:'孙强',
+    biz:{
+      supplier:[
+        ['企业认证',[
+          ['企业营业执照','已上传','img'],
+          ['品牌商城名称','某品牌A商城'],
+          ['品牌商城ID','A001'],
+          ['统一社会信用代码','91330100MA2XXXXXXX'],
+          ['注册资金','500万元'],
+          ['注册地址','杭州市余杭区'],
+          ['经营地址','杭州市余杭区'],
+          ['负责人名称','王五'],
+          ['负责人手机号','13812345678'],
+          ['入驻理由','品牌知名度高，用户需求强烈'],
+          ['K3渠道名称','K3渠道A'],
+          ['K3渠道编码','K3-A001']
+        ]],
+        ['法人认证',[
+          ['法人证件照片正反面','已上传','img'],
+          ['法人姓名','赵六'],
+          ['法人手机号','13987654321'],
+          ['法人身份证','330102199001011234'],
+          ['所属公司','某品牌管理有限公司']
+        ]],
+        ['结算信息',[
+          ['开户银行','中国工商银行'],
+          ['银行账号','6222021202001234567'],
+          ['开户支行名称','杭州余杭支行'],
+          ['开户地址','杭州市余杭区']
+        ]]
+      ]
+    },
+    nodes:[
+      { name:'发起', approver:'道馨', time:'07-21 14:30', status:'start', comment:'', fields:null },
+      { name:'财务经理', approver:'孙强', time:'审批中', status:'doing', comment:'', fields:[
+        ['审批意见','']
+      ]}
+    ]
+  },
+  {
+    id:'AP20260720002', type:'A2', status:'PENDING', applicant:'陈浩',
+    time:'2026-07-20 08:40',
+    applicantSelf:false, approverCurrent:'周敏',
+    biz:[
+      ['商品SPU名称','3M 9001V KN95口罩'],
+      ['商品SKU名称','3M 9001V KN95口罩 {白,常规}'],
+      ['SKU物流编码','HZ-A0022001-JC'],
+      ['渠道','零售渠道'],
+      ['已选供应商','供应商A'],
+      ['供货价','¥15.00'],
+      ['与最低价差额','¥1.00'],
+      ['供应链推荐','供应商A（优选，¥15.00）']
+    ],
+    table:{
+      title:'供应商对比',
+      headers:['供应商','供货价','发货物流','订单量','售后率','结算方式','状态'],
+      rows:[
+        ['供应商A','¥15.00','顺丰/中通','12,800','2.1%','现款现货','已选 / 优选'],
+        ['供应商D','¥14.00','京东物流','8,500','3.5%','月结30天','最低价']
+      ]
+    },
+    nodes:[
+      { name:'发起', approver:'陈浩', time:'07-20 08:40', status:'start', comment:'', fields:null },
+      { name:'商品部经理', approver:'周敏', time:'审批中', status:'doing', comment:'', fields:[
+        ['操作意见','']
+      ]},
+      { name:'科技事业部副总经理', approver:'刘洋', time:'待处理', status:'wait', comment:'', fields:[
+        ['操作意见','']
+      ]},
+      { name:'财务经理', approver:'孙强', time:'待处理', status:'wait', comment:'', fields:[
+        ['操作意见','']
+      ]}
+    ]
+  },
+  {
+    id:'AP20260719015', type:'B1', status:'PENDING', applicant:'王五',
+    time:'2026-07-19 16:30',
+    applicantSelf:false, approverCurrent:'赵主管',
+    biz:[
+      ['商品SPU名称','3M口罩'],
+      ['商品SKU名称','3M口罩 {白,常规}'],
+      ['SKU物流编码','HZ-A0022001-JC'],
+      ['商城SKU','SC100001'],
+      ['关联渠道','企业购'],
+      ['供货价','¥12.00'],
+      ['申请的渠道价','¥10.00'],
+      ['我司毛利率','-20.0%','highlight'],
+      ['亏损预估','-¥2.00/件'],
+      ['申请理由','竞品低价跟进，抢占市场份额']
+    ],
+    nodes:[
+      { name:'发起', approver:'王五', time:'07-19 16:30', status:'start', comment:'', fields:null },
+      { name:'运营主管', approver:'赵主管', time:'审批中', status:'doing', comment:'', fields:[
+        ['审批意见','']
+      ]},
+      { name:'财务主管', approver:'李芳', time:'待处理', status:'wait', comment:'', fields:[
+        ['审批意见','']
+      ]}
+    ]
+  },
+  {
+    id:'AP20260719012', type:'B2', status:'APPROVED', applicant:'道馨',
+    time:'2026-07-18 14:00',
+    applicantSelf:false, approverCurrent:'',
+    biz:[
+      ['模板名称','新人专享满99减20'],
+      ['卡券类型','满减券'],
+      ['卡券封面图','已上传','img'],
+      ['面值/内容','满99减20'],
+      ['使用门槛','满 99 元可用'],
+      ['商品限制','仅限新人首单使用'],
+      ['授权范围','全场商品购物抵扣，不可与其他满减券叠加'],
+      ['使用说明','每人限领 1 张；兑换后 7 天内有效；不可转赠、不可兑现。'],
+      ['兑换所需积分','20 积分/张'],
+      ['有效期','发放后 15 天 · 兑换后 7 天']
+    ],
+    nodes:[
+      { name:'发起', approver:'道馨', time:'07-18 14:00', status:'start', comment:'', fields:null },
+      { name:'运营主管', approver:'张明', time:'07-18 15:20', status:'pass', comment:'规则合理。', fields:[
+        ['审批意见','规则合理。']
+      ]},
+      { name:'财务经理', approver:'孙强', time:'07-19 09:45', status:'pass', comment:'预算可承担。', fields:[
+        ['审批意见','预算可承担。']
+      ]},
+      { name:'运营总监', approver:'林伟', time:'07-19 11:10', status:'pass', comment:'同意。', fields:[
+        ['审批意见','同意。']
+      ]}
+    ]
+  },
+  {
+    id:'AP20260719013', type:'B2', status:'WITHDRAWN', applicant:'道馨',
+    time:'2026-07-19 16:00',
+    applicantSelf:false, approverCurrent:'',
+    biz:[
+      ['模板名称','新人专享满99减20'],
+      ['卡券类型','满减券'],
+      ['卡券封面图','已上传','img'],
+      ['面值/内容','满99减20'],
+      ['使用门槛','满 99 元可用'],
+      ['商品限制','仅限新人首单使用'],
+      ['授权范围','全场商品购物抵扣，不可与其他满减券叠加'],
+      ['使用说明','每人限领 1 张；兑换后 7 天内有效；不可转赠、不可兑现。'],
+      ['兑换所需积分','20 积分/张'],
+      ['有效期','发放后 15 天 · 兑换后 7 天']
+    ],
+    nodes:[
+      { name:'发起', approver:'道馨', time:'07-19 16:00', status:'start', comment:'', fields:null },
+      { name:'发起人撤回', approver:'道馨', time:'07-19 17:10', status:'withdraw', comment:'撤回：满减门槛填写有误（应为满199减20），修改后重新发起。（下一节点「运营主管」尚未审批，发起人主动撤回）', fields:[
+        ['撤回原因','满减门槛填写有误（应为满199减20），修改后重新发起。']
+      ]}
+    ]
+  },
+  {
+    id:'AP20260717007', type:'B6', status:'PENDING', applicant:'道馨',
+    time:'2026-07-17 09:30',
+    applicantSelf:false, approverCurrent:'泽梅',
+    biz:[
+      ['品牌商城','某品牌B商城（ID·B002）'],
+      ['积分余额','85,000.00'],
+      ['每人发放积分','50 积分'],
+      ['积分有效期','1年'],
+      ['发放备注','会员回馈积分'],
+      ['发放对象用户','共 200 人（选人直充）'],
+      ['消耗积分','-10,000.00（= 50 × 200）'],
+      ['品牌商城剩余积分','75,000.00']
+    ],
+    nodes:[
+      { name:'发起', approver:'道馨', time:'07-17 09:30', status:'start', comment:'', fields:null },
+      { name:'运营主管', approver:'泽梅', time:'审批中', status:'doing', comment:'', fields:[
+        ['审批意见','']
+      ]}
+    ]
+  },
+  {
+    id:'AP20260718008', type:'B3', status:'PENDING', applicant:'道馨',
+    time:'2026-07-17 11:00',
+    applicantSelf:false, approverCurrent:'泽梅',
+    biz:[
+      ['品牌商城','某品牌A商城（ID·A001）'],
+      ['积分余额','120,000.00'],
+      ['卡券模板','新人满99减20（满减券·全场·兑换单价20积分/张·发放后15天/兑换后7天）'],
+      ['自定义名称','新人补偿券'],
+      ['发放数量','800 张'],
+      ['兑换所需积分','16,000.00（= 20 × 800）'],
+      ['发放方式','选人直充'],
+      ['发放对象用户','张三（手机尾号 6688）'],
+      ['消耗积分','-16,000.00'],
+      ['品牌商城剩余积分','104,000.00']
+    ],
+    nodes:[
+      { name:'发起', approver:'道馨', time:'07-17 11:00', status:'start', comment:'', fields:null },
+      { name:'运营主管', approver:'泽梅', time:'07-17 14:00', status:'refuse', comment:'驳回：单次超出1000张上限（RULE-SEND-002），请分批发起或修改数量。', fields:[
+        ['审批意见','驳回：单次超出1000张上限（RULE-SEND-002），请分批发起或修改数量。']
+      ]},
+      { name:'发起人修改', approver:'道馨', time:'07-18 09:20', status:'pass', comment:'已修改：发放数量调整为 800 张，兑换积分 16,000.00。', fields:[
+        ['发放数量','800 张'],
+        ['兑换所需积分','16,000.00（= 20 × 800）'],
+        ['消耗积分','-16,000.00'],
+        ['品牌商城剩余积分','104,000.00'],
+        ['修改说明','应运营主管要求调整为合规数量']
+      ]},
+      { name:'运营主管（重审）', approver:'泽梅', time:'审批中', status:'doing', comment:'',
+        refs:[
+          { from:'发起人修改', fields:[
+            ['发放数量','800 张'],
+            ['兑换所需积分','16,000.00（= 20 × 800）'],
+            ['消耗积分','-16,000.00'],
+            ['品牌商城剩余积分','104,000.00']
+          ]}
+        ],
+        fields:[
+          ['审批意见','']
+        ]
+      }
+    ]
+  },
+  {
+    id:'AP20260720011', type:'B3', status:'PENDING', applicant:'道馨',
+    time:'2026-07-20 15:00',
+    applicantSelf:false, approverCurrent:'泽梅',
+    biz:[
+      ['品牌商城','某品牌A商城（ID·A001）'],
+      ['积分余额','120,000.00'],
+      ['卡券模板','5元购物券（优惠券·全场·兑换单价5积分/张·发放后7天/兑换后7天）'],
+      ['自定义名称','会员回馈券'],
+      ['发放数量','300 张'],
+      ['兑换所需积分','1,500.00（= 5 × 300）'],
+      ['折扣率','9折（0.9）'],
+      ['折扣原因','会员回馈活动，整体打9折'],
+      ['折后兑换积分','1,350.00（= 1,500 × 0.9）'],
+      ['发放方式','选人直充'],
+      ['发放对象用户','李四（手机尾号 1234）'],
+      ['消耗积分','-1,350.00'],
+      ['品牌商城剩余积分','118,650.00']
+    ],
+    nodes:[
+      { name:'发起', approver:'道馨', time:'07-20 15:00', status:'start', comment:'', fields:null },
+      { name:'运营主管', approver:'泽梅', time:'审批中', status:'doing', comment:'', fields:[
+        ['审批意见','']
+      ]}
+    ]
+  },
+  {
+    id:'AP20260716005', type:'B4', status:'APPROVED', applicant:'张明',
+    time:'2026-07-16 10:20',
+    applicantSelf:true, approverCurrent:'',
+    biz:[
+      ['品牌商城','某品牌A商城'],
+      ['发放方式','选人直充'],
+      ['卡券模板','无门槛¥10券（优惠券·全场·自领取起7天有效）'],
+      ['卡券名称','质量问题补偿券·8月'],
+      ['发放数量','1 张'],
+      ['客诉原因','商品质量问题·客户投诉'],
+      ['商城订单号','SO20260716005'],
+      ['下单人手机号','138****6688'],
+      ['补充说明','客户收到商品破损，申请补偿'],
+      ['客诉凭证','已上传','img'],
+      ['发放对象用户','张三（手机尾号 6688）']
+    ],
+    nodes:[
+      { name:'发起', approver:'张明', time:'07-16 10:20', status:'start', comment:'', fields:null },
+      { name:'客服主管', approver:'路宁', time:'07-16 11:00', status:'pass', comment:'通过：凭证齐全、原因属实。', fields:[
+        ['审批意见','通过：凭证齐全、原因属实。']
+      ]}
+    ]
+  },
+  {
+    id:'AP20260718010', type:'B5', status:'APPROVED', applicant:'道馨',
+    time:'2026-07-18 10:00',
+    applicantSelf:false, approverCurrent:'',
+    biz:{
+      supplier:[
+        ['企业认证',[
+          ['企业营业执照','已上传','img'],
+          ['品牌商城名称','某品牌B商城'],
+          ['品牌商城ID','B002'],
+          ['统一社会信用代码','91330100MA9XXXXXXX'],
+          ['注册资金','1,000万元'],
+          ['注册地址','上海市浦东新区'],
+          ['经营地址','上海市浦东新区'],
+          ['负责人名称','李四'],
+          ['负责人手机号','13600001111'],
+          ['入驻理由','补充品牌品类，丰富商城供给'],
+          ['K3渠道名称','K3渠道B'],
+          ['K3渠道编码','K3-B002']
+        ]],
+        ['法人认证',[
+          ['法人证件照片正反面','已上传','img'],
+          ['法人姓名','孙七'],
+          ['法人手机号','13700002222'],
+          ['法人身份证','310115198502022345'],
+          ['所属公司','某品牌商贸有限公司']
+        ]],
+        ['结算信息',[
+          ['开户银行','中国建设银行'],
+          ['银行账号','6227001203009876543'],
+          ['开户支行名称','上海浦东支行'],
+          ['开户地址','上海市浦东新区']
+        ]]
+      ]
+    },
+    nodes:[
+      { name:'发起', approver:'道馨', time:'07-18 10:00', status:'start', comment:'', fields:null },
+      { name:'财务经理', approver:'孙强', time:'07-18 15:30', status:'pass', comment:'资质齐全，予以通过。', fields:[
+        ['审批意见','资质齐全，予以通过。']
+      ]}
+    ]
+  },
+  {
+    id:'AP20260712009', type:'B1', status:'APPROVED', applicant:'张明',
+    time:'2026-07-12 11:00',
+    applicantSelf:true, approverCurrent:'',
+    biz:[
+      ['商品SPU名称','农夫山泉'],
+      ['商品SKU名称','农夫山泉 550ml×24'],
+      ['SKU物流编码','HZ-B0033002-JC'],
+      ['商城SKU','SC100002'],
+      ['关联渠道','企业购'],
+      ['供货价','¥30.00'],
+      ['申请的渠道价','¥28.00'],
+      ['我司毛利率','-7.1%','highlight'],
+      ['亏损预估','-¥2.00/件'],
+      ['申请理由','7.15限时秒杀活动，清库存']
+    ],
+    nodes:[
+      { name:'发起', approver:'张明', time:'07-12 11:00', status:'start', comment:'', fields:null },
+      { name:'运营主管', approver:'赵主管', time:'07-12 14:00', status:'pass', comment:'同意，大促合理。', fields:[
+        ['审批意见','同意，大促合理。']
+      ]},
+      { name:'财务主管', approver:'李芳', time:'07-12 16:30', status:'pass', comment:'已确认预算。', fields:[
+        ['审批意见','已确认预算。']
+      ]}
+    ]
+  },
+  {
+    id:'AP20260711006', type:'B3', status:'APPROVED', applicant:'道馨',
+    time:'2026-07-11 09:30',
+    applicantSelf:false, approverCurrent:'',
+    biz:[
+      ['品牌商城','某品牌B商城（ID·B002）'],
+      ['积分余额','85,000.00'],
+      ['卡券模板','新人满50减10（满减券·指定品类·食品·兑换单价10积分/张·发放后14天/兑换后14天）'],
+      ['自定义名称','新客食品券'],
+      ['发放数量','320 张'],
+      ['兑换所需积分','3,200.00（= 10 × 320）'],
+      ['发放方式','生成卡密'],
+      ['消耗积分','-3,200.00'],
+      ['品牌商城剩余积分','81,800.00']
+    ],
+    nodes:[
+      { name:'发起', approver:'道馨', time:'07-11 09:30', status:'start', comment:'', fields:null },
+      { name:'运营主管', approver:'张明', time:'07-11 11:00', status:'pass', comment:'通过：余额充足、数量合规。', fields:[
+        ['审批意见','通过：余额充足、数量合规。']
+      ]}
+    ]
+  },
+  {
+    id:'AP20260721003', type:'B7', status:'PENDING', applicant:'张明',
+    time:'2026-07-21 09:30',
+    applicantSelf:true, approverCurrent:'路宁',
+    biz:[
+      ['品牌商城','某品牌A商城'],
+      ['发放方式','发放积分（平台补偿预算）'],
+      ['每人发放积分','80 积分'],
+      ['积分有效期','1年'],
+      ['客诉原因','物流延迟·客户投诉'],
+      ['商城订单号','SO20260721003'],
+      ['下单人手机号','137****2299'],
+      ['补充说明','物流延迟超过72小时，客户多次投诉'],
+      ['客诉凭证','已上传','img'],
+      ['发放对象用户','王五（手机尾号 2299）']
+    ],
+    nodes:[
+      { name:'发起', approver:'张明', time:'07-21 09:30', status:'start', comment:'', fields:null },
+      { name:'客服主管', approver:'路宁', time:'待处理', status:'wait', comment:'', fields:[
+        ['审批意见','']
+      ]}
+    ]
+  }
+];
+
+/* 列表页用：全部记录，按时间倒序 */
+const MOCK = ALL_MOCK.slice().sort(function(a,b){ return b.time.localeCompare(a.time); });
+
+/* ===== 业务摘要提取 ===== */
+function getBizSummary(type, biz){
+  if(type === 'B5'){
+    if(biz && biz.supplier){
+      var enterprise = biz.supplier.find(function(g){ return g[0] === '企业认证'; });
+      if(enterprise){
+        var nameField = enterprise[1].find(function(f){ return f[0] === '品牌商城名称'; });
+        if(nameField) return nameField[1];
+      }
+    }
+    return '';
+  }
+  if(type === 'A2'){
+    if(Array.isArray(biz)){
+      var spu = biz.find(function(f){ return f[0] === '商品SPU名称'; });
+      if(spu) return spu[1];
+    }
+    return '';
+  }
+  if(type === 'B1'){
+    if(Array.isArray(biz)){
+      var product = biz.find(function(f){ return f[0] === '商品SKU名称'; });
+      var channel = biz.find(function(f){ return f[0] === '关联渠道'; });
+      var parts = [];
+      if(product) parts.push(product[1]);
+      if(channel) parts.push(channel[1]);
+      return parts.join(' · ');
+    }
+    return '';
+  }
+  if(type === 'B2'){
+    if(Array.isArray(biz)){
+      var tpl = biz.find(function(f){ return f[0] === '模板名称'; });
+      if(tpl) return tpl[1];
+    }
+    return '';
+  }
+  if(type === 'B3'){
+    if(Array.isArray(biz)){
+      var brand = biz.find(function(f){ return f[0] === '品牌商城'; });
+      var tpl = biz.find(function(f){ return f[0] === '卡券模板'; });
+      var qty = biz.find(function(f){ return f[0] === '发放数量'; });
+      var method = biz.find(function(f){ return f[0] === '发放方式'; });
+      var parts = [];
+      if(brand) parts.push(brand[1]);
+      if(tpl) parts.push(tpl[1]);
+      if(qty) parts.push('发放 ' + qty[1]);
+      if(method) parts.push(method[1]);
+      return parts.join(' · ');
+    }
+    return '';
+  }
+  if(type === 'B6'){
+    if(Array.isArray(biz)){
+      var brand6 = biz.find(function(f){ return f[0] === '品牌商城'; });
+      var pts6 = biz.find(function(f){ return f[0] === '每人发放积分'; });
+      var obj6 = biz.find(function(f){ return f[0] === '发放对象用户'; });
+      var parts6 = [];
+      if(brand6) parts6.push(brand6[1]);
+      if(pts6) parts6.push('每人 ' + pts6[1]);
+      if(obj6) parts6.push(obj6[1]);
+      return parts6.join(' · ');
+    }
+    return '';
+  }
+  if(type === 'B4'){
+    if(Array.isArray(biz)){
+      var brand4 = biz.find(function(f){ return f[0] === '品牌商城'; });
+      var tpl4 = biz.find(function(f){ return f[0] === '卡券模板'; });
+      var reason4 = biz.find(function(f){ return f[0] === '客诉原因'; });
+      var parts4 = [];
+      if(brand4) parts4.push(brand4[1]);
+      if(tpl4) parts4.push(tpl4[1]);
+      if(reason4) parts4.push(reason4[1]);
+      return parts4.join(' · ');
+    }
+    return '';
+  }
+  if(type === 'B7'){
+    if(Array.isArray(biz)){
+      var brand7 = biz.find(function(f){ return f[0] === '品牌商城'; });
+      var pts7 = biz.find(function(f){ return f[0] === '每人发放积分'; });
+      var reason7 = biz.find(function(f){ return f[0] === '客诉原因'; });
+      var parts7 = [];
+      if(brand7) parts7.push(brand7[1]);
+      if(pts7) parts7.push('每人 ' + pts7[1]);
+      if(reason7) parts7.push(reason7[1]);
+      return parts7.join(' · ');
+    }
+    return '';
+  }
+  return '';
+}
+
+/* ===== 状态 ===== */
+const ME = '张明';
+let curView = 'admin';
+let curTab = 'all';
+let curPage = 1;
+const PAGE_SIZE = 8;
+let filterState = { type:'', status:'', time:'', dateStart:'', dateEnd:'' };
+
+/* ===== Tab 配置（按视角） ===== */
+const TABS_ADMIN = [
+  {key:'all', label:'全部'},
+  {key:'pending', label:'审批中'},
+  {key:'approved', label:'已通过'},
+  {key:'rejected', label:'已驳回'}
+];
+const TABS_MINE = [
+  {key:'all', label:'全部'},
+  {key:'todo', label:'待我审批'},
+  {key:'apply', label:'我发起的'},
+  {key:'reviewed', label:'我已审批'}
+];
+
+function isReviewedByMe(x){
+  return (x.nodes||[]).some(function(n){ return n.approver===ME && (n.status==='pass'||n.status==='refuse'); });
+}
+
+function isRelatedToMe(x){
+  if(x.applicantSelf) return true;
+  if(x.status==='PENDING' && x.approverCurrent===ME) return true;
+  if(isReviewedByMe(x)) return true;
+  return false;
+}
+
+function canWithdraw(x){
+  if(curView==='mine' && !x.applicantSelf) return false;
+  if(x.status !== 'PENDING') return false;
+  var hasReview = (x.nodes||[]).some(function(n){
+    return n.status==='pass' || n.status==='refuse';
+  });
+  return !hasReview;
+}
+function renderTabs(){
+  const tabs = curView==='admin' ? TABS_ADMIN : TABS_MINE;
+  if(tabs.every(function(t){ return t.key!==curTab; })){
+    curTab = tabs[0].key;
+  }
+  const box = document.getElementById('view-tabs');
+  box.innerHTML = tabs.map(function(t){
+    return '<button class="view-tab'+(t.key===curTab?' active':'')+'" data-tab="'+t.key+'" onclick="switchTab(\''+t.key+'\',this)">'+t.label+'<span class="count" id="c-'+t.key+'">0</span></button>';
+  }).join('');
+}
+
+function switchView(v){
+  curView = v;
+  document.querySelectorAll('.vs-btn').forEach(function(b){ b.classList.toggle('active', b.dataset.view===v); });
+  document.getElementById('user-role').textContent = v==='admin' ? '管理员 · 张明' : '运营专员 · 张明';
+  var af = document.getElementById('f-applicant');
+  if(af && af.closest('.fb3-field')) af.closest('.fb3-field').style.display = v==='admin' ? '' : 'none';
+  // 管理员视角的 Tab 已是状态维度，隐藏状态筛选胶囊避免重复
+  var sf = document.getElementById('f-status-field');
+  if(sf) sf.style.display = v==='admin' ? 'none' : '';
+  curTab = (v==='admin' ? TABS_ADMIN : TABS_MINE)[0].key;
+  renderTabs();
+  resetFilter();
+  calcCounts();
+  curPage = 1;
+  renderTable();
+}
+
+/* ===== 计数 ===== */
+function calcCounts(){
+  function setCount(key, val){
+    var el = document.getElementById('c-'+key);
+    if(el) el.textContent = val;
+  }
+  if(curView==='mine'){
+    setCount('all', MOCK.filter(function(x){ return isRelatedToMe(x); }).length);
+    setCount('todo', MOCK.filter(function(x){ return x.status==='PENDING' && x.approverCurrent===ME; }).length);
+    setCount('apply', MOCK.filter(function(x){ return x.applicantSelf; }).length);
+    setCount('reviewed', MOCK.filter(function(x){ return isReviewedByMe(x); }).length);
+  } else {
+    // 管理员为纯运维监控角色（不参与审批/发起），Tab 按状态维度统计全员数据
+    setCount('all', MOCK.length);
+    setCount('pending', MOCK.filter(function(x){ return x.status==='PENDING'; }).length);
+    setCount('approved', MOCK.filter(function(x){ return x.status==='APPROVED'; }).length);
+    setCount('rejected', MOCK.filter(function(x){ return x.status==='REJECTED'; }).length);
+  }
+}
+
+/* ===== 筛选 ===== */
+function onSelectChange(filter, value){
+  filterState[filter] = value;
+  applyFilter();
+}
+
+function updateFilterCount(){
+  var el = document.getElementById('filter-count');
+  if(!el) return;
+  var n = 0;
+  if(filterState.type) n++;
+  if(filterState.status) n++;
+  if(filterState.dateStart || filterState.dateEnd) n++;
+  if((document.getElementById('f-id').value||'').trim()) n++;
+  if((document.getElementById('f-applicant').value||'').trim()) n++;
+  el.textContent = '已选 ' + n + ' 项筛选';
+}
+
+function onDateChange(){
+  filterState.dateStart = document.getElementById('f-date-start').value;
+  filterState.dateEnd = document.getElementById('f-date-end').value;
+  updateFilterCount();
+  applyFilter();
+}
+
+function getFilteredList(){
+  let list = MOCK.slice();
+  if(curView==='mine'){
+    list = list.filter(function(x){ return isRelatedToMe(x); });
+  }
+  if(curTab==='pending'){
+    list = list.filter(function(x){ return x.status==='PENDING'; });
+  } else if(curTab==='approved'){
+    list = list.filter(function(x){ return x.status==='APPROVED'; });
+  } else if(curTab==='rejected'){
+    list = list.filter(function(x){ return x.status==='REJECTED'; });
+  } else if(curTab==='mine' || curTab==='todo'){
+    list = list.filter(function(x){ return x.status==='PENDING' && x.approverCurrent===ME; });
+  } else if(curTab==='apply'){
+    list = list.filter(function(x){ return x.applicantSelf; });
+  } else if(curTab==='reviewed'){
+    list = list.filter(function(x){ return isReviewedByMe(x); });
+  }
+  const ft = filterState.type;
+  const fs = filterState.status;
+  const ftime = filterState.time;
+  const fId = (document.getElementById('f-id').value||'').trim().toLowerCase();
+  const fApplicant = (document.getElementById('f-applicant').value||'').trim().toLowerCase();
+  if(ft) list = list.filter(function(x){ return x.type===ft; });
+  if(fs){
+    list = list.filter(function(x){ return x.status===fs; });
+  }
+  if(fId){
+    list = list.filter(function(x){ return x.id.toLowerCase().indexOf(fId)>=0; });
+  }
+  if(fApplicant){
+    list = list.filter(function(x){ return x.applicant.toLowerCase().indexOf(fApplicant)>=0; });
+  }
+  if(filterState.dateStart || filterState.dateEnd){
+    var startTs = filterState.dateStart ? new Date(filterState.dateStart+'T00:00:00').getTime() : null;
+    var endTs = filterState.dateEnd ? new Date(filterState.dateEnd+'T23:59:59').getTime() : null;
+    list = list.filter(function(x){
+      var ts = new Date(x.time.replace(/-/g,'/')).getTime();
+      if(startTs && ts < startTs) return false;
+      if(endTs && ts > endTs) return false;
+      return true;
+    });
+  }
+  return list;
+}
+
+/* ===== 渲染卡片列表 ===== */
+function renderTable(){
+  const wrap = document.getElementById('card-list');
+  const list = getFilteredList();
+  const total = list.length;
+  const totalPages = Math.max(1, Math.ceil(total/PAGE_SIZE));
+  if(curPage > totalPages) curPage = totalPages;
+  const pageList = list.slice((curPage-1)*PAGE_SIZE, curPage*PAGE_SIZE);
+
+  if(total===0){
+    wrap.innerHTML = '<div class="state-block"><div class="icon">📭</div><div class="title-s">暂无审批记录</div><div class="desc">尝试切换 Tab 或调整筛选条件</div></div>';
+  } else {
+    const rows = pageList.map(function(x){
+      const t = TYPE_META[x.type];
+      const s = STATUS_META[x.status];
+      const current = x.nodes.filter(function(n){ return n.status==='doing'; })[0];
+      const currentText = current ? current.approver : '—';
+      const summary = getBizSummary(x.type, x.biz) || '—';
+      var op = '<button class="row-action" onclick="event.stopPropagation();showDetail(\''+x.id+'\')">查看</button>';
+      if(curView !== 'admin' && canWithdraw(x)){
+        // 我的视角：发起人可撤回
+        op += '<button class="row-action row-danger" onclick="event.stopPropagation();openWithdraw(\''+x.id+'\')">撤回</button>';
+      }
+      return '<tr class="approval-row" onclick="showDetail(\''+x.id+'\')">'+
+        '<td class="cell-type">'+t.name+'</td>'+
+        '<td class="mono">'+x.id+'</td>'+
+        '<td class="cell-summary" title="'+summary.replace(/"/g,'&quot;')+'">'+summary+'</td>'+
+        '<td>'+x.applicant+'</td>'+
+        '<td class="cell-node">'+currentText+'</td>'+
+        '<td class="cell-time">'+(x.time||'').replace(/^\d{4}-/,'')+'</td>'+
+        '<td><span class="badge '+s.cls+'">'+s.text+'</span></td>'+
+        '<td class="cell-op">'+op+'</td>'+
+      '</tr>';
+    }).join('');
+    wrap.innerHTML = '<div class="approval-table-wrap"><table class="approval-table">'+
+      '<thead><tr><th>审批类型</th><th>审批单号</th><th>业务摘要</th><th>申请人</th><th>当前环节</th><th>提交时间</th><th>状态</th><th class="th-op">操作</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table></div>';
+  }
+
+  document.getElementById('page-info').textContent = '共 '+total+' 条';
+  const pager = document.getElementById('page-btns');
+  let html = '<button class="'+(curPage===1?'disabled':'')+'" onclick="goPage('+(curPage-1)+')">‹</button>';
+  for(let i=1; i<=totalPages; i++){
+    html += '<button class="'+(i===curPage?'active':'')+'" onclick="goPage('+i+')">'+i+'</button>';
+  }
+  html += '<button class="'+(curPage===totalPages?'disabled':'')+'" onclick="goPage('+(curPage+1)+')">›</button>';
+  pager.innerHTML = html;
+}
+
+function goPage(p){
+  const total = getFilteredList().length;
+  const totalPages = Math.max(1, Math.ceil(total/PAGE_SIZE));
+  if(p<1 || p>totalPages) return;
+  curPage = p;
+  renderTable();
+}
+
+function applyFilter(){ curPage = 1; updateFilterCount(); renderTable(); }
+function resetFilter(){
+  filterState = { type:'', status:'', dateStart:'', dateEnd:'' };
+  document.getElementById('f-id').value = '';
+  document.getElementById('f-applicant').value = '';
+  document.getElementById('f-date-start').value = '';
+  document.getElementById('f-date-end').value = '';
+  var selType = document.getElementById('f-type');
+  if(selType) selType.selectedIndex = 0;
+  var selStatus = document.getElementById('f-status');
+  if(selStatus) selStatus.selectedIndex = 0;
+  curPage = 1;
+  updateFilterCount();
+  renderTable();
+}
+
+/* ===== 业务字段渲染（支持按环节分组） ===== */
+function renderBiz(biz){
+  const hasGroup = biz.length > 0 && biz[0].length === 3;
+  if(!hasGroup){
+    let html = '';
+    let imgHtml = '';
+    biz.forEach(function(_a){
+      var k=_a[0], v=_a[1], cls=_a[2];
+      if(cls === 'img'){
+        imgHtml += '<div style="grid-column:1/-1;"><div class="cert-img-area"><div class="cert-label">'+k+'</div>'+
+          '<div class="cert-img-single">'+
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'+
+            '<span>点击查看大图</span>'+
+          '</div></div></div>';
+      } else if(cls === 'compare'){
+        var parts = (v||'').split('|');
+        var oldVal = parts[0] || '';
+        var newVal = parts[1] || '';
+        var isNeg = newVal.indexOf('-')>=0;
+        html += '<div class="k">'+k+'</div><div class="v compare">'+
+          '<span class="old">'+oldVal+'</span>'+
+          '<span class="arrow">→</span>'+
+          '<span class="new'+(isNeg?'':' pos')+'">'+newVal+'</span>'+
+          '</div>';
+      } else {
+        html += '<div class="k">'+k+'</div><div class="v '+(cls||'')+'">'+v+'</div>';
+      }
+    });
+    return html + imgHtml;
+  }
+  const groups = {};
+  biz.forEach(function(item){
+    const g = item[0], k = item[1], v = item[2];
+    if(!groups[g]) groups[g] = [];
+    groups[g].push({k:k, v:v});
+  });
+  let html = '';
+  Object.keys(groups).forEach(function(g){
+    html += '<div style="grid-column:1/-1; font-size:11px; color:var(--text-muted); background:var(--bg-input); padding:4px 8px; border-radius:var(--radius-sm); margin-top:4px;">'+g+'</div>';
+    groups[g].forEach(function(item){
+      html += '<div class="k">'+item.k+'</div><div class="v">'+item.v+'</div>';
+    });
+  });
+  return html;
+}
+
+window.switchBizTab = function(idx){
+  window._bizTab = idx;
+  renderBizTabContent();
+};
+
+window.renderBizTabContent = function(){
+  var c = document.getElementById('biz-tab-content');
+  if(!c) return;
+  var s = window._bizSupplier || [];
+  var idx = window._bizTab || 0;
+  var html = '';
+  if(s[idx]){
+    var textFields = [];
+    s[idx][1].forEach(function(item){
+      if(item[2] === 'img'){
+        var isDual = item[0].indexOf('正反面') >= 0;
+        if(isDual){
+          html += '<div class="cert-img-area"><div class="cert-label">'+item[0]+'</div><div class="cert-img-dual">'+
+            '<div class="cert-img-single" style="position:relative;">'+
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'+
+              '<span>证件正面</span>'+
+            '</div>'+
+            '<div class="cert-img-single" style="position:relative;">'+
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'+
+              '<span>证件反面</span>'+
+            '</div>'+
+          '</div></div>';
+        } else {
+          html += '<div class="cert-img-area"><div class="cert-label">'+item[0]+'</div>'+
+            '<div class="cert-img-single">'+
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'+
+              '<span>点击查看大图</span>'+
+            '</div></div>';
+        }
+      } else {
+        textFields.push(item);
+      }
+    });
+    if(textFields.length){
+      html += '<div class="biz-grid">';
+      textFields.forEach(function(item){
+        html += '<div class="k">'+item[0]+'</div><div class="v">'+item[1]+'</div>';
+      });
+      html += '</div>';
+    }
+  }
+  c.innerHTML = html;
+};
+
+/* ===== 节点Tab切换 ===== */
+function renderNodeTabs(nodes, tabsId, contentId){
+  const tabsContainer = document.getElementById(tabsId);
+  const contentContainer = document.getElementById(contentId);
+  if(!tabsContainer || !contentContainer) return;
+
+  const filtered = nodes.filter(function(n){ return n.name !== '发起'; });
+
+  let tabsHtml = '<div class="biz-tabs">';
+  filtered.forEach(function(n, idx){
+    tabsHtml += '<button class="biz-tab '+(idx===0?'active':'')+'" onclick="switchNodeTab('+idx+',\''+tabsId+'\')">'+n.name+'</button>';
+  });
+  tabsHtml += '</div>';
+  tabsContainer.innerHTML = tabsHtml;
+
+  window._currentNodes = filtered;
+  window._nodeTab = 0;
+  renderNodeContent(contentId);
+}
+
+window.switchNodeTab = function(idx, tabsId){
+  window._nodeTab = idx;
+  const contentId = tabsId.replace('d-node-tabs', 'd-node-content');
+  renderNodeContent(contentId);
+  document.querySelectorAll('#'+tabsId+' .biz-tab').forEach(function(t, i){
+    t.classList.toggle('active', i===idx);
+  });
+};
+
+window.renderNodeContent = function(contentId){
+  const c = document.getElementById(contentId);
+  if(!c) return;
+  const nodes = window._currentNodes || [];
+  const idx = window._nodeTab || 0;
+  const node = nodes[idx];
+  if(!node) return;
+  
+  function renderFieldList(fields){
+    var textFields = [];
+    var imgHtml = '';
+    fields.forEach(function(f){
+      if(f[2] === 'img'){
+        imgHtml += '<div class="cert-img-area"><div class="cert-label">'+f[0]+'</div>'+
+          '<div class="cert-img-single">'+
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>'+
+            '<span>点击查看大图</span>'+
+          '</div></div>';
+      } else {
+        textFields.push(f);
+      }
+    });
+    var html = imgHtml;
+    if(textFields.length){
+      html += '<div class="biz-grid">';
+      textFields.forEach(function(f){
+        html += '<div class="k">'+f[0]+'</div><div class="v">'+(f[1]||'—')+'</div>';
+      });
+      html += '</div>';
+    }
+    return html;
+  }
+  
+  function renderTable(t){
+    if(!t || !t.headers || !t.rows) return '';
+    var th = t.headers.map(function(h){ return '<th>'+h+'</th>'; }).join('');
+    var trs = t.rows.map(function(r){
+      var tds = r.map(function(c){ return '<td>'+(c||'—')+'</td>'; }).join('');
+      return '<tr>'+tds+'</tr>';
+    }).join('');
+    return '<div class="biz-table-wrap">'+
+      (t.title?'<div class="biz-table-title">'+t.title+'</div>':'')+
+      '<div class="biz-table-scroll"><table class="biz-table"><thead><tr>'+th+'</tr></thead><tbody>'+trs+'</tbody></table></div>'+
+      '</div>';
+  }
+  
+  let html = '';
+  if(node.refs && node.refs.length){
+    node.refs.forEach(function(ref){
+      html += '<div class="node-ref-block">'+
+        renderFieldList(ref.fields||[])+
+        renderTable(ref.table)+
+        '</div>';
+    });
+  }
+  if(node.fields && node.fields.length){
+    html += '<div class="node-self-block">'+
+      renderFieldList(node.fields)+
+      '</div>';
+  }
+  if(!html){
+    html = '<div style="color:var(--text-muted);font-size:12px;padding:8px 0;">该节点无额外字段</div>';
+  }
+  c.innerHTML = html;
+};
+
+/* ===== Tab ===== */
+function switchTab(tab, el){
+  curTab = tab;
+  document.querySelectorAll('.view-tab').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+  curPage = 1;
+  renderTable();
+}
+
+/* ===== 详情页 ===== */
+function showDetail(id){
+  const x = ALL_MOCK.find(function(m){ return m.id===id; }) || MOCK.find(function(m){ return m.id===id; });
+  if(!x) return;
+  const t = TYPE_META[x.type];
+  const s = STATUS_META[x.status];
+
+  try {
+    document.getElementById('d-title').textContent = t.name;
+    const typeCodeSingle = document.getElementById('d-type-code-single');
+    if(typeCodeSingle) typeCodeSingle.textContent = t.name;
+    const st = document.getElementById('d-status');
+    st.className = 'badge '+s.cls;
+    st.textContent = s.text;
+    window._detailId = x.id;
+    const wdBtn = document.getElementById('d-withdraw-btn');
+    if(wdBtn) wdBtn.style.display = canWithdraw(x) ? '' : 'none';
+    document.getElementById('d-code').textContent = x.id;
+    document.getElementById('d-applicant').textContent = x.applicant;
+    document.getElementById('d-time').textContent = x.time;
+
+    const bizCols = document.getElementById('d-biz-cols');
+    const bizPanelSingle = document.getElementById('d-biz-panel-single');
+    const nodePanelSingle = document.getElementById('d-node-panel-single');
+
+    if(x.type === 'B5' && x.biz && x.biz.supplier){
+      bizCols.style.display = '';
+      bizPanelSingle.style.display = 'none';
+      nodePanelSingle.style.display = 'none';
+      var supplierTitle = document.getElementById('d-biz-supplier-title');
+      var supplierTag = document.getElementById('d-biz-supplier-tag');
+      if(supplierTitle) supplierTitle.textContent = '新增企业客户申请信息';
+      if(supplierTag) supplierTag.textContent = '企业客户提交';
+      document.getElementById('d-biz-supplier').innerHTML = '<div class="biz-tabs" id="biz-tabs">' +
+        x.biz.supplier.map(function(item, idx){
+          return '<button class="biz-tab '+(idx===0?'active':'')+'" onclick="switchBizTab('+idx+')">'+item[0]+'</button>';
+        }).join('') +
+        '</div><div id="biz-tab-content"></div>';
+      window._bizSupplier = x.biz.supplier;
+      window._bizTab = 0;
+      setTimeout(renderBizTabContent, 0);
+      renderNodeTabs(x.nodes, 'd-node-tabs', 'd-node-content');
+    } else {
+      bizCols.style.display = 'none';
+      bizPanelSingle.style.display = '';
+      nodePanelSingle.style.display = '';
+      let simpleHtml = '<div class="biz-grid">'+renderBiz(x.biz)+'</div>';
+      if(x.table){
+        simpleHtml += '<div class="biz-table-wrap">'+
+          (x.table.title?'<div class="biz-table-title">'+x.table.title+'</div>':'')+
+          '<div class="biz-table-scroll"><table class="biz-table"><thead><tr>'+
+          x.table.headers.map(function(h){ return '<th>'+h+'</th>'; }).join('')+
+          '</tr></thead><tbody>'+
+          x.table.rows.map(function(r){
+            return '<tr>'+r.map(function(c){ return '<td>'+(c||'—')+'</td>'; }).join('')+'</tr>';
+          }).join('')+
+          '</tbody></table></div></div>';
+      }
+      document.getElementById('d-biz-simple').innerHTML = simpleHtml;
+      renderNodeTabs(x.nodes, 'd-node-tabs-single', 'd-node-content-single');
+    }
+
+    const nodeClsMap = { start:'done', pass:'done', doing:'current', wait:'', refuse:'rejected', withdraw:'withdraw' };
+    let timelineHtml = x.nodes.map(function(n){
+      let resultLabel;
+      if(n.status==='start') resultLabel = '';
+      else if(n.status==='wait') resultLabel = '<span class="node-status wait">待处理</span>';
+      else if(n.status==='pass') resultLabel = '<span class="node-status pass">✓ 通过</span>';
+      else if(n.status==='doing') resultLabel = '<span class="node-status doing">◉ 审批中</span>';
+      else if(n.status==='refuse') resultLabel = '<span class="node-status refuse">✕ 驳回</span>';
+      else if(n.status==='withdraw') resultLabel = '<span class="node-status withdraw">✕ 撤回</span>';
+      else resultLabel = '';
+      return '<div class="node '+nodeClsMap[n.status]+'"><div class="dot"></div><div class="name">'+n.name+' '+resultLabel+'</div>'+'<div class="approver">'+n.approver+'</div>'+'<div class="time">'+n.time+'</div>'+(n.comment?'<div class="comment">💬 '+n.comment+'</div>':'')+'</div>';
+    }).join('');
+    const endStatusCls = x.status==='APPROVED' ? 'end-pass' :
+                         (x.status==='WITHDRAWN' || x.status==='TERMINATED') ? 'end-refuse' : '';
+    const endText = x.status==='APPROVED' ? '流程结束' :
+                    x.status==='WITHDRAWN' ? '流程结束·已撤回' :
+                    x.status==='TERMINATED' ? '流程结束·已终止' : '流程进行中';
+    timelineHtml += '<div class="node end '+endStatusCls+'"><div class="dot"></div><div class="name">'+endText+'</div></div>';
+    document.getElementById('d-timeline').innerHTML = timelineHtml;
+
+    /* 同类型其他审批 · 跳转入口 */
+    const sameTypeCount = ALL_MOCK.filter(function(m){ return m.type===x.type && m.id!==x.id; }).length;
+    const toggleWrap = document.getElementById('same-type-toggle');
+    const nameSpan = document.getElementById('same-type-name');
+    if(sameTypeCount > 0){
+      toggleWrap.style.display = '';
+      if(nameSpan) nameSpan.textContent = t.name;
+      window._currentType = x.type;
+    } else {
+      toggleWrap.style.display = 'none';
+    }
+
+    document.getElementById('page-list').classList.add('hidden');
+    document.getElementById('page-detail').classList.remove('hidden');
+    window.scrollTo(0,0);
+  } catch(e){
+    console.error('showDetail error', e);
+    document.getElementById('page-list').classList.add('hidden');
+    document.getElementById('page-detail').classList.remove('hidden');
+    window.scrollTo(0,0);
+  }
+}
+
+function showList(){
+  document.getElementById('page-detail').classList.add('hidden');
+  document.getElementById('page-list').classList.remove('hidden');
+}
+
+/* ===== 撤回 ===== */
+function openWithdraw(id){
+  var targetId = id || window._detailId;
+  if(!targetId) return;
+  var x = ALL_MOCK.find(function(m){ return m.id===targetId; });
+  if(!x) return;
+  if(!canWithdraw(x)){
+    showToast('info','该审批当前不可撤回');
+    return;
+  }
+  window._withdrawId = targetId;
+  var mask = document.getElementById('withdraw-mask');
+  var reason = document.getElementById('withdraw-reason');
+  reason.value = '';
+  mask.classList.add('show');
+  setTimeout(function(){ reason.focus(); }, 50);
+}
+
+function closeWithdraw(){
+  document.getElementById('withdraw-mask').classList.remove('show');
+  window._withdrawId = null;
+}
+
+function doWithdraw(){
+  var id = window._withdrawId;
+  if(!id) return;
+  var reason = (document.getElementById('withdraw-reason').value||'').trim();
+  if(!reason){
+    showToast('info','请填写撤回原因');
+    document.getElementById('withdraw-reason').focus();
+    return;
+  }
+  var x = ALL_MOCK.find(function(m){ return m.id===id; });
+  if(!x){ closeWithdraw(); return; }
+
+  x.status = 'WITHDRAWN';
+  x.approverCurrent = '';
+
+  var now = new Date();
+  var pad = function(n){ return n<10?'0'+n:''+n; };
+  var ts = pad(now.getMonth()+1)+'-'+pad(now.getDate())+' '+pad(now.getHours())+':'+pad(now.getMinutes());
+  var nextNodeName = '';
+  for(var i=0;i<x.nodes.length;i++){
+    if(x.nodes[i].status==='doing' || x.nodes[i].status==='wait'){
+      nextNodeName = x.nodes[i].name;
+      x.nodes[i].status = 'wait';
+      x.nodes[i].time = '未审批';
+      break;
+    }
+  }
+  x.nodes.push({
+    name:'发起人撤回',
+    approver:x.applicant,
+    time:ts,
+    status:'withdraw',
+    comment:'撤回：'+reason+(nextNodeName?'（下一节点「'+nextNodeName+'」尚未审批，发起人主动撤回）':''),
+    fields:[['撤回原因',reason]]
+  });
+
+  closeWithdraw();
+  calcCounts();
+
+  var detailVisible = !document.getElementById('page-detail').classList.contains('hidden');
+  if(detailVisible && window._detailId === id){
+    showDetail(id);
+  } else {
+    renderTable();
+  }
+  showToast('success','已撤回，流程终止');
+}
+
+function viewSameTypeList(){
+  const tp = window._currentType;
+  showList();
+  curTab = (curView==='admin' ? TABS_ADMIN : TABS_MINE)[0].key;
+  renderTabs();
+  if(tp){
+    filterState.type = tp;
+    var selType = document.getElementById('f-type');
+    if(selType) selType.value = tp;
+  }
+  curPage = 1;
+  updateFilterCount();
+  renderTable();
+  document.getElementById('page-list').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* ===== Toast ===== */
+function showToast(type,msg){
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = 'toast '+type;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 2800);
+}
+
+/* ===== 启动 ===== */
+switchView(curView);
+renderTabs();
+calcCounts();
+renderTable();
+</script>
+</body>
+</html>

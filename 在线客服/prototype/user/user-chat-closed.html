@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>会话关闭提示 — CS 商城客服系统</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="mobile.css" />
+  <link rel="stylesheet" href="chat.css" />
+  <script src="js/cs-common.js"></script>
+  <style>
+    /* ===== user-chat-closed.html 专属样式 ===== */
+    body {
+      background: var(--cs-bg-page);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ============ 关闭提示条（核心：灰色已结束态） ============ */
+    .closed-banner {
+      height: 36px;
+      background: #f5f5f5;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: var(--cs-font-size-sm);
+      color: var(--cs-text-tertiary);
+      flex-shrink: 0;
+    }
+    .closed-banner .cl-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #bfbfbf;
+      flex-shrink: 0;
+    }
+
+    /* ============ 消息列表 ============ */
+    .msg-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      align-items: flex-start;
+    }
+    .msg-row.user { flex-direction: row-reverse; }
+    .msg-avatar {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: var(--cs-font-size-md);
+      font-weight: var(--cs-font-weight-semibold);
+      color: #fff;
+    }
+    .msg-sender { font-size: 11px; color: var(--cs-text-tertiary); margin: 0 4px 3px; font-weight: 500; }
+    .msg-avatar.agent {
+      background: linear-gradient(135deg, var(--cs-primary), var(--cs-primary-hover));
+    }
+    .msg-avatar.user {
+      background: linear-gradient(135deg, var(--cs-success), var(--cs-success-hover));
+    }
+    .msg-content {
+      max-width: 252px;
+      display: flex;
+      flex-direction: column;
+    }
+    .msg-row.user .msg-content { align-items: flex-end; }
+    .msg-content .msg-bubble-agent,
+    .msg-content .msg-bubble-user {
+      box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+    }
+    .msg-meta {
+      font-size: var(--cs-font-size-xs);
+      color: var(--cs-text-placeholder);
+      margin: 2px 4px 0;
+    }
+    .msg-system {
+      align-self: center;
+      background: rgba(0,0,0,0.10);
+      color: #fff;
+      font-size: var(--cs-font-size-xs);
+      padding: 3px 10px;
+      border-radius: var(--cs-radius-xs);
+      margin: 4px auto;
+      text-align: center;
+    }
+
+    /* ============ 底部操作区（会话已关闭：重新咨询 + 返回） ============ */
+    .closed-actions {
+      height: 64px;
+      background: #f7f7f7;
+      border-top: 1px solid #dcdcdc;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .closed-actions .ca-btn {
+      flex: 1;
+      height: 38px;
+      border-radius: var(--cs-radius-sm);
+      font-size: var(--cs-font-size-sm);
+      font-weight: var(--cs-font-weight-medium);
+      cursor: pointer;
+      font-family: inherit;
+      transition: background .15s, color .15s;
+    }
+    .closed-actions .ca-btn.secondary {
+      background: #fff;
+      color: var(--cs-text-secondary);
+      border: 1px solid var(--cs-border-light);
+    }
+    .closed-actions .ca-btn.secondary:hover { background: #fafafa; }
+    .closed-actions .ca-btn.primary {
+      background: var(--cs-primary);
+      color: #fff;
+      border: 1px solid var(--cs-primary);
+    }
+    .closed-actions .ca-btn.primary:hover { background: var(--cs-primary-hover); }
+
+    /* Toast */
+    .cs-toast {
+      position: absolute;
+      left: 50%;
+      bottom: 90px;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: var(--cs-radius-md);
+      font-size: var(--cs-font-size-sm);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s;
+      z-index: 99;
+      white-space: nowrap;
+    }
+    .cs-toast.show { opacity: 1; }
+  </style>
+</head>
+<body>
+
+  <!-- ===== 移动端容器 (375px) ===== -->
+  <div class="cs-phone">
+
+    <!-- 小程序状态栏 -->
+    <script>document.write(CsCommon.statusBar())</script>
+
+    <!-- 小程序导航栏 -->
+    <div class="cs-nav-bar chat-nav">
+      <div class="cs-back" title="返回" onclick="history.back()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <div class="nav-peer">
+        <div class="peer-info">
+          <span class="peer-name">苏银豆客服</span>
+        </div>
+      </div>
+      <div class="nav-actions">
+        <div class="nav-action" id="moreHeaderBtn" title="更多">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="5" cy="12" r="1.8"/>
+            <circle cx="12" cy="12" r="1.8"/>
+            <circle cx="19" cy="12" r="1.8"/>
+          </svg>
+        </div>
+      </div>
+      <script>document.write(CsCommon.capsule())</script>
+    </div>
+
+    <!-- ============ 消息列表 ============ -->
+    <div class="chat-messages" id="chatMessages">
+
+      <div class="msg-row">
+        <div class="msg-avatar agent">客</div>
+        <div class="msg-content">
+          <div class="msg-bubble-agent">您好，欢迎联系苏银豆商城客服中心！我是您的专属客服，请问有什么可以帮您？</div>
+          <div class="msg-meta">10:25</div>
+        </div>
+      </div>
+
+      <!-- 会话关闭告别问候语（后台可配置） -->
+      <div class="msg-row">
+        <div class="msg-avatar agent">客</div>
+        <div class="msg-content">
+          <div class="msg-bubble-agent">感谢您的咨询，本次会话已结束。如果您还有其他问题，欢迎随时再联系我，祝您生活愉快～</div>
+          <div class="msg-meta">10:48</div>
+        </div>
+      </div>
+
+      <!-- 会话内评价卡片（已过期，不可评价） -->
+      <script>document.write(CsCommon.ratingCardExpired())</script>
+    </div>
+
+    <!-- 快捷卡片入口条（公共组件） + 输入区（对齐 basic） -->
+    <script>document.write(CsCommon.quickCardsBar())</script>
+    <div class="chat-input-area" style="height:54px;padding:0 10px;gap:4px;display:flex;align-items:center;background:#f7f7f7;border-top:1px solid #dcdcdc;flex-shrink:0;">
+      <div class="input-icon" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px;"><path d="M12 14a3 3 0 003-3V6a3 3 0 00-6 0v5a3 3 0 003 3z" fill="#595959"/><path d="M19 11a7 7 0 01-14 0M12 18v3" stroke="#595959" stroke-width="1.8" stroke-linecap="round" fill="none"/></svg></div>
+      <input type="text" placeholder="会话已结束，感谢您的咨询" style="flex:1;height:34px;border-radius:var(--cs-radius-sm);border:1px solid #e0e0e0;padding:0 12px;font-size:var(--cs-font-size-md);background:#fff;color:var(--cs-text);outline:none;" />
+      <div class="input-icon" style="width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;"><svg viewBox="0 0 24 24" fill="none" style="width:22px;height:22px;"><circle cx="12" cy="12" r="10" stroke="#595959" stroke-width="1.8" fill="none"/><path d="M12 8v8M8 12h8" stroke="#595959" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+      <div style="height:30px;padding:0 12px;border-radius:var(--cs-radius-sm);background:var(--cs-primary);color:#fff;font-size:var(--cs-font-size-sm);display:flex;align-items:center;flex-shrink:0;cursor:pointer;">发送</div>
+    </div>
+    <script>(function(){var M={transfer:'转人工',order:'发送订单',refund:'发送售后',logistics:'查看物流',rating:'服务评价'};CsCommon.bindQuickCards(function(action){alert('会话已结束，已选择'+(M[action]||'')+'卡片（演示）');});})();</script>
+
+    <!-- Toast -->
+    <div class="cs-toast" id="csToast"></div>
+
+  </div>
+
+  <script>
+    // ===== 评价卡片已过期，无需绑定交互 =====
+    var chatMessages = document.getElementById('chatMessages');
+
+    function scrollBottom() {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Toast
+    var toastTimer = null;
+    function showToast(msg) {
+      var toast = document.getElementById('csToast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(function () {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    scrollBottom();
+  </script>
+
+<script>
+  (function () {
+    var AGENT_NAME = '客服 王小明';
+    function ensureSender(row) {
+      if (row.querySelector('.msg-sender')) return;
+      var c = row.querySelector('.msg-content');
+      var s = document.createElement('div'); s.className = 'msg-sender'; s.textContent = AGENT_NAME;
+      if (c) c.insertBefore(s, c.firstChild);
+      else { var av = row.querySelector('.msg-avatar'); if (av) row.insertBefore(s, av.nextSibling); else row.insertBefore(s, row.firstChild); }
+    }
+    function init() {
+      document.querySelectorAll('.msg-row:not(.user)').forEach(ensureSender);
+      var box = document.getElementById('chatMessages');
+      if (box && window.MutationObserver) new MutationObserver(function (muts) {
+        muts.forEach(function (m) { m.addedNodes.forEach(function (n) {
+          if (n.nodeType === 1 && n.classList.contains('msg-row') && !n.classList.contains('user')) ensureSender(n);
+        }); });
+      }).observe(box, { childList: true });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+    else init();
+  })();
+</script>
+</body>
+</html>

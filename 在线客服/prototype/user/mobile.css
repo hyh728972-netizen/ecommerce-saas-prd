@@ -1,0 +1,400 @@
+/* ============================================================
+   mobile.css — 用户端（小程序）专属样式
+   ------------------------------------------------------------
+   依赖 styles.css 中的 CSS 变量（--cs-* tokens）与 reset。
+   仅用户端 4 个页面(chat/faq/offline/rating)引用。
+   包含：小程序手机壳骨架(cs-phone) + 聊天容器 + 消息气泡 + 富媒体卡片。
+   ============================================================ */
+
+/* ============================================================
+   13.5 Mobile Mini-Program Frame (统一小程序骨架)
+   ------------------------------------------------------------
+   对齐参考项目 mini-program 的小程序规范：
+   .cs-phone 外壳 + .cs-status-bar 状态栏 + .cs-nav-bar 导航栏(返回/标题/胶囊)。
+   用户端 4 个页面(chat/faq/offline/rating)共用此骨架。
+   独立 cs- 前缀，不污染旧 .chat-mobile-container / .chat-header。
+   ============================================================ */
+
+/* --- Phone Frame (对齐 mini-program phone-frame 规范) ---
+   375px 宽，全屏高度，无圆角无阴影，白底，居中显示。 */
+.cs-phone {
+  width: 375px;
+  min-height: 100vh;
+  background: var(--cs-bg-card);
+  border-radius: 0;
+  border: none;
+  overflow: hidden;
+  box-shadow: none;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* --- Status Bar (顶部 44px，绝对定位浮于外壳顶部) --- */
+.cs-status-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 44px;
+  padding: 14px 24px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: var(--cs-font-size-sm);
+  z-index: 5;
+  pointer-events: none;     /* 仅展示，不拦截点击 */
+}
+.cs-status-bar .sb-time {
+  font-weight: var(--cs-font-weight-bold);
+  font-size: var(--cs-font-size-md);
+  color: var(--cs-text);
+  margin-top: 2px;
+}
+.cs-status-bar .sb-icons {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.cs-status-bar .sb-icons svg {
+  width: 17px;
+  height: 17px;
+  fill: var(--cs-text);
+}
+
+/* --- Nav Bar (导航栏；预留状态栏高度 + 自身 44px) ---
+ * 状态栏 44px 用 padding-top 占位，导航内容区 44px 高度内：
+ * 返回键/胶囊绝对定位贴左右，标题绝对定位并 flex 居中。
+ */
+.cs-nav-bar {
+  position: relative;
+  height: 88px;             /* 44(状态栏预留) + 44(导航栏) */
+  padding-top: 44px;        /* 为绝对定位的状态栏让出空间 */
+  flex-shrink: 0;
+  background: var(--cs-bg-card);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  z-index: 4;
+}
+.cs-nav-bar .cs-back {
+  position: absolute;
+  left: var(--cs-space-2);
+  top: 44px;                /* 紧贴状态栏下方 */
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  -webkit-tap-highlight-color: transparent;
+}
+.cs-nav-bar .cs-back:active { background: rgba(0,0,0,0.06); }
+.cs-nav-bar .cs-back svg {
+  width: 22px; height: 22px;
+  color: var(--cs-text);
+}
+.cs-nav-bar .cs-nav-title {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  right: 0;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--cs-font-size-xl);
+  font-weight: var(--cs-font-weight-semibold);
+  color: var(--cs-text);
+  padding: 0 96px;          /* 两侧避开返回键/胶囊 */
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;     /* 让标题仅展示，点击穿透到下层 */
+}
+.cs-nav-bar .cs-capsule {
+  position: absolute;
+  top: 44px;
+  right: var(--cs-space-1);
+  height: 44px;
+  width: 87px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cs-nav-bar .cs-capsule svg {
+  width: 87px;
+  height: 32px;
+  display: block;
+}
+
+/* --- 会话头 chat-nav（头像+名称，叠加在导航栏第二行） --- */
+.chat-nav .nav-peer { position:absolute; top:44px; left:56px; height:44px; display:flex; align-items:center; gap:8px; max-width:calc(100% - 200px); min-width:0; }
+.chat-nav .peer-info { display:flex; flex-direction:column; line-height:1.25; min-width:0; }
+.chat-nav .peer-name { font-size:var(--cs-font-size-lg); font-weight:var(--cs-font-weight-semibold); color:var(--cs-text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.chat-nav .peer-status { font-size:var(--cs-font-size-xs); display:flex; align-items:center; gap:3px; }
+.chat-nav .peer-status.online { color:var(--cs-success); }
+.chat-nav .peer-status.online::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--cs-success); display:inline-block; }
+.chat-nav .nav-actions { position:absolute; top:44px; right:95px; height:44px; display:flex; align-items:center; gap:2px; }
+.chat-nav .nav-action { width:32px; height:32px; display:flex; align-items:center; justify-content:center; cursor:pointer; border-radius:50%; transition:background .15s; }
+.chat-nav .nav-action:hover { background:rgba(0,0,0,.06); }
+.chat-nav .nav-action svg { width:20px; height:20px; }
+
+/* --- 可滚动内容区 (消息/表单/列表) --- */
+.cs-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.cs-content::-webkit-scrollbar { width: 0; height: 0; }
+
+/* --- 响应式：窄屏撑满宽度 --- */
+@media (max-width: 430px) {
+  .cs-phone { width: 100%; border-radius: 0; border: none; min-height: 100vh; }
+}
+
+/* ============================================================
+   全局覆盖：对齐小程序风格，隐藏原型外层标题/页脚
+   ============================================================ */
+.page-wrap {
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.page-head,
+.page-header,
+.page-footer {
+  display: none !important;
+}
+.cs-phone {
+  margin: 0 !important;
+  height: 100vh !important;
+}
+@media (max-width: 430px) {
+  .cs-phone { height: 100vh !important; }
+}
+
+/* ============================================================
+   14. Mobile Chat Container (375px)
+   ============================================================ */
+.chat-mobile-container {
+  width: 375px;
+  height: 760px;
+  margin: var(--cs-space-6) auto;
+  background: #ededed;
+  border-radius: var(--cs-radius-xl) * 2;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  border: 8px solid #1a1a1a;
+}
+.chat-header {
+  height: 56px;
+  background: #f7f7f7;
+  border-bottom: 1px solid #dcdcdc;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: var(--cs-space-2);
+  flex-shrink: 0;
+}
+.chat-header .back-arrow { font-size: 22px; color: var(--cs-text); cursor: pointer; }
+.chat-header .title { flex: 1; font-size: var(--cs-font-size-xl); font-weight: var(--cs-font-weight-semibold); text-align: center; }
+.chat-header .action-icon { font-size: 20px; color: var(--cs-text); cursor: pointer; }
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--cs-space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #ededed;
+  scrollbar-width: none;          /* Firefox：隐藏滚动条 */
+}
+.chat-messages::-webkit-scrollbar { width: 0; height: 0; }  /* WebKit：隐藏滚动条 */
+
+.chat-input-area {
+  height: 56px;
+  background: #f7f7f7;
+  border-top: 1px solid #dcdcdc;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: var(--cs-space-2);
+  flex-shrink: 0;
+}
+.chat-input-area input {
+  flex: 1;
+  height: 36px;
+  border-radius: 18px;
+  border: 1px solid #ddd;
+  padding: 0 16px;
+  font-size: var(--cs-font-size-md);
+  outline: none;
+}
+
+/* ============================================================
+   15. Message Bubbles
+   ============================================================ */
+.msg-bubble-user {
+  align-self: flex-end;
+  max-width: var(--chat-card-width, 252px);
+  background: #95ec69;
+  color: var(--cs-text);
+  padding: 9px 14px;
+  border-radius: var(--cs-radius-md);
+  border-top-right-radius: 2px;
+  font-size: var(--cs-font-size-md);
+  line-height: 1.6;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+.msg-bubble-agent {
+  align-self: flex-start;
+  max-width: var(--chat-card-width, 252px);
+  background: #fff;
+  color: var(--cs-text);
+  padding: 9px 14px;
+  border-radius: var(--cs-radius-md);
+  border-top-left-radius: 2px;
+  font-size: var(--cs-font-size-md);
+  line-height: 1.6;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  border: 1px solid #eee;
+}
+.msg-bubble-system {
+  align-self: center;
+  background: rgba(0,0,0,0.12);
+  color: #fff;
+  font-size: var(--cs-font-size-sm);
+  padding: 4px 12px;
+  border-radius: var(--cs-radius-xs);
+}
+
+/* ============================================================
+   quick-cards-bar 快捷卡片入口条（公共样式，7 页面共享）
+   隐藏横向滚动条，保持视觉简洁
+   ============================================================ */
+.quick-cards-bar {
+  overflow-x: auto;
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE/Edge */
+}
+.quick-cards-bar::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+/* ============================================================
+   会话内评价卡片 .msg-rating-card（公共组件，5 页面共享）
+   从 user-rating.html 内联样式抽取，改一处全部生效
+   ============================================================ */
+.msg-rating-card {
+  align-self: center;
+  width: 260px;
+  background: var(--cs-bg-card);
+  border: 1px solid var(--cs-border-light);
+  border-radius: var(--cs-radius-lg);
+  box-shadow: var(--cs-shadow-md);
+  padding: 12px;
+}
+.msg-rating-card .rc-title {
+  font-size: var(--cs-font-size-base);
+  font-weight: var(--cs-font-weight-semibold);
+  color: var(--cs-text);
+  margin-bottom: 2px;
+}
+.msg-rating-card .rc-sub {
+  font-size: var(--cs-font-size-xs);
+  color: var(--cs-text-tertiary);
+  margin-bottom: 10px;
+}
+.msg-rating-card .rc-stars { display: flex; gap: 4px; margin-bottom: 12px; }
+.msg-rating-card .rc-star {
+  font-size: 28px; color: #d9d9d9; cursor: pointer; line-height: 1;
+  transition: color .15s;
+}
+.msg-rating-card .rc-star.active { color: #faad14; }
+.msg-rating-card .rc-resolve {
+  margin-bottom: 12px;
+}
+.msg-rating-card .rc-resolve-q {
+  font-size: var(--cs-font-size-xs);
+  color: var(--cs-text-secondary);
+  display: block;
+  margin-bottom: 8px;
+}
+.msg-rating-card .rc-resolve-btns { display: flex; gap: 12px; }
+.msg-rating-card .rc-resolve-btn {
+  flex: 1;
+  text-align: center;
+  font-size: var(--cs-font-size-xs);
+  padding: 8px 0;
+  border: 1px solid var(--cs-border-light);
+  border-radius: 8px;
+  background: var(--cs-bg-card);
+  color: var(--cs-text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.msg-rating-card .rc-resolve-btn.active[data-v="resolved"] {
+  background: var(--cs-success-bg); border-color: var(--cs-success); color: var(--cs-success);
+}
+.msg-rating-card .rc-resolve-btn.active[data-v="unresolved"] {
+  background: var(--cs-orange-bg); border-color: var(--cs-orange); color: var(--cs-orange);
+}
+.msg-rating-card .rc-submit {
+  width: 100%;
+  padding: 8px;
+  background: var(--cs-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--cs-radius-sm);
+  font-size: var(--cs-font-size-base);
+  font-weight: var(--cs-font-weight-medium);
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity .15s;
+}
+.msg-rating-card .rc-submit:disabled { background: #d9d9d9; cursor: not-allowed; }
+.msg-rating-card .rc-thanks {
+  display: none;
+  margin-top: 10px;
+  padding: 8px;
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+  border-radius: var(--cs-radius-sm);
+  color: var(--cs-success);
+  font-size: var(--cs-font-size-sm);
+  text-align: center;
+}
+.msg-rating-card.done .rc-thanks { display: block; }
+.msg-rating-card.done .rc-star { pointer-events: none; }
+.msg-rating-card.done .rc-resolve,
+.msg-rating-card.done .rc-submit { display: none; }
+/* 评价卡片（已过期，灰色禁用） */
+.msg-rating-card.expired { background: #fafafa; border-color: #e8e8e8; opacity: 0.75; }
+.msg-rating-card.expired .rc-title { color: var(--cs-text-tertiary); }
+.msg-rating-card.expired .rc-sub { color: var(--cs-text-placeholder); }
+.msg-rating-card.expired .rc-star { color: #e0e0e0; cursor: not-allowed; pointer-events: none; }
+.msg-rating-card.expired .rc-resolve-q { color: var(--cs-text-placeholder); }
+.msg-rating-card.expired .rc-resolve-btn {
+  background: #f5f5f5; color: #bfbfbf; border-color: #e8e8e8; cursor: not-allowed;
+}
+.msg-rating-card.expired .rc-submit {
+  background: #f0f0f0; color: #bfbfbf; cursor: not-allowed;
+}
+
+/* ============================================================
+   16. Rich Media Cards — 已迁移至 styles.css「Thread Card」权威块。
+   原 banner 版(240px/card-banner/贴底实底按钮)废弃删除，避免与权威版冲突。
+   ============================================================ */

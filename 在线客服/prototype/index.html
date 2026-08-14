@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CS 商城客服系统 — 原型总览</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f5f6f8; color: #1f1f1f; font-family: -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 56px 24px; }
+    h1 { font-size: 22px; font-weight: 600; margin: 0 0 6px; }
+    .sub { color: #8c8c8c; font-size: 13px; margin-bottom: 32px; }
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    @media (max-width: 640px) { .cards { grid-template-columns: 1fr; } }
+    .card { display: block; text-decoration: none; color: inherit; background: #fff; border: 1px solid #ececec; border-radius: 12px; padding: 28px 24px; transition: box-shadow .15s, transform .15s; }
+    .card:hover { box-shadow: 0 6px 20px rgba(0, 0, 0, .08); transform: translateY(-2px); }
+    .card .tag { display: inline-block; font-size: 12px; color: #1677ff; background: #e6f4ff; padding: 2px 10px; border-radius: 10px; margin-bottom: 14px; }
+    .card.user .tag { color: #fa8c16; background: #fff7e6; }
+    .card h2 { margin: 0 0 6px; font-size: 18px; }
+    .card p { margin: 0; color: #8c8c8c; font-size: 13px; line-height: 1.6; }
+    .card .go { margin-top: 16px; color: #1677ff; font-size: 13px; font-weight: 600; }
+    .card.user .go { color: #fa8c16; }
+    .foot { margin-top: 40px; color: #bfbfbf; font-size: 12px; line-height: 1.7; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>CS 商城客服系统 · 交互原型</h1>
+    <div class="sub">移动端与 PC 端原型已拆分独立维护，请选择进入。</div>
+    <div class="cards">
+      <a class="card admin" href="admin/index.html">
+        <span class="tag">PC · 管理端</span>
+        <h2>管理端原型</h2>
+        <p>客服工作台、客服工单、会话 / 客户 / 知识库 / 评价管理等 21 个页面。对应真实代码库 service-frontend（React / Umi）。</p>
+        <div class="go">进入 admin/ &gt;</div>
+      </a>
+      <a class="card user" href="user/index.html">
+        <span class="tag">移动 · 用户端</span>
+        <h2>用户端原型</h2>
+        <p>客服入口、聊天、FAQ、离线留言、服务评价等 6 个页面。对应真实代码库 service-user（Taro 小程序 + H5）。</p>
+        <div class="go">进入 user/ &gt;</div>
+      </a>
+    </div>
+    <div class="foot">原型仅供交互演示 · 数据来源：线上客服排期 + 竞品调研 · 技术栈：Go / React (Umi) / Taro</div>
+  </div>
+</body>
+</html>
