@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的订单 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/account-header.css">
+<link rel="stylesheet" href="../assets/account-nav.css">
+<link rel="stylesheet" href="../assets/order-cancel.css">
+<link rel="stylesheet" href="../assets/write-review.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-confirm.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+ul,li{list-style:none}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input{outline:none;border:none;font-family:inherit}
+:root{
+  --page-width:1600px;--jd-red:#f63218;--jd-red-dark:#c81623;--price:#ff0f12;
+  --text-dark:rgba(0,0,0,.85);--text-mid:#666;--text-light:#999;--border-light:#f0f0f0;
+  --radius:8px;--radius-sm:6px;
+}
+.container{width:var(--page-width);margin:0 auto}
+
+.order-panel{overflow:hidden}
+
+.order-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0f0f0;gap:16px}
+.order-head h1{font-size:18px;font-weight:600;color:#333;flex-shrink:0}
+.order-head-search{display:flex;gap:8px;align-items:center}
+.order-head-search input{width:240px;height:32px;border:1px solid #ddd;border-radius:var(--radius-sm);padding:0 12px;font-size:13px}
+.order-head-search button{height:32px;padding:0 16px;background:var(--jd-red);color:#fff;border-radius:var(--radius-sm);font-size:13px;font-weight:500;white-space:nowrap}
+.order-head-search button:hover{background:var(--jd-red-dark)}
+
+.order-tabs{display:flex;border-bottom:1px solid #f0f0f0;padding:0 8px;background:#fff}
+.order-tab{padding:16px 24px;font-size:15px;color:#666;cursor:pointer;position:relative;white-space:nowrap;transition:color .15s}
+.order-tab:hover{color:var(--jd-red)}
+.order-tab.active{color:var(--jd-red);font-weight:600}
+.order-tab.active::after{content:'';position:absolute;left:50%;bottom:0;width:32px;height:3px;background:var(--jd-red);border-radius:2px 2px 0 0;transform:translateX(-50%)}
+.order-tab .badge{display:inline-block;min-width:16px;height:16px;line-height:16px;padding:0 4px;margin-left:4px;background:var(--jd-red);color:#fff;font-size:10px;border-radius:8px;font-weight:600;vertical-align:top}
+
+.order-table-hd{display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 120px 90px 180px;gap:8px;padding:10px 16px;background:#f5f5f5;border-bottom:1px solid #eee;font-size:13px;color:#999;text-align:center}
+.order-table-hd span:first-child{text-align:left;padding-left:8px}
+
+.order-list{padding:0}
+.order-card{border-bottom:1px solid #eee;margin-bottom:0;border-radius:0}
+.order-card:last-child{border-bottom:none}
+.order-card:hover{background:#fafafa}
+.order-card-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#f5f5f5;border-bottom:1px solid #eee;font-size:13px;color:#666}
+.order-card-hd .no{color:#333;font-weight:500}
+.order-card-hd .time{margin-left:16px;color:#999}
+.order-card-hd .detail-link{color:#666;font-size:13px}
+.order-card-hd .detail-link:hover{color:var(--jd-red)}
+.order-status{font-size:13px;font-weight:500;color:#666;background:none;padding:0}
+
+.order-card-bd{padding:16px;display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 120px 90px 180px;gap:8px;align-items:start;text-align:center}
+.order-goods{align-self:center}
+.order-goods-info{align-self:start}
+.order-goods-price,.order-col-total,.order-col-status,.order-col-actions{align-self:center}
+.order-lg-bar{display:flex;align-items:center;gap:8px;margin-top:6px;max-width:100%}
+.order-lg-tag{flex-shrink:0;padding:0 6px;font-size:12px;color:var(--jd-red);border:1px solid rgba(246,50,24,.45);border-radius:2px;line-height:1.5;background:transparent}
+.order-lg-tag.done{color:#52c41a;border-color:rgba(82,196,26,.45)}
+.order-lg-tag.ship{color:#ff9800;border-color:rgba(255,152,0,.45)}
+.order-lg-text{flex:1;min-width:0;font-size:12px;color:#666;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+.order-goods{flex:1;min-width:0;display:flex;gap:12px;cursor:pointer;text-align:left}
+.order-goods img{width:72px;height:72px;object-fit:cover;border-radius:4px;background:#f8f8f8;flex-shrink:0}
+.order-goods-info{flex:1;min-width:0}
+.order-goods-name{font-size:14px;color:#333;line-height:1.45;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.order-goods-name:hover{color:var(--jd-red)}
+.order-goods-spec{font-size:12px;color:#999}
+.order-goods-extra{font-size:12px;color:#999;margin-top:4px}
+.order-goods-price{text-align:center;flex-shrink:0;font-size:13px;color:#666}
+.order-goods-price .p{color:#333;font-weight:400;font-size:13px}
+.order-goods-price .q{margin-top:0;color:#999;font-size:12px}
+.order-col-total{font-size:13px;color:#333;line-height:1.5}
+.order-col-total em{font-style:normal;color:var(--price);font-weight:700;font-size:15px}
+.order-col-total .beans{display:block;font-size:11px;color:#999;margin-top:2px}
+.order-col-status{font-size:13px;color:#666}
+.order-col-status.pay{color:#ff9800}
+.order-col-status.recv{color:#52c41a}
+.order-col-actions{display:flex;flex-direction:column;align-items:center;gap:6px}
+.order-col-actions .order-btn{min-width:80px;height:28px;padding:0 10px;font-size:12px}
+
+.order-card-ft{display:none}
+.order-total{font-size:13px;color:#666;margin-right:auto;padding-left:0}
+.order-total em{font-style:normal;color:var(--price);font-weight:700;font-size:18px;font-variant-numeric:tabular-nums}
+.order-total .beans{font-size:12px;color:#999;margin-left:8px}
+.order-btn{min-width:88px;height:32px;padding:0 16px;font-size:13px;border-radius:var(--radius-sm);border:1px solid #ddd;background:#fff;color:#666;transition:all .15s}
+.order-btn:hover{border-color:var(--jd-red);color:var(--jd-red)}
+.order-btn.primary{background:var(--jd-red);border-color:var(--jd-red);color:#fff}
+.order-btn.primary:hover{background:var(--jd-red-dark)}
+.order-btn.warn{border-color:#ff9800;color:#ff9800}
+.order-btn.warn:hover{background:#fff8e6}
+
+.order-empty{text-align:center;padding:80px 20px}
+.order-empty-icon{font-size:56px;color:#ddd;margin-bottom:16px}
+.order-empty p{font-size:16px;color:#666;margin-bottom:8px}
+.order-empty a{display:inline-block;margin-top:16px;padding:10px 32px;background:var(--jd-red);color:#fff;border-radius:var(--radius-sm);font-size:14px}
+</style>
+</head>
+<body>
+
+<div id="site-topbar-root"></div>
+
+<header class="pd-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href='01.首页-原型页面.html'">
+        <div class="logo-text">苏银豆商城</div>
+        <div class="logo-sub">积分好物 · 一站购齐</div>
+      </div>
+      <div>
+        <div class="pd-search">
+          <input type="text" placeholder="搜索商品、品牌、品类" id="searchInput">
+          <button type="button" id="searchBtn">搜索</button>
+        </div>
+      </div>
+      <div class="pd-header-cart" onclick="location.href='05.购物车-原型页面.html'">
+        <img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt="">
+        <span>购物车</span><div class="badge">3</div>
+      </div>
+    </div>
+    <nav class="pd-breadcrumb"><a href="01.首页-原型页面.html">首页</a> &gt; <a href="10.个人中心-原型页面.html">个人中心</a> &gt; <span>我的订单</span></nav>
+  </div>
+</header>
+
+<div class="container ac-page">
+  <div class="ac-layout">
+    <div id="accountSidebar"></div>
+    <div class="ac-main-panel order-panel">
+      <div class="order-head">
+        <h1>我的订单</h1>
+        <div class="order-head-search">
+          <input type="text" placeholder="商品标题 / 订单号" id="orderSearchInput">
+          <button type="button" id="orderSearchBtn">搜索订单</button>
+        </div>
+      </div>
+      <div class="order-tabs" id="orderTabs"></div>
+      <div class="order-table-hd">
+        <span>订单详情</span><span>单价</span><span>数量</span><span>实付款</span><span>状态</span><span>操作</span>
+      </div>
+      <div class="order-list" id="orderList"></div>
+    </div>
+  </div>
+</div>
+
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/account-nav.js"></script>
+<script src="../assets/product-images.js"></script>
+<script src="../assets/order-mock.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/order-cancel.js"></script>
+<script src="../assets/write-review.js"></script>
+<script src="../assets/proto-confirm.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+if (!ProtoAuth.guardPage()) void 0;
+ProtoAuth.initTopBar({ cartCount: 15 });
+FloatDock.init({ cartCount: 15 });
+AccountNav.renderSidebar('accountSidebar', 'orders');
+const HOME='01.首页-原型页面.html',DETAIL='04.商品详情页-原型页面.html',SEARCH='03.搜索分类页-原型页面.html';
+const ORDER_DETAIL='09.订单详情-原型页面.html',PAY='06.结算付款-原型页面.html',REFUND_APPLY='19.申请售后-原型页面.html';
+let currentTab='all';
+let searchKeyword='';
+
+const TABS=[
+  {id:'all',label:'全部'},
+  {id:'pay',label:'待付款',badge:1},
+  {id:'ship',label:'待发货'},
+  {id:'recv',label:'待收货',badge:2},
+  {id:'done',label:'已完成'}
+];
+
+const STATUS_MAP={
+  pay:{text:'待付款',cls:'pay'},
+  ship:{text:'待发货',cls:'ship'},
+  recv:{text:'待收货',cls:'recv'},
+  done:{text:'已完成',cls:'done'},
+  cancel:{text:'已取消',cls:'cancel'}
+};
+
+function getOrders(){return OrderMock.all();}
+function itemImg(it){return IMG[it.imgKey]||''}
+
+function formatPrice(n){return Number(n).toFixed(2)}
+
+function renderTotalCol(o){
+  if(o.payType==='纯积分')return `<em>${o.beans} 豆</em>`;
+  if(o.payType==='纯现金')return `<em>¥${formatPrice(o.goodsAmount)}</em><span class="beans">含运费</span>`;
+  return `<em>¥${formatPrice(o.cash)}</em><span class="beans">+ ${o.beans} 豆</span>`;
+}
+
+function openOrderReview(orderId){
+  const o=OrderMock.get(orderId);
+  if(!o||!o.items||!o.items.length){ProtoToast.warn('暂无可评价商品');return;}
+  const it=o.items[0];
+  WriteReview.open({name:it.name,imgKey:it.imgKey},function(){
+    ProtoToast.success('评价提交成功，感谢您的反馈！');
+  });
+}
+
+function renderActions(o){
+  const s=o.status,id=o.id;
+  const detailBtn=`<button type="button" class="order-btn" onclick="location.href='${ORDER_DETAIL}?order=${id}'">订单详情</button>`;
+  const refundBtn=`<button type="button" class="order-btn" onclick="location.href='${REFUND_APPLY}?order=${id}'">申请售后</button>`;
+  if(s==='pay')return `<button type="button" class="order-btn primary" onclick="location.href='${PAY}?mode=pay&order=${id}'">去支付</button><button type="button" class="order-btn" onclick="openCancelModal('${id}')">取消</button>${detailBtn}`;
+  if(s==='ship')return `${refundBtn}${detailBtn}`;
+  if(s==='recv'){
+    const sum=OrderMock.summary(o);
+    const recvBtn=sum.canConfirmReceive?`<button type="button" class="order-btn warn" onclick="confirmReceiveOrder('${id}')">确认收货</button>`:'';
+    return `${recvBtn}<button type="button" class="order-btn" onclick="location.href='${ORDER_DETAIL}?order=${id}#logistics'">查看物流</button>${refundBtn}${detailBtn}`;
+  }
+  if(s==='done')return `<button type="button" class="order-btn primary" onclick="location.href='${DETAIL}'">再次购买</button><button type="button" class="order-btn warn" onclick="openOrderReview('${id}')">评价</button>${refundBtn}${detailBtn}`;
+  return detailBtn;
+}
+
+function renderLogisticsBar(o){
+  if(o.status==='pay'||o.status==='cancel')return '';
+  const sum=OrderMock.summary(o);
+  if(sum.partialShip){
+    const latest=sum.latestText?' · 最新：'+sum.latestText:'';
+    return `<div class="order-lg-bar"><span class="order-lg-tag ship">部分发货</span><span class="order-lg-text">${sum.aggregateText}${latest}</span></div>`;
+  }
+  if(sum.multiPackage&&(o.status==='recv'||o.status==='done')){
+    const latest=sum.latestText?' · 最新：'+sum.latestText:'';
+    return `<div class="order-lg-bar"><span class="order-lg-tag${o.status==='done'?' done':''}">${sum.shippingCount?'运输中':'已签收'}</span><span class="order-lg-text">${sum.shippedCount} 个包裹${latest}</span></div>`;
+  }
+  let label,text,tagCls='';
+  if(o.status==='ship'){
+    label='待发货';
+    text='商家正在为您备货，发货后将更新物流信息';
+    tagCls=' ship';
+  }else if(o.logistics){
+    label=o.logistics.label|| (o.status==='done'?'已签收':'运输中');
+    text=o.logistics.latest||o.logistics.eta||'快件运输中';
+    tagCls=o.status==='done'?' done':'';
+  }else return '';
+  return `<div class="order-lg-bar"><span class="order-lg-tag${tagCls}">${label}</span><span class="order-lg-text">${text}</span></div>`;
+}
+
+function filterOrders(){
+  let list=getOrders();
+  if(currentTab!=='all')list=list.filter(o=>o.status===currentTab);
+  if(searchKeyword){
+    const kw=searchKeyword.toLowerCase();
+    list=list.filter(o=>{
+      const it=o.items[0];
+      return o.id.toLowerCase().includes(kw)||it.name.toLowerCase().includes(kw);
+    });
+  }
+  if(currentTab==='all')list.sort((a,b)=>{
+    const pri={pay:0,recv:1,ship:2,done:3,cancel:4};
+    if(pri[a.status]!==pri[b.status])return pri[a.status]-pri[b.status];
+    return b.time.localeCompare(a.time);
+  });
+  return list;
+}
+
+function renderTabs(){
+  document.getElementById('orderTabs').innerHTML=TABS.map(t=>
+    `<div class="order-tab${currentTab===t.id?' active':''}" data-tab="${t.id}">${t.label}${t.badge?`<span class="badge">${t.badge}</span>`:''}</div>`
+  ).join('');
+  document.querySelectorAll('.order-tab').forEach(el=>{
+    el.onclick=()=>{currentTab=el.dataset.tab;renderTabs();renderList();};
+  });
+}
+
+function renderList(){
+  const list=filterOrders();
+  const el=document.getElementById('orderList');
+  if(!list.length){
+    el.innerHTML=`<div class="order-empty"><div class="order-empty-icon">${ProtoIcon.html('box',{size:56})}</div><p>暂无相关订单</p><span style="font-size:13px;color:#999">去商城挑选心仪商品吧</span><br><a href="${HOME}">去逛逛</a></div>`;
+    return;
+  }
+  el.innerHTML=list.map(o=>{
+    const st=STATUS_MAP[o.status];
+    const it=o.items[0];
+    const qty=o.items.reduce((s,i)=>s+i.qty,0);
+    const extra=qty>1?` 等 ${qty} 件商品`:'';
+    return `<div class="order-card">
+      <div class="order-card-hd">
+        <div><span class="no">${o.time}</span><span class="time">订单号：${o.id}</span></div>
+        <a class="detail-link" href="${ORDER_DETAIL}?order=${o.id}">订单详情 ›</a>
+      </div>
+      <div class="order-card-bd">
+        <div class="order-goods" onclick="location.href='${ORDER_DETAIL}?order=${o.id}'">
+          <img src="${itemImg(it)}" alt="">
+          <div class="order-goods-info">
+            <div class="order-goods-name">${it.name}</div>
+            <div class="order-goods-spec">${it.spec}</div>
+            ${renderLogisticsBar(o)}
+            ${extra?`<div class="order-goods-extra">${extra}</div>`:''}
+          </div>
+        </div>
+        <div class="order-goods-price"><div class="p">¥${formatPrice(it.price)}</div></div>
+        <div class="order-goods-price"><div class="q">×${it.qty}</div></div>
+        <div class="order-col-total">${renderTotalCol(o)}</div>
+        <div class="order-col-status ${st.cls}">${st.text}</div>
+        <div class="order-col-actions">${renderActions(o)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openCancelModal(id){
+  OrderCancel.open(id,function(){OrderMock.cancel(id);renderList();});
+}
+
+function confirmReceiveOrder(id){
+  ConfirmReceive.open(function(){
+    OrderMock.receive(id);
+    renderList();
+  });
+}
+
+document.getElementById('orderSearchBtn').onclick=()=>{
+  searchKeyword=document.getElementById('orderSearchInput').value.trim();
+  renderList();
+};
+document.getElementById('orderSearchInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter')document.getElementById('orderSearchBtn').click();
+});
+document.getElementById('searchBtn').onclick=()=>{
+  const q=document.getElementById('searchInput').value.trim();
+  location.href=q?SEARCH+'?q='+encodeURIComponent(q):SEARCH;
+};
+
+const params=new URLSearchParams(location.search);
+if(params.get('tab')&&TABS.some(t=>t.id===params.get('tab')))currentTab=params.get('tab');
+
+renderTabs();
+renderList();
+</script>
+</body>
+</html>

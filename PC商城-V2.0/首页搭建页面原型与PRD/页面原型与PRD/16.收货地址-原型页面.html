@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>收货地址 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/account-header.css">
+<link rel="stylesheet" href="../assets/account-nav.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-confirm.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input,select,textarea{outline:none;font-family:inherit}
+:root{--page-width:1600px;--jd-red:#f63218;--radius:8px;--radius-sm:6px}
+.container{width:var(--page-width);margin:0 auto}
+.pg-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0f0f0}
+.pg-head h1{font-size:18px;font-weight:600}
+.pg-btn{height:36px;padding:0 16px;border-radius:var(--radius-sm);font-size:14px;border:1px solid #ddd;background:#fff;color:#666}
+.pg-btn.primary{background:var(--jd-red);border-color:var(--jd-red);color:#fff}
+.pg-body{padding:20px}
+.pg-list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.pg-addr-card{border:1px solid #f0f0f0;border-radius:var(--radius);padding:16px;background:#fff;transition:border-color .15s}
+.pg-addr-card.default{border-color:var(--jd-red);background:#fffafa}
+.pg-addr-top{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:15px;font-weight:600}
+.pg-addr-default{font-size:11px;background:var(--jd-red);color:#fff;padding:1px 6px;border-radius:2px;font-weight:400}
+.pg-addr-detail{font-size:13px;color:#666;line-height:1.6}
+.pg-addr-actions{margin-top:10px;display:flex;gap:12px;font-size:13px;color:#666}
+.pg-addr-actions span{cursor:pointer}
+.pg-addr-actions span:hover{color:var(--jd-red)}
+.pg-empty{text-align:center;padding:40px;color:#999;grid-column:1/-1}
+.addr-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2100;display:none;align-items:center;justify-content:center;padding:20px}
+.addr-modal-overlay.active{display:flex}
+.addr-modal{background:#fff;border-radius:12px;width:480px;max-width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;animation:addrIn .22s ease}
+@keyframes addrIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.addr-modal-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #f0f0f0}
+.addr-modal-hd h3{font-size:17px;font-weight:600}
+.addr-modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:#999;border-radius:50%;cursor:pointer;background:none;border:none}
+.addr-modal-close:hover{background:#f5f5f5}
+.addr-modal-bd{padding:16px 20px;overflow-y:auto}
+.addr-form-row{margin-bottom:14px}
+.addr-form-row label{display:block;font-size:13px;color:#666;margin-bottom:6px}
+.addr-form-row label em{color:var(--jd-red);font-style:normal;margin-right:2px}
+.addr-form-row input,.addr-form-row select,.addr-form-row textarea{width:100%;border:1px solid #eee;border-radius:6px;font-size:14px;padding:10px 12px}
+.addr-form-row textarea{height:72px;resize:none}
+.addr-form-row input:focus,.addr-form-row select:focus,.addr-form-row textarea:focus{border-color:var(--jd-red)}
+.addr-form-check{display:flex;align-items:center;gap:8px;font-size:13px;color:#666;margin-bottom:4px}
+.addr-form-check input{accent-color:var(--jd-red);width:auto}
+.addr-modal-ft{display:flex;gap:12px;padding:16px 20px;border-top:1px solid #f0f0f0}
+.addr-modal-ft button{flex:1;height:40px;border-radius:6px;font-size:14px;cursor:pointer;font-family:inherit}
+.addr-modal-cancel{border:1px solid #ddd;background:#fff;color:#666}
+.addr-modal-cancel:hover{border-color:var(--jd-red);color:var(--jd-red)}
+.addr-modal-save{background:var(--jd-red);border:none;color:#fff;font-weight:600}
+.addr-modal-save:hover{background:#c81623}
+</style>
+</head>
+<body>
+<div id="site-topbar-root"></div>
+<header class="pd-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href=ProtoPages.home"><div class="logo-text">苏银豆商城</div><div class="logo-sub">积分好物 · 一站购齐</div></div>
+      <div><div class="pd-search"><input type="text" placeholder="搜索商品" id="searchInput"><button type="button" id="searchBtn">搜索</button></div></div>
+      <div class="pd-header-cart" onclick="location.href=ProtoPages.cart"><img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt=""><span>购物车</span><div class="badge">3</div></div>
+    </div>
+    <nav class="pd-breadcrumb"><a href="01.首页-原型页面.html">首页</a> &gt; <a href="10.个人中心-原型页面.html">个人中心</a> &gt; <span>收货地址</span></nav>
+  </div>
+</header>
+<div class="container ac-page"><div class="ac-layout"><div id="accountSidebar"></div><div class="ac-main-panel">
+<div class="pg-head"><h1>收货地址</h1><button type="button" class="pg-btn primary" id="addBtn">+ 新增地址</button></div>
+<div class="pg-body"><div class="pg-list" id="addrList"></div></div>
+</div></div></div>
+<div class="addr-modal-overlay" id="addrModal">
+  <div class="addr-modal">
+    <div class="addr-modal-hd"><h3 id="modalTitle">新增地址</h3><button type="button" class="addr-modal-close" id="modalClose" data-proto-icon="close" data-icon-size="18"></button></div>
+    <div class="addr-modal-bd">
+      <div class="addr-form-row"><label><em>*</em>收货人</label><input type="text" id="fName" placeholder="姓名"></div>
+      <div class="addr-form-row"><label><em>*</em>手机号</label><input type="text" id="fPhone" placeholder="11位手机号" maxlength="11"></div>
+      <div class="addr-form-row"><label><em>*</em>所在地区</label><select id="fRegion"><option value="">请选择省市区</option><option>江苏省 南京市 建邺区</option><option>江苏省 苏州市 工业园区</option><option>上海市 浦东新区</option></select></div>
+      <div class="addr-form-row"><label><em>*</em>详细地址</label><textarea id="fDetail" placeholder="街道、门牌号等"></textarea></div>
+      <label class="addr-form-check"><input type="checkbox" id="fDefault"> 设为默认地址</label>
+    </div>
+    <div class="addr-modal-ft">
+      <button type="button" class="addr-modal-cancel" id="modalCancel">取消</button>
+      <button type="button" class="addr-modal-save" id="modalSave">保存</button>
+    </div>
+  </div>
+</div>
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/account-nav.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/proto-confirm.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+FloatDock.init({ cartCount: 15 });
+</script>
+<script>
+if (!ProtoAuth.guardPage()) void 0;
+ProtoAuth.initTopBar({ cartCount: 15 });
+AccountNav.renderSidebar('accountSidebar', 'address');
+ProtoIcon.mount(document.getElementById('addrModal'));
+
+var addrs=[
+  {id:1,name:'张经理',phone:'13812348888',region:'江苏省 南京市 建邺区',detail:'江东中路369号 新华报业传媒广场 1号楼',isDefault:true},
+  {id:2,name:'张经理',phone:'13812348888',region:'江苏省 苏州市 工业园区',detail:'星湖街328号 创意产业园 A座',isDefault:false}
+];
+var editingId=null;
+
+function renderList(){
+  var el=document.getElementById('addrList');
+  if(!addrs.length){el.innerHTML='<div class="pg-empty">暂无收货地址，请点击右上角新增</div>';return;}
+  el.innerHTML=addrs.map(function(a){
+    return '<div class="pg-addr-card'+(a.isDefault?' default':'')+'">'+
+      '<div class="pg-addr-top">'+a.name+' '+a.phone.replace(/(\d{3})\d{4}(\d{4})/,'$1****$2')+(a.isDefault?'<span class="pg-addr-default">默认</span>':'')+'</div>'+
+      '<div class="pg-addr-detail">'+a.region+' '+a.detail+'</div>'+
+      '<div class="pg-addr-actions"><span onclick="openEdit('+a.id+')">编辑</span><span onclick="setDefault('+a.id+')">设为默认</span><span onclick="delAddr('+a.id+')">删除</span></div></div>';
+  }).join('');
+}
+
+function openModal(isEdit){
+  document.getElementById('modalTitle').textContent=isEdit?'编辑地址':'新增地址';
+  document.getElementById('addrModal').classList.add('active');
+}
+
+function closeModal(){
+  document.getElementById('addrModal').classList.remove('active');
+  editingId=null;
+  clearForm();
+}
+
+function clearForm(){
+  document.getElementById('fName').value='';
+  document.getElementById('fPhone').value='';
+  document.getElementById('fRegion').value='';
+  document.getElementById('fDetail').value='';
+  document.getElementById('fDefault').checked=false;
+}
+
+function fillForm(a){
+  document.getElementById('fName').value=a.name;
+  document.getElementById('fPhone').value=a.phone;
+  document.getElementById('fRegion').value=a.region;
+  document.getElementById('fDetail').value=a.detail;
+  document.getElementById('fDefault').checked=!!a.isDefault;
+}
+
+function openEdit(id){
+  editingId=id;
+  var a=addrs.find(function(x){return x.id===id;});
+  if(a)fillForm(a);
+  openModal(true);
+}
+
+function openAdd(){
+  editingId=null;
+  clearForm();
+  openModal(false);
+}
+
+function saveAddr(){
+  var name=document.getElementById('fName').value.trim();
+  var phone=document.getElementById('fPhone').value.trim();
+  var region=document.getElementById('fRegion').value;
+  var detail=document.getElementById('fDetail').value.trim();
+  if(!name||!phone||!region||!detail){ProtoToast.warn('请填写完整地址信息');return;}
+  var isDef=document.getElementById('fDefault').checked;
+  var newId=editingId||Date.now();
+  if(editingId){
+    addrs=addrs.map(function(a){if(a.id===editingId)return Object.assign({},a,{name:name,phone:phone,region:region,detail:detail,isDefault:isDef});return a;});
+  }else{
+    addrs.push({id:newId,name:name,phone:phone,region:region,detail:detail,isDefault:isDef});
+  }
+  if(isDef)addrs.forEach(function(a){if(a.id!==newId)a.isDefault=false;});
+  closeModal();
+  renderList();
+}
+
+function setDefault(id){addrs.forEach(function(a){a.isDefault=a.id===id;});renderList();}
+function delAddr(id){ProtoConfirm.open({message:'确定删除该地址？',onConfirm:function(){addrs=addrs.filter(function(a){return a.id!==id;});renderList();}});}
+
+document.getElementById('addBtn').onclick=openAdd;
+document.getElementById('modalClose').onclick=closeModal;
+document.getElementById('modalCancel').onclick=closeModal;
+document.getElementById('modalSave').onclick=saveAddr;
+document.getElementById('addrModal').onclick=function(e){if(e.target.id==='addrModal')closeModal();};
+document.getElementById('searchBtn').onclick=function(){var q=document.getElementById('searchInput').value.trim();location.href=q?ProtoPages.search+'?q='+encodeURIComponent(q):ProtoPages.search;};
+renderList();
+</script>
+</body>
+</html>

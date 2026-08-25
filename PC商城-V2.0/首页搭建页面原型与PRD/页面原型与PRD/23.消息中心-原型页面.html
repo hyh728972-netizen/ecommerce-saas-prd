@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>消息中心 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/account-header.css">
+<link rel="stylesheet" href="../assets/account-nav.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+:root{--page-width:1600px;--jd-red:#f63218;--radius:8px;--radius-sm:6px}
+.container{width:var(--page-width);margin:0 auto}
+.pg-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0f0f0}
+.pg-head h1{font-size:18px;font-weight:600}
+.pg-body{padding:20px 20px 28px}
+.msg-timeline{position:relative}
+.msg-date-group{margin-bottom:8px}
+.msg-date-group:last-child{margin-bottom:0}
+.msg-date-label{font-size:13px;color:#999;font-weight:500;margin:0 0 16px 0;padding-left:28px}
+.msg-timeline-list{position:relative;padding-left:4px}
+.msg-timeline-item{position:relative;padding:0 0 20px 28px}
+.msg-timeline-item:last-child{padding-bottom:0}
+.msg-timeline-item::before{content:'';position:absolute;left:5px;top:14px;bottom:0;width:2px;background:#eee}
+.msg-timeline-item:last-child::before{display:none}
+.msg-dot{position:absolute;left:0;top:10px;width:12px;height:12px;border-radius:50%;background:#ddd;border:2px solid #fff;box-shadow:0 0 0 1px #ddd;z-index:1}
+.msg-timeline-item.unread .msg-dot{background:var(--jd-red);box-shadow:0 0 0 1px var(--jd-red)}
+.msg-timeline-item.type-order .msg-dot{background:#f63218;box-shadow:0 0 0 1px #f63218}
+.msg-timeline-item.type-promo .msg-dot{background:#fa8c16;box-shadow:0 0 0 1px #fa8c16}
+.msg-timeline-item.type-system .msg-dot{background:#1890ff;box-shadow:0 0 0 1px #1890ff}
+.msg-timeline-item.unread.type-order .msg-dot,.msg-timeline-item.unread.type-promo .msg-dot,.msg-timeline-item.unread.type-system .msg-dot{background:var(--jd-red);box-shadow:0 0 0 1px var(--jd-red)}
+.msg-card{padding:16px 18px;background:#fafafa;border:1px solid #f0f0f0;border-radius:var(--radius);transition:border-color .2s,background .2s}
+.msg-timeline-item.unread .msg-card{background:#fff;border-color:#ffd6d0;box-shadow:0 1px 4px rgba(246,50,24,.06)}
+.msg-card-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+.msg-title{font-size:15px;color:#333;line-height:1.45;flex:1}
+.msg-timeline-item.unread .msg-title{font-weight:600;color:#222}
+.msg-time{font-size:12px;color:#999;white-space:nowrap;flex-shrink:0}
+.msg-tag{display:inline-block;height:20px;line-height:20px;padding:0 8px;margin-bottom:8px;border-radius:4px;font-size:11px;color:#666;background:#f0f0f0}
+.msg-timeline-item.type-order .msg-tag{color:#f63218;background:#fff1f0}
+.msg-timeline-item.type-promo .msg-tag{color:#fa8c16;background:#fff7e6}
+.msg-timeline-item.type-system .msg-tag{color:#1890ff;background:#e6f7ff}
+.msg-body{font-size:14px;color:#666;line-height:1.8;margin-bottom:12px}
+.msg-card .pg-btn{height:32px;padding:0 14px;border:1px solid #ddd;border-radius:var(--radius-sm);background:#fff;font-size:13px}
+.msg-card .pg-btn.primary{border-color:var(--jd-red);background:var(--jd-red);color:#fff}
+.pg-empty{text-align:center;padding:80px 20px;color:#999}
+.msg-filters{display:flex;gap:10px;padding:0 20px 16px;border-bottom:1px solid #f0f0f0}
+.msg-filter{height:32px;padding:0 16px;border-radius:16px;font-size:13px;color:#666;background:#f5f5f5;cursor:pointer;border:none;font-family:inherit;line-height:32px}
+.msg-filter.active{background:#fff5f5;color:var(--jd-red);font-weight:500}
+</style>
+</head>
+<body>
+<div id="site-topbar-root"></div>
+<header class="pd-header account-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href=ProtoPages.home"><div class="logo-text">苏银豆商城</div><div class="logo-sub">积分好物 · 一站购齐</div></div>
+      <div><div class="pd-search"><input type="text" placeholder="搜索商品、品牌、品类" id="searchInput"><button type="button" id="searchBtn">搜索</button></div></div>
+      <div class="pd-header-cart" onclick="location.href=ProtoPages.cart"><img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt=""><span>购物车</span><div class="badge">8</div></div>
+    </div>
+    <nav class="pd-breadcrumb"><a href="01.首页-原型页面.html">首页</a> &gt; <a href="10.个人中心-原型页面.html">个人中心</a> &gt; <span>消息中心</span></nav>
+  </div>
+</header>
+<div class="container ac-page"><div class="ac-layout"><div id="accountSidebar"></div><div class="ac-main-panel">
+<div class="pg-head"><h1>消息中心</h1><button type="button" class="pg-btn" id="readAllBtn" style="height:32px;padding:0 14px;border:1px solid #ddd;border-radius:var(--radius-sm);background:#fff;font-size:13px">全部已读</button></div>
+<div class="msg-filters" id="msgFilters">
+  <button type="button" class="msg-filter active" data-type="all">全部</button>
+  <button type="button" class="msg-filter" data-type="order">订单</button>
+  <button type="button" class="msg-filter" data-type="promo">活动</button>
+  <button type="button" class="msg-filter" data-type="system">系统</button>
+</div>
+<div class="pg-body" id="msgBody"></div>
+</div></div></div>
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/account-nav.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script>
+if (!ProtoAuth.guardPage()) void 0;
+ProtoAuth.initTopBar({ cartCount: 8 });
+FloatDock.init({ cartCount: 8 });
+AccountNav.renderSidebar('accountSidebar', 'message');
+var messages = [
+  { id: 1, type: 'order', title: '订单 SY202606140088 已发货', time: '2026-06-15 09:20', unread: true, body: '您购买的 Apple AirPods Pro 等商品已发出，请留意物流信息。', action: { text: '查看订单', href: '09.订单详情-原型页面.html?order=SY202606140088' } },
+  { id: 2, type: 'promo', title: '5 笔苏银豆即将过期', time: '2026-06-14 18:00', unread: true, body: '您有 5 笔苏银豆将在 3 天后过期，请尽快使用。', action: { text: '去积分中心', href: '12.积分中心-原型页面.html' } },
+  { id: 3, type: 'order', title: '售后申请已通过', time: '2026-06-14 20:15', unread: false, body: '您的退货退款申请 RF202606140001 商家已审核通过，请尽快寄回商品。', action: { text: '售后详情', href: '20.售后详情-原型页面.html?refund=RF202606140001' } },
+  { id: 4, type: 'system', title: '账户安全提醒', time: '2026-06-10 10:00', unread: false, body: '您的账户于 2026-06-10 在新设备登录，如非本人操作请及时修改密码。', action: null },
+  { id: 5, type: 'promo', title: '电影票次卡即将过期', time: '2026-06-08 12:00', unread: false, body: '您有一张电影票次卡将于 7 天后过期。', action: { text: '我的卡券', href: '13.我的卡券-原型页面.html' } }
+];
+var TYPE_LABEL = { order: '订单', promo: '活动', system: '系统' };
+var msgFilter = 'all';
+function filteredMessages() {
+  if (msgFilter === 'all') return messages;
+  return messages.filter(function (m) { return m.type === msgFilter; });
+}
+function formatDateLabel(dateStr) {
+  var p = dateStr.split('-');
+  return parseInt(p[1], 10) + '月' + parseInt(p[2], 10) + '日';
+}
+function formatClock(timeStr) {
+  return timeStr.split(' ')[1] || timeStr;
+}
+function groupByDate(list) {
+  var map = {}, order = [];
+  list.forEach(function (m) {
+    var d = m.time.split(' ')[0];
+    if (!map[d]) { map[d] = []; order.push(d); }
+    map[d].push(m);
+  });
+  return order.map(function (d) { return { date: d, items: map[d] }; });
+}
+function renderMsgItem(m) {
+  return '<div class="msg-timeline-item' + (m.unread ? ' unread' : '') + ' type-' + m.type + '">' +
+    '<span class="msg-dot"></span>' +
+    '<div class="msg-card">' +
+    '<span class="msg-tag">' + (TYPE_LABEL[m.type] || '消息') + '</span>' +
+    '<div class="msg-card-hd">' +
+    '<div class="msg-title">' + m.title + '</div>' +
+    '<div class="msg-time">' + formatClock(m.time) + '</div>' +
+    '</div>' +
+    '<div class="msg-body">' + m.body + '</div>' +
+    (m.action ? '<button type="button" class="pg-btn primary" onclick="location.href=\'' + m.action.href + '\'">' + m.action.text + '</button>' : '') +
+    '</div></div>';
+}
+function render() {
+  var el = document.getElementById('msgBody');
+  var list = filteredMessages();
+  if (!list.length) {
+    el.innerHTML = '<div class="pg-empty">暂无消息</div>';
+    return;
+  }
+  el.innerHTML = '<div class="msg-timeline">' + groupByDate(list).map(function (g) {
+    return '<div class="msg-date-group">' +
+      '<div class="msg-date-label">' + formatDateLabel(g.date) + '</div>' +
+      '<div class="msg-timeline-list">' + g.items.map(renderMsgItem).join('') + '</div></div>';
+  }).join('') + '</div>';
+}
+document.getElementById('readAllBtn').onclick = function () {
+  messages.forEach(function (m) { m.unread = false; });
+  render();
+};
+document.querySelectorAll('.msg-filter').forEach(function (btn) {
+  btn.onclick = function () {
+    msgFilter = btn.dataset.type;
+    document.querySelectorAll('.msg-filter').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    render();
+  };
+});
+document.getElementById('searchBtn').onclick = function () {
+  var q = document.getElementById('searchInput').value.trim();
+  location.href = q ? ProtoPages.search + '?q=' + encodeURIComponent(q) : ProtoPages.search;
+};
+render();
+</script>
+</body>
+</html>

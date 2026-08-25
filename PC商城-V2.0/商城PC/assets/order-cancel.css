@@ -1,0 +1,24 @@
+.order-cancel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2100;display:none;align-items:center;justify-content:center;padding:20px}
+.order-cancel-overlay.active{display:flex}
+.order-cancel-modal{background:#fff;border-radius:12px;width:480px;max-width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;animation:ocIn .22s ease}
+@keyframes ocIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.order-cancel-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #f0f0f0}
+.order-cancel-hd h3{font-size:17px;font-weight:600}
+.order-cancel-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:#999;font-size:18px;border-radius:50%;cursor:pointer;background:none;border:none}
+.order-cancel-close:hover{background:#f5f5f5}
+.order-cancel-bd{padding:16px 20px;overflow-y:auto;flex:1}
+.order-cancel-tip{font-size:13px;color:#999;margin-bottom:14px}
+.order-cancel-reasons{display:flex;flex-direction:column;gap:10px}
+.order-cancel-reason{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #eee;border-radius:6px;cursor:pointer;font-size:14px;color:#333;transition:border-color .15s}
+.order-cancel-reason:hover{border-color:#ffd0d0}
+.order-cancel-reason input{accent-color:#f63218;flex-shrink:0}
+.order-cancel-reason.checked{border-color:#f63218;background:#fffafa}
+.order-cancel-note{margin-top:14px}
+.order-cancel-note label{display:block;font-size:13px;color:#666;margin-bottom:6px}
+.order-cancel-note textarea{width:100%;height:72px;border:1px solid #eee;border-radius:6px;padding:10px 12px;font-size:13px;resize:none;font-family:inherit}
+.order-cancel-ft{display:flex;gap:12px;padding:16px 20px;border-top:1px solid #f0f0f0}
+.order-cancel-ft button{flex:1;height:40px;border-radius:6px;font-size:14px;cursor:pointer;font-family:inherit}
+.order-cancel-back{border:1px solid #ddd;background:#fff;color:#666}
+.order-cancel-back:hover{border-color:#f63218;color:#f63218}
+.order-cancel-confirm{background:#f63218;border:none;color:#fff;font-weight:600}
+.order-cancel-confirm:hover{background:#c81623}

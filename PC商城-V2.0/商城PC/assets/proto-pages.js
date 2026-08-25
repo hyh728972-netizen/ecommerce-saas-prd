@@ -1,0 +1,32 @@
+(function (w) {
+  w.ProtoPages = {
+    home: '01.首页-原型页面.html',
+    zoneHub: '02.活动专区页-原型页面.html',
+    activity: '03.活动页-原型页面.html',
+    search: '04.搜索分类页-原型页面.html',
+    detail: '05.商品详情页-原型页面.html',
+    cart: '06.购物车-原型页面.html',
+    checkout: '07.结算付款-原型页面.html',
+    paySuccess: '08.支付成功-原型页面.html',
+    payFail: '09.支付失败-订单关闭-原型页面.html',
+    order: '10.订单页-原型页面.html',
+    orderDetail: '11.订单详情-原型页面.html',
+    refund: '12.售后记录-原型页面.html',
+    refundApply: '13.申请售后-原型页面.html',
+    refundDetail: '14.售后详情-原型页面.html',
+    account: '15.个人中心-原型页面.html',
+    review: '16.评价中心-原型页面.html',
+    points: '17.积分中心-原型页面.html',
+    coupons: '18.我的卡券-原型页面.html',
+    favorites: '19.我的收藏-原型页面.html',
+    history: '20.浏览记录-原型页面.html',
+    address: '21.收货地址-原型页面.html',
+    profile: '22.个人资料-原型页面.html',
+    message: '23.消息中心-原型页面.html',
+    help: '24.帮助中心-原型页面.html',
+    service: '26.在线客服-原型页面.html',
+    login: '27.登录-原型页面.html',
+    unavailable: '28.商品不可用-原型页面.html',
+    settings: '25.设置-原型页面.html'
+  };
+})(window);

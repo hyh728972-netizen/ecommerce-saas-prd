@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>确认订单 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<link rel="stylesheet" href="../assets/coupon-select.css">
+<link rel="stylesheet" href="../assets/address-select.css">
+<link rel="stylesheet" href="../assets/beans-insufficient.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;padding-bottom:24px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input,textarea{outline:none;font-family:inherit}
+:root{--page-width:1600px;--ck-side-width:440px;--jd-red:#f63218;--jd-red-dark:#c81623;--price:#ff0f12;--text-mid:#666;--text-light:#999;--border-light:#f0f0f0;--radius:8px;--radius-sm:6px}
+.container{width:var(--page-width);margin:0 auto}
+.ck-header{background:#fff;border-bottom:1px solid #eee;padding:20px 0}
+.ck-header-inner{display:flex;align-items:center;justify-content:space-between}
+.ck-logo{cursor:pointer}
+.ck-logo .logo-text{font-size:28px;font-weight:700;color:var(--jd-red)}
+.ck-logo .logo-sub{font-size:12px;color:var(--text-mid);margin-top:4px}
+.ck-steps{display:flex;align-items:center;gap:8px;font-size:14px;color:#999}
+.ck-steps span.active{color:var(--jd-red);font-weight:600}
+.ck-steps i{font-style:normal;color:#ddd;margin:0 4px}
+.ck-back{font-size:13px;color:var(--text-mid);text-decoration:none;display:inline-flex;align-items:center;gap:4px;transition:color .15s}
+.ck-back:hover{color:var(--jd-red)}
+
+.ck-main{padding:16px 0 32px}
+.ck-layout{display:grid;grid-template-columns:minmax(0,1fr) var(--ck-side-width);gap:20px;align-items:start}
+.ck-card{background:#fff;border-radius:var(--radius);padding:20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.ck-card-hd{font-size:16px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.ck-card-hd a{font-size:13px;color:var(--text-mid);font-weight:400}
+.ck-card-hd a:hover{color:var(--jd-red)}
+
+.ck-addr{display:flex;gap:16px;padding:16px;border:2px solid var(--jd-red);border-radius:var(--radius);cursor:pointer;position:relative;background:#fffafa}
+.ck-addr-tag{position:absolute;top:0;left:0;padding:2px 8px;background:var(--jd-red);color:#fff;font-size:11px;border-radius:var(--radius) 0 var(--radius-sm) 0}
+.ck-addr-body{flex:1;padding-top:4px}
+.ck-addr-name{font-size:15px;font-weight:600;margin-bottom:6px}
+.ck-addr-name em{font-style:normal;font-weight:400;color:var(--text-mid);margin-left:12px}
+.ck-addr-detail{font-size:13px;color:var(--text-mid);line-height:1.6}
+.ck-addr-arrow{color:#ccc;font-size:18px;align-self:center}
+
+.ck-zigzag{height:4px;margin:12px 0 0;background:linear-gradient(135deg,#f63218 25%,transparent 25%) -4px 0/8px 8px,linear-gradient(225deg,#1890ff 25%,transparent 25%) -4px 0/8px 8px,linear-gradient(315deg,#52c41a 25%,transparent 25%),linear-gradient(45deg,#faad14 25%,transparent 25%);background-size:8px 8px;background-color:#fff}
+
+.ck-goods-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #f5f5f5}
+.ck-goods-item:last-child{border-bottom:none;padding-bottom:0}
+.ck-goods-item:first-child{padding-top:0}
+.ck-goods-item img{width:72px;height:72px;object-fit:cover;border-radius:4px;background:#f8f8f8;flex-shrink:0}
+.ck-goods-info{flex:1;min-width:0}
+.ck-goods-name{font-size:14px;line-height:1.45;margin-bottom:6px}
+.ck-goods-spec{font-size:12px;color:#999}
+.ck-goods-right{text-align:right;flex-shrink:0}
+.ck-goods-price{font-size:14px;color:var(--price);font-weight:600}
+.ck-goods-qty{font-size:13px;color:#999;margin-top:6px}
+.ck-qty-ctrl{display:flex;margin-top:8px;margin-left:auto;width:fit-content}
+.ck-qty-ctrl button{width:26px;height:26px;border:1px solid #ddd;background:#fff;font-size:14px;color:#666}
+.ck-qty-ctrl input{width:36px;height:26px;border:1px solid #ddd;border-left:none;border-right:none;text-align:center;font-size:13px}
+
+.ck-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;font-size:14px;color:#666;border-bottom:1px solid #f9f9f9}
+.ck-row:last-child{border-bottom:none}
+.ck-row strong{color:#333;font-weight:500}
+.ck-row .link{color:var(--jd-red);cursor:pointer;font-size:13px}
+.ck-row .tip{font-size:12px;color:#ff9800;margin-top:4px}
+
+.ck-msg textarea{width:100%;height:72px;border:1px solid #eee;border-radius:var(--radius-sm);padding:10px 12px;font-size:13px;resize:none}
+.ck-msg-count{text-align:right;font-size:12px;color:#999;margin-top:4px}
+
+.ck-side{position:sticky;top:16px}
+.ck-side .ck-card{--ck-side-gutter:24px}
+.ck-pay-auto{padding:12px 14px 12px var(--ck-side-gutter);background:#fafafa;border-radius:var(--radius-sm);margin-bottom:14px}
+.ck-pay-auto-type{font-size:15px;font-weight:600;color:#333;margin-bottom:4px}
+.ck-pay-auto-tip{font-size:12px;color:#999;line-height:1.5;padding-left:0}
+.ck-pay-extra{display:none;padding:12px 14px 12px var(--ck-side-gutter);background:#fafafa;border-radius:var(--radius-sm);margin-bottom:12px;font-size:13px}
+.ck-pay-extra.show{display:block}
+.ck-channel{display:flex;gap:12px;margin-top:8px}
+.ck-channel label{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px}
+.ck-channel input{accent-color:var(--jd-red)}
+.ck-points-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.ck-points-row input{flex:1;height:32px;border:1px solid #ddd;border-radius:var(--radius-sm);padding:0 10px;font-size:13px}
+
+/* 右侧栏 — 苏银豆内嵌行 */
+.ck-beans-block{padding:12px 0;border-bottom:1px solid #f9f9f9;margin-bottom:4px}
+.ck-beans-toggle{display:grid;grid-template-columns:var(--ck-side-gutter,24px) 1fr auto;align-items:center;cursor:pointer;font-size:13px;color:#666;user-select:none}
+.ck-beans-check{display:flex;align-items:center;justify-content:flex-start}
+.ck-beans-check input[type=checkbox]{width:16px;height:16px;margin:0;accent-color:var(--jd-red);cursor:pointer}
+.ck-beans-toggle .ck-beans-label{color:#333;font-weight:500}
+.ck-beans-balance{font-size:12px;color:#999;text-align:right;padding-right:0}
+.ck-beans-expand{display:none;margin-top:10px}
+.ck-beans-expand.show{display:block}
+.ck-beans-use-row{display:flex;align-items:center;flex-wrap:nowrap;gap:8px;padding-left:var(--ck-side-gutter,24px);font-size:13px;color:#666;line-height:1.5}
+.ck-beans-use-label{color:#666;flex-shrink:0;white-space:nowrap}
+.ck-beans-input{width:84px;height:28px;border:1px solid #ddd;border-radius:var(--radius-sm);padding:0 8px;font-size:13px;color:#333;text-align:right;flex-shrink:0}
+.ck-beans-input:focus{border-color:var(--jd-red)}
+.ck-beans-unit{color:#999;font-size:12px;flex-shrink:0;white-space:nowrap}
+.ck-beans-deduct{color:#999;font-size:12px;flex-shrink:0;white-space:nowrap}
+.ck-beans-deduct em{font-style:normal;color:var(--jd-red);font-weight:500}
+.ck-beans-pill{height:24px;padding:0 10px;border:1px solid #ddd;border-radius:12px;background:#fff;font-size:12px;color:#666;cursor:pointer;line-height:22px;flex-shrink:0;white-space:nowrap}
+.ck-beans-pill:hover{border-color:var(--jd-red);color:var(--jd-red)}
+
+.ck-fee-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0 8px var(--ck-side-gutter,24px);font-size:13px;color:#666}
+.ck-fee-row>span:last-child{text-align:right;flex-shrink:0;padding-left:12px}
+.ck-fee-row.discount{color:var(--jd-red)}
+.ck-fee-total{display:flex;justify-content:space-between;align-items:baseline;padding:16px 0 8px var(--ck-side-gutter,24px);border-top:1px solid #f0f0f0;margin-top:8px}
+.ck-fee-total span{font-size:14px;color:#333}
+.ck-fee-total em{font-style:normal;font-size:24px;font-weight:700;color:var(--price);font-variant-numeric:tabular-nums}
+.ck-fee-total em small{font-size:14px}
+
+.ck-submit{width:100%;height:48px;background:var(--jd-red);color:#fff;font-size:16px;font-weight:600;border-radius:var(--radius-sm)}
+.ck-submit:hover{background:var(--jd-red-dark)}
+.ck-submit:disabled{background:#ccc;cursor:not-allowed}
+
+.ck-pay-only .ck-layout{grid-template-columns:1fr;max-width:640px;margin:0 auto}
+.ck-pay-panel{text-align:center;padding:32px 24px}
+.ck-pay-amount{font-size:14px;color:#666;margin-bottom:8px}
+.ck-pay-amount em{font-style:normal;font-size:36px;font-weight:700;color:var(--price);display:block;margin-top:8px;font-variant-numeric:tabular-nums}
+.ck-pay-timer{font-size:13px;color:#ff9800;margin:16px 0}
+.ck-pay-order{font-size:12px;color:#999;margin-bottom:24px}
+.ck-pay-methods{display:flex;flex-direction:column;gap:10px;text-align:left;margin-bottom:24px}
+.ck-pay-method{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid #eee;border-radius:var(--radius);cursor:pointer;transition:border-color .15s}
+.ck-pay-method:hover,.ck-pay-method.active{border-color:var(--jd-red);background:#fffafa}
+.ck-pay-method input{accent-color:var(--jd-red)}
+.ck-pay-method-icon{font-size:24px;width:32px;text-align:center}
+.ck-pay-method-info{flex:1}
+.ck-pay-method-info h4{font-size:14px;font-weight:500;margin-bottom:2px}
+.ck-pay-method-info p{font-size:12px;color:#999}
+.ck-pay-balance{font-size:13px;color:#666;margin-bottom:20px;padding:12px;background:#fafafa;border-radius:var(--radius-sm)}
+.ck-pay-balance em{font-style:normal;color:var(--jd-red);font-weight:600}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2000;display:none;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.pay-modal{background:#fff;border-radius:12px;width:420px;overflow:hidden;animation:modalIn .25s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.pay-modal-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0f0f0}
+.pay-modal-hd h3{font-size:16px;font-weight:600}
+.pay-modal-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:#999;font-size:18px;border-radius:50%;cursor:pointer}
+.pay-modal-close:hover{background:#f5f5f5}
+.pay-modal-bd{padding:24px 20px}
+.pay-modal-amt{text-align:center;margin-bottom:20px}
+.pay-modal-amt p{font-size:13px;color:#999}
+.pay-modal-amt em{font-style:normal;display:block;font-size:32px;font-weight:700;color:var(--price);margin-top:8px;font-variant-numeric:tabular-nums}
+.pay-modal-channel{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;background:#fafafa;border-radius:var(--radius);margin-bottom:20px;font-size:14px}
+.pay-modal-detail{font-size:12px;color:#999;text-align:center;margin-bottom:16px;line-height:1.8}
+.pay-modal-btn{width:100%;height:44px;background:var(--jd-red);color:#fff;font-size:15px;font-weight:600;border-radius:var(--radius-sm)}
+.pay-modal-btn:hover{background:var(--jd-red-dark)}
+.pay-modal-btn.secondary{background:#fff;border:1px solid #ddd;color:#666}
+.pay-modal-btn.secondary:hover{border-color:var(--jd-red);color:var(--jd-red)}
+.ck-cancel-btn{width:100%;height:40px;background:#fff;border:1px solid #ddd;color:#666;font-size:14px;border-radius:var(--radius-sm);margin-top:10px;cursor:pointer}
+.ck-cancel-btn:hover{border-color:var(--jd-red);color:var(--jd-red)}
+
+.pay-qr-wrap{display:flex;flex-direction:column;align-items:center;text-align:center}
+.pay-qr-box{padding:10px;border:2px solid #eee;border-radius:8px;margin:12px 0;background:#fff}
+.pay-qr-box.wechat{border-color:#07c160}
+.pay-qr-box.alipay{border-color:#1677ff}
+.pay-qr-box img{width:200px;height:200px;display:block}
+.pay-qr-tip{font-size:14px;color:#666;line-height:1.6}
+.pay-qr-tip strong{color:#333;font-weight:600}
+.pay-qr-timer{font-size:13px;color:#ff9800;margin-top:12px}
+.pay-qr-cancel{text-align:center;margin-top:14px;font-size:13px}
+.pay-qr-cancel a{color:var(--text-light);text-decoration:none}
+.pay-qr-cancel a:hover{color:var(--jd-red)}
+.pay-qr-status{font-size:13px;color:#999;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:6px}
+.pay-qr-status .dot{width:6px;height:6px;border-radius:50%;background:#52c41a;animation:qrPulse 1.2s ease infinite}
+@keyframes qrPulse{0%,100%{opacity:.4;transform:scale(.9)}50%{opacity:1;transform:scale(1)}}
+.pay-qr-actions{display:flex;gap:10px;margin-top:20px}
+.pay-qr-actions .pay-modal-btn{flex:1}
+.pay-qr-switch{margin-top:14px;font-size:13px;color:var(--jd-red);cursor:pointer}
+.pay-qr-switch:hover{text-decoration:underline}
+.pay-qr-fail{margin-top:10px;text-align:center;font-size:13px}
+.pay-qr-fail a{color:#999;text-decoration:underline;cursor:pointer}
+.pay-qr-fail a:hover{color:var(--jd-red)}
+
+</style>
+</head>
+<body>
+
+<div id="site-topbar-root"></div>
+
+<header class="ck-header">
+  <div class="container ck-header-inner">
+    <div class="ck-logo" onclick="location.href='01.首页-原型页面.html'">
+      <div class="logo-text">苏银豆商城</div>
+      <div class="logo-sub">积分好物 · 一站购齐</div>
+    </div>
+    <div class="ck-steps" id="ckSteps">
+      <span class="active">1. 确认订单</span><i>›</i>
+      <span>2. 付款</span><i>›</i>
+      <span>3. 支付成功</span>
+    </div>
+  </div>
+</header>
+
+<div class="container ck-main" id="ckMain">
+  <div class="ck-layout" id="ckLayout">
+    <div class="ck-left" id="ckLeft"></div>
+    <aside class="ck-side" id="ckSide"></aside>
+  </div>
+</div>
+
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+
+<div class="modal-overlay" id="payModal">
+  <div class="pay-modal">
+    <div class="pay-modal-hd">
+      <h3 id="payModalTitle">确认支付</h3>
+      <div class="pay-modal-close" onclick="closePayModal()" data-proto-icon="close" data-icon-size="18"></div>
+    </div>
+    <div class="pay-modal-bd" id="payModalBody"></div>
+  </div>
+</div>
+
+<script src="../assets/coupon-select.js"></script>
+<script src="../assets/gift-card-select.js"></script>
+<script src="../assets/address-select.js"></script>
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/product-images.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/beans-insufficient.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+FloatDock.init({ cartCount: 15 });
+</script>
+<script>
+SiteTopBar.init({ logged: true, cartCount: 15 });
+const HOME='01.首页-原型页面.html',SUCCESS='08.支付成功-原型页面.html',ORDER='10.订单页-原型页面.html';
+const PAY_FAIL='09.支付失败-订单关闭-原型页面.html';
+const BEAN_RATE=0.01;
+let BEAN_BALANCE=128560;
+let payChannel='wechat';
+let useBeans=null;
+let beansOn=false;
+let countdownSec=15*60;
+let modalTimerSec=15*60;
+let modalTimerId=null;
+
+let selectedCoupon={id:'c1',title:'满2000减100',discount:100};
+let selectedGiftCards=[];
+function currentAddress(){return AddressSelect.getSelected();}
+
+let items=[
+  {id:1,name:'OPPO Find X9 5G 旗舰手机',spec:'12GB+256GB 钛色',price:4299,qty:1,img:IMG.oppo},
+  {id:2,name:'Apple AirPods Pro 第三代',spec:'白色 主动降噪',price:1899,qty:1,img:IMG.headphone}
+];
+
+const params=new URLSearchParams(location.search);
+const isPayOnly=params.get('mode')==='pay';
+const orderNo=params.get('order')||'SY202606150001';
+if(params.get('beans'))BEAN_BALANCE=Math.max(0,parseInt(params.get('beans'),10)||BEAN_BALANCE);
+const forcePointsPay=params.get('pay')==='points';
+
+function guardBeans(fee){
+  if(!fee.beansUsed||fee.beansUsed<=BEAN_BALANCE)return true;
+  BeansInsufficient.open({need:fee.beansUsed,balance:BEAN_BALANCE});
+  return false;
+}
+
+function goPayFail(reason){
+  closePayModal();
+  location.href=PAY_FAIL+'?reason='+(reason||'fail')+'&order='+encodeURIComponent(orderNo);
+}
+
+function formatPrice(n){return Number(n).toFixed(2)}
+function goodsTotal(){return items.reduce((s,i)=>s+i.price*i.qty,0)}
+function beanToYuan(b){return b*BEAN_RATE}
+function maxBeansForOrder(afterCoupon){return Math.round(afterCoupon/BEAN_RATE)}
+
+function giftCardTotal(){return selectedGiftCards.reduce((s,c)=>s+(c.remain||0),0)}
+
+// 优惠券与礼品卡互斥：返回当前应优先扣减的券或卡金额
+function getPreDeduct(goods){
+  if(selectedCoupon)return{coupon:selectedCoupon.discount,giftUsed:0};
+  if(selectedGiftCards.length)return{coupon:0,giftUsed:Math.min(giftCardTotal(),goods)};
+  return{coupon:0,giftUsed:0};
+}
+
+function maxUseBeans(){
+  const goods=goodsTotal();
+  const ded=getPreDeduct(goods);
+  const afterCoupon=Math.max(0,goods-ded.coupon-ded.giftUsed);
+  const pointsNeeded=Math.round(afterCoupon/BEAN_RATE);
+  if(BEAN_BALANCE>=pointsNeeded)return pointsNeeded;
+  return Math.min(BEAN_BALANCE,maxBeansForOrder(afterCoupon));
+}
+
+function clampUseBeans(){
+  const max=maxUseBeans();
+  if(useBeans===null)useBeans=max;
+  else useBeans=Math.max(0,Math.min(max,useBeans));
+}
+
+function calcFee(){
+  const goods=goodsTotal();
+  const freight=0;
+  const ded=getPreDeduct(goods);
+  const coupon=ded.coupon,giftUsed=ded.giftUsed;
+  const afterDiscount=Math.max(0,goods-coupon-giftUsed);
+  const pointsNeeded=Math.round(afterDiscount/BEAN_RATE);
+  const maxUse=Math.min(BEAN_BALANCE,pointsNeeded);
+  let beansUsed=0;
+  if(forcePointsPay){
+    return{goods,freight,beansUsed:pointsNeeded,cashDue:0,coupon,giftUsed,payMode:'points',maxUse:pointsNeeded};
+  }
+  if(beansOn&&maxUse>0){
+    clampUseBeans();
+    beansUsed=useBeans;
+  }else{
+    useBeans=0;
+  }
+  const cashDue=Math.max(0,afterDiscount-beanToYuan(beansUsed));
+  const payMode=cashDue<=0?((beansUsed>0||giftUsed>0)?'points':'cash'):((beansUsed>0||giftUsed>0)?'combo':'cash');
+  return{goods,freight,beansUsed,cashDue,coupon,giftUsed,payMode,maxUse};
+}
+
+function sideBeansHtml(fee){
+  if(fee.maxUse<=0)return'';
+  const checked=beansOn;
+  const b=fee.beansUsed;
+  const y=formatPrice(beanToYuan(b));
+  return`<div class="ck-beans-block">
+    <label class="ck-beans-toggle">
+      <span class="ck-beans-check"><input type="checkbox" id="beansSwitch"${checked?' checked':''}></span>
+      <span class="ck-beans-label">使用苏银豆</span>
+      <span class="ck-beans-balance">余额 ${BEAN_BALANCE.toLocaleString()}</span>
+    </label>
+    <div class="ck-beans-expand${checked?' show':''}" id="beansExpand">
+      <div class="ck-beans-use-row">
+        <span class="ck-beans-use-label">本次使用：</span>
+        <input type="text" id="beansInput" class="ck-beans-input" value="${b}" inputmode="numeric">
+        <span class="ck-beans-unit">豆</span>
+        <span class="ck-beans-deduct" id="beansDeductText">(可抵 <em>¥${y}</em>)</span>
+        <button type="button" class="ck-beans-pill" id="beansMaxBtn">最大</button>
+        <button type="button" class="ck-beans-pill" id="beansClearBtn">清空</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function updateSidebarNumbers(fee){
+  const side=document.getElementById('ckSide');
+  if(!side)return;
+  side.querySelector('.ck-pay-auto-type').textContent=payModeLabel(fee.payMode);
+  side.querySelector('.ck-pay-auto-tip').textContent=payTipText(fee);
+  const channelBox=side.querySelector('#channelBox');
+  if(channelBox)channelBox.classList.toggle('show',fee.cashDue>0);
+  const feeRows=side.querySelectorAll('.ck-fee-row');
+  feeRows.forEach(el=>{
+    const label=el.querySelector('span:first-child')?.textContent;
+    if(label==='商品金额')el.querySelector('span:last-child').textContent='¥'+formatPrice(fee.goods);
+    if(label==='运费')el.querySelector('span:last-child').textContent='¥'+formatPrice(fee.freight);
+    if(label==='优惠券')el.querySelector('span:last-child').textContent='-¥'+formatPrice(fee.coupon);
+    if(label==='礼品卡抵扣')el.querySelector('span:last-child').textContent='-¥'+formatPrice(fee.giftUsed);
+    if(label==='苏银豆抵扣')el.querySelector('span:last-child').textContent='-¥'+formatPrice(beanToYuan(fee.beansUsed))+'（'+fee.beansUsed.toLocaleString()+' 豆）';
+    if(label==='现金支付')el.querySelector('span:last-child').textContent='¥'+formatPrice(fee.cashDue);
+  });
+  const beansDisc=side.querySelector('.ck-fee-row.discount[data-fee=beans]');
+  if(beansDisc){
+    beansDisc.style.display=fee.beansUsed?'':'none';
+    if(fee.beansUsed)beansDisc.querySelector('span:last-child').textContent='-¥'+formatPrice(beanToYuan(fee.beansUsed))+'（'+fee.beansUsed.toLocaleString()+' 豆）';
+  }
+  const cashRow=side.querySelector('.ck-fee-row[data-fee=cash]');
+  if(cashRow){
+    const showCash=fee.cashDue>0&&(fee.beansUsed>0||fee.giftUsed>0);
+    cashRow.style.display=showCash?'':'none';
+    if(showCash)cashRow.querySelector('span:last-child').textContent='¥'+formatPrice(fee.cashDue);
+  }
+  side.querySelector('.ck-fee-total em').textContent='¥'+formatPrice(fee.cashDue);
+  const btn=side.querySelector('#submitBtn');
+  if(btn)btn.textContent=fee.payMode==='points'?(fee.giftUsed>0?'确认支付':'确认兑换'):fee.payMode==='combo'?'组合支付':'立即支付';
+}
+
+function updateSidebarFee(fee){
+  const side=document.getElementById('ckSide');
+  if(!side)return;
+  const beansBlock=side.querySelector('.ck-beans-block');
+  if(beansBlock)beansBlock.outerHTML=sideBeansHtml(fee);
+  updateSidebarNumbers(fee);
+  bindBeansEvents();
+}
+
+function applyBeansVal(val){
+  const max=maxUseBeans();
+  if(isNaN(val)||val<0)val=0;
+  if(val>BEAN_BALANCE){ProtoToast.warn('不能超过账户余额');val=BEAN_BALANCE;}
+  if(val>max){ProtoToast.warn('不能超过本单可用上限');val=max;}
+  beansOn=document.getElementById('beansSwitch')?.checked??(val>0);
+  useBeans=val===0?0:(val===max?null:val);
+  updateSidebarFee(calcFee());
+}
+
+function bindBeansEvents(){
+  document.getElementById('beansSwitch')?.addEventListener('change',function(){
+    beansOn=this.checked;
+    if(beansOn)useBeans=null;else useBeans=0;
+    updateSidebarFee(calcFee());
+  });
+  document.getElementById('beansMaxBtn')?.addEventListener('click',()=>{
+    beansOn=true;
+    useBeans=null;
+    updateSidebarFee(calcFee());
+  });
+  document.getElementById('beansClearBtn')?.addEventListener('click',()=>{
+    beansOn=true;
+    useBeans=0;
+    updateSidebarFee(calcFee());
+  });
+  const input=document.getElementById('beansInput');
+  if(input){
+    input.addEventListener('blur',()=>applyBeansVal(parseInt(input.value.replace(/,/g,''),10)));
+    input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();input.blur();}});
+  }
+}
+
+function payModeLabel(mode){
+  if(mode==='points')return'纯积分';
+  if(mode==='cash')return'纯现金';
+  return'组合支付';
+}
+
+// 顶部「支付方式」自动提示文案（含礼品卡 / 苏银豆明细）
+function payTipText(fee){
+  if(fee.cashDue<=0){
+    const parts=[];
+    if(fee.giftUsed>0)parts.push('礼品卡抵扣 ¥'+formatPrice(fee.giftUsed));
+    if(fee.beansUsed>0)parts.push('苏银豆抵扣 '+fee.beansUsed.toLocaleString()+' 豆');
+    return parts.length?parts.join('，')+'，无需现金支付':'全额苏银豆兑换';
+  }
+  const parts=[];
+  if(fee.giftUsed>0)parts.push('礼品卡抵扣 ¥'+formatPrice(fee.giftUsed));
+  if(fee.beansUsed>0)parts.push('苏银豆抵扣 '+fee.beansUsed.toLocaleString()+' 豆');
+  return parts.length?parts.join('，')+'，剩余 ¥'+formatPrice(fee.cashDue)+' 现金支付':'本单不使用苏银豆，全额现金支付';
+}
+
+function couponRowLabel(){
+  if(selectedGiftCards.length)return'<span style="color:#bbb">与礼品卡互斥</span>';
+  if(!selectedCoupon)return CouponSelect.usableCount(goodsTotal())+'张可用 ›';
+  return selectedCoupon.title+' 已选 ›';
+}
+
+function giftCardRowLabel(){
+  if(selectedCoupon)return'<span style="color:#bbb">与优惠券互斥</span>';
+  if(!selectedGiftCards.length)return GiftCardSelect.usableCount()+'张可用 ›';
+  if(selectedGiftCards.length===1)return selectedGiftCards[0].name+' 已选 ›';
+  return'已选'+selectedGiftCards.length+'张礼品卡 ›';
+}
+
+function renderCheckout(){
+  document.body.classList.remove('ck-pay-only');
+  document.getElementById('ckSteps').innerHTML='<span class="active">1. 确认订单</span><i>›</i><span>2. 付款</span><i>›</i><span>3. 支付成功</span>';
+  const fee=calcFee();
+  const address=currentAddress();
+  document.getElementById('ckLeft').innerHTML=`
+    <div class="ck-card">
+      <div class="ck-card-hd">收货地址 <a href="javascript:void(0)" id="switchAddress">切换地址</a></div>
+      <div class="ck-addr" id="pickAddress">
+        ${address.isDefault?'<span class="ck-addr-tag">默认</span>':''}
+        <div class="ck-addr-body">
+          <div class="ck-addr-name">${address.name} <em>${address.phone}</em></div>
+          <div class="ck-addr-detail">${address.addr}</div>
+        </div>
+        <span class="ck-addr-arrow">›</span>
+      </div>
+      <div class="ck-zigzag"></div>
+    </div>
+    <div class="ck-card">
+      <div class="ck-card-hd">商品清单</div>
+      ${items.map((it,i)=>`<div class="ck-goods-item" data-idx="${i}">
+        <img src="${it.img}" alt="">
+        <div class="ck-goods-info">
+          <div class="ck-goods-name">${it.name}</div>
+          <div class="ck-goods-spec">${it.spec}</div>
+          <div class="ck-qty-ctrl">
+            <button type="button" class="qty-min"${it.qty<=1?' disabled':''}>−</button>
+            <input type="text" value="${it.qty}" readonly>
+            <button type="button" class="qty-plus">+</button>
+          </div>
+        </div>
+        <div class="ck-goods-right">
+          <div class="ck-goods-price">¥${formatPrice(it.price)}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+    <div class="ck-card">
+      <div class="ck-row"><span>配送方式</span><strong>快递 免邮</strong></div>
+      <div class="ck-row"><span>优惠券</span><span class="link" id="pickCoupon">${couponRowLabel()}</span></div>
+      <div class="ck-row"><span>礼品卡</span><span class="link" id="pickGiftCard">${giftCardRowLabel()}</span></div>
+    </div>
+    <div class="ck-card ck-msg">
+      <div class="ck-card-hd" style="margin-bottom:10px">买家留言</div>
+      <textarea id="orderMsg" maxlength="200" placeholder="选填，可告知配送时间等（最多200字）"></textarea>
+      <div class="ck-msg-count"><span id="msgCount">0</span>/200</div>
+    </div>`;
+
+  document.getElementById('ckSide').innerHTML=`
+    <div class="ck-card">
+      <div class="ck-pay-auto">
+        <div class="ck-pay-auto-type">${payModeLabel(fee.payMode)}</div>
+        <div class="ck-pay-auto-tip">${payTipText(fee)}</div>
+      </div>
+      ${fee.cashDue>0?`<div class="ck-pay-extra show" id="channelBox">
+        <div>支付渠道</div>
+        <div class="ck-channel">
+          <label><input type="radio" name="channel" value="wechat"${payChannel==='wechat'?' checked':''}> 微信支付</label>
+          <label><input type="radio" name="channel" value="alipay"${payChannel==='alipay'?' checked':''}> 支付宝</label>
+        </div>
+      </div>`:''}
+      ${sideBeansHtml(fee)}
+      <div class="ck-fee-row"><span>商品金额</span><span>¥${formatPrice(fee.goods)}</span></div>
+      <div class="ck-fee-row"><span>运费</span><span>¥${formatPrice(fee.freight)}</span></div>
+      ${fee.coupon?`<div class="ck-fee-row discount"><span>优惠券</span><span>-¥${formatPrice(fee.coupon)}</span></div>`:''}
+      ${fee.giftUsed?`<div class="ck-fee-row discount" data-fee="gift"><span>礼品卡抵扣</span><span>-¥${formatPrice(fee.giftUsed)}</span></div>`:''}
+      <div class="ck-fee-row discount" data-fee="beans" style="display:${fee.beansUsed?'':'none'}"><span>苏银豆抵扣</span><span>-¥${formatPrice(beanToYuan(fee.beansUsed))}（${fee.beansUsed.toLocaleString()} 豆）</span></div>
+      <div class="ck-fee-row" data-fee="cash" style="display:${fee.cashDue>0&&(fee.beansUsed>0||fee.giftUsed>0)?'':'none'}"><span>现金支付</span><span>¥${formatPrice(fee.cashDue)}</span></div>
+      <div class="ck-fee-total">
+        <span>合计</span>
+        <em>¥${formatPrice(fee.cashDue)}</em>
+      </div>
+      <button type="button" class="ck-submit" id="submitBtn">${fee.payMode==='points'?(fee.giftUsed>0?'确认支付':'确认兑换'):fee.payMode==='combo'?'组合支付':'立即支付'}</button>
+    </div>`;
+
+  bindCheckoutEvents();
+}
+
+function renderPayOnly(){
+  document.body.classList.add('ck-pay-only');
+  document.getElementById('ckSteps').innerHTML='<span>1. 确认订单</span><i>›</i><span class="active">2. 付款</span><i>›</i><span>3. 支付成功</span>';
+  document.getElementById('ckSide').innerHTML='';
+  const payBeans=20000;
+  const payCash=2299;
+  const payMode=payCash<=0?'points':payBeans>0?'combo':'cash';
+  document.getElementById('ckLeft').innerHTML=`
+    <div class="ck-card ck-pay-panel">
+      <div class="ck-pay-amount">${payMode==='points'?'应付积分':'应付金额'}<em>${payMode==='points'?payBeans.toLocaleString()+' 苏银豆':'¥'+formatPrice(payCash)}</em></div>
+      <div class="ck-pay-timer" id="payTimer">支付剩余时间 15:00</div>
+      <div class="ck-pay-order">订单号：${orderNo}</div>
+      <div class="ck-pay-balance">${payMode==='points'?'全额苏银豆支付，余额充足':payMode==='combo'?`苏银豆已抵扣 ${payBeans.toLocaleString()} 豆，剩余现金 <em>¥${formatPrice(payCash)}</em>`:'全额现金支付'}</div>
+      ${payCash>0?`<div class="ck-pay-methods">
+        <label class="ck-pay-method active" data-channel="wechat"><input type="radio" name="payonly" checked> <span class="ck-pay-method-icon">${ProtoIcon.html('wechat',{size:24})}</span><div class="ck-pay-method-info"><h4>微信支付</h4><p>推荐使用</p></div></label>
+        <label class="ck-pay-method" data-channel="alipay"><input type="radio" name="payonly"> <span class="ck-pay-method-icon">${ProtoIcon.html('alipay',{size:24})}</span><div class="ck-pay-method-info"><h4>支付宝</h4><p>数亿用户的选择</p></div></label>
+      </div>`:''}
+      <button type="button" class="ck-submit" id="payOnlyBtn">${payMode==='points'?'确认兑换':'确认支付'}</button>
+      <button type="button" class="ck-cancel-btn" id="cancelPayBtn">取消支付</button>
+    </div>`;
+  document.getElementById('payOnlyBtn').onclick=()=>{
+    const fee={payMode,beansUsed:payBeans,cashDue:payCash};
+    if(payMode==='points'){
+      if(!guardBeans(fee))return;
+      location.href=SUCCESS+'?type=points&beans='+payBeans+'&order='+orderNo;
+    }else{
+      if(payBeans&&!guardBeans(fee))return;
+      openPayModal(fee);
+    }
+  };
+  startCountdown();
+  document.getElementById('cancelPayBtn').onclick=()=>{
+    location.href='11.订单详情-原型页面.html?order='+encodeURIComponent(orderNo);
+  };
+  document.querySelectorAll('.ck-pay-method').forEach(el=>{
+    el.onclick=()=>{
+      document.querySelectorAll('.ck-pay-method').forEach(m=>m.classList.remove('active'));
+      el.classList.add('active');
+      payChannel=el.dataset.channel;
+    };
+  });
+}
+
+function bindCheckoutEvents(){
+  document.querySelectorAll('input[name=channel]').forEach(el=>{
+    el.onchange=()=>{payChannel=el.value;};
+  });
+  bindBeansEvents();
+  document.getElementById('orderMsg')?.addEventListener('input',e=>{
+    document.getElementById('msgCount').textContent=e.target.value.length;
+  });
+  document.getElementById('pickAddress')?.addEventListener('click',()=>{
+    AddressSelect.open(function(){renderCheckout();});
+  });
+  document.getElementById('switchAddress')?.addEventListener('click',(e)=>{
+    e.preventDefault();
+    e.stopPropagation();
+    AddressSelect.open(function(){renderCheckout();});
+  });
+  document.getElementById('pickCoupon')?.addEventListener('click',()=>{
+    CouponSelect.setSelected(selectedCoupon);
+    CouponSelect.open(goodsTotal(),function(c){
+      selectedCoupon=c;
+      selectedGiftCards=[];          // 互斥：选券清空礼品卡
+      useBeans=null;
+      beansOn=false;
+      renderCheckout();
+    });
+  });
+  document.getElementById('pickGiftCard')?.addEventListener('click',()=>{
+    GiftCardSelect.setSelected(selectedGiftCards);
+    GiftCardSelect.open(goodsTotal(),function(cards){
+      selectedGiftCards=cards||[];   // 互斥：选卡清空优惠券
+      selectedCoupon=null;
+      useBeans=null;
+      beansOn=false;
+      renderCheckout();
+    });
+  });
+  document.querySelectorAll('.qty-min').forEach(btn=>{
+    btn.onclick=()=>{
+      const idx=+btn.closest('.ck-goods-item').dataset.idx;
+      if(items[idx].qty>1){items[idx].qty--;useBeans=null;beansOn=true;renderCheckout();}
+    };
+  });
+  document.querySelectorAll('.qty-plus').forEach(btn=>{
+    btn.onclick=()=>{items[+btn.closest('.ck-goods-item').dataset.idx].qty++;useBeans=null;beansOn=true;renderCheckout();};
+  });
+  document.getElementById('submitBtn').onclick=()=>{
+    const addr=currentAddress();
+    if(!addr||!addr.name){ProtoToast.warn('请选择收货地址');return;}
+    const fee=calcFee();
+    if(!guardBeans(fee))return;
+    if(fee.payMode==='points'&&fee.beansUsed>BEAN_BALANCE){ProtoToast.warn('苏银豆余额不足，请调整');return;}
+    if(fee.payMode!=='points'&&fee.beansUsed>BEAN_BALANCE){ProtoToast.warn('苏银豆余额不足，请调整');return;}
+    if(items.some(it=>it.qty>99)){ProtoToast.warn('商品库存不足，请调整数量');return;}
+    if(fee.payMode==='points'){
+      location.href=SUCCESS+'?type=points&beans='+fee.beansUsed+'&order='+orderNo;
+    }else{
+      openPayModal(fee);
+    }
+  };
+}
+
+function qrData(channel,amount){return encodeURIComponent(channel+'-pay-'+orderNo+'-'+amount)}
+function channelLabel(ch){return ch==='wechat'?'微信支付':'支付宝'}
+
+function openPayModal(fee){
+  fee=fee||calcFee();
+  clearModalTimer();
+  modalTimerSec=15*60;
+  document.getElementById('payModalTitle').textContent=channelLabel(payChannel)+'扫码支付';
+  renderPayQr(fee);
+  document.getElementById('payModal').classList.add('active');
+  startModalTimer();
+}
+
+function closePayModal(){
+  document.getElementById('payModal').classList.remove('active');
+  clearModalTimer();
+}
+
+function renderPayQr(fee){
+  const ch=payChannel;
+  const isWechat=ch==='wechat';
+  document.getElementById('payModalTitle').textContent=channelLabel(ch)+'扫码支付';
+  document.getElementById('payModalBody').innerHTML=`
+    <div class="pay-qr-wrap">
+      <div class="pay-modal-amt"><p>应付金额</p><em>¥${formatPrice(fee.cashDue)}</em></div>
+      ${fee.giftUsed?`<div class="pay-modal-detail">礼品卡已抵扣 ¥${formatPrice(fee.giftUsed)}</div>`:''}
+      ${fee.beansUsed?`<div class="pay-modal-detail">苏银豆已抵扣 ${fee.beansUsed.toLocaleString()} 豆（¥${formatPrice(beanToYuan(fee.beansUsed))}）</div>`:''}
+      <div class="pay-qr-box ${ch}">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${qrData(ch,fee.cashDue)}" alt="支付二维码">
+      </div>
+      <div class="pay-qr-tip">请使用<strong>${isWechat?'微信':'支付宝'} App</strong>扫一扫<br>扫描二维码完成支付</div>
+      <div class="pay-qr-timer" id="modalPayTimer">二维码有效时间 15:00</div>
+      <div class="pay-qr-status"><span class="dot"></span>等待支付中…</div>
+      <div class="pay-qr-actions">
+        <button type="button" class="pay-modal-btn secondary" id="qrCancelBtn">更换支付方式</button>
+        <button type="button" class="pay-modal-btn" id="qrDoneBtn">我已完成支付</button>
+      </div>
+      <div class="pay-qr-cancel"><a href="javascript:void(0)" id="cancelPayModalBtn">取消支付，查看订单</a></div>
+      <div class="pay-qr-fail"><a href="javascript:void(0)" id="qrFailBtn">支付遇到问题？</a></div>
+      <div class="pay-qr-switch" id="qrSwitchBtn">切换为${isWechat?'支付宝':'微信'}支付 ›</div>
+    </div>`;
+  document.getElementById('qrCancelBtn').onclick=closePayModal;
+  document.getElementById('qrDoneBtn').onclick=()=>goPaySuccess(fee);
+  document.getElementById('qrFailBtn').onclick=()=>goPayFail('fail');
+  document.getElementById('cancelPayModalBtn').onclick=()=>{
+    closePayModal();
+    location.href='11.订单详情-原型页面.html?order='+encodeURIComponent(orderNo);
+  };
+  document.getElementById('qrSwitchBtn').onclick=()=>{
+    payChannel=isWechat?'alipay':'wechat';
+    renderPayQr(fee);
+  };
+}
+
+function goPaySuccess(fee){
+  closePayModal();
+  const type=fee.payMode==='points'?'points':fee.payMode==='combo'?'combo':'cash';
+  location.href=SUCCESS+'?type='+type+'&cash='+fee.cashDue+'&beans='+fee.beansUsed+'&order='+orderNo+'&channel='+payChannel;
+}
+
+function startModalTimer(){
+  const el=document.getElementById('modalPayTimer');
+  if(!el)return;
+  clearModalTimer();
+  const tick=()=>{
+    if(modalTimerSec<=0){goPayFail('timeout');return;}
+    const m=String(Math.floor(modalTimerSec/60)).padStart(2,'0');
+    const s=String(modalTimerSec%60).padStart(2,'0');
+    el.textContent='二维码有效时间 '+m+':'+s;
+    modalTimerSec--;
+  };
+  tick();
+  modalTimerId=setInterval(tick,1000);
+}
+
+function clearModalTimer(){
+  if(modalTimerId){clearInterval(modalTimerId);modalTimerId=null;}
+}
+
+function startCountdown(){
+  const el=document.getElementById('payTimer');
+  if(!el)return;
+  const tick=()=>{
+    if(countdownSec<=0){el.textContent='订单已超时关闭';document.getElementById('payOnlyBtn').disabled=true;return;}
+    const m=String(Math.floor(countdownSec/60)).padStart(2,'0');
+    const s=String(countdownSec%60).padStart(2,'0');
+    el.textContent='支付剩余时间 '+m+':'+s;
+    countdownSec--;
+  };
+  tick();
+  setInterval(tick,1000);
+}
+
+document.getElementById('payModal').onclick=e=>{if(e.target.id==='payModal')closePayModal();};
+
+if(isPayOnly){
+  renderPayOnly();
+}else{
+  renderCheckout();
+}
+</script>
+</body>
+</html>

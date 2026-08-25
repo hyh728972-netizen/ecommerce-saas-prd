@@ -1,0 +1,10 @@
+.proto-toast-wrap{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:3000;display:flex;flex-direction:column;gap:10px;pointer-events:none;width:min(420px,calc(100vw - 32px))}
+.proto-toast{pointer-events:auto;display:flex;align-items:center;gap:12px;padding:14px 18px;background:#fff;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);border:1px solid #f0f0f0;animation:ptIn .28s ease}
+@keyframes ptIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+.proto-toast-icon{width:32px;height:32px;border-radius:50%;background:#e8f8ef;color:#1a9c4a;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;font-weight:700}
+.proto-toast-warn .proto-toast-icon{background:#fff7e6;color:#fa8c16}
+.proto-toast-info .proto-toast-icon{background:#e6f4ff;color:#1677ff}
+.proto-toast-body{flex:1;min-width:0}
+.proto-toast-body p{font-size:14px;color:#333;margin:0}
+.proto-toast-link{font-size:13px;color:#f63218;margin-top:4px;display:inline-block;cursor:pointer}
+.proto-toast-link:hover{text-decoration:underline}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>浏览记录 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/account-header.css">
+<link rel="stylesheet" href="../assets/account-nav.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-confirm.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+:root{--page-width:1600px;--jd-red:#f63218;--price:#ff0f12;--radius:8px;--radius-sm:6px}
+.container{width:var(--page-width);margin:0 auto}
+.pg-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0f0f0}
+.pg-head h1{font-size:18px;font-weight:600}
+.pg-btn{height:36px;padding:0 16px;border-radius:var(--radius-sm);font-size:14px;border:1px solid #ddd;background:#fff;color:#666}
+.pg-btn:hover{border-color:var(--jd-red);color:var(--jd-red)}
+.pg-body{padding:20px}
+.pg-date{font-size:13px;color:#999;margin:16px 0 10px}
+.pg-date:first-child{margin-top:0}
+.pg-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:8px}
+.pg-card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:box-shadow .2s}
+.pg-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.pg-card img{width:100%;aspect-ratio:1;object-fit:cover;background:#f8f8f8}
+.pg-card-info{padding:10px}
+.pg-card-name{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pg-card-price{color:var(--price);font-weight:700;margin-top:6px;font-size:16px}
+.pg-card-time{font-size:11px;color:#bbb;margin-top:4px}
+.pg-empty{text-align:center;padding:60px 20px;color:#999}
+</style>
+</head>
+<body>
+<div id="site-topbar-root"></div>
+<header class="pd-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href=ProtoPages.home"><div class="logo-text">苏银豆商城</div><div class="logo-sub">积分好物 · 一站购齐</div></div>
+      <div><div class="pd-search"><input type="text" placeholder="搜索商品" id="searchInput"><button type="button" id="searchBtn">搜索</button></div></div>
+      <div class="pd-header-cart" onclick="location.href=ProtoPages.cart"><img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt=""><span>购物车</span><div class="badge">3</div></div>
+    </div>
+    <nav class="pd-breadcrumb"><a href="01.首页-原型页面.html">首页</a> &gt; <a href="10.个人中心-原型页面.html">个人中心</a> &gt; <span>浏览记录</span></nav>
+  </div>
+</header>
+<div class="container ac-page"><div class="ac-layout"><div id="accountSidebar"></div><div class="ac-main-panel">
+<div class="pg-head"><h1>浏览记录</h1><button type="button" class="pg-btn" id="clearBtn">清空记录</button></div>
+<div class="pg-body" id="histBody"></div>
+</div></div></div>
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/account-nav.js"></script>
+<script src="../assets/product-images.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/proto-confirm.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+FloatDock.init({ cartCount: 15 });
+</script>
+<script>
+if (!ProtoAuth.guardPage()) void 0;
+ProtoAuth.initTopBar({ cartCount: 15 });
+AccountNav.renderSidebar('accountSidebar', 'history');
+var groups=[
+  {date:'今天',items:[{name:'Apple AirPods Pro 第三代',price:1899,imgKey:'headphone',time:'14:32'},{name:'OPPO Find X9 5G',price:4299,imgKey:'oppo',time:'11:20'}]},
+  {date:'昨天',items:[{name:'索尼 WH-1000XM5',price:2299,imgKey:'p31',time:'18:05'},{name:'人体工学办公椅',price:1299,imgKey:'chair',time:'09:48'},{name:'轻奢护肤套装',price:680,imgKey:'p28',time:'09:12'}]}
+];
+function render(){
+  if(!groups.length){document.getElementById('histBody').innerHTML='<div class="pg-empty">暂无浏览记录</div>';return;}
+  document.getElementById('histBody').innerHTML=groups.map(function(g){
+    return '<div class="pg-date">'+g.date+'</div><div class="pg-grid">'+g.items.map(function(p){
+      return '<div class="pg-card" onclick="location.href=\'04.商品详情页-原型页面.html\'"><img src="'+(IMG[p.imgKey]||'')+'" alt=""><div class="pg-card-info"><div class="pg-card-name">'+p.name+'</div><div class="pg-card-price">¥'+p.price.toLocaleString()+'</div><div class="pg-card-time">'+p.time+'</div></div></div>';
+    }).join('')+'</div>';
+  }).join('');
+}
+document.getElementById('clearBtn').onclick=function(){ProtoConfirm.open({message:'确定清空全部浏览记录？',onConfirm:function(){groups=[];render();}});};
+document.getElementById('searchBtn').onclick=function(){var q=document.getElementById('searchInput').value.trim();location.href=q?ProtoPages.search+'?q='+encodeURIComponent(q):ProtoPages.search;};
+render();
+</script>
+</body>
+</html>

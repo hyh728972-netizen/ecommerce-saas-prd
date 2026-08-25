@@ -1,0 +1,14 @@
+.proto-confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2100;display:none;align-items:center;justify-content:center;padding:20px}
+.proto-confirm-overlay.active{display:flex}
+.proto-confirm-modal{background:#fff;border-radius:12px;width:420px;max-width:100%;overflow:hidden;animation:pcIn .22s ease}
+@keyframes pcIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.proto-confirm-hd{padding:20px 20px 0;font-size:17px;font-weight:600}
+.proto-confirm-bd{padding:12px 20px 20px;font-size:14px;color:#666;line-height:1.6}
+.proto-confirm-ft{display:flex;gap:12px;padding:0 20px 20px}
+.proto-confirm-ft button{flex:1;height:40px;border-radius:6px;font-size:14px;cursor:pointer;font-family:inherit}
+.proto-confirm-cancel{border:1px solid #ddd;background:#fff;color:#666}
+.proto-confirm-cancel:hover{border-color:#f63218;color:#f63218}
+.proto-confirm-ok{background:#f63218;border:none;color:#fff;font-weight:600}
+.proto-confirm-ok:hover{background:#c81623}
+.proto-confirm-ok.warn{background:#ff9800}
+.proto-confirm-ok.warn:hover{background:#f57c00}

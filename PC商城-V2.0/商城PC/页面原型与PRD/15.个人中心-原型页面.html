@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>个人中心 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/account-header.css">
+<link rel="stylesheet" href="../assets/account-nav.css">
+<link rel="stylesheet" href="../assets/coupon-bind.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+ul,li{list-style:none}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input{outline:none;border:none;font-family:inherit}
+:root{
+  --page-width:1600px;--jd-red:#f63218;--jd-red-dark:#c81623;--price:#ff0f12;--price-alt:#f2270c;
+  --text-dark:rgba(0,0,0,.85);--text-mid:#666;--text-light:#999;--border-light:#f0f0f0;
+  --radius:8px;--radius-sm:6px;
+  --icon-cart:url(https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png);
+  --icon-cart-hover:url(https://img12.360buyimg.com/img/jfs/t1/329610/14/5367/642/68afc86aF292b557f/49aac701bcc27b4f.png);
+}
+.container{width:var(--page-width);margin:0 auto}
+
+.ac-panel{padding:24px;display:none}
+.ac-panel.active{display:block}
+.ac-panel.active{display:block}
+
+.ac-overview-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.ac-stat-card{padding:20px;border-radius:var(--radius);background:linear-gradient(135deg,#fff8f8,#fff);border:1px solid #ffe8e8;cursor:pointer;transition:box-shadow .2s}
+.ac-stat-card:hover{box-shadow:0 4px 16px rgba(246,50,24,.08)}
+.ac-stat-label{font-size:13px;color:#666;margin-bottom:8px}
+.ac-stat-value{font-size:28px;font-weight:700;color:var(--jd-red);font-variant-numeric:tabular-nums;line-height:1.2}
+.ac-stat-value small{font-size:14px;font-weight:500;color:#999;margin-left:4px}
+.ac-stat-sub{font-size:12px;color:#999;margin-top:6px}
+
+.ac-section-title{font-size:16px;font-weight:600;color:#333;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.ac-section-title a{font-size:13px;color:var(--text-mid);font-weight:400}
+.ac-section-title a:hover{color:var(--jd-red)}
+
+.ac-order-shortcuts{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px}
+.ac-order-item{text-align:center;padding:16px 8px;border-radius:var(--radius);background:#fafafa;cursor:pointer;transition:background .15s;position:relative}
+.ac-order-item:hover{background:#fff5f5}
+.ac-order-item .oi{font-size:28px;margin-bottom:8px;line-height:1}
+.ac-order-item span{font-size:13px;color:#666}
+.ac-order-item .cnt{position:absolute;top:8px;right:calc(50% - 28px);min-width:18px;height:18px;background:var(--jd-red);color:#fff;font-size:11px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+
+.ac-tools{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.ac-tool-item{display:flex;align-items:center;gap:12px;padding:16px;border:1px solid #f0f0f0;border-radius:var(--radius);cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.ac-tool-item:hover{border-color:#ffd0d0;box-shadow:0 2px 8px rgba(246,50,24,.06)}
+.ac-tool-icon{width:40px;height:40px;border-radius:8px;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ac-tool-text h4{font-size:14px;font-weight:500;color:#333;margin-bottom:2px}
+.ac-tool-text p{font-size:12px;color:#999}
+
+.ac-guess{margin-top:28px}
+.ac-guess-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.ac-guess-grid .product-card{cursor:pointer;transition:box-shadow .2s,border-color .2s,transform .2s;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border-light);background:#fff}
+.ac-guess-grid .product-card:hover{box-shadow:0 6px 20px rgba(246,50,24,.1);border-color:#ffd0d0;transform:translateY(-2px)}
+.ac-guess-grid .product-card-img{aspect-ratio:1;background:#f8f8f8;overflow:hidden}
+.ac-guess-grid .product-card-img img{width:100%;height:100%;object-fit:cover;display:block}
+.ac-guess-grid .product-card-info{padding:8px 8px 10px}
+.ac-guess-grid .product-card-name{font-size:13px;color:var(--text-dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.45}
+.ac-guess-grid .product-card-name .brand-tag{color:var(--price-alt);font-weight:600}
+.ac-guess-grid .product-card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;min-height:18px}
+.ac-guess-grid .info-tag{font-size:10px;line-height:16px;padding:0 5px;border-radius:2px;white-space:nowrap}
+.ac-guess-grid .info-tag.red{color:var(--price-alt);border:1px solid rgba(242,39,12,.4);background:#fffafa}
+.ac-guess-grid .info-tag.green{color:#00a854;border:1px solid rgba(0,168,84,.45)}
+.ac-guess-grid .product-card-bottom{display:flex;align-items:flex-end;justify-content:space-between;margin-top:8px;gap:4px}
+.ac-guess-grid .product-card-price-col{flex:1;min-width:0}
+.ac-guess-grid .price-row{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.ac-guess-grid .price-origin{font-size:12px;color:#999;text-decoration:line-through}
+.ac-guess-grid .price-subsidy{font-size:18px;font-weight:700;color:var(--price);line-height:1.1;font-variant-numeric:tabular-nums}
+.ac-guess-grid .price-subsidy em{font-size:12px;font-style:normal;font-weight:700;margin-right:1px}
+.ac-guess-grid .price-meta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap}
+.ac-guess-grid .subsidy-tip{font-size:11px;color:var(--jd-red)}
+.ac-guess-grid .cart-add{width:28px;height:28px;border-radius:var(--radius-sm);background:#fff;border:1px solid #e8e8e8;color:var(--jd-red);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s}
+.ac-guess-grid .cart-add .cart-icon{display:block;width:16px;height:16px;background:var(--icon-cart) center/contain no-repeat}
+.ac-guess-grid .cart-add:hover{background:#fff;border-color:var(--jd-red)}
+.ac-guess-grid .cart-add:hover .cart-icon{background-image:var(--icon-cart-hover)}
+
+.ac-placeholder{text-align:center;padding:80px 20px;color:#999}
+.ac-placeholder .ph-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+.ac-placeholder p{font-size:15px}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:none;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:12px;width:400px;padding:24px}
+.modal-submit{width:100%;height:44px;background:var(--jd-red);color:#fff;border-radius:var(--radius-sm);font-size:15px;font-weight:600;margin-top:12px}
+.form-group{margin-bottom:14px}
+.form-input{width:100%;height:42px;border:1px solid #ddd;border-radius:var(--radius-sm);padding:0 12px;font-size:14px}
+</style>
+</head>
+<body>
+
+<div id="site-topbar-root"></div>
+
+<header class="pd-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href='01.首页-原型页面.html'">
+        <div class="logo-text">苏银豆商城</div>
+        <div class="logo-sub">积分好物 · 一站购齐</div>
+      </div>
+      <div>
+        <div class="pd-search">
+          <input type="text" placeholder="搜索商品、品牌、品类" id="searchInput">
+          <button type="button" id="searchBtn">搜索</button>
+        </div>
+      </div>
+      <div class="pd-header-cart" onclick="location.href='06.购物车-原型页面.html'">
+        <img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt="">
+        <span>购物车</span><div class="badge">3</div>
+      </div>
+    </div>
+    <nav class="pd-breadcrumb"><a href="01.首页-原型页面.html">首页</a> &gt; <span>个人中心</span></nav>
+  </div>
+</header>
+
+<div class="container ac-page">
+  <div class="ac-layout">
+    <div id="accountSidebar"></div>
+    <div class="ac-main-panel" id="acContent"></div>
+  </div>
+</div>
+
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <p style="text-align:center;margin-bottom:12px;color:#666">请先登录</p>
+    <div class="form-group"><input class="form-input" type="tel" placeholder="手机号"></div>
+    <button class="modal-submit" onclick="closeLogin()">登 录</button>
+  </div>
+</div>
+
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/account-nav.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/product-images.js"></script>
+<script src="../assets/coupon-bind.js"></script>
+<script>
+if (!ProtoAuth.guardPage()) void 0;
+ProtoAuth.initTopBar({ cartCount: 15, userMenuOpen: true });
+FloatDock.init({ cartCount: 15 });
+const HOME='01.首页-原型页面.html',ORDER='10.订单页-原型页面.html',SEARCH='04.搜索分类页-原型页面.html',REFUND='12.售后记录-原型页面.html',REVIEW='16.评价中心-原型页面.html',COUPONS='18.我的卡券-原型页面.html',DETAIL='05.商品详情页-原型页面.html';
+let currentPanel='overview';
+
+const ORDER_SHORTCUTS=[
+  {key:'pay',icon:'card',label:'待付款',count:1,tab:'pay'},
+  {key:'ship',icon:'send',label:'待发货',count:0,tab:'ship'},
+  {key:'recv',icon:'truck',label:'待收货',count:2,tab:'recv'},
+  {key:'review',icon:'star',label:'待评价',count:1,link:REVIEW},
+  {key:'after',icon:'return',label:'售后记录',count:0,link:REFUND}
+];
+
+const TOOLS=[
+  {icon:'pin',title:'收货地址',desc:'管理配送地址',id:'address'},
+  {icon:'ticket',title:'卡密兑换',desc:'实体卡/电子卡兑换',id:'coupons'},
+  {icon:'list',title:'消费记录',desc:'查看积分消费明细',id:'points'},
+  {icon:'chat',title:'意见反馈',desc:'帮助我们改进',id:'settings'}
+];
+
+const GUESS_LIKE=[
+  {brand:'苹果',name:'Apple AirPods Pro 第三代',price:1899,tags:['大牌严选','数码'],imgKey:'headphone'},
+  {brand:'OPPO',name:'Find X9 5G 旗舰手机',price:4299,tags:['新品','手机'],imgKey:'oppo'},
+  {brand:'索尼',name:'WH-1000XM5 头戴耳机',price:2299,tags:['降噪','音频'],imgKey:'p31'},
+  {brand:'飞利浦',name:'电动牙刷 HX9911',price:899,tags:['个护','热销'],imgKey:'skincare'},
+  {brand:'西昊',name:'人体工学办公椅',price:1299,tags:['办公','惠选'],imgKey:'chair'},
+  {brand:'雅诗兰黛',name:'轻奢护肤套装',price:680,tags:['美妆','礼盒'],imgKey:'p28'},
+  {brand:'膳魔师',name:'日本进口保温杯 500ml',price:68,tags:['标品','水具'],imgKey:'p15'},
+  {brand:'小米',name:'智能运动手表',price:1599,tags:['智能穿戴','限时'],imgKey:'watch'},
+  {brand:'Nike',name:'经典休闲运动鞋',price:499,tags:['运动','爆款'],imgKey:'sneaker'},
+  {brand:'佳能',name:'便携数码相机',price:3299,tags:['影像','精选'],imgKey:'camera'}
+];
+
+function formatPrice(n){return Number.isInteger(n)?String(n):n.toFixed(2);}
+
+function renderInfoTags(tags){
+  const list=(tags||[]).filter(Boolean).slice(0,2);
+  if(!list.length)return '';
+  return `<div class="product-card-tags">${list.map((t,i)=>`<span class="info-tag ${i%2?'green':'red'}">${t}</span>`).join('')}</div>`;
+}
+
+function renderProductCard(p){
+  const brand=p.brand||'品牌';
+  const originPrice=p.originPrice||Math.round(p.price*1.12);
+  const subsidy=p.subsidy!=null?p.subsidy:+(originPrice-p.price).toFixed(2);
+  const img=p.img||IMG[p.imgKey]||'';
+  return `<div class="product-card" onclick="location.href='${DETAIL}'">
+    <div class="product-card-img"><img src="${img}" alt="${p.name}"></div>
+    <div class="product-card-info">
+      <div class="product-card-name"><span class="brand-tag">【${brand}】</span>${p.name}</div>
+      ${renderInfoTags(p.tags)}
+      <div class="product-card-bottom">
+        <div class="product-card-price-col">
+          <div class="price-row">
+            <span class="price-origin">¥${formatPrice(originPrice)}</span>
+            <span class="price-subsidy"><em>¥</em>${formatPrice(p.price)}</span>
+          </div>
+          <div class="price-meta"><span class="subsidy-tip">已补贴${formatPrice(subsidy)}元</span></div>
+        </div>
+        <button class="cart-add" type="button" title="加入购物车" onclick="event.stopPropagation();ProtoToast.show()"><i class="cart-icon"></i></button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderGuessLike(){
+  return `<div class="ac-guess">
+    <div class="ac-section-title">猜你喜欢</div>
+    <div class="ac-guess-grid">${GUESS_LIKE.map(p=>renderProductCard(p)).join('')}</div>
+  </div>`;
+}
+
+function openTool(id){
+  if(id==='coupons'){CouponBind.open();return;}
+  location.href=AccountNav.pages[id]||AccountNav.pages.settings;
+}
+
+function renderOverview(){
+  return `<div class="ac-panel active" id="panel-overview">
+    <div class="ac-overview-stats">
+      <div class="ac-stat-card" onclick="location.href='${AccountNav.pages.points}'">
+        <div class="ac-stat-label">苏银豆余额</div>
+        <div class="ac-stat-value">128,560<small>豆</small></div>
+        <div class="ac-stat-sub">约 ¥12,856 可抵扣</div>
+      </div>
+      <div class="ac-stat-card" onclick="location.href='${AccountNav.pages.coupons}'">
+        <div class="ac-stat-label">可用卡券</div>
+        <div class="ac-stat-value">6<small>张</small></div>
+        <div class="ac-stat-sub">2 张即将过期</div>
+      </div>
+      <div class="ac-stat-card" onclick="location.href='${ORDER}'">
+        <div class="ac-stat-label">本月订单</div>
+        <div class="ac-stat-value">12<small>笔</small></div>
+        <div class="ac-stat-sub">累计消费 ¥8,420</div>
+      </div>
+    </div>
+    <div class="ac-section-title">我的订单 <a href="${ORDER}">查看全部 ›</a></div>
+    <div class="ac-order-shortcuts">
+      ${ORDER_SHORTCUTS.map(o=>`<div class="ac-order-item" onclick="location.href='${o.link||ORDER+'?tab='+(o.tab||'all')}'">
+        <div class="oi">${ProtoIcon.html(o.icon,{size:28})}</div><span>${o.label}</span>${o.count?`<div class="cnt">${o.count}</div>`:''}
+      </div>`).join('')}
+    </div>
+    <div class="ac-section-title">常用工具</div>
+    <div class="ac-tools">
+      ${TOOLS.map(t=>`<div class="ac-tool-item" onclick="openTool('${t.id}')">
+        <div class="ac-tool-icon">${ProtoIcon.html(t.icon,{size:20})}</div>
+        <div class="ac-tool-text"><h4>${t.title}</h4><p>${t.desc}</p></div>
+      </div>`).join('')}
+    </div>
+    ${renderGuessLike()}
+  </div>`;
+}
+
+function renderPlaceholder(title,icon){
+  return `<div class="ac-panel active"><div class="ac-placeholder"><div class="ph-icon">${ProtoIcon.html(icon,{size:48})}</div><p>${title}</p><span style="font-size:13px">功能页面将在后续迭代中完善</span></div></div>`;
+}
+
+const PANEL_MAP={
+  overview:()=>renderOverview(),
+  points:()=>{location.href=AccountNav.pages.points;return'';},
+  coupons:()=>{location.href=COUPONS;return'';},
+  favorites:()=>{location.href=AccountNav.pages.favorites;return'';},
+  history:()=>{location.href=AccountNav.pages.history;return'';},
+  review:()=>{location.href=REVIEW;return'';},
+  refund:()=>{location.href=REFUND;return'';},
+  address:()=>{location.href=AccountNav.pages.address;return'';},
+  profile:()=>{location.href=AccountNav.pages.profile;return'';},
+  message:()=>{location.href=AccountNav.pages.message;return'';},
+  settings:()=>{location.href=AccountNav.pages.settings;return'';}
+};
+
+function switchPanel(id){currentPanel=id;AccountNav.renderSidebar('accountSidebar',id);renderPanel();}
+function renderPanel(){
+  document.getElementById('acContent').innerHTML=(PANEL_MAP[currentPanel]||renderOverview)();
+}
+
+document.getElementById('searchBtn').onclick=()=>{
+  const q=document.getElementById('searchInput').value.trim();
+  location.href=q?SEARCH+'?q='+encodeURIComponent(q):SEARCH;
+};
+const params=new URLSearchParams(location.search);
+if(params.get('panel'))currentPanel=params.get('panel');
+AccountNav.renderSidebar('accountSidebar', currentPanel);
+renderPanel();
+</script>
+</body>
+</html>

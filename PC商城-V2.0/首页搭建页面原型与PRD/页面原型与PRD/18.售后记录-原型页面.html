@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>售后记录 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/account-header.css">
+<link rel="stylesheet" href="../assets/account-nav.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-confirm.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input{outline:none;border:none;font-family:inherit}
+:root{--page-width:1600px;--jd-red:#f63218;--jd-red-dark:#c81623;--price:#ff0f12;--text-mid:#666;--radius:8px;--radius-sm:6px}
+.container{width:var(--page-width);margin:0 auto}
+
+.rf-panel{overflow:hidden}
+.rf-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0f0f0}
+.rf-head h1{font-size:18px;font-weight:600;color:#333}
+.rf-head-btn{height:32px;padding:0 16px;background:var(--jd-red);color:#fff;font-size:13px;border-radius:var(--radius-sm);font-weight:500}
+.rf-head-btn:hover{background:var(--jd-red-dark)}
+
+.rf-tabs{display:flex;border-bottom:1px solid #f0f0f0;padding:0 8px;background:#fff}
+.rf-tab{padding:16px 24px;font-size:15px;color:#666;cursor:pointer;position:relative;white-space:nowrap}
+.rf-tab:hover{color:var(--jd-red)}
+.rf-tab.active{color:var(--jd-red);font-weight:600}
+.rf-tab.active::after{content:'';position:absolute;left:50%;bottom:0;width:32px;height:3px;background:var(--jd-red);border-radius:2px 2px 0 0;transform:translateX(-50%)}
+.rf-tab .badge{display:inline-block;min-width:16px;height:16px;line-height:16px;padding:0 4px;margin-left:4px;background:var(--jd-red);color:#fff;font-size:10px;border-radius:8px;font-weight:600;vertical-align:top}
+
+.rf-table-hd{display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 120px 90px 180px;gap:8px;padding:10px 16px;background:#f5f5f5;border-bottom:1px solid #eee;font-size:13px;color:#999;text-align:center}
+.rf-table-hd span:first-child{text-align:left;padding-left:8px}
+
+.rf-card{border-bottom:1px solid #eee}
+.rf-card:hover{background:#fafafa}
+.rf-card-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#f5f5f5;border-bottom:1px solid #eee;font-size:13px;color:#666}
+.rf-card-hd .no{color:#333;font-weight:500}
+.rf-card-hd .time{margin-left:16px;color:#999}
+.rf-card-hd .detail-link{color:#666;font-size:13px}
+.rf-card-hd .detail-link:hover{color:var(--jd-red)}
+
+.rf-card-bd{padding:16px;display:grid;grid-template-columns:minmax(0,1fr) 90px 60px 120px 90px 180px;gap:8px;align-items:center;text-align:center}
+.rf-goods{flex:1;min-width:0;display:flex;gap:12px;cursor:pointer;text-align:left}
+.rf-goods img{width:72px;height:72px;object-fit:cover;border-radius:4px;background:#f8f8f8;flex-shrink:0}
+.rf-goods-info{flex:1;min-width:0}
+.rf-goods-name{font-size:14px;color:#333;line-height:1.45;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rf-goods-name:hover{color:var(--jd-red)}
+.rf-goods-spec{font-size:12px;color:#999}
+.rf-goods-type{font-size:12px;color:var(--text-mid);margin-top:4px}
+.rf-col-price{font-size:13px;color:#666}
+.rf-col-qty{font-size:12px;color:#999}
+.rf-col-amt{font-size:13px;color:#333;line-height:1.5}
+.rf-col-amt em{font-style:normal;color:var(--price);font-weight:700;font-size:15px}
+.rf-col-amt .beans{display:block;font-size:11px;color:#999;margin-top:2px}
+.rf-col-status{font-size:13px;font-weight:500}
+.rf-col-status.pending,.rf-col-status.shipping{color:#ff9800}
+.rf-col-status.refunded{color:#52c41a}
+.rf-col-status.closed{color:#999}
+.rf-col-actions{display:flex;flex-direction:column;align-items:center;gap:6px}
+.rf-btn{min-width:80px;height:28px;padding:0 10px;font-size:12px;border-radius:var(--radius-sm);border:1px solid #ddd;background:#fff;color:#666}
+.rf-btn:hover{border-color:var(--jd-red);color:var(--jd-red)}
+.rf-btn.primary{background:var(--jd-red);border-color:var(--jd-red);color:#fff}
+.rf-btn.primary:hover{background:var(--jd-red-dark)}
+
+.rf-empty{text-align:center;padding:80px 20px}
+.rf-empty .proto-icon{color:#ddd;margin-bottom:16px}
+.rf-empty p{font-size:16px;color:#666;margin-bottom:8px}
+.rf-empty a{display:inline-block;margin-top:16px;padding:10px 32px;background:var(--jd-red);color:#fff;border-radius:var(--radius-sm);font-size:14px}
+
+</style>
+</head>
+<body>
+
+<div id="site-topbar-root"></div>
+
+<header class="pd-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href='01.首页-原型页面.html'">
+        <div class="logo-text">苏银豆商城</div>
+        <div class="logo-sub">积分好物 · 一站购齐</div>
+      </div>
+      <div>
+        <div class="pd-search">
+          <input type="text" placeholder="搜索商品、品牌、品类" id="searchInput">
+          <button type="button" id="searchBtn">搜索</button>
+        </div>
+      </div>
+      <div class="pd-header-cart" onclick="location.href='05.购物车-原型页面.html'">
+        <img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt="">
+        <span>购物车</span><div class="badge">3</div>
+      </div>
+    </div>
+    <nav class="pd-breadcrumb"><a href="01.首页-原型页面.html">首页</a> &gt; <a href="10.个人中心-原型页面.html">个人中心</a> &gt; <span>售后记录</span></nav>
+  </div>
+</header>
+
+<div class="container ac-page">
+  <div class="ac-layout">
+    <div id="accountSidebar"></div>
+    <div class="ac-main-panel rf-panel">
+      <div class="rf-head">
+        <h1>售后记录</h1>
+        <button type="button" class="rf-head-btn" onclick="location.href='19.申请售后-原型页面.html'">申请售后</button>
+      </div>
+      <div class="rf-tabs" id="rfTabs"></div>
+      <div class="rf-table-hd">
+        <span>商品信息</span><span>单价</span><span>数量</span><span>退款金额</span><span>状态</span><span>操作</span>
+      </div>
+      <div id="rfList"></div>
+    </div>
+  </div>
+</div>
+
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/account-nav.js"></script>
+<script src="../assets/product-images.js"></script>
+<script src="../assets/refund-mock.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/proto-confirm.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+FloatDock.init({ cartCount: 15 });
+</script>
+<link rel="stylesheet" href="../assets/return-logistics.css">
+<script src="../assets/return-logistics.js"></script>
+<script>
+if (!ProtoAuth.guardPage()) void 0;
+ProtoAuth.initTopBar({ cartCount: 15 });
+AccountNav.renderSidebar('accountSidebar', 'refund');
+
+const HOME = '01.首页-原型页面.html';
+const SEARCH = '03.搜索分类页-原型页面.html';
+const REFUND_DETAIL = '20.售后详情-原型页面.html';
+const REFUND_APPLY = '19.申请售后-原型页面.html';
+
+const TABS = [
+  { id: 'all', label: '全部' },
+  { id: 'pending', label: '处理中', badge: 2 },
+  { id: 'done', label: '已完成' },
+  { id: 'closed', label: '已关闭' }
+];
+
+let currentTab = 'all';
+
+function formatPrice(n) { return Number(n).toFixed(2); }
+function itemImg(it) { return IMG[it.imgKey] || ''; }
+
+function renderTabs() {
+  document.getElementById('rfTabs').innerHTML = TABS.map(t =>
+    `<div class="rf-tab${currentTab === t.id ? ' active' : ''}" data-tab="${t.id}">${t.label}${t.badge ? `<span class="badge">${t.badge}</span>` : ''}</div>`
+  ).join('');
+  document.querySelectorAll('.rf-tab').forEach(el => {
+    el.onclick = () => { currentTab = el.dataset.tab; renderTabs(); renderList(); };
+  });
+}
+
+function hasReturnLogistics(r) {
+  return r.tracks && r.tracks.some(function (t) { return t.title === '买家已退货' || t.title === '买家已寄回'; });
+}
+
+function renderActions(r) {
+  const detailBtn = `<button type="button" class="rf-btn" onclick="location.href='${REFUND_DETAIL}?refund=${r.id}'">售后详情</button>`;
+  if (r.status === 'shipping') {
+    var fillLabel = r.type === 'exchange' ? '填写寄回物流' : '填写物流';
+    var fillBtn = hasReturnLogistics(r) ? '' : `<button type="button" class="rf-btn primary" onclick="ReturnLogistics.open('${r.id}', onLogisticsSubmitted)">${fillLabel}</button>`;
+    return fillBtn + detailBtn + `<button type="button" class="rf-btn" onclick="revokeRefund('${r.id}')">撤销申请</button>`;
+  }
+  if (r.status === 'pending') {
+    return `${detailBtn}<button type="button" class="rf-btn" onclick="revokeRefund('${r.id}')">撤销申请</button>`;
+  }
+  return detailBtn;
+}
+
+function renderAmtCol(r) {
+  if (r.type === 'exchange') return '<em>换货</em><span class="beans">无退款</span>';
+  let html = `<em>¥${formatPrice(r.amount)}</em>`;
+  if (r.beans) html += `<span class="beans">+ ${r.beans} 豆</span>`;
+  return html;
+}
+
+function onLogisticsSubmitted() {
+  ProtoToast.success('物流已提交');
+  renderList();
+}
+
+function revokeRefund(id) {
+  RefundRevoke.open(function () {
+    RefundMock.revoke(id);
+    renderList();
+  });
+}
+
+function renderList() {
+  const list = RefundMock.byTab(currentTab);
+  const el = document.getElementById('rfList');
+  if (!list.length) {
+    el.innerHTML = `<div class="rf-empty">${ProtoIcon.html('return', { size: 56 })}<p>暂无售后记录</p><span style="font-size:13px;color:#999">如有问题可从订单发起售后申请</span><br><a href="${REFUND_APPLY}">申请售后</a></div>`;
+    return;
+  }
+  el.innerHTML = list.map(r => {
+    const it = r.item;
+    return `<div class="rf-card">
+      <div class="rf-card-hd">
+        <div><span class="no">${r.applyTime}</span><span class="time">售后单号：${r.id}</span><span class="time">订单号：${r.orderId}</span></div>
+        <a class="detail-link" href="${REFUND_DETAIL}?refund=${r.id}">售后详情 ›</a>
+      </div>
+      <div class="rf-card-bd">
+        <div class="rf-goods" onclick="location.href='${REFUND_DETAIL}?refund=${r.id}'">
+          <img src="${itemImg(it)}" alt="">
+          <div class="rf-goods-info">
+            <div class="rf-goods-name">${it.name}</div>
+            <div class="rf-goods-spec">${it.spec}</div>
+            <div class="rf-goods-type">${r.typeLabel}</div>
+          </div>
+        </div>
+        <div class="rf-col-price">¥${formatPrice(it.price)}</div>
+        <div class="rf-col-qty">×${it.qty}</div>
+        <div class="rf-col-amt">${renderAmtCol(r)}</div>
+        <div class="rf-col-status ${r.status}">${r.statusLabel}</div>
+        <div class="rf-col-actions">${renderActions(r)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('searchBtn').onclick = () => {
+  const q = document.getElementById('searchInput').value.trim();
+  location.href = q ? SEARCH + '?q=' + encodeURIComponent(q) : SEARCH;
+};
+
+const params = new URLSearchParams(location.search);
+if (params.get('tab') && TABS.some(t => t.id === params.get('tab'))) currentTab = params.get('tab');
+
+renderTabs();
+renderList();
+</script>
+</body>
+</html>

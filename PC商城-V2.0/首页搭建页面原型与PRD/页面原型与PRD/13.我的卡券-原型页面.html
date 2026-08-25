@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的卡券 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/account-header.css">
+<link rel="stylesheet" href="../assets/account-nav.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input,select,textarea{outline:none;font-family:inherit}
+:root{--page-width:1600px;--jd-red:#f63218;--jd-red-dark:#c81623;--price:#ff0f12;--text-mid:#666;--radius:8px;--radius-sm:6px}
+.container{width:var(--page-width);margin:0 auto}
+.pg-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0f0f0}
+.pg-head h1{font-size:18px;font-weight:600}
+.pg-tabs{display:flex;border-bottom:1px solid #f0f0f0;padding:0 8px}
+.pg-tab{padding:14px 20px;font-size:14px;color:#666;cursor:pointer;position:relative}
+.pg-tab.active{color:var(--jd-red);font-weight:600}
+.pg-tab.active::after{content:'';position:absolute;left:50%;bottom:0;width:28px;height:3px;background:var(--jd-red);transform:translateX(-50%)}
+.pg-body{padding:20px}
+.pg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.pg-card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:box-shadow .2s}
+.pg-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.pg-card img{width:100%;aspect-ratio:1;object-fit:cover;background:#f8f8f8}
+.pg-card-info{padding:10px}
+.pg-card-name{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pg-card-price{color:var(--price);font-weight:700;margin-top:6px;font-size:16px}
+.pg-list-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #f5f5f5;align-items:center}
+.pg-list-item:last-child{border-bottom:none}
+.pg-list-item img{width:64px;height:64px;object-fit:cover;border-radius:4px;background:#f8f8f8}
+.pg-hero{padding:28px 24px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:var(--radius);color:#fff;margin-bottom:20px}
+.pg-hero-val{font-size:36px;font-weight:700;margin:8px 0}
+.pg-hero-sub{font-size:13px;opacity:.85}
+.pg-tools{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+.pg-tool{padding:14px;background:rgba(255,255,255,.1);border-radius:6px;text-align:center;font-size:13px;cursor:pointer}
+.pg-tool:hover{background:rgba(255,255,255,.18)}
+.pg-form-row{margin-bottom:16px}
+.pg-form-row label{display:block;font-size:13px;color:#666;margin-bottom:6px}
+.pg-form-row input,.pg-form-row select,.pg-form-row textarea{width:100%;border:1px solid #ddd;border-radius:var(--radius-sm);font-size:14px;padding:10px 12px}
+.pg-btn{height:36px;padding:0 20px;border-radius:var(--radius-sm);font-size:14px;border:1px solid #ddd;background:#fff;color:#666}
+.pg-btn.primary{background:var(--jd-red);border-color:var(--jd-red);color:#fff}
+.pg-empty{text-align:center;padding:60px 20px;color:#999}
+.cp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.cp-card{border:1px solid #ffd0d0;border-radius:var(--radius);padding:16px;background:#fffafa;position:relative}
+.cp-card.dim{border-color:#eee;background:#fafafa;opacity:.85}
+.cp-card.dim .cp-val,.cp-card.dim .cp-btn{color:#999}
+.cp-card.dim .cp-val{color:#bbb}
+.cp-val{font-size:22px;color:var(--price);font-weight:700}
+.cp-desc{font-size:12px;color:#666;margin:8px 0}
+.cp-meta{font-size:11px;color:#999}
+.cp-tag{position:absolute;top:12px;right:12px;font-size:11px;padding:2px 8px;border-radius:2px}
+.cp-tag.ok{background:#e8f8ef;color:#1a9c4a}
+.cp-tag.used{background:#f0f0f0;color:#999}
+.cp-tag.exp{background:#f5f5f5;color:#999}
+.cp-btn{margin-top:10px;width:100%}
+.pg-placeholder{text-align:center;padding:80px 24px;color:#666}
+.pg-placeholder h2{font-size:20px;margin-bottom:8px;color:#333}
+.pg-addr-card{border:1px solid #f0f0f0;border-radius:var(--radius);padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-start}
+.pg-addr-default{display:inline-block;font-size:11px;background:var(--jd-red);color:#fff;padding:1px 6px;border-radius:2px;margin-left:8px}
+.pg-wallet-card{padding:24px;background:linear-gradient(135deg,#f63218,#ff6a4a);border-radius:var(--radius);color:#fff;margin-bottom:20px}
+.pg-wallet-row{display:flex;gap:40px;margin-top:12px}
+.pg-wallet-item span{display:block;font-size:12px;opacity:.9}
+.pg-wallet-item strong{font-size:22px}
+.pg-faq{display:grid;grid-template-columns:200px 1fr;gap:20px;min-height:320px}
+.pg-faq-nav a{display:block;padding:10px 12px;font-size:14px;color:#666;border-radius:4px;margin-bottom:4px}
+.pg-faq-nav a.active,.pg-faq-nav a:hover{background:#fff5f5;color:var(--jd-red)}
+.pg-msg-list{border-right:1px solid #f0f0f0;padding-right:16px}
+.pg-msg-item{padding:12px;border-radius:4px;cursor:pointer;margin-bottom:4px}
+.pg-msg-item.active,.pg-msg-item:hover{background:#fafafa}
+</style>
+</head>
+<body>
+<div id="site-topbar-root"></div>
+<header class="pd-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href=ProtoPages.home">
+        <div class="logo-text">苏银豆商城</div>
+        <div class="logo-sub">积分好物 · 一站购齐</div>
+      </div>
+      <div><div class="pd-search"><input type="text" placeholder="搜索商品、品牌、品类" id="searchInput"><button type="button" id="searchBtn">搜索</button></div></div>
+      <div class="pd-header-cart" onclick="location.href=ProtoPages.cart">
+        <img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt="">
+        <span>购物车</span><div class="badge">3</div>
+      </div>
+    </div>
+    <nav class="pd-breadcrumb"><a href="01.首页-原型页面.html">首页</a> &gt; <a href="10.个人中心-原型页面.html">个人中心</a> &gt; <span>我的卡券</span></nav>
+  </div>
+</header>
+<div class="container ac-page"><div class="ac-layout"><div id="accountSidebar"></div><div class="ac-main-panel">
+<div class="pg-head"><h1>我的卡券</h1><button type="button" class="pg-btn primary" onclick="CouponBind.open()">卡密兑换</button></div>
+<div class="pg-tabs">
+  <div class="pg-tab active" data-t="unused">未使用</div>
+  <div class="pg-tab" data-t="used">已使用</div>
+  <div class="pg-tab" data-t="expired">已过期</div>
+</div>
+<div class="pg-body" id="cpBody"></div>
+</div></div></div>
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/account-nav.js"></script>
+<script src="../assets/product-images.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+FloatDock.init({ cartCount: 15 });
+</script>
+<script src="../assets/coupon-bind.js"></script>
+<link rel="stylesheet" href="../assets/coupon-bind.css">
+<script>
+if (!ProtoAuth.guardPage()) void 0;
+ProtoAuth.initTopBar({ cartCount: 15 });
+AccountNav.renderSidebar('accountSidebar', 'coupons');
+document.getElementById('searchBtn').onclick=function(){
+  var q=document.getElementById('searchInput').value.trim();
+  location.href=q?ProtoPages.search+'?q='+encodeURIComponent(q):ProtoPages.search;
+};
+
+var COUPONS={
+  unused:[
+    {n:'满500减50',d:'全场通用',e:'2026-08-01'},
+    {n:'9折券',d:'数码家电专享 最高减200',e:'2026-07-15'},
+    {n:'¥20优惠券',d:'满100可用',e:'2026-06-30'}
+  ],
+  used:[
+    {n:'满200减20',d:'新人专享',u:'2026-06-10',o:'SY202606080012'},
+    {n:'8.5折券',d:'美妆品类 最高减80',u:'2026-05-28',o:'SY202605200033'}
+  ],
+  expired:[
+    {n:'满1000减100',d:'品牌日专享',e:'2026-05-01'},
+    {n:'¥50优惠券',d:'全场通用',e:'2026-04-15'}
+  ]
+};
+
+function cardHtml(c,tab){
+  if(tab==='unused'){
+    return '<div class="cp-card"><span class="cp-tag ok">可使用</span><div class="cp-val">'+c.n+'</div><div class="cp-desc">'+c.d+'</div><div class="cp-meta">有效期至 '+c.e+'</div><button type="button" class="pg-btn primary cp-btn" onclick="location.href=ProtoPages.search">去使用</button></div>';
+  }
+  if(tab==='used'){
+    return '<div class="cp-card dim"><span class="cp-tag used">已使用</span><div class="cp-val">'+c.n+'</div><div class="cp-desc">'+c.d+'</div><div class="cp-meta">使用时间 '+c.u+' · 订单 '+c.o+'</div></div>';
+  }
+  return '<div class="cp-card dim"><span class="cp-tag exp">已过期</span><div class="cp-val">'+c.n+'</div><div class="cp-desc">'+c.d+'</div><div class="cp-meta">已于 '+c.e+' 过期</div></div>';
+}
+
+function renderTab(tab){
+  var list=COUPONS[tab]||[];
+  var body=document.getElementById('cpBody');
+  if(!list.length){
+    body.innerHTML='<div class="pg-empty">暂无卡券</div>';
+    return;
+  }
+  body.innerHTML='<div class="cp-grid">'+list.map(function(c){return cardHtml(c,tab);}).join('')+'</div>';
+}
+
+var bindResult=CouponBind.consumeBindResult();
+if(bindResult&&bindResult.action==='coupon'){
+  COUPONS.unused.unshift(bindResult.coupon);
+  ProtoToast.success('卡券已加入「我的卡券」');
+}
+
+document.querySelectorAll('.pg-tab').forEach(function(t){
+  t.onclick=function(){
+    document.querySelectorAll('.pg-tab').forEach(function(x){x.classList.remove('active');});
+    t.classList.add('active');
+    renderTab(t.dataset.t);
+  };
+});
+renderTab('unused');
+
+</script>
+</body>
+</html>

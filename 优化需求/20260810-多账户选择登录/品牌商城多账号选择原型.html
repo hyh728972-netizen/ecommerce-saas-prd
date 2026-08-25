@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>品牌商城后台 · 登录与多商城选择原型</title>
+<style>
+  /* ===== 颜色变量（沿用原登录页） ===== */
+  :root{
+    --主色:#1890FF; --主色深:#096DD9; --主色浅:#40A9FF;
+    --浅蓝底:#E6F4FF; --辅蓝:#91D5FF;
+    --主文字:#262626; --辅文字:#8C8C8C; --更浅文字:#BFBFBF;
+    --输入框底:#F5F5F5; --分割线:#F0F0F0; --边框灰:#E0E0E0;
+    --红:#F5222D; --橙:#FA8C16;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:"PingFang SC","Microsoft YaHei",sans-serif;
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:24px;background:linear-gradient(135deg,var(--主色) 0%,var(--主色浅) 100%);
+  }
+
+  /* ===== 外层卡片 ===== */
+  .卡片{
+    width:780px;max-width:100%;min-height:540px;background:#fff;
+    border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,.1);
+    overflow:hidden;display:flex;
+  }
+  /* 左侧品牌区 */
+  .品牌区{
+    width:50%;padding:44px 40px;background:#fff;
+    display:flex;flex-direction:column;justify-content:space-between;
+  }
+  .品牌徽标{
+    width:60px;height:60px;border-radius:50%;background:var(--主色);
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:24px;font-weight:700;
+  }
+  .主标题{font-size:24px;font-weight:700;color:var(--主文字);margin-top:22px;}
+  .副标题{font-size:18px;color:var(--主文字);margin-top:6px;}
+  .插画区{display:flex;justify-content:center;}
+
+  /* 右侧表单区 */
+  .表单区{
+    width:50%;padding:40px 44px;background:#fff;
+    display:flex;flex-direction:column;position:relative;
+  }
+  .提示条{
+    position:absolute;top:16px;right:44px;
+    background:#F6FFED;border:1px solid #B7EB8F;color:#52C41A;
+    padding:5px 12px;border-radius:4px;font-size:13px;
+    opacity:0;transition:opacity .25s;z-index:5;
+  }
+  .提示条.显示{opacity:1;}
+
+  /* ===== 登录方式标签栏 ===== */
+  .标签栏{display:flex;gap:28px;border-bottom:1px solid var(--分割线);margin-bottom:28px;}
+  .标签{
+    font-size:16px;color:var(--辅文字);padding-bottom:10px;cursor:pointer;
+    position:relative;font-weight:500;
+  }
+  .标签.选中{color:var(--主色);font-weight:600;}
+  .标签.选中::after{
+    content:"";position:absolute;left:0;right:0;bottom:-1px;
+    height:2px;background:var(--主色);
+  }
+
+  /* ===== 视图通用 ===== */
+  .视图{display:none;flex-direction:column;flex:1;}
+  .视图说明{font-size:13px;color:var(--辅文字);margin-bottom:24px;}
+
+  /* ===== 字段 / 输入框 ===== */
+  .字段{margin-bottom:18px;}
+  .字段 > 标签{display:block;font-size:13px;color:var(--主文字);margin-bottom:8px;}
+  .输入框{
+    width:100%;height:44px;background:var(--输入框底);
+    border:1px solid transparent;border-radius:8px;padding:0 14px;
+    font-size:14px;color:var(--主文字);outline:none;transition:.2s;font-family:inherit;
+  }
+  .输入框:focus{border-color:var(--主色);background:#fff;}
+  .验证码行{display:flex;gap:8px;}
+  .验证码行 .输入框{flex:1;}
+  .获取验证码{
+    height:44px;padding:0 12px;white-space:nowrap;background:transparent;
+    border:none;color:var(--辅文字);cursor:pointer;font-size:14px;font-family:inherit;
+  }
+  .获取验证码:disabled{cursor:not-allowed;}
+
+  /* 密码框 + 眼睛 */
+  .密码字段{position:relative;}
+  .密码字段 .输入框{padding-right:40px;}
+  .眼睛{
+    position:absolute;right:8px;top:50%;transform:translateY(-50%);
+    background:transparent;border:none;cursor:pointer;color:var(--辅文字);
+    display:flex;align-items:center;justify-content:center;padding:4px;
+  }
+  .眼睛:hover{color:var(--主色);}
+
+  .忘记链接{
+    text-align:right;margin:-4px 0 16px;
+  }
+  .忘记链接 a{font-size:13px;color:var(--主色);text-decoration:none;}
+  .忘记链接 a:hover{text-decoration:underline;}
+
+  .协议{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--辅文字);margin:0 0 18px;}
+  .协议 a{color:var(--主色);text-decoration:none;}
+  .协议 input{accent-color:var(--主色);}
+
+  .主按钮{
+    height:48px;width:100%;border:none;border-radius:8px;
+    background:var(--主色);color:#fff;font-size:16px;font-weight:600;
+    cursor:pointer;transition:.2s;font-family:inherit;
+  }
+  .主按钮:hover{background:var(--主色深);}
+
+  /* ===== 选择商城视图 ===== */
+  .选择头部{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .返回钮{
+    width:28px;height:28px;border-radius:50%;border:1px solid var(--分割线);
+    background:#fff;cursor:pointer;font-size:16px;color:var(--辅文字);
+    display:flex;align-items:center;justify-content:center;line-height:1;
+  }
+  .返回钮:hover{color:var(--主色);border-color:var(--主色);}
+  .视图标题{font-size:20px;font-weight:600;color:var(--主文字);}
+  .手机提示{font-size:13px;color:var(--辅文字);margin-bottom:20px;}
+  .手机提示 b{color:var(--主文字);font-weight:600;}
+
+  .商城列表{flex:1;display:flex;flex-direction:column;gap:12px;}
+  .商城项{
+    display:flex;align-items:center;gap:14px;padding:14px;
+    border:1px solid var(--分割线);border-radius:8px;background:#fff;
+    cursor:pointer;transition:.2s;
+  }
+  .商城项:hover{border-color:var(--主色);box-shadow:0 4px 12px rgba(24,144,255,.12);transform:translateY(-1px);}
+  .商城徽标{
+    width:44px;height:44px;border-radius:8px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:18px;font-weight:700;
+  }
+  .商城信息{flex:1;min-width:0;}
+  .商城名称{font-size:15px;font-weight:600;color:var(--主文字);display:flex;align-items:center;gap:8px;}
+  .角色标签{font-size:11px;padding:1px 8px;border-radius:10px;background:var(--浅蓝底);color:var(--主色);font-weight:500;}
+  .角色标签.店员{background:#FFF7E6;color:var(--橙);}
+  .商城备注{font-size:12px;color:var(--辅文字);margin-top:4px;}
+  .箭头{color:var(--辅文字);font-size:18px;}
+  .注册按钮{
+    margin-top:14px;height:44px;width:100%;background:#fff;
+    border:1px dashed #D9D9D9;border-radius:8px;color:var(--辅文字);
+    cursor:pointer;font-size:14px;font-family:inherit;
+  }
+  .注册按钮:hover{border-color:var(--主色);color:var(--主色);}
+
+  /* 进入商城反馈 */
+  .进入遮罩{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:99;}
+  .进入遮罩.显示{display:flex;}
+  .进入弹窗{background:#fff;padding:28px 44px;border-radius:8px;text-align:center;}
+  .进入弹窗 h3{font-size:16px;margin-bottom:6px;color:var(--主文字);}
+  .进入弹窗 p{font-size:13px;color:var(--辅文字);}
+
+  /* ============ 重置密码弹窗 ============ */
+  .重置遮罩{
+    position:fixed;inset:0;background:rgba(0,0,0,.5);
+    display:none;align-items:center;justify-content:center;z-index:100;padding:24px;
+  }
+  .重置遮罩.显示{display:flex;}
+  .重置弹窗{
+    width:460px;max-width:100%;background:#fff;border-radius:8px;
+    box-shadow:0 8px 30px rgba(0,0,0,.2);overflow:hidden;
+  }
+  .重置头部{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 24px;border-bottom:1px solid var(--分割线);
+  }
+  .重置头部 .标题{font-size:18px;font-weight:600;color:var(--主文字);}
+  .重置关闭{
+    width:28px;height:28px;border:none;background:transparent;cursor:pointer;
+    font-size:22px;color:var(--辅文字);line-height:1;
+  }
+  .重置关闭:hover{color:var(--主文字);}
+
+  /* 步骤提示条（错误提示） */
+  .重置提示{
+    margin:16px 24px 0;padding:8px 12px;background:#FFF1F0;border:1px solid #FFA39E;
+    color:var(--红);border-radius:4px;font-size:13px;display:none;
+  }
+  .重置提示.显示{display:block;}
+
+  /* 步骤条 */
+  .步骤条{
+    display:flex;align-items:flex-start;padding:24px 16px 8px;
+  }
+  .步骤节点{display:flex;flex-direction:column;align-items:center;width:64px;flex-shrink:0;}
+  .圆圈{
+    width:30px;height:30px;border-radius:50%;border:2px solid var(--边框灰);
+    background:#fff;color:var(--辅文字);display:flex;align-items:center;
+    justify-content:center;font-size:14px;font-weight:600;margin-bottom:6px;
+  }
+  .步骤节点.当前 .圆圈{border-color:var(--主色);color:var(--主色);}
+  .步骤节点.完成 .圆圈{background:var(--主色);border-color:var(--主色);color:#fff;}
+  .步骤文字{font-size:12px;color:var(--更浅文字);text-align:center;line-height:1.3;}
+  .步骤节点.当前 .步骤文字,.步骤节点.完成 .步骤文字{color:var(--主文字);font-weight:500;}
+  .步骤连线{
+    flex:1;height:2px;margin-top:14px;background:var(--边框灰);
+    background-image:linear-gradient(to right,var(--边框灰) 50%,transparent 50%);
+    background-size:8px 2px;background-repeat:repeat-x;
+  }
+  .步骤连线.完成{background:var(--主色);background-image:none;}
+
+  /* 步骤内容 */
+  .步骤内容{padding:20px 24px 8px;min-height:170px;}
+  .步骤{display:none;}
+  .步骤.激活{display:block;}
+  .步骤 说明{font-size:13px;color:var(--辅文字);margin-bottom:16px;display:block;}
+  .步骤 .字段{margin-bottom:16px;}
+
+  /* 重置-选商城 */
+  .重置商城列表{display:flex;flex-direction:column;gap:10px;}
+  .重置商城项{
+    display:flex;align-items:center;gap:12px;padding:12px;
+    border:1px solid var(--分割线);border-radius:8px;cursor:pointer;transition:.2s;background:#fff;
+  }
+  .重置商城项:hover{border-color:var(--主色);}
+  .重置商城项.选中{border-color:var(--主色);background:var(--浅蓝底);}
+  .重置商城项 .商城徽标{width:38px;height:38px;font-size:15px;}
+  .重置商城项 .勾选位{margin-left:auto;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--边框灰);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;}
+  .重置商城项.选中 .勾选位{background:var(--主色);border-color:var(--主色);}
+
+  /* 底部按钮 */
+  .重置底部{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 24px 22px;border-top:1px solid var(--分割线);gap:12px;
+  }
+  .重置底部.居中{justify-content:center;}
+  .上一步钮{
+    background:transparent;border:none;color:var(--辅文字);cursor:pointer;
+    font-size:14px;font-family:inherit;
+  }
+  .上一步钮:hover{color:var(--主色);}
+  .重置主钮{
+    height:44px;padding:0 32px;border:none;border-radius:8px;
+    background:var(--主色);color:#fff;font-size:15px;font-weight:600;
+    cursor:pointer;font-family:inherit;
+  }
+  .重置主钮:hover{background:var(--主色深);}
+
+  /* 完成页 */
+  .完成图标{
+    width:56px;height:56px;border-radius:50%;background:#52C41A;color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:30px;margin:8px auto 16px;
+  }
+  .完成文字{text-align:center;font-size:16px;font-weight:600;color:var(--主文字);margin-bottom:6px;}
+  .完成副文字{text-align:center;font-size:13px;color:var(--辅文字);}
+</style>
+</head>
+<body>
+
+<div class="卡片">
+  <!-- ===== 左侧品牌区（所有视图共用） ===== -->
+  <div class="品牌区">
+    <div>
+      <div class="品牌徽标">宏</div>
+      <div class="主标题">宏兆集团</div>
+      <div class="副标题">品牌商城后台</div>
+    </div>
+    <div class="插画区">
+      <!-- 主题插画：中央手机（手机号入口）→ 虚线连接三个商城卡片 -->
+      <svg width="220" height="150" viewBox="0 0 220 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M110 75 L48 38" stroke="#1890FF" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <path d="M110 75 L172 38" stroke="#1890FF" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <path d="M110 75 L110 120" stroke="#1890FF" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <circle cx="110" cy="75" r="28" fill="#1890FF"/>
+        <rect x="101" y="61" width="18" height="28" rx="2.5" fill="#fff"/>
+        <rect x="103" y="64" width="14" height="19" rx="1" fill="#E6F4FF"/>
+        <circle cx="110" cy="86" r="1.6" fill="#fff"/>
+        <rect x="18" y="18" width="58" height="40" rx="6" fill="#fff" stroke="#1890FF" stroke-width="1.5"/>
+        <rect x="26" y="27" width="16" height="3.5" rx="1.5" fill="#1890FF"/>
+        <rect x="26" y="35" width="30" height="2.5" rx="1" fill="#91D5FF"/>
+        <rect x="26" y="42" width="22" height="2.5" rx="1" fill="#BAE0FF"/>
+        <rect x="144" y="18" width="58" height="40" rx="6" fill="#fff" stroke="#1890FF" stroke-width="1.5"/>
+        <circle cx="158" cy="31" r="5.5" fill="#1890FF"/>
+        <rect x="169" y="28" width="24" height="2.8" rx="1" fill="#91D5FF"/>
+        <rect x="152" y="43" width="30" height="2.5" rx="1" fill="#BAE0FF"/>
+        <rect x="81" y="108" width="58" height="34" rx="6" fill="#fff" stroke="#1890FF" stroke-width="1.5"/>
+        <path d="M90 130 L110 117 L130 130 L130 136 L90 136 Z" fill="#E6F4FF" stroke="#1890FF" stroke-width="1.2"/>
+        <rect x="105" y="124" width="10" height="12" fill="#fff" stroke="#1890FF" stroke-width="1"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ===== 右侧表单区 ===== -->
+  <div class="表单区">
+    <div class="提示条" id="提示条">验证码已发送，请注意查收</div>
+
+    <!-- 登录方式标签栏 -->
+    <div class="标签栏" id="标签栏">
+      <div class="标签 选中" id="标签短信" onclick="显示登录视图('短信')">短信登录</div>
+      <div class="标签" id="标签密码" onclick="显示登录视图('密码')">密码登录</div>
+    </div>
+
+    <!-- —— 视图：短信登录 —— -->
+    <div class="视图" id="短信登录视图" style="display:flex">
+      <div class="视图说明">使用绑定的手机号登录，进入您管理的品牌商城</div>
+      <div class="字段">
+        <label>手机号</label>
+        <input class="输入框" type="text" placeholder="请输入手机号" value="138 8888 8888">
+      </div>
+      <div class="字段">
+        <label>验证码</label>
+        <div class="验证码行">
+          <input class="输入框" type="text" placeholder="请输入验证码" value="123456">
+          <button class="获取验证码" id="短信验证码按钮" onclick="发送验证码('短信验证码按钮')">获取验证码</button>
+        </div>
+      </div>
+      <label class="协议">
+        <input type="checkbox" checked>我已阅读并同意<a href="#">《品牌商城入驻协议》</a>
+      </label>
+      <button class="主按钮" onclick="显示选择商城()">登 录</button>
+    </div>
+
+    <!-- —— 视图：密码登录 —— -->
+    <div class="视图" id="密码登录视图">
+      <div class="视图说明">使用账号与登录密码登录</div>
+      <div class="字段">
+        <label>账号 / 手机号</label>
+        <input class="输入框" type="text" placeholder="请输入账号或手机号" value="13888888888">
+      </div>
+      <div class="字段">
+        <label>登录密码</label>
+        <div class="密码字段">
+          <input class="输入框" id="登录密码框" type="password" placeholder="请输入登录密码" value="123456">
+          <button type="button" class="眼睛" onclick="切换密码可见('登录密码框', this)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="忘记链接"><a href="javascript:打开重置()">忘记密码？</a></div>
+      <label class="协议">
+        <input type="checkbox" checked>我已阅读并同意<a href="#">《品牌商城入驻协议》</a>
+      </label>
+      <button class="主按钮" onclick="显示选择商城()">登 录</button>
+    </div>
+
+    <!-- —— 视图：选择商城（登录后多商城时） —— -->
+    <div class="视图" id="选择商城视图">
+      <div class="选择头部">
+        <button class="返回钮" onclick="返回登录()">&lsaquo;</button>
+        <div class="视图标题">选择品牌商城</div>
+      </div>
+      <div class="手机提示">您的手机号 <b>138****8888</b> 关联了以下 <b>3</b> 个商城，请选择要进入的商城</div>
+      <div class="商城列表">
+        <div class="商城项" onclick="进入商城('宏兆·生活馆')">
+                    <div class="商城信息">
+            <div class="商城名称">宏兆·生活馆</div>
+            <div class="商城备注">上次登录：2026-08-09 14:32</div>
+          </div>
+          <span class="箭头">&rsaquo;</span>
+        </div>
+        <div class="商城项" onclick="进入商城('宏兆·数码专营店')">
+                    <div class="商城信息">
+            <div class="商城名称">宏兆·数码专营店</div>
+            <div class="商城备注">上次登录：2026-08-08 09:10</div>
+          </div>
+          <span class="箭头">&rsaquo;</span>
+        </div>
+        <div class="商城项" onclick="进入商城('宏兆·生鲜超市')">
+                    <div class="商城信息">
+            <div class="商城名称">宏兆·生鲜超市</div>
+            <div class="商城备注">上次登录：2026-07-30 18:45</div>
+          </div>
+          <span class="箭头">&rsaquo;</span>
+        </div>
+      </div>
+      <button class="注册按钮" onclick="alert('跳转「注册新的品牌商城」流程')">＋ 注册新的品牌商城</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- 进入商城反馈 -->
+<div class="进入遮罩" id="进入遮罩">
+  <div class="进入弹窗">
+    <h3 id="进入商城名">—</h3>
+    <p>正在进入该商城后台…</p>
+  </div>
+</div>
+
+<!-- ============ 重置密码弹窗 ============ -->
+<div class="重置遮罩" id="重置遮罩">
+  <div class="重置弹窗">
+    <div class="重置头部">
+      <span class="标题">重置密码</span>
+      <button class="重置关闭" onclick="关闭重置()">&times;</button>
+    </div>
+
+    <div class="重置提示" id="重置提示">请填写必填项</div>
+
+    <!-- 步骤条：输入手机号 → 选择商城 → 验证身份 → 设置新密码 → 完成 -->
+    <div class="步骤条">
+      <div class="步骤节点 当前" id="节点1"><div class="圆圈">1</div><div class="步骤文字">输入<br>手机号</div></div>
+      <div class="步骤连线" id="连线1"></div>
+      <div class="步骤节点" id="节点2"><div class="圆圈">2</div><div class="步骤文字">选择<br>商城</div></div>
+      <div class="步骤连线" id="连线2"></div>
+      <div class="步骤节点" id="节点3"><div class="圆圈">3</div><div class="步骤文字">验证<br>身份</div></div>
+      <div class="步骤连线" id="连线3"></div>
+      <div class="步骤节点" id="节点4"><div class="圆圈">4</div><div class="步骤文字">设置<br>新密码</div></div>
+      <div class="步骤连线" id="连线4"></div>
+      <div class="步骤节点" id="节点5"><div class="圆圈">5</div><div class="步骤文字">完成</div></div>
+    </div>
+
+    <div class="步骤内容">
+
+      <!-- 步骤1：输入手机号 -->
+      <div class="步骤 激活" id="步骤1">
+        <span class="说明">请输入注册时绑定的手机号，系统将向该手机发送验证码。</span>
+        <div class="字段">
+          <label>手机号 <span style="color:var(--红)">*</span></label>
+          <input class="输入框" id="重置手机号" type="text" placeholder="请输入手机号" value="138 8888 8888">
+        </div>
+      </div>
+
+      <!-- 步骤2：选择商城（多商城时必选） -->
+      <div class="步骤" id="步骤2">
+        <span class="说明">该手机号关联了 <b>3</b> 个商城，请选择要重置密码的商城（每个商城的登录密码相互独立）。</span>
+        <div class="重置商城列表" id="重置商城列表">
+          <div class="重置商城项" onclick="选择重置商城(this,'宏兆·生活馆')">
+                        <div class="商城信息"><div class="商城名称">宏兆·生活馆</div></div>
+            <div class="勾选位">✓</div>
+          </div>
+          <div class="重置商城项" onclick="选择重置商城(this,'宏兆·数码专营店')">
+                        <div class="商城信息"><div class="商城名称">宏兆·数码专营店</div></div>
+            <div class="勾选位">✓</div>
+          </div>
+          <div class="重置商城项" onclick="选择重置商城(this,'宏兆·生鲜超市')">
+                        <div class="商城信息"><div class="商城名称">宏兆·生鲜超市</div></div>
+            <div class="勾选位">✓</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 步骤3：验证身份 -->
+      <div class="步骤" id="步骤3">
+        <span class="说明">已向 <b id="验证手机号">138****8888</b> 发送验证码，请输入。</span>
+        <div class="字段">
+          <label>验证码 <span style="color:var(--红)">*</span></label>
+          <div class="验证码行">
+            <input class="输入框" id="重置验证码" type="text" placeholder="请输入验证码" value="123456">
+            <button class="获取验证码" id="重置验证码按钮" onclick="发送验证码('重置验证码按钮')">获取验证码</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 步骤4：设置新密码 -->
+      <div class="步骤" id="步骤4">
+        <span class="说明">为 <b id="新密码商城名">—</b> 设置新的登录密码（6-20 位）。</span>
+        <div class="字段">
+          <label>新密码 <span style="color:var(--红)">*</span></label>
+          <div class="密码字段">
+            <input class="输入框" id="新密码框" type="password" placeholder="请输入新密码">
+            <button type="button" class="眼睛" onclick="切换密码可见('新密码框', this)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="字段">
+          <label>确认新密码 <span style="color:var(--红)">*</span></label>
+          <div class="密码字段">
+            <input class="输入框" id="确认密码框" type="password" placeholder="请再次输入新密码">
+            <button type="button" class="眼睛" onclick="切换密码可见('确认密码框', this)">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 步骤5：完成 -->
+      <div class="步骤" id="步骤5">
+        <div class="完成图标">✓</div>
+        <div class="完成文字">密码重置成功</div>
+        <div class="完成副文字">您已成功重置 <b id="完成商城名">—</b> 的登录密码，请使用新密码登录。</div>
+      </div>
+
+    </div>
+
+    <!-- 底部按钮 -->
+    <div class="重置底部" id="重置底部">
+      <button class="上一步钮" id="上一步钮" onclick="上一步()">‹ 上一步</button>
+      <button class="重置主钮" id="重置主钮" onclick="下一步()">下一步</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /* ============ 登录视图切换 ============ */
+  var 当前登录方式 = '短信';
+  function 显示登录视图(方式){
+    当前登录方式 = 方式;
+    document.getElementById('标签栏').style.display = 'flex';
+    document.getElementById('短信登录视图').style.display = (方式==='短信'?'flex':'none');
+    document.getElementById('密码登录视图').style.display = (方式==='密码'?'flex':'none');
+    document.getElementById('选择商城视图').style.display = 'none';
+    document.getElementById('标签短信').classList.toggle('选中', 方式==='短信');
+    document.getElementById('标签密码').classList.toggle('选中', 方式==='密码');
+  }
+  function 显示选择商城(){
+    document.getElementById('标签栏').style.display = 'none';
+    document.getElementById('短信登录视图').style.display = 'none';
+    document.getElementById('密码登录视图').style.display = 'none';
+    document.getElementById('选择商城视图').style.display = 'flex';
+  }
+  function 返回登录(){ 显示登录视图(当前登录方式); }
+
+  /* ============ 验证码 ============ */
+  function 发送验证码(按钮id){
+    var 按钮 = document.getElementById(按钮id);
+    var 是登录 = (按钮id === '短信验证码按钮');
+    if(是登录){ var t=document.getElementById('提示条'); t.classList.add('显示'); setTimeout(()=>t.classList.remove('显示'),2500); }
+    var 倒计时 = 60; 按钮.disabled = true; 按钮.textContent = 倒计时 + '秒后重试';
+    var 计时器 = setInterval(()=>{
+      倒计时--; 按钮.textContent = 倒计时 + '秒后重试';
+      if(倒计时 <= 0){ clearInterval(计时器); 按钮.disabled = false; 按钮.textContent = '获取验证码'; }
+    },1000);
+  }
+
+  /* ============ 密码可见切换 ============ */
+  function 切换密码可见(输入id, 按钮){
+    var 输入 = document.getElementById(输入id);
+    输入.type = (输入.type === 'password') ? 'text' : 'password';
+  }
+
+  /* ============ 选择商城 → 进入 ============ */
+  function 进入商城(名称){
+    document.getElementById('进入商城名').textContent = '进入：' + 名称;
+    var 遮罩 = document.getElementById('进入遮罩');
+    遮罩.classList.add('显示');
+    setTimeout(()=>遮罩.classList.remove('显示'),1600);
+  }
+
+  /* ============ 重置密码弹窗 ============ */
+  var 当前步骤 = 1;
+  var 选中的重置商城 = '';
+
+  // 步骤图标（线性风格，颜色随步骤状态变化）
+  var 步骤图标 = [
+    '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>',
+    '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/></svg>',
+    '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>',
+    '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+    '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>'
+  ];
+  var 对勾图标 = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+  function 打开重置(){
+    当前步骤 = 1; 选中的重置商城 = '';
+    // 清空选中
+    var 项们 = document.querySelectorAll('#重置商城列表 .重置商城项');
+    for(var i=0;i<项们.length;i++){ 项们[i].classList.remove('选中'); }
+    document.getElementById('重置遮罩').classList.add('显示');
+    渲染重置();
+  }
+  function 关闭重置(){ document.getElementById('重置遮罩').classList.remove('显示'); }
+
+  function 重置提示(文字){
+    var t = document.getElementById('重置提示');
+    t.textContent = 文字; t.classList.add('显示');
+    setTimeout(()=>t.classList.remove('显示'),2500);
+  }
+
+  function 选择重置商城(元素, 名称){
+    选中的重置商城 = 名称;
+    var 项们 = document.querySelectorAll('#重置商城列表 .重置商城项');
+    for(var i=0;i<项们.length;i++){ 项们[i].classList.remove('选中'); }
+    元素.classList.add('选中');
+  }
+
+  function 下一步(){
+    // 校验
+    if(当前步骤===1){
+      var 手机 = document.getElementById('重置手机号').value.trim();
+      if(!手机){ 重置提示('请输入手机号'); return; }
+    }
+    if(当前步骤===2){
+      if(!选中的重置商城){ 重置提示('请选择要重置密码的商城'); return; }
+    }
+    if(当前步骤===3){
+      var 码 = document.getElementById('重置验证码').value.trim();
+      if(!码){ 重置提示('请输入验证码'); return; }
+    }
+    if(当前步骤===4){
+      var p1 = document.getElementById('新密码框').value, p2 = document.getElementById('确认密码框').value;
+      if(!p1 || p1.length<6){ 重置提示('新密码至少 6 位'); return; }
+      if(p1 !== p2){ 重置提示('两次输入的密码不一致'); return; }
+      // 写入完成页商城名
+      document.getElementById('完成商城名').textContent = 选中的重置商城;
+    }
+    当前步骤++;
+    渲染重置();
+  }
+  function 上一步(){
+    if(当前步骤>1){ 当前步骤--; 渲染重置(); }
+  }
+
+  function 渲染重置(){
+    // 步骤节点状态
+    for(var i=1;i<=5;i++){
+      var 节点 = document.getElementById('节点'+i);
+      节点.classList.remove('完成','当前');
+      if(i < 当前步骤) 节点.classList.add('完成');
+      else if(i === 当前步骤) 节点.classList.add('当前');
+      节点.querySelector('.圆圈').innerHTML = (i < 当前步骤) ? 对勾图标 : 步骤图标[i-1];
+    }
+    // 连线
+    for(var j=1;j<=4;j++){
+      document.getElementById('连线'+j).classList.toggle('完成', j < 当前步骤);
+    }
+    // 步骤内容
+    for(var k=1;k<=5;k++){
+      document.getElementById('步骤'+k).classList.toggle('激活', k === 当前步骤);
+    }
+    // 填充动态文案
+    if(当前步骤>=4){ document.getElementById('新密码商城名').textContent = 选中的重置商城; }
+    // 底部按钮
+    var 底部 = document.getElementById('重置底部');
+    var 上钮 = document.getElementById('上一步钮');
+    var 主钮 = document.getElementById('重置主钮');
+    if(当前步骤 === 5){
+      底部.classList.add('居中'); 上钮.style.display = 'none';
+      主钮.textContent = '去登录'; 主钮.onclick = 关闭重置;
+    } else {
+      底部.classList.remove('居中'); 上钮.style.display = 'block';
+      上钮.style.visibility = (当前步骤===1 ? 'hidden' : 'visible');
+      主钮.textContent = (当前步骤===4 ? '确认重置' : '下一步');
+      主钮.onclick = 下一步;
+    }
+  }
+</script>
+</body>
+</html>

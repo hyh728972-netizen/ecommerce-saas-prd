@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="zh-CN" style="--primary-color:#2e7d32">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>苏银豆商城 - 首页</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei","Source Han Sans CN",-apple-system,sans-serif;color:var(--text-dark);background:var(--bg-page);line-height:1.5;min-width:var(--page-width);-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+ul,li{list-style:none}
+img{display:block;max-width:100%}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input{outline:none;border:none;font-family:inherit}
+
+:root{
+  --page-width:1600px;
+  --primary:#2e7d32;
+  --jd-red:#f63218;
+  --jd-red-dark:#c81623;
+  --jd-red-hover:#f2270c;
+  --jd-red-border:#e1251b;
+  --price:#ff0f12;
+  --price-alt:#f2270c;
+  --text-dark:rgba(0,0,0,.85);
+  --text-mid:#666;
+  --text-light:#999;
+  --text-sub:#1b1b1b;
+  --bg-page:#f4f4f4;
+  --bg-card:#fff;
+  --bg-cat:#f7f8fc;
+  --border:#eee;
+  --border-light:#f0f0f0;
+  --radius:8px;
+  --radius-sm:6px;
+  --radius-lg:12px;
+  --shadow-card:0 2px 12px rgba(0,0,0,.06);
+  --shadow-hero:0 4px 24px rgba(246,50,24,.1);
+  --space-section:16px;
+  --space-block:12px;
+  --space-page-top:16px;
+  --jd-gradient:linear-gradient(180deg,#e1251b 0%,#d91a12 45%,#ea5048 62%,#f09088 78%,#f5c0bc 90%,#f8e8e6 96%,#f4f4f4 100%);
+  --icon-cart:url(https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png);
+  --icon-cart-hover:url(https://img12.360buyimg.com/img/jfs/t1/329610/14/5367/642/68afc86aF292b557f/49aac701bcc27b4f.png);
+}
+
+.container{width:var(--page-width);margin:0 auto}
+
+/* ========== 顶部红色底图：顶部纯色，仅底部渐变过渡 ========== */
+.page-top-bg{
+  position:relative;
+  background:var(--jd-gradient);
+  padding-bottom:0;
+  overflow:visible;
+}
+.page-sections{display:flex;flex-direction:column;gap:var(--space-section);padding:16px 0 0}
+.page-top-bg::after{
+  content:'';
+  position:absolute;left:0;right:0;bottom:0;height:100px;
+  background:linear-gradient(180deg,transparent 0%,rgba(244,244,244,.5) 70%,#f4f4f4 100%);
+  pointer-events:none;
+}
+
+
+/* ========== 红色主 Header ========== */
+.main-header{position:relative;z-index:1;background:transparent;padding:32px 0 12px;overflow:visible}
+.header-row{display:grid;grid-template-columns:230px 1120px 230px;gap:var(--space-block);align-items:start}
+.logo-block{cursor:pointer;margin-top:-0px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;min-height:40px}
+.logo-text{font-size:36px;font-weight:700;color:#fff;letter-spacing:2px;line-height:1.15}
+.logo-sub{font-size:13px;color:rgba(255,255,255,.8);margin-top:6px;text-align:center;letter-spacing:.5px}
+
+.search-block{width:1120px;max-width:1120px;overflow:visible}
+.search-bar{display:flex;align-items:center;background:#fff;border:1px solid var(--jd-red);border-radius:var(--radius);box-shadow:0 2px 8px rgba(246,50,24,.1)}
+.search-bar input{flex:1;min-width:0;height:42px;padding:0 18px;font-size:16px;color:var(--text-dark);background:transparent}
+.search-bar input::placeholder{color:rgba(0,0,0,.45)}
+.search-btn{width:80px;height:38px;margin:2px;background:var(--jd-red);color:#fff;font-size:16px;font-weight:600;transition:background .2s;border-radius:var(--radius-sm);flex-shrink:0;border:none}
+.search-btn:hover{background:var(--jd-red-dark)}
+.search-hot{margin-top:10px;padding-left:2px;display:flex;flex-wrap:wrap;align-items:center;gap:0 20px;line-height:1.4}
+.search-hot a{font-size:12px;color:rgba(255,255,255,.78);white-space:nowrap;transition:color .2s}
+.search-hot a:hover{color:#fff}
+.search-hot a.hot-highlight{color:#ffe8b0;font-weight:500}
+.search-hot a.hot-highlight:hover{color:#fff3d0}
+
+.header-promo-shell{position:relative;margin-top:12px;height:170px;z-index:1;overflow:visible}
+.header-promo-bg{position:absolute;inset:0;z-index:0;border-radius:10px;background:linear-gradient(180deg,#fff 0%,#fff6f6 100%);border:1px solid rgba(255,255,255,.95);box-shadow:0 2px 10px rgba(225,37,27,.1)}
+.header-promo-mascot{position:absolute;left:50%;bottom:-20px;transform:translateX(-50%);width:1480px;max-width:none;height:auto;object-fit:contain;object-position:center bottom;pointer-events:none;z-index:1}
+.header-promo{position:relative;z-index:2;height:100%;display:flex;gap:8px;padding:10px 12px;box-sizing:border-box;background:transparent}
+.promo-card{position:relative;flex:1;height:100%;border-radius:10px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s;border:1px solid rgba(255,255,255,.9);min-width:0;box-sizing:border-box;background:#e8e8e8;box-shadow:0 2px 8px rgba(0,0,0,.06);display:block;color:inherit;text-decoration:none}
+.promo-card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(246,50,24,.15);border-color:#ffd0d0}
+.promo-card:nth-child(2){flex:1.2;box-shadow:0 2px 10px rgba(246,50,24,.12)}
+.promo-card>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block;transition:transform .3s}
+.promo-card:hover>img{transform:scale(1.03)}
+.promo-card::after{content:'';position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(255,255,255,.94) 0%,rgba(255,255,255,.72) 38%,rgba(255,255,255,.15) 62%,transparent 100%)}
+.promo-card-copy{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:18px 14px 12px;text-align:left;pointer-events:none;max-width:72%}
+.promo-card h4{font-size:18px;color:#1a1a1a;font-weight:700;line-height:1.3;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.promo-card:nth-child(2) h4{color:var(--jd-red)}
+.promo-card p{font-size:14px;color:#666;margin-top:8px;line-height:1.4;font-weight:500}
+.promo-card .promo-tag{display:inline-block;margin-top:auto;padding:5px 14px;border-radius:14px;font-size:12px;font-weight:600;color:#fff;background:linear-gradient(90deg,#f2270c,#ff4d35);white-space:nowrap;box-shadow:0 2px 8px rgba(242,39,12,.28)}
+
+.header-right{margin-top:-0px;padding-left:28px;display:flex;justify-content:flex-start}
+.header-cart{display:flex;flex-direction:column;align-items:center;gap:4px;color:#fff;cursor:pointer;position:relative}
+.header-cart .cart-icon-img{width:28px;height:28px;object-fit:contain;filter:brightness(0) invert(1)}
+.header-cart span{font-size:12px}
+.header-cart .badge{position:absolute;top:-4px;right:-10px;min-width:16px;height:16px;background:#fff;color:var(--jd-red);font-size:10px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+
+/* ========== Hero 三栏（白色主容器 1600×410） ========== */
+.hero-section{position:relative;z-index:1;padding:0}
+.hero-white-box{position:relative;z-index:2;width:1600px;height:410px;padding:var(--space-block);box-sizing:border-box;background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-hero);overflow:visible}
+.hero-inner{display:flex;gap:var(--space-block);align-items:stretch;height:100%}
+.category-sidebar{width:220px;flex-shrink:0;border-radius:var(--radius);position:relative;z-index:5;display:flex;flex-direction:column}
+.category-sidebar:hover{z-index:6}
+.category-sidebar-title{margin:0;padding:6px 12px 4px;font-size:16px;font-weight:600;line-height:22px;color:var(--text-sub);flex-shrink:0}
+.category-body{position:relative;flex:1;min-height:0;padding:0 0 6px;border-radius:var(--radius);background:var(--bg-cat);transition:background .2s,box-shadow .2s}
+.category-body.show-panel{background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.category-list{list-style:none;margin:0;padding:0 6px;flex:1;display:flex;flex-direction:column}
+.category-item{position:relative;display:flex;align-items:center;height:36px;padding:0 6px;border-radius:4px;cursor:pointer;transition:background .15s,color .15s}
+.category-item:hover,.category-item.active{background:#fff}
+.category-item.active{box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.category-item .cat-icon{width:14px;height:14px;margin-right:12px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.category-item .cat-icon img,.category-item .cat-icon svg{width:14px;height:14px;object-fit:contain;display:block}
+.category-item .cat-subtitle{flex:1;min-width:0;display:flex;flex-wrap:wrap;height:15px;overflow:hidden;white-space:nowrap}
+.category-item .cat-subtitle>div{display:flex;align-items:center}
+.category-item .subtitle-link{font-size:14px;line-height:15px;color:#1b1b1b;transition:color .15s;text-decoration:none}
+.category-item .subtitle-link:hover{color:var(--jd-red-hover)}
+.category-sidebar-title{cursor:pointer;transition:color .15s}
+.category-sidebar-title:hover{color:var(--jd-red-hover)}
+.cat-panel-title a{color:rgba(0,0,0,.85);transition:color .15s;text-decoration:none}
+.cat-panel-title a:hover{color:var(--jd-red-hover)}
+.category-item.active .subtitle-link.hl{color:var(--jd-red-hover);font-weight:600}
+.category-item .subtitle-split{padding:0 4px;font-size:10px;line-height:15px;color:rgba(0,0,0,.45);vertical-align:2px}
+.category-panel{position:absolute;left:100%;top:0;width:720px;min-height:100%;background:#fff;border:none;border-left:1px solid #f0f0f0;border-radius:0 var(--radius) var(--radius) 0;padding:16px 16px 16px 20px;box-shadow:6px 0 24px rgba(0,0,0,.06);overflow-y:auto;z-index:20;opacity:0;visibility:hidden;pointer-events:none;transform:translateX(-6px);transition:opacity .18s ease,transform .18s ease,visibility .18s}
+.category-panel.show{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(0)}
+.cat-panel-row{display:flex;margin-bottom:4px}
+.cat-panel-row:last-child{margin-bottom:0}
+.cat-panel-title{width:72px;flex:0 0 72px;padding:4px 4px 0 0;font-size:12px;font-weight:600;color:rgba(0,0,0,.85);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cat-panel-tags{flex:1;margin-top:-2px;line-height:1}
+.cat-panel-tags a{display:inline-block;margin:6px 12px 0 0;padding:4px 0;font-size:12px;color:#9d9d9d;white-space:nowrap;transition:color .15s}
+.cat-panel-tags a:hover{color:var(--jd-red-hover)}
+.hero-center{flex:1;min-width:0;height:100%}
+.focus-banner{position:relative;height:100%;border-radius:var(--radius);overflow:hidden;background:#f7f8fc}
+.focus-banner-item{position:absolute;left:0;top:0;width:100%;height:100%;background-color:#f7f8fc;background-position:50% center;background-repeat:no-repeat;background-size:cover;display:block;overflow:hidden;border-radius:var(--radius);cursor:pointer;z-index:0;opacity:0;transition:opacity .3s ease-in-out}
+.focus-banner-item-active{opacity:1;z-index:1}
+.focus-banner-item-bg{position:absolute;top:0;height:100%;width:auto;left:50%;transform:translateX(-50%)}
+.focus-banner-item-img{position:absolute;top:0;left:0;height:100%;width:auto}
+.focus-banner-indicators{display:flex;position:absolute;left:16px;bottom:12px;z-index:2;list-style:none;margin:0;padding:0}
+.focus-banner-indicators li{width:8px;height:8px;border-radius:4px;background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.2);cursor:pointer;transition:all .2s}
+.focus-banner-indicators li+li{margin-left:6px}
+.focus-banner-indicators li.focus-banner-indicator-active{width:16px;background:#fff;border-color:rgba(255,15,35,.85)}
+.focus-banner_left_arrow,.focus-banner_right_arrow{position:absolute;top:50%;transform:translate3d(0,-50%,0);z-index:2;width:16px;height:24px;cursor:pointer;background-size:100% 100%;background-repeat:no-repeat;display:none}
+.focus-banner_left_arrow{left:0;background-image:url(https://img11.360buyimg.com/img/jfs/t1/325035/28/13960/603/68b50d89F4838b3f9/256fe98f03b1082e.png)}
+.focus-banner_right_arrow{right:0;background-image:url(https://img30.360buyimg.com/img/jfs/t1/324389/33/14177/584/68b50d95F91576a95/7d8b5c7f66e43883.png)}
+.focus-banner:hover .focus-banner_left_arrow,.focus-banner:hover .focus-banner_right_arrow{display:block}
+
+.user-panel{width:220px;flex-shrink:0;height:100%}
+.uc-card{position:relative;z-index:1;height:100%;background:#fff;border-radius:12px;overflow:hidden}
+.uc-card-inner{position:relative;height:100%;border-radius:8px;background:linear-gradient(180deg,#fff3e7 0%,#fff 35%);padding:14px 10px 10px;display:flex;flex-direction:column}
+.uc-vip-tab{position:absolute;top:0;right:0;z-index:2;height:28px;line-height:28px;padding:0 18px 0 10px;background:linear-gradient(90deg,#5c4033,#8b5e3c);color:#fff;font-size:11px;font-weight:500;border-radius:0 12px 0 12px;cursor:pointer;white-space:nowrap}
+.uc-vip-tab::after{content:"";position:absolute;right:8px;top:50%;width:6px;height:6px;margin-top:-3px;border-top:1px solid #fff;border-right:1px solid #fff;transform:rotate(45deg);opacity:.85}
+.uc-vip-tab:hover{opacity:.9}
+.uc-head{display:flex;align-items:center;padding-right:56px;margin-bottom:10px}
+.uc-avatar-wrap{flex-shrink:0;width:52px;height:52px;margin-right:8px;display:flex;align-items:center;justify-content:center}
+.uc-avatar{width:44px;height:44px;border-radius:50%;background:#fff;border:1px solid #e59f73;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:#999}
+.uc-card[data-state="logged"] .uc-avatar{background:linear-gradient(135deg,#ffe7ba,#ffbb96);color:#873800;font-weight:600}
+.uc-info{flex:1;min-width:0}
+.uc-name{font-size:14px;font-weight:600;line-height:18px;color:#1a1a1a;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px}
+.uc-name a:hover{color:var(--jd-red)}
+.uc-badge{display:inline-flex;align-items:center;height:16px;padding:0 5px;margin-bottom:3px;background:linear-gradient(90deg,#4a3728,#6d4c35);color:#fff;font-size:10px;border-radius:2px;white-space:nowrap;line-height:16px}
+.uc-save{display:block;font-size:12px;line-height:16px;color:#4f4f4f;white-space:nowrap}
+.uc-save em{font-style:normal;font-size:14px;line-height:16px;font-weight:600;color:#1a1a1a;margin-left:2px;font-variant-numeric:tabular-nums}
+.uc-assets{display:flex;color:#1b1b1b;padding:10px 0 8px;border-bottom:1px solid rgba(0,0,0,.04)}
+.uc-stat{flex:1;text-align:center;cursor:pointer;min-width:0;padding:0 2px}
+.uc-stat:hover .uc-val{color:var(--jd-red)}
+.uc-val{height:18px;margin-bottom:3px;font-size:14px;font-weight:700;color:#1b1b1b;line-height:18px;font-variant-numeric:tabular-nums}
+.uc-val .uc-unit{font-size:12px;font-weight:500;margin-left:1px}
+.uc-lbl{font-size:12px;color:#1b1b1b;line-height:1.3}
+.uc-hint{font-size:11px;color:var(--price);margin-top:3px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uc-card[data-state="guest"] .uc-hint{color:#999}
+.uc-notices{margin-top:8px;flex:1;min-height:0;display:flex;flex-direction:column}
+.uc-notice-viewport{height:122px;overflow:hidden;border-radius:6px;flex-shrink:0}
+.uc-notice-track{display:flex;flex-direction:column;gap:6px;will-change:transform}
+.uc-notice{display:flex;align-items:center;gap:8px;height:58px;padding:8px 10px;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.04);cursor:pointer;box-sizing:border-box}
+.uc-notice:hover{border-color:#ffd0d0;box-shadow:0 2px 8px rgba(246,50,24,.08)}
+.uc-notice-thumb{width:40px;height:40px;border-radius:4px;overflow:hidden;background:#f5f5f5;flex-shrink:0}
+.uc-notice-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.uc-notice-icon{width:40px;height:40px;border-radius:4px;background:linear-gradient(135deg,#fff5f5,#ffe7e7);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--jd-red)}
+.uc-notice-icon svg{width:20px;height:20px;stroke:var(--jd-red);fill:none}
+.uc-notice-body{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px}
+.uc-notice-title{font-size:12px;font-weight:600;color:#1b1b1b;line-height:1.3}
+.uc-notice-desc{font-size:11px;color:#999;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uc-notice-desc em,.uc-notice-points em,.uc-notice-coupon em{font-style:normal;color:var(--price)}
+.uc-notice-dots{display:flex;justify-content:center;gap:4px;margin-top:6px}
+.uc-notice-dots .dot{width:4px;height:4px;border-radius:50%;background:rgba(0,0,0,.15);transition:all .25s}
+.uc-notice-dots .dot.active{width:10px;border-radius:2px;background:var(--jd-red)}
+.uc-toolbox-title{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding:10px 2px 0;cursor:pointer}
+.uc-toolbox-title span{font-size:14px;font-weight:600;line-height:20px;color:#1a1a1a}
+.uc-toolbox-title i{display:inline-block;width:10px;height:10px;background:url(https://img20.360buyimg.com/img/jfs/t1/338560/12/1523/229/68ac5e07F2e24768e/729b9f309fdf22fd.png) no-repeat center/contain}
+.uc-nav{display:flex;justify-content:space-between;margin-top:6px;padding:0 0 2px}
+.uc-nav-item{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:#505050;cursor:pointer;padding:2px 0}
+.uc-nav-item span{white-space:nowrap;line-height:1.2}
+.uc-nav-item:hover{color:var(--jd-red)}
+.uc-nav-item.active{color:var(--jd-red);font-weight:600}
+.uc-nav-item .uc-nav-ico{width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+.uc-nav-item svg{width:22px;height:22px;stroke:currentColor;fill:none}
+.uc-nav-item.active svg.nav-star{fill:var(--jd-red);stroke:var(--jd-red)}
+
+/* ========== 公告通知条 ========== */
+.notice-bar{display:flex;align-items:center;gap:12px;height:36px;padding:0 14px;background:#fff;border-radius:var(--radius);border:1px solid var(--border-light);box-shadow:var(--shadow-card);overflow:hidden}
+.notice-bar-label{flex-shrink:0;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--jd-red);white-space:nowrap}
+.notice-bar-label svg{width:14px;height:14px;fill:var(--jd-red)}
+.notice-bar-viewport{flex:1;min-width:0;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 24px,#000 calc(100% - 24px),transparent)}
+.notice-bar-track{display:flex;width:max-content;animation:noticeScroll 28s linear infinite}
+.notice-bar:hover .notice-bar-track{animation-play-state:paused}
+@keyframes noticeScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.notice-bar-inner{display:flex;align-items:center;gap:28px;padding-right:28px;white-space:nowrap}
+.notice-bar-inner a{font-size:12px;color:var(--text-mid);transition:color .15s}
+.notice-bar-inner a:hover{color:var(--jd-red)}
+.notice-bar-inner em{font-style:normal;color:var(--jd-red);font-weight:500}
+.notice-bar-more{flex-shrink:0;font-size:12px;color:var(--text-light);white-space:nowrap}
+.notice-bar-more:hover{color:var(--jd-red)}
+
+/* ========== 四宫格运营位 ========== */
+.promo-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-block)}
+.promo-module{background:#fff;border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-card);min-height:180px;border:1px solid var(--border-light);transition:box-shadow .2s}
+.promo-module:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.promo-module-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.promo-module-head h3{font-size:15px;font-weight:600;color:var(--text-dark)}
+.promo-module-head a{font-size:12px;color:var(--text-light)}
+.promo-module-head a:hover{color:var(--jd-red)}
+.rank-list{display:flex;flex-direction:column;gap:8px}
+.rank-item{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px;border-radius:4px;transition:background .15s}
+.rank-item:hover{background:#fafafa}
+.rank-num{width:18px;height:18px;border-radius:3px;background:#f5f5f5;color:var(--text-mid);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.rank-num.top{background:linear-gradient(135deg,var(--jd-red),var(--price-alt));color:#fff;box-shadow:0 2px 4px rgba(246,50,24,.3)}
+.rank-thumb{width:40px;height:40px;background:#f8f8f8;border-radius:4px;overflow:hidden;flex-shrink:0;position:relative}
+.rank-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.rank-info{flex:1;min-width:0}
+.rank-info .name{font-size:12px;color:var(--text-dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank-info .price{font-size:12px;color:var(--price);font-weight:600;font-variant-numeric:tabular-nums}
+
+.promo-module-brand{display:flex;flex-direction:column}
+.promo-module-brand .brand-banners{flex:1;display:flex;flex-direction:column;gap:6px;min-height:0}
+.brand-banner{position:relative;display:block;flex:1;min-height:0;border-radius:6px;overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.brand-banner:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.1)}
+.brand-banner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.brand-banner-mask{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.55) 0%,rgba(0,0,0,.15) 55%,transparent 100%)}
+.brand-banner-text{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:center;height:100%;padding:0 12px;color:#fff}
+.brand-banner-title{font-size:13px;font-weight:600;line-height:1.2}
+.brand-banner-sub{font-size:11px;opacity:.9;margin-top:2px}
+
+.pick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.pick-grid .product-card-name{font-size:12px}
+.pick-grid .price-subsidy{font-size:18px}
+.pick-grid .price-subsidy em{font-size:12px}
+.pick-grid .price-origin{font-size:11px}
+.pick-grid .price-meta{display:none}
+.pick-grid .cart-add{width:28px;height:28px}
+.pick-grid .cart-add .cart-icon{width:16px;height:16px}
+.pick-grid .product-card-info{padding:6px 6px 8px}
+.pick-grid .product-card-bottom{margin-top:6px}
+.pick-grid .product-card-tags{display:none}
+
+/* ========== 专属福利专区 ========== */
+.welfare-zone{position:relative;height:210px;box-sizing:border-box;display:flex;align-items:stretch;gap:20px;padding:16px 18px;border-radius:12px;overflow:hidden;background:linear-gradient(105deg,#ff3d7a 0%,#ff5c8a 38%,#ff7a9a 68%,#ff9eb5 100%)}
+.welfare-zone::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 90% at 8% 50%,rgba(255,255,255,.14) 0%,transparent 55%),radial-gradient(ellipse 35% 70% at 22% 100%,rgba(180,20,80,.18) 0%,transparent 50%),repeating-linear-gradient(-12deg,transparent,transparent 18px,rgba(255,255,255,.03) 18px,rgba(255,255,255,.03) 19px);pointer-events:none}
+.welfare-zone-aside{position:relative;z-index:1;flex:0 0 188px;display:flex;flex-direction:column;justify-content:center;gap:14px;color:#fff;padding-left:4px}
+.welfare-zone-aside h3{display:flex;flex-direction:column;gap:2px;font-size:28px;font-weight:700;line-height:1.2;letter-spacing:1px}
+.welfare-zone-more{position:relative;z-index:1;display:inline-flex;align-items:center;gap:8px;align-self:flex-start;padding:7px 8px 7px 16px;background:#fff5f0;border-radius:24px;font-size:13px;color:var(--jd-red);font-weight:600;white-space:nowrap;transition:background .15s}
+.welfare-zone-more:hover{background:#fff}
+.welfare-zone-more i{width:18px;height:18px;border-radius:50%;background:var(--jd-red);position:relative;flex-shrink:0}
+.welfare-zone-more i::after{content:"";position:absolute;top:50%;left:50%;width:5px;height:5px;margin:-3px 0 0 -4px;border-top:1.5px solid #fff;border-right:1.5px solid #fff;transform:rotate(45deg)}
+.welfare-zone-cards{position:relative;z-index:1;flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;min-width:0;height:100%}
+.welfare-card{height:100%;background:#fff;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.welfare-card:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.14)}
+.welfare-card-head{position:relative;display:flex;align-items:center;gap:6px;padding:10px 32px 8px 12px;flex-shrink:0;min-height:40px}
+.welfare-card-title{font-size:15px;font-weight:700;color:var(--jd-red);white-space:nowrap}
+.welfare-card-desc{font-size:12px;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.welfare-card-arrow{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:18px;height:18px;border-radius:50%;background:var(--jd-red)}
+.welfare-card-arrow::after{content:"";position:absolute;top:50%;left:50%;width:5px;height:5px;margin:-3px 0 0 -4px;border-top:1.5px solid #fff;border-right:1.5px solid #fff;transform:rotate(45deg)}
+.welfare-card-img{flex:1;min-height:0;overflow:hidden;background:#f8f8f8}
+.welfare-card-img img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ========== 分类楼层（左图右货 · 漏斗转化） ========== */
+.cat-floors{display:flex;flex-direction:column;gap:var(--space-section)}
+.cat-floor{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-card);border:1px solid var(--border-light);overflow:hidden}
+.cat-floor-head{display:flex;justify-content:space-between;align-items:center;padding:10px 11px 8px;border-bottom:1px solid #f5f5f5}
+.cat-floor-head h3{font-size:14px;font-weight:600;color:var(--jd-red);letter-spacing:.3px}
+.cat-floor-head h3 em{font-style:normal;display:inline-block;min-width:27px;padding:2px 6px;margin-right:8px;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--jd-red),var(--price-alt));border-radius:3px;text-align:center;box-shadow:0 2px 6px rgba(246,50,24,.25)}
+.cat-floor-head a{font-size:10px;color:var(--text-mid);transition:color .15s}
+.cat-floor-head a:hover{color:var(--jd-red)}
+.cat-floor-body{display:grid;grid-template-columns:minmax(0,42%) minmax(0,58%);gap:8px;padding:9px;background:linear-gradient(180deg,#fafbfc 0%,#f3f4f6 100%)}
+.cat-floor-assembler{display:grid;gap:6px;min-height:0}
+.cat-floor-assembler--mix{grid-template-rows:minmax(128px,1.15fr) minmax(94px,.85fr)}
+.cat-floor-assembler--split{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:minmax(128px,1.15fr) minmax(94px,.85fr);gap:6px;min-height:0}
+.cat-floor-split-left{grid-row:1/3;grid-column:1;min-height:0}
+.cat-floor-split-right{grid-column:2;grid-row:1/3;display:grid;grid-template-rows:minmax(128px,1.15fr) minmax(94px,.85fr);gap:6px;min-height:0}
+.cat-floor-poster--hero-right img{object-position:82% center}
+.cat-floor-poster--hero-right::after{background:linear-gradient(270deg,rgba(255,255,255,.35) 0%,transparent 45%)}
+.cat-floor-assembler--stack{grid-template-rows:1fr 1fr}
+.cat-floor-assembler-bottom{display:grid;grid-template-columns:1fr 1fr;gap:6px;min-height:0}
+.cat-floor-assembler-bottom--dual .cat-floor-poster--stack{min-height:94px}
+.cat-floor-poster{position:relative;border-radius:8px;overflow:hidden;display:block;border:1px solid transparent;transition:box-shadow .2s;text-decoration:none;color:inherit}
+.cat-floor-poster:hover{box-shadow:0 8px 22px rgba(0,0,0,.08)}
+.cat-floor-poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;display:block}
+.cat-floor-poster--hero{min-height:0;height:100%;background:#e8e8e8}
+.cat-floor-poster--hero::after{content:'';position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.35) 40%,transparent 68%)}
+.cat-floor-poster-copy{position:relative;z-index:1;padding:13px 11px 10px;max-width:58%;pointer-events:none}
+.cat-floor-poster-copy .cat-floor-brand{font-size:9px;font-weight:700;color:var(--jd-red);letter-spacing:.5px}
+.cat-floor-poster-copy strong{display:block;margin-top:5px;font-size:13px;font-weight:700;color:var(--text-dark);line-height:1.25}
+.cat-floor-points{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;padding:0;list-style:none}
+.cat-floor-points li{font-size:9px;font-weight:500;padding:2px 8px;border-radius:10px;line-height:1.3}
+.cat-floor-poster--green .cat-floor-points li{color:#2e7d32;background:rgba(46,125,50,.1);border:1px solid rgba(46,125,50,.22)}
+.cat-floor-poster--blue .cat-floor-points li{color:#0958d9;background:rgba(9,88,217,.08);border:1px solid rgba(9,88,217,.18)}
+.cat-floor-poster--warm .cat-floor-points li{color:#e65100;background:rgba(230,81,0,.08);border:1px solid rgba(230,81,0,.15)}
+.cat-floor-poster-arrow{position:absolute;top:50%;transform:translateY(-50%);width:22px;height:22px;background:rgba(255,255,255,.94);color:#666;border:1px solid rgba(0,0,0,.06);border-radius:50%;font-size:12px;line-height:20px;text-align:center;cursor:pointer;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,.08);transition:all .15s}
+.cat-floor-poster-arrow:hover{background:#fff;color:var(--jd-red);border-color:#ffd0d0}
+.cat-floor-poster-arrow.prev{left:8px}
+.cat-floor-poster-arrow.next{right:8px}
+.cat-floor-dots{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:4px;z-index:2;pointer-events:none}
+.cat-floor-dots i{display:block;width:5px;height:5px;border-radius:50%;background:rgba(0,0,0,.18)}
+.cat-floor-dots i.on{width:11px;border-radius:3px;background:var(--jd-red)}
+.cat-floor-poster--stack{min-height:0;height:100%;border:1px solid #e8e8e8;background:#e8e8e8}
+.cat-floor-poster--stack::after{content:'';position:absolute;inset:0;z-index:0}
+.cat-floor-poster--mini{min-height:0;height:100%;border:1px solid #e8e8e8;background:#e8e8e8}
+.cat-floor-poster--mini::after{content:'';position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(255,255,255,.86) 0%,rgba(255,255,255,.3) 42%,transparent 72%)}
+.cat-floor-poster-copy--mini{max-width:68%;padding:8px 6px}
+.cat-floor-poster-copy--mini strong{font-size:10px;margin-top:3px}
+.cat-floor-poster-copy--mini .cat-floor-mini-desc{display:block;font-size:8px;color:var(--text-light);margin-top:2px;line-height:1.3}
+.cat-floor-poster--dark::after{background:linear-gradient(90deg,rgba(15,20,35,.72) 0%,rgba(15,20,35,.15) 55%,transparent 100%)}
+.cat-floor-poster--office::after{background:linear-gradient(90deg,rgba(255,255,255,.92) 0%,rgba(255,255,255,.4) 50%,transparent 100%)}
+.cat-floor-poster--stack .cat-floor-poster-copy{max-width:52%;height:100%;display:flex;flex-direction:column;justify-content:center}
+.cat-floor-poster--dark .cat-floor-poster-copy{color:#fff}
+.cat-floor-poster--dark .cat-floor-brand{color:#ff6b6b}
+.cat-floor-poster--dark strong{color:#fff}
+.cat-floor-poster--stack .cat-floor-poster-copy span{font-size:10px;color:var(--text-mid);margin-top:5px;line-height:1.35}
+.cat-floor-poster--dark .cat-floor-poster-copy span{color:rgba(255,255,255,.75)}
+.cat-floor-mini-stack{display:flex;flex-direction:column;gap:6px;min-height:0}
+.cat-floor-mini-stack .cat-floor-poster--mini{flex:1;min-height:0}
+.cat-floor-products{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:8px;min-height:0;align-content:stretch}
+.cat-floor-products .product-card{height:100%;display:flex;flex-direction:column}
+.cat-floor-products .product-card-img{flex-shrink:0;aspect-ratio:25/16}
+.cat-floor-products .product-card-info{flex:1;display:flex;flex-direction:column;padding:6px 6px 8px}
+.cat-floor-products .product-card-name{font-size:12px}
+.cat-floor-products .product-card-tags{display:none}
+.cat-floor-products .product-card-bottom{margin-top:6px}
+.cat-floor-products .price-subsidy{font-size:18px}
+.cat-floor-products .price-subsidy em{font-size:12px}
+.cat-floor-products .price-origin{font-size:11px}
+.cat-floor-products .price-meta{display:none}
+.cat-floor-products .cart-add{width:28px;height:28px}
+.cat-floor-products .cart-add .cart-icon{width:16px;height:16px}
+
+/* ========== 商品推荐 Feed ========== */
+.feed-section{padding-bottom:28px}
+.feed-tabs{display:flex;gap:0;background:#fff;border-radius:var(--radius) var(--radius) 0 0;border-bottom:2px solid var(--border);padding:0 16px}
+.feed-tab{font-size:15px;color:var(--text-mid);padding:12px 18px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;font-weight:500}
+.feed-tab.active{color:var(--jd-red);border-bottom-color:var(--jd-red);font-weight:600}
+.feed-tab:hover{color:var(--price-alt)}
+.product-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--space-block);background:#fff;padding:16px;border-radius:0 0 var(--radius) var(--radius);box-shadow:var(--shadow-card)}
+.product-card{cursor:pointer;transition:box-shadow .2s,border-color .2s,transform .2s;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border-light);background:#fff}
+.product-card:hover{box-shadow:0 6px 20px rgba(246,50,24,.1);border-color:#ffd0d0;transform:translateY(-2px)}
+.product-card-img{aspect-ratio:1;background:#f8f8f8;overflow:hidden}
+.product-card-img img{width:100%;height:100%;object-fit:cover;display:block}
+.product-card-info{padding:8px 8px 10px}
+.product-card-name{font-size:13px;color:var(--text-dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.45}
+.product-card-name .brand-tag{color:var(--price-alt);font-weight:600}
+.product-card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;min-height:18px}
+.info-tag{font-size:10px;line-height:16px;padding:0 5px;border-radius:2px;white-space:nowrap}
+.info-tag.red{color:var(--price-alt);border:1px solid rgba(242,39,12,.4);background:#fffafa}
+.info-tag.green{color:#00a854;border:1px solid rgba(0,168,84,.45)}
+.product-card-bottom{display:flex;align-items:flex-end;justify-content:space-between;margin-top:8px;gap:4px}
+.product-card-price-col{flex:1;min-width:0}
+.price-row{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.price-origin{font-size:12px;color:#999;text-decoration:line-through}
+.price-subsidy{font-size:22px;font-weight:700;color:var(--price);line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.price-subsidy em{font-size:14px;font-style:normal;font-weight:700;margin-right:1px}
+.price-meta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap}
+.subsidy-tip{font-size:11px;color:var(--jd-red)}
+.cart-add{width:34px;height:34px;border-radius:var(--radius-sm);background:#fff;border:1px solid #e8e8e8;color:var(--jd-red);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s}
+.cart-add .cart-icon{display:block;width:20px;height:20px;background:var(--icon-cart) center/contain no-repeat}
+.cart-add:hover{background:#fff;border-color:var(--jd-red)}
+.cart-add:hover .cart-icon{background-image:var(--icon-cart-hover)}
+
+/* ========== Login Modal ========== */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:none;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:12px;width:400px;overflow:hidden;animation:modalIn .25s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-header{display:flex;justify-content:flex-end;padding:16px 16px 0}
+.modal-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-light);font-size:18px;border-radius:50%}
+.modal-close:hover{background:#f5f5f5}
+.modal-tabs{display:flex;padding:0 24px;gap:20px;border-bottom:1px solid #eee}
+.modal-tab{font-size:15px;color:var(--text-light);cursor:pointer;padding:12px 0;border-bottom:2px solid transparent;margin-bottom:-1px}
+.modal-tab.active{color:var(--jd-red);border-bottom-color:var(--jd-red);font-weight:600}
+.modal-body{padding:24px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;color:var(--text-mid);margin-bottom:6px}
+.form-input{width:100%;height:42px;border:1px solid #ddd;border-radius:var(--radius-sm);padding:0 12px;font-size:14px}
+.form-input:focus{border-color:var(--jd-red)}
+.form-row{display:flex;gap:10px}
+.form-row .form-input{flex:1}
+.sms-btn{width:110px;height:42px;background:#fff;border:1px solid var(--jd-red);color:var(--jd-red);border-radius:var(--radius-sm);font-size:13px}
+.modal-submit{width:100%;height:44px;background:var(--jd-red);color:#fff;border-radius:var(--radius-sm);font-size:15px;font-weight:600;margin-top:6px;transition:background .2s}
+.modal-submit:hover{background:var(--jd-red-dark)}
+</style>
+</head>
+<body>
+
+<!-- 顶部工具条 -->
+<div id="site-topbar-root"></div>
+
+<div class="page-top-bg">
+<!-- 红色主 Header -->
+<header class="main-header">
+  <div class="container">
+    <div class="header-row">
+      <div class="logo-block" onclick="location.href='01.首页-原型页面.html'">
+        <div class="logo-text">苏银豆商城</div>
+        <div class="logo-sub">积分好物 · 一站购齐</div>
+      </div>
+      <div class="search-block">
+        <div class="search-bar">
+          <input type="text" placeholder="批量找品 积分限时返" id="searchInput">
+          <button class="search-btn" type="button" id="searchBtn">搜索</button>
+        </div>
+        <div class="search-hot">
+          <a href="#" class="hot-highlight">5000苏银豆到账</a>
+          <a href="#">积分低至5折起</a>
+          <a href="#">数码家电</a>
+          <a href="#">美妆护肤</a>
+          <a href="#">家居生活</a>
+          <a href="#">运动户外</a>
+          <a href="#">端午礼品</a>
+          <a href="#">企业福利</a>
+        </div>
+        <div class="header-promo-shell">
+          <div class="header-promo-bg" aria-hidden="true"></div>
+          <img class="header-promo-mascot" src="../assets/promo-mascot.png" alt="">
+          <div class="header-promo">
+            <a class="promo-card" href="03.活动页-原型页面.html?id=welfare-home"><img src="" data-promo-img="0" alt="生活方式馆"><div class="promo-card-copy"><h4>生活方式馆</h4><p>工装靴 · 复古好物</p><span class="promo-tag">精选</span></div></a>
+            <a class="promo-card" href="03.活动页-原型页面.html?id=menswear"><img src="" data-promo-img="1" alt="女装秋冬"><div class="promo-card-copy"><h4>女装秋冬</h4><p>羊绒大衣上新</p><span class="promo-tag">主推</span></div></a>
+            <a class="promo-card" href="03.活动页-原型页面.html?id=nike-sport"><img src="" data-promo-img="2" alt="Nike运动"><div class="promo-card-copy"><h4>Nike运动</h4><p>轻便透气跑鞋</p><span class="promo-tag">限时</span></div></a>
+            <a class="promo-card" href="03.活动页-原型页面.html?id=menswear"><img src="" data-promo-img="3" alt="魅力女装"><div class="promo-card-copy"><h4>魅力女装</h4><p>高领针织新品</p><span class="promo-tag">尊享</span></div></a>
+          </div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-cart" onclick="location.href='06.购物车-原型页面.html'">
+          <img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt="购物车">
+          <span>购物车</span>
+          <div class="badge">3</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Hero 三栏 -->
+<div class="hero-section">
+  <div class="container">
+  <div class="hero-white-box">
+  <div class="hero-inner">
+    <aside class="category-sidebar" id="categorySidebar">
+      <div class="category-sidebar-title">全部商品分类</div>
+      <div class="category-body">
+        <ul class="category-list" id="categoryList"></ul>
+        <div class="category-panel" id="categoryPanel"></div>
+      </div>
+    </aside>
+
+    <div class="hero-center">
+      <div class="focus-banner" id="focusBanner"></div>
+    </div>
+
+    <aside class="user-panel">
+      <div class="uc-card" id="ucCard" data-state="logged">
+        <div class="uc-card-inner">
+        <a class="uc-vip-tab" href="javascript:void(0)" id="ucVipTab">企业员工</a>
+        <div class="uc-head" id="ucHead">
+          <div class="uc-avatar-wrap">
+            <div class="uc-avatar" id="ucAvatar">我</div>
+          </div>
+          <div class="uc-info">
+            <div class="uc-name"><a href="javascript:void(0)" id="userAction">请登录</a></div>
+            <span class="uc-badge" id="ucBadge">企业 2年</span>
+            <div class="uc-save" id="ucSave">已省 ¥<em>0.00</em></div>
+          </div>
+        </div>
+        <div class="uc-assets" id="ucAssets">
+          <div class="uc-stat" data-link="coupons">
+            <div class="uc-val" data-guest="0" data-logged="1">0<span class="uc-unit">张</span></div>
+            <div class="uc-lbl">优惠券</div>
+            <div class="uc-hint" data-guest="登录后查看" data-logged="1张即将过期">登录后查看</div>
+          </div>
+          <div class="uc-stat" data-link="points">
+            <div class="uc-val" data-guest="0" data-logged="899">0</div>
+            <div class="uc-lbl">苏银豆</div>
+            <div class="uc-hint" data-guest="积分可兑好礼" data-logged="可抵¥89.9">积分可兑好礼</div>
+          </div>
+          <div class="uc-stat" data-link="coupons">
+            <div class="uc-val" data-guest="0" data-logged="8">0</div>
+            <div class="uc-lbl">卡券</div>
+            <div class="uc-hint" data-guest="登录后查看" data-logged="2张即将过期">登录后查看</div>
+          </div>
+        </div>
+        <div class="uc-notices" id="ucNotices">
+          <div class="uc-notice-viewport">
+            <div class="uc-notice-track" id="ucNoticeTrack">
+              <div class="uc-notice" data-link="favorites">
+                <div class="uc-notice-thumb"><img src="" id="ucNoticeThumb" alt=""></div>
+                <div class="uc-notice-body"><div class="uc-notice-title">降价提醒</div><div class="uc-notice-desc">油画颜料画笔套装降至¥89</div></div>
+              </div>
+              <div class="uc-notice" data-link="points">
+                <div class="uc-notice-icon">豆</div>
+                <div class="uc-notice-body"><div class="uc-notice-title">积分提醒</div><div class="uc-notice-desc uc-notice-points" data-guest="登录查看过期积分" data-logged="5笔积分3天后过期">5笔积分3天后过期</div></div>
+              </div>
+              <div class="uc-notice" data-link="coupons">
+                <div class="uc-notice-icon uc-notice-icon-ticket">
+                  <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M4 8h16v8H4z"/><path d="M9 8v8M15 8v8"/><circle cx="9" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg>
+                </div>
+                <div class="uc-notice-body"><div class="uc-notice-title">卡券提醒</div><div class="uc-notice-desc uc-notice-coupon" data-guest="登录查看过期卡券" data-logged="电影票7天后过期">电影票7天后过期</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="uc-notice-dots" id="ucNoticeDots"></div>
+        </div>
+        <div class="uc-toolbox-title" id="ucToolboxTitle"><span>我的服务</span><i></i></div>
+        <nav class="uc-nav" id="ucNav">
+          <div class="uc-nav-item" data-nav="orders">
+            <div class="uc-nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M6 4h12v16H6z"/><path d="M9 8h6M9 12h6"/></svg></div>
+            <span>已买到</span>
+          </div>
+          <div class="uc-nav-item active" data-nav="favorites">
+            <div class="uc-nav-ico"><svg class="nav-star" viewBox="0 0 24 24" stroke-width="1.6"><path d="M12 3l2.6 5.3 5.9.9-4.2 4.1 1 5.8L12 16.8 6.7 19l1-5.8L3.5 9.2l5.9-.9z"/></svg></div>
+            <span>收藏夹</span>
+          </div>
+          <div class="uc-nav-item" data-nav="footprint">
+            <div class="uc-nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg></div>
+            <span>足迹</span>
+          </div>
+          <div class="uc-nav-item" data-nav="address">
+            <div class="uc-nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M12 21s7-4.5 7-11a7 7 0 10-14 0c0 6.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div>
+            <span>收货地址</span>
+          </div>
+        </nav>
+        </div>
+      </div>
+    </aside>
+  </div>
+  </div>
+  </div>
+</div>
+</div>
+
+<div class="container page-sections">
+  <div class="notice-bar">
+    <div class="notice-bar-label">
+      <svg viewBox="0 0 24 24"><path d="M18 8a3 3 0 10-6 0v5.17l-1.59 1.59A2 2 0 0012 18h8V8h-2zM6 10v8H4a2 2 0 01-2-2v-4a2 2 0 012-2h2zm2-6a4 4 0 014 4v5.17l4.59 4.59A2 2 0 0114 22H6V4h2z"/></svg>
+      <span>公告</span>
+    </div>
+    <div class="notice-bar-viewport">
+      <div class="notice-bar-track" id="noticeBarTrack">
+        <div class="notice-bar-inner" id="noticeBarInner"></div>
+        <div class="notice-bar-inner" aria-hidden="true" id="noticeBarInnerClone"></div>
+      </div>
+    </div>
+    <a class="notice-bar-more" href="#">更多 ›</a>
+  </div>
+  <!-- 四宫格运营位 -->
+  <div class="promo-grid-4">
+    <div class="promo-module">
+      <div class="promo-module-head"><h3>热销榜单</h3><a href="#">更多 ›</a></div>
+      <div class="rank-list" id="rankList"></div>
+    </div>
+    <div class="promo-module promo-module-brand">
+      <div class="promo-module-head"><h3>品牌专区</h3><a href="02.活动专区页-原型页面.html#brand">更多 ›</a></div>
+      <div class="brand-banners" id="brandBanners"></div>
+    </div>
+    <div class="promo-module">
+      <div class="promo-module-head"><h3>积分精选</h3><a href="#">更多 ›</a></div>
+      <div class="pick-grid" id="pickGridA"></div>
+    </div>
+    <div class="promo-module">
+      <div class="promo-module-head"><h3>每日上新</h3><a href="#">更多 ›</a></div>
+      <div class="pick-grid" id="pickGridB"></div>
+    </div>
+  </div>
+
+  <!-- 专属福利专区 -->
+  <div class="welfare-zone">
+    <div class="welfare-zone-aside">
+      <h3><span>专属福利专区</span><span>一站全买齐</span></h3>
+      <a class="welfare-zone-more" href="02.活动专区页-原型页面.html#welfare">进入全场景<i></i></a>
+    </div>
+    <div class="welfare-zone-cards">
+      <a class="welfare-card" href="03.活动页-原型页面.html?id=welfare-food">
+        <div class="welfare-card-head">
+          <span class="welfare-card-title">美食礼盒</span>
+          <span class="welfare-card-desc">香煎牛排 家宴首选</span>
+          <i class="welfare-card-arrow"></i>
+        </div>
+        <div class="welfare-card-img"><img src="" data-welfare-img="0" alt="美食礼盒"></div>
+      </a>
+      <a class="welfare-card" href="03.活动页-原型页面.html?id=welfare-digital">
+        <div class="welfare-card-head">
+          <span class="welfare-card-title">数码音频</span>
+          <span class="welfare-card-desc">降噪耳机 沉浸聆听</span>
+          <i class="welfare-card-arrow"></i>
+        </div>
+        <div class="welfare-card-img"><img src="" data-welfare-img="1" alt="数码音频"></div>
+      </a>
+      <a class="welfare-card" href="03.活动页-原型页面.html?id=welfare-home">
+        <div class="welfare-card-head">
+          <span class="welfare-card-title">舒适家居</span>
+          <span class="welfare-card-desc">北欧单人沙发椅</span>
+          <i class="welfare-card-arrow"></i>
+        </div>
+        <div class="welfare-card-img"><img src="" data-welfare-img="2" alt="舒适家居"></div>
+      </a>
+      <a class="welfare-card" href="03.活动页-原型页面.html?id=welfare-office">
+        <div class="welfare-card-head">
+          <span class="welfare-card-title">职场读物</span>
+          <span class="welfare-card-desc">创业管理 8册套装</span>
+          <i class="welfare-card-arrow"></i>
+        </div>
+        <div class="welfare-card-img"><img src="" data-welfare-img="3" alt="职场读物"></div>
+      </a>
+    </div>
+  </div>
+
+  <!-- 分类楼层：左营销引流 + 右SKU转化（同为你推荐商品卡） -->
+  <div class="cat-floors" id="catFloors"></div>
+
+  <!-- 商品推荐 -->
+  <div class="feed-section">
+    <div class="feed-tabs">
+      <div class="feed-tab active" data-tab="hot">为你推荐</div>
+      <div class="feed-tab" data-tab="recommend">积分特惠</div>
+      <div class="feed-tab" data-tab="new">每日上新</div>
+      <div class="feed-tab" data-tab="hot">数码家电</div>
+      <div class="feed-tab" data-tab="recommend">美妆护肤</div>
+    </div>
+    <div class="product-grid" id="productGrid"></div>
+  </div>
+</div>
+
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+
+<!-- 登录弹窗 -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-close" onclick="closeLogin()" data-proto-icon="close" data-icon-size="18"></div></div>
+    <div class="modal-tabs">
+      <div class="modal-tab active" onclick="switchLoginTab(this,'phone')">手机号登录</div>
+      <div class="modal-tab" onclick="switchLoginTab(this,'wechat')">微信扫码</div>
+    </div>
+    <div class="modal-body" id="loginBody">
+      <div class="form-group"><label>手机号</label><input class="form-input" type="tel" placeholder="请输入手机号" maxlength="11"></div>
+      <div class="form-group"><label>验证码</label><div class="form-row"><input class="form-input" type="text" placeholder="请输入验证码" maxlength="6"><button class="sms-btn">获取验证码</button></div></div>
+      <button class="modal-submit">登 录</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/product-images.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+ProtoAuth.initTopBar({
+  isHome: true,
+  cartCount: 15,
+  openLogin: function () { openLogin(); },
+  onLogoutClick: function () { applyUcState('guest'); }
+});
+if (new URLSearchParams(location.search).get('login') === '1') openLogin();
+const NOTICE_ITEMS = [
+  '恭喜用户 <em>138****8821</em> 成功兑换 Apple Watch Series 9 一台',
+  '企业福利季开启，<em>全场积分商品限时加赠苏银豆</em>',
+  '端午礼品专区上线，蛋糕/礼盒 <em>企业集采专享价</em> 已开放',
+  '电影票次卡即将过期，请尽快前往卡券包查看使用',
+  '苏银豆到账通知：您的企业积分 <em>5000豆</em> 已发放至账户'
+];
+(function initNoticeBar() {
+  const html = NOTICE_ITEMS.map(t => `<a href="#">${t}</a>`).join('');
+  document.getElementById('noticeBarInner').innerHTML = html;
+  document.getElementById('noticeBarInnerClone').innerHTML = html;
+})();
+
+const PROMO_IMGS = [IMG.bags, IMG.shirt, IMG.p55, IMG.p11];
+const WELFARE_IMGS = [IMG.p45, IMG.p53, IMG.chair, IMG.camera];
+(function initStaticHeaderImgs() {
+  document.querySelectorAll('[data-promo-img]').forEach(el => {
+    const src = PROMO_IMGS[Number(el.dataset.promoImg)];
+    if (src) el.src = src;
+  });
+  document.querySelectorAll('[data-welfare-img]').forEach(el => {
+    const src = WELFARE_IMGS[Number(el.dataset.welfareImg)];
+    if (src) el.src = src;
+  });
+})();
+
+const ACTIVITY_PAGE = '03.活动页-原型页面.html';
+const JD_BANNERS = [
+  { bg: 'https://m.360buyimg.com/babel/jfs/t1/442651/35/9171/43312/6a1a98b9F4a2d96b0/00ae400140785815.jpg', img: 'https://m.360buyimg.com/babel/jfs/t1/445641/12/5170/4553/6a1a98ddF277212d0/0276400140f2e0a3.png', id: 'apple-wear' },
+  { bg: 'https://m.360buyimg.com/babel/jfs/t1/446020/13/5889/38099/6a1ad5abFb22643a0/00ae4001405e1519.png', img: 'https://m.360buyimg.com/babel/jfs/t1/443428/16/5780/16419/6a1ad5b3F5a591e6a/00ae400140e89519.png', id: 'menswear' },
+  { bg: 'https://m.360buyimg.com/babel/jfs/t1/451820/34/1652/127992/6a20d8dfFd331330b/02764001407e15b2.png', img: 'https://m.360buyimg.com/babel/jfs/t1/446379/27/7886/24168/6a20d858Fd077312f/0276400140cb2293.png', id: 'nike-sport' },
+  { bg: 'https://m.360buyimg.com/babel/jfs/t1/444554/26/19011/27121/6a292dbcF84fe3830/00ae400140230e35.jpg', img: 'https://m.360buyimg.com/babel/jfs/t1/457000/39/805/9650/6a292dc2Fe9d51068/00ae40014086a6ea.png', id: 'welfare-digital' }
+];
+let currentSlide = 0;
+let bannerTimer;
+
+function renderFocusBanner() {
+  const root = document.getElementById('focusBanner');
+  root.innerHTML = JD_BANNERS.map((b, i) =>
+    `<a href="${ACTIVITY_PAGE}?id=${b.id}" class="focus-banner-item${i === 0 ? ' focus-banner-item-active' : ''}">` +
+    `<img class="focus-banner-item-bg" src="${b.bg}" alt="">` +
+    `<img class="focus-banner-item-img" src="${b.img}" alt="">` +
+    `</a>`
+  ).join('') +
+  `<ul class="focus-banner-indicators" id="bannerDots">` +
+  JD_BANNERS.map((_, i) => `<li class="${i === 0 ? 'focus-banner-indicator-active' : ''}" onclick="goSlide(${i})"></li>`).join('') +
+  `</ul>` +
+  `<div class="focus-banner_left_arrow" onclick="slideBanner(-1)"></div>` +
+  `<div class="focus-banner_right_arrow" onclick="slideBanner(1)"></div>`;
+}
+function goSlide(idx) {
+  currentSlide = idx;
+  document.querySelectorAll('.focus-banner-item').forEach((el, i) => el.classList.toggle('focus-banner-item-active', i === idx));
+  document.querySelectorAll('.focus-banner-indicators li').forEach((el, i) => el.classList.toggle('focus-banner-indicator-active', i === idx));
+}
+function slideBanner(dir) {
+  goSlide((currentSlide + dir + JD_BANNERS.length) % JD_BANNERS.length);
+  resetBannerTimer();
+}
+function resetBannerTimer() {
+  clearInterval(bannerTimer);
+  bannerTimer = setInterval(() => slideBanner(1), 4000);
+}
+renderFocusBanner();
+resetBannerTimer();
+document.getElementById('focusBanner').addEventListener('mouseenter', () => clearInterval(bannerTimer));
+document.getElementById('focusBanner').addEventListener('mouseleave', resetBannerTimer);
+
+const CAT_ICON_BASE = 'http://img30.360buyimg.com/phoenix/jfs';
+const CAT_ICONS = {
+  digital: `<img src="${CAT_ICON_BASE}/t1/330450/9/3947/641/68ac2377F947c0977/d0c40b32b8fe91a0.png" alt="">`,
+  beauty: `<img src="${CAT_ICON_BASE}/t1/328074/26/10931/683/68ac235dFd8b60f34/dd4b0a9ee1b5f66f.png" alt="">`,
+  fashion: `<img src="${CAT_ICON_BASE}/t1/324432/21/10800/764/68ac23c6F25b79cdf/8b3ddb5f9bdea18d.png" alt="">`,
+  home: `<img src="${CAT_ICON_BASE}/t1/326845/1/11930/569/68aef066Fd93afbfc/df9a842e1802fa18.png" alt="">`,
+  food: `<img src="${CAT_ICON_BASE}/t1/328074/26/10931/683/68ac235dFd8b60f34/dd4b0a9ee1b5f66f.png" alt="">`,
+  points: `<img src="${CAT_ICON_BASE}/t1/325792/10/10730/912/68ac2392F1ededa1c/1227912654a8cebf.png" alt="">`,
+  gift: `<img src="${CAT_ICON_BASE}/t1/332912/33/3942/979/68ac23a7Fef19d2c9/14c13c9e3b321991.png" alt="">`,
+  life: `<img src="${CAT_ICON_BASE}/t1/334948/5/3964/682/68ac23b9Fdf90a017/08e5479af55b8b1e.png" alt="">`,
+  office: `<img src="${CAT_ICON_BASE}/t1/325555/13/10840/525/68ac234eF2ce3cdda/2678a4007bc4dc5f.png" alt="">`
+};
+
+const sidebarCategories = [
+  { icon: CAT_ICONS.digital, groups: ['数码家电', '智能穿戴', '电脑办公'], hl: 1, sections: [
+    { title: '数码家电', items: ['手机', '平板', '耳机', '音箱', '相机', '投影仪', '智能电视', '游戏机', '无人机'] },
+    { title: '智能穿戴', items: ['智能手表', '运动手环', '智能眼镜', '儿童手表', '健康监测'] },
+    { title: '电脑办公', items: ['笔记本', '台式机', '显示器', '键盘', '鼠标', '硬盘', '打印机', '路由器'] }
+  ]},
+  { icon: CAT_ICONS.beauty, groups: ['美妆护肤', '个护清洁', '香水彩妆'], hl: 0, sections: [
+    { title: '美妆护肤', items: ['面部精华', '爽肤水', '乳液面霜', '面膜', '防晒', '卸妆', '护肤套装'] },
+    { title: '个护清洁', items: ['洗发水', '沐浴露', '牙膏', '电动牙刷', '剃须刀', '卫生巾', '洗手液'] },
+    { title: '香水彩妆', items: ['口红', '粉底', '眼影', '眉笔', '香水', '气垫', '化妆工具'] }
+  ]},
+  { icon: CAT_ICONS.fashion, groups: ['服饰鞋包', '运动户外', '精品配饰'], hl: 1, sections: [
+    { title: '服饰鞋包', items: ['T恤', '衬衫', '外套', '连衣裙', '牛仔裤', '运动鞋', '皮鞋', '双肩包', '手提包'] },
+    { title: '运动户外', items: ['跑步鞋', '运动服', '瑜伽垫', '健身器材', '球类', '露营装备', '骑行装备'] },
+    { title: '精品配饰', items: ['手表', '太阳镜', '皮带', '围巾', '帽子', '首饰', '领带'] }
+  ]},
+  { icon: CAT_ICONS.home, groups: ['家居生活', '厨具餐饮', '家纺床品'], hl: 0, sections: [
+    { title: '家居生活', items: ['收纳整理', '灯具', '摆件', '地毯', '窗帘', '沙发', '桌椅', '衣架'] },
+    { title: '厨具餐饮', items: ['锅具', '刀具', '保温杯', '电饭煲', '空气炸锅', '咖啡机', '餐具'] },
+    { title: '家纺床品', items: ['四件套', '被子', '枕头', '床垫', '毛巾', '浴巾', '地毯'] }
+  ]},
+  { icon: CAT_ICONS.food, groups: ['食品生鲜', '茗茶酒水', '休闲零食'], hl: 1, sections: [
+    { title: '食品生鲜', items: ['水果', '蔬菜', '肉类', '海鲜', '蛋类', '速冻食品', '产地直销'] },
+    { title: '茗茶酒水', items: ['白酒', '红酒', '啤酒', '茶叶', '咖啡', '冲饮', '礼盒装'] },
+    { title: '休闲零食', items: ['坚果', '饼干', '糖果', '巧克力', '肉脯', '膨化食品', '蜜饯'] }
+  ]},
+  { icon: CAT_ICONS.points, groups: ['积分兑换', '卡券充值', '权益服务'], hl: 0, sections: [
+    { title: '积分兑换', items: ['苏银豆兑好礼', '积分加购', '限时兑换', '会员专享', '企业定制'] },
+    { title: '卡券充值', items: ['话费充值', '油卡充值', '视频会员', '音乐会员', '外卖券', '出行券'] },
+    { title: '权益服务', items: ['健康体检', '家政服务', '洗衣洗护', '维修保养', '法律咨询'] }
+  ]},
+  { icon: CAT_ICONS.gift, groups: ['节日礼品', '企业福利', '定制礼盒'], hl: 1, sections: [
+    { title: '节日礼品', items: ['端午礼盒', '中秋礼盒', '春节礼盒', '生日礼品', '婚庆伴手礼'] },
+    { title: '企业福利', items: ['员工关怀', '批量采购', '年会奖品', '团建物资', '慰问礼包'] },
+    { title: '定制礼盒', items: ['组合套餐', '品牌联名', '高端礼盒', '同城配送', '贺卡定制'] }
+  ]},
+  { icon: CAT_ICONS.life, groups: ['电影票', '蛋糕定制', '文娱演出'], hl: 0, sections: [
+    { title: '电影票', items: ['在线选座', '次卡兑换', 'IMAX', '亲子场', '影城通兑'] },
+    { title: '蛋糕定制', items: ['生日蛋糕', '慕斯蛋糕', '下午茶', '同城配送', '企业团购'] },
+    { title: '文娱演出', items: ['演唱会', '话剧', '展览', '主题乐园', '亲子活动'] }
+  ]},
+  { icon: CAT_ICONS.office, groups: ['文具办公', '清洁用品', '日用百货'], hl: 0, sections: [
+    { title: '文具办公', items: ['中性笔', '笔记本', '文件夹', '订书机', '计算器', '白板', '打印纸'] },
+    { title: '清洁用品', items: ['卫生纸', '洗衣液', '消毒液', '垃圾袋', '拖把', '清洁剂', '纸巾'] },
+    { title: '日用百货', items: ['雨伞', '拖鞋', '衣架', '保鲜盒', '电池', '灯泡', '一次性用品'] }
+  ]}
+];
+
+function renderCatText(groups, hl, cat, catId) {
+  return `<div class="cat-subtitle">${groups.map((g, i) =>
+    `<div>${i > 0 ? '<span class="subtitle-split">/</span>' : ''}<a class="subtitle-link${i === hl ? ' hl' : ''}" href="${resolveGroupLink(cat, catId, g)}">${g}</a></div>`
+  ).join('')}</div>`;
+}
+
+const CAT_IDS = ['digital', 'beauty', 'fashion', 'home', 'food', 'points', 'gift', 'life', 'office'];
+const SEARCH_PAGE = '04.搜索分类页-原型页面.html';
+const CAT_ROOT_NAMES = {
+  digital: '数码家电',
+  beauty: '美妆护肤',
+  fashion: '服饰鞋包',
+  home: '家居生活',
+  food: '食品饮料',
+  points: '积分兑换',
+  gift: '节日礼品',
+  life: '生活服务',
+  office: '文具办公'
+};
+
+function buildSearchCatUrl(catId, sub) {
+  if (!catId) return SEARCH_PAGE;
+  let url = SEARCH_PAGE + '?cat=' + catId;
+  if (sub) url += '.' + encodeURIComponent(sub);
+  return url;
+}
+
+function resolveGroupLink(cat, catId, groupName) {
+  if (groupName === CAT_ROOT_NAMES[catId] || groupName === cat.groups[0]) {
+    return buildSearchCatUrl(catId);
+  }
+  const section = cat.sections.find(s => s.title === groupName);
+  if (section && section.items.length) {
+    return buildSearchCatUrl(catId, section.items[0]);
+  }
+  return SEARCH_PAGE + '?q=' + encodeURIComponent(groupName);
+}
+
+function renderCategoryPanel(cat, catId) {
+  return cat.sections.map(s => {
+    const sectionUrl = s.items.length ? buildSearchCatUrl(catId, s.items[0]) : buildSearchCatUrl(catId);
+    return `<div class="cat-panel-row"><div class="cat-panel-title"><a href="${sectionUrl}">${s.title}</a></div><div class="cat-panel-tags">${s.items.map(i => `<a href="${buildSearchCatUrl(catId, i)}">${i}</a>`).join('')}</div></div>`;
+  }).join('');
+}
+
+const categoryListEl = document.getElementById('categoryList');
+const categoryPanelEl = document.getElementById('categoryPanel');
+const categorySidebarEl = document.getElementById('categorySidebar');
+
+categoryListEl.innerHTML = sidebarCategories.map((c, i) =>
+  `<li class="category-item" data-idx="${i}" data-cat="${CAT_IDS[i]}"><span class="cat-icon">${c.icon}</span>${renderCatText(c.groups, c.hl, c, CAT_IDS[i])}</li>`
+).join('');
+
+document.querySelector('.category-sidebar-title').addEventListener('click', () => {
+  location.href = SEARCH_PAGE;
+});
+
+const categoryBodyEl = document.querySelector('.category-body');
+let catPanelTimer = null;
+
+function hideCategoryPanel() {
+  categoryPanelEl.classList.remove('show');
+  categoryBodyEl.classList.remove('show-panel');
+  categoryListEl.querySelectorAll('.category-item').forEach(el => el.classList.remove('active'));
+}
+
+function showCategoryPanel(idx) {
+  const cat = sidebarCategories[idx];
+  if (!cat) return;
+  clearTimeout(catPanelTimer);
+  categoryListEl.querySelectorAll('.category-item').forEach((el, i) => el.classList.toggle('active', i === idx));
+  categoryPanelEl.innerHTML = renderCategoryPanel(cat, CAT_IDS[idx]);
+  categoryPanelEl.classList.add('show');
+  categoryBodyEl.classList.add('show-panel');
+}
+
+categoryListEl.querySelectorAll('.category-item').forEach(el => {
+  el.addEventListener('mouseenter', () => showCategoryPanel(+el.dataset.idx));
+  el.addEventListener('click', e => {
+    if (e.target.closest('a')) return;
+    location.href = buildSearchCatUrl(el.dataset.cat);
+  });
+});
+
+categorySidebarEl.addEventListener('mouseenter', () => {
+  clearTimeout(catPanelTimer);
+  if (!categoryPanelEl.classList.contains('show')) showCategoryPanel(0);
+});
+
+categorySidebarEl.addEventListener('mouseleave', () => {
+  catPanelTimer = setTimeout(hideCategoryPanel, 150);
+});
+
+categoryPanelEl.addEventListener('mouseenter', () => clearTimeout(catPanelTimer));
+categoryBodyEl.addEventListener('mouseenter', () => clearTimeout(catPanelTimer));
+
+function getProductBrand(name, brand) {
+  if (brand) return brand;
+  const rules = [
+    [/iPhone|iPad|Apple|Vision Pro/i, '苹果'],
+    [/SK-II/i, 'SK-II'],
+    [/雅诗兰黛/i, '雅诗兰黛'],
+    [/兰蔻/i, '兰蔻'],
+    [/资生堂/i, '资生堂'],
+    [/Nike/i, 'Nike'],
+    [/Sony|WH-1000/i, '索尼'],
+    [/Lego|乐高/i, '乐高'],
+    [/戴森|Dyson/i, '戴森'],
+    [/飞利浦/i, '飞利浦'],
+    [/Switch/i, '任天堂'],
+    [/小米/i, '小米'],
+    [/Adidas/i, 'Adidas'],
+    [/Bose/i, 'Bose'],
+    [/科沃斯/i, '科沃斯'],
+    [/Marshall/i, 'Marshall'],
+    [/Samsung|Galaxy/i, '三星'],
+    [/华为|Mate/i, '华为'],
+    [/大疆|Osmo/i, '大疆'],
+    [/Kindle/i, '亚马逊'],
+    [/GoPro/i, 'GoPro']
+  ];
+  for (const [re, b] of rules) if (re.test(name)) return b;
+  const cn = name.match(/^[\u4e00-\u9fa5]{2,4}/);
+  return cn ? cn[0] : name.split(/\s/)[0].slice(0, 6);
+}
+
+function formatPrice(n) {
+  return Number.isInteger(n) ? String(n) : n.toFixed(2);
+}
+
+function renderInfoTags(tags) {
+  const list = (tags || []).filter(Boolean).slice(0, 2);
+  if (!list.length) return '';
+  return `<div class="product-card-tags">${list.map((t, i) => `<span class="info-tag ${i % 2 ? 'green' : 'red'}">${t}</span>`).join('')}</div>`;
+}
+
+const DETAIL_PAGE = '05.商品详情页-原型页面.html';
+
+function renderProductCard(p, linkable) {
+  const brand = getProductBrand(p.name, p.brand);
+  const originPrice = p.originPrice || Math.round(p.price * 1.12);
+  const subsidy = p.subsidy != null ? p.subsidy : +(originPrice - p.price).toFixed(2);
+  const goDetail = linkable ? ` onclick="location.href='${DETAIL_PAGE}'"` : '';
+  return `<div class="product-card"${goDetail}>
+    <div class="product-card-img"><img src="${p.img}" alt="${p.name}"></div>
+    <div class="product-card-info">
+      <div class="product-card-name"><span class="brand-tag">【${brand}】</span>${p.name}</div>
+      ${renderInfoTags(p.tags)}
+      <div class="product-card-bottom">
+        <div class="product-card-price-col">
+          <div class="price-row">
+            <span class="price-subsidy"><em>¥</em>${formatPrice(p.price)}</span>
+            <span class="price-origin">¥${formatPrice(originPrice)}</span>
+          </div>
+          <div class="price-meta">
+            <span class="subsidy-tip">已补贴${formatPrice(subsidy)}元</span>
+          </div>
+        </div>
+        <button class="cart-add" type="button" title="加入购物车" onclick="event.stopPropagation();ProtoToast.show()"><i class="cart-icon"></i></button>
+      </div>
+    </div>
+  </div>`;
+}
+
+const pickProductsA = [
+  { brand: '调酒世家', name: '马天尼鸡尾酒调制工具套装', price: 299, tags: ['精选', '餐饮'], img: IMG.p28 },
+  { brand: '乐扣', name: '高硼硅耐热玻璃杯 4只装', price: 39, tags: ['惠选', '家居'], img: IMG.p17 },
+  { brand: '特仑苏', name: '全脂鲜牛奶 250ml×12盒', price: 128, tags: ['标品', '乳品'], img: IMG.p19 },
+  { brand: 'Curology', name: '洁面保湿护肤套装 2件套', price: 298, tags: ['精选', '美妆'], img: IMG.p34 }
+];
+const pickProductsB = [
+  { brand: '泰摩', name: '不锈钢手冲咖啡滴滤支架', price: 399, tags: ['新品', '餐饮'], img: IMG.p23 },
+  { brand: '苏泊尔', name: '珐琅铸铁炖锅 3.5L 红色', price: 399, tags: ['热销', '厨具'], img: IMG.p9 },
+  { brand: 'PROBAT', name: '商用咖啡烘焙机 小型款', price: 28600, tags: ['大牌严选', '设备'], img: IMG.main01 },
+  { brand: '站长工具', name: '企业网站SEO优化服务年卡', price: 2999, tags: ['企业服务', '数字化'], img: IMG.p24 }
+];
+function renderCatFloorMini(m) {
+  return `<a class="cat-floor-poster cat-floor-poster--mini" href="${m.href || '#'}">
+    <img src="${m.img}" alt="${m.title}">
+    <div class="cat-floor-poster-copy cat-floor-poster-copy--mini">
+      <span class="cat-floor-brand">${m.tag}</span>
+      <strong>${m.title}</strong>
+      <span class="cat-floor-mini-desc">${m.desc}</span>
+    </div>
+  </a>`;
+}
+
+function renderPosterHero(s) {
+  const pointsHtml = (s.points || []).map(p => `<li>${p}</li>`).join('');
+  const dots = s.carousel ? '<div class="cat-floor-dots"><i class="on"></i><i></i><i></i></div>' : '';
+  const arrows = s.carousel ? `<button type="button" class="cat-floor-poster-arrow prev" aria-label="上一张" onclick="event.preventDefault();event.stopPropagation()">‹</button>
+          <button type="button" class="cat-floor-poster-arrow next" aria-label="下一张" onclick="event.preventDefault();event.stopPropagation()">›</button>` : '';
+  return `<a class="cat-floor-poster cat-floor-poster--hero cat-floor-poster--${s.theme || 'green'}" href="${s.href || '#'}">
+          <div class="cat-floor-poster-copy">
+            <span class="cat-floor-brand">${s.brand}</span>
+            <strong>${s.headline}</strong>
+            ${pointsHtml ? `<ul class="cat-floor-points">${pointsHtml}</ul>` : ''}
+          </div>
+          <img src="${s.img}" alt="${s.headline}">
+          ${arrows}${dots}
+        </a>`;
+}
+
+function renderPosterStack(s) {
+  return `<a class="cat-floor-poster cat-floor-poster--stack cat-floor-poster--${s.theme || 'dark'}" href="${s.href || '#'}">
+          <div class="cat-floor-poster-copy">
+            <span class="cat-floor-brand">${s.brand}</span>
+            <strong>${s.headline}</strong>
+            ${s.sub ? `<span>${s.sub}</span>` : ''}
+          </div>
+          <img src="${s.img}" alt="${s.headline}">
+        </a>`;
+}
+
+function renderPosterHeroHalf(s, side) {
+  if (!s) return '';
+  const isLeft = side === 'left';
+  const pointsHtml = isLeft && s.points ? (s.points || []).map(p => `<li>${p}</li>`).join('') : '';
+  const dots = isLeft && s.carousel ? '<div class="cat-floor-dots"><i class="on"></i><i></i><i></i></div>' : '';
+  const arrows = isLeft && s.carousel ? `<button type="button" class="cat-floor-poster-arrow prev" aria-label="上一张" onclick="event.preventDefault();event.stopPropagation()">‹</button>
+          <button type="button" class="cat-floor-poster-arrow next" aria-label="下一张" onclick="event.preventDefault();event.stopPropagation()">›</button>` : '';
+  const copy = isLeft ? `<div class="cat-floor-poster-copy">
+            <span class="cat-floor-brand">${s.brand}</span>
+            <strong>${s.headline}</strong>
+            ${pointsHtml ? `<ul class="cat-floor-points">${pointsHtml}</ul>` : ''}
+          </div>` : '';
+  return `<a class="cat-floor-poster cat-floor-poster--hero cat-floor-poster--hero-${side} cat-floor-poster--${s.theme || 'green'}" href="${s.href || '#'}">
+          ${copy}
+          <img src="${s.img}" alt="${s.headline}">
+          ${arrows}${dots}
+        </a>`;
+}
+
+function renderPosterAsm(asm) {
+  if (asm.layout === 'stack') {
+    return `<div class="cat-floor-assembler cat-floor-assembler--stack">${asm.slots.map(renderPosterStack).join('')}</div>`;
+  }
+  if (asm.layout === 'split') {
+    const hero = asm.slots.find(s => s.role === 'hero');
+    const wides = asm.slots.filter(s => s.role === 'wide');
+    return `<div class="cat-floor-assembler cat-floor-assembler--split">
+      <div class="cat-floor-split-left">${renderPosterHero(hero)}</div>
+      <div class="cat-floor-split-right">
+        ${renderPosterHeroHalf(hero, 'right')}
+        <div class="cat-floor-mini-stack">${wides.map(renderCatFloorMini).join('')}</div>
+      </div>
+    </div>`;
+  }
+  const hero = asm.slots.find(s => s.role === 'hero');
+  const bottoms = asm.slots.filter(s => s.role === 'bottom');
+  if (bottoms.length >= 2) {
+    return `<div class="cat-floor-assembler cat-floor-assembler--mix">
+      ${renderPosterHero(hero)}
+      <div class="cat-floor-assembler-bottom cat-floor-assembler-bottom--dual">
+        ${bottoms.slice(0, 2).map(renderPosterStack).join('')}
+      </div>
+    </div>`;
+  }
+  const tall = asm.slots.find(s => s.role === 'tall');
+  const wides = asm.slots.filter(s => s.role === 'wide');
+  return `<div class="cat-floor-assembler cat-floor-assembler--mix">
+      ${renderPosterHero(hero)}
+      <div class="cat-floor-assembler-bottom">
+        ${tall ? renderCatFloorMini(tall) : ''}
+        <div class="cat-floor-mini-stack">${wides.map(renderCatFloorMini).join('')}</div>
+      </div>
+    </div>`;
+}
+
+function floorSearchUrl(f) {
+  if (f.searchCat && f.searchSub) return buildSearchCatUrl(f.searchCat, f.searchSub);
+  if (f.searchCat) return buildSearchCatUrl(f.searchCat);
+  return SEARCH_PAGE + '?q=' + encodeURIComponent((f.title || '').split('/')[0]);
+}
+
+function renderCatFloor(f) {
+  const productsHtml = f.products.map(p => renderProductCard(p, true)).join('');
+  const floorId = 'cat-floor-' + f.floor.toLowerCase();
+  const moreHref = f.moreHref || floorSearchUrl(f);
+  return `<section class="cat-floor" id="${floorId}" data-floor="${f.floor}">
+    <div class="cat-floor-head">
+      <h3><em>${f.floor}</em>${f.title}</h3>
+      <a href="${moreHref}">查看全部 ›</a>
+    </div>
+    <div class="cat-floor-body">
+      ${renderPosterAsm(f.posterAsm)}
+      <div class="cat-floor-products">${productsHtml}</div>
+    </div>
+  </section>`;
+}
+
+const catFloorConfigs = [
+  {
+    floor: '1F',
+    title: '办公文具/办公用纸',
+    searchCat: 'office',
+    searchSub: '中性笔',
+    posterAsm: {
+      layout: 'mix',
+      slots: [
+        { role: 'hero', brand: '晨光', headline: '办公文具采购季', points: ['走珠笔', '记事本', '企业集采'], img: IMG.p17, theme: 'green', carousel: true, href: buildSearchCatUrl('office', '中性笔') },
+        { role: 'bottom', brand: '美术', headline: '绘画画笔', sub: '专业颜料 美术专用', img: IMG.p24, theme: 'office', href: buildSearchCatUrl('office', '美术用品') },
+        { role: 'bottom', brand: '读物', headline: '职场书籍', sub: '商务学习 8册套装', img: IMG.p8, theme: 'warm', href: buildSearchCatUrl('office', '图书') }
+      ]
+    },
+    products: [
+      { brand: '晨光', name: 'uni-ball 针管走珠笔 0.5mm 蓝色', price: 12.5, tags: ['标品', '文具'], sales: '2.1万', img: IMG.p32 },
+      { brand: '温莎牛顿', name: '专业美术绘画画笔套装', price: 89, tags: ['惠选', '文具'], sales: '3200', img: IMG.main02 },
+      { brand: '中信出版', name: '职场办公必读书籍 8册套装', price: 428, tags: ['大牌严选', '图书'], sales: '1800', img: IMG.main03 },
+      { brand: '乐扣', name: '办公耐热玻璃杯 4只装', price: 39, tags: ['标品', '水具'], sales: '9200', img: IMG.p18 },
+      { brand: '膳魔师', name: '磨砂保温杯 500ml 森林绿', price: 79, tags: ['惠选', '水具'], sales: '5600', img: IMG.p37 },
+      { brand: '得力', name: '透明办公玻璃杯 单只装', price: 15, tags: ['标品', '水具'], sales: '6800', img: IMG.e18 }
+    ]
+  },
+  {
+    floor: '2F',
+    title: '运动健身/运动户外',
+    searchCat: 'fashion',
+    searchSub: '跑步鞋',
+    posterAsm: {
+      layout: 'mix',
+      slots: [
+        { role: 'hero', brand: 'Nike', headline: 'Flyknit 竞速跑鞋', points: ['轻便透气', '限时补贴', '多色可选'], img: IMG.sneaker, theme: 'green', carousel: true, href: buildSearchCatUrl('fashion', '跑步鞋') },
+        { role: 'tall', tag: 'Nike', title: '运动T恤', desc: '纯棉透气 基础白款', img: IMG.tshirt, cls: 'cat-floor-mini--pen' },
+        { role: 'wide', tag: '户外', title: '运动背包', desc: '轻便出行 大容量', img: IMG.p56, cls: 'cat-floor-mini--glue' },
+        { role: 'wide', tag: 'Levi\'s', title: '经典牛仔裤', desc: '直筒版型 多色可选', img: IMG.p15, cls: 'cat-floor-mini--board' }
+      ]
+    },
+    products: [
+      { brand: 'Nike', name: 'Free RN Flyknit 竞速跑步鞋', price: 899, tags: ['限时', '运动'], sales: '1.8万', img: IMG.p16 },
+      { brand: 'Nike', name: 'Free RN Flyknit 跑鞋 红色', price: 799, tags: ['推荐', '运动'], sales: '2600', img: IMG.p3 },
+      { brand: 'Adidas', name: 'EQT Support ADV 运动鞋', price: 699, tags: ['新品', '运动'], sales: '5200', img: IMG.p10 },
+      { brand: 'Nike', name: 'SuperRep 荧光绿训练鞋', price: 849, tags: ['新品', '运动'], sales: '680', img: IMG.e38 },
+      { brand: '小米', name: '手环4 智能运动手环 黑色', price: 169, tags: ['标品', '穿戴'], sales: '8600', img: IMG.p29 },
+      { brand: '智能穿戴', name: '圆盘智能运动手表 白色', price: 399, tags: ['惠选', '穿戴'], sales: '980', img: IMG.p57 }
+    ]
+  },
+  {
+    floor: '3F',
+    title: '个护家清/生活用品/食品饮料',
+    searchCat: 'food',
+    searchSub: '蛋糕',
+    posterAsm: {
+      layout: 'split',
+      slots: [
+        { role: 'hero', brand: '香奈儿', headline: '个护香氛精选', points: ['法式经典', '持久留香', '礼盒装'], img: IMG.p34, theme: 'warm', carousel: true, href: buildSearchCatUrl('beauty', '香水') },
+        { role: 'wide', tag: '烘焙', title: '庆典蛋糕', desc: '浓巧淋面 聚会首选', img: IMG.cake, href: buildSearchCatUrl('food', '蛋糕') },
+        { role: 'wide', tag: '饮品', title: '饮用水', desc: '整箱配送 企业团购', img: IMG.p17, href: buildSearchCatUrl('food', '饮用水') }
+      ]
+    },
+    products: [
+      { brand: '怡宝', name: '纯净水 555ml×24瓶', price: 36.8, tags: ['标品', '饮品'], sales: '8600', img: IMG.e10 },
+      { brand: '特仑苏', name: '全脂鲜牛奶 250ml×12盒', price: 68, tags: ['标品', '乳品'], sales: '3200', img: IMG.e11 },
+      { brand: 'Curology', name: '洁面保湿护肤套装 2件套', price: 298, tags: ['惠选', '个护'], sales: '5600', img: IMG.e20 },
+      { brand: '味多美', name: '浓巧淋面庆典蛋糕 8寸', price: 198, tags: ['标品', '食品'], sales: '1.2万', img: IMG.cake },
+      { brand: '乐扣', name: '高硼硅耐热玻璃杯 6只装', price: 49, tags: ['惠选', '生活'], sales: '9200', img: IMG.e12 },
+      { brand: '苏泊尔', name: '珐琅铸铁炖锅 3.5L 红色', price: 399, tags: ['标品', '厨具'], sales: '2800', img: IMG.e22 }
+    ]
+  },
+  {
+    floor: '4F',
+    title: '电脑/数码/通讯',
+    searchCat: 'digital',
+    searchSub: '耳机',
+    posterAsm: {
+      layout: 'stack',
+      slots: [
+        { brand: '苹果', headline: 'MacBook 移动办公', sub: 'M3芯片 轻薄随行', img: IMG.p24, theme: 'dark', href: buildSearchCatUrl('digital', '笔记本') },
+        { brand: '索尼', headline: '无线降噪耳机', sub: '沉浸音质 长续航', img: IMG.p6, theme: 'office', href: buildSearchCatUrl('digital', '耳机') }
+      ]
+    },
+    products: [
+      { brand: '苹果', name: 'MacBook Air M3 13英寸 16GB+256GB', price: 8999, tags: ['大牌严选', '电脑'], sales: '8500', img: IMG.e14 },
+      { brand: '小米', name: '移动电源 20000mAh 快充版', price: 149, tags: ['标品', '配件'], sales: '9600', img: IMG.e15 },
+      { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, tags: ['惠选', '音频'], sales: '4500', img: IMG.p53 },
+      { brand: '苹果', name: 'Apple Watch Series 9 GPS 智能手表', price: 2999, tags: ['标品', '穿戴'], sales: '2.3万', img: IMG.main01 },
+      { brand: '小米', name: '手环4 智能运动手环 黑色', price: 169, tags: ['惠选', '穿戴'], sales: '3200', img: IMG.e16 },
+      { brand: '智能穿戴', name: '圆盘智能运动手表 白色', price: 399, tags: ['标品', '穿戴'], sales: '560', img: IMG.main02 }
+    ]
+  }
+];
+document.getElementById('catFloors').innerHTML = catFloorConfigs.map(renderCatFloor).join('');
+
+document.getElementById('pickGridA').innerHTML = pickProductsA.map(p => renderProductCard(p, true)).join('');
+document.getElementById('pickGridB').innerHTML = pickProductsB.map(p => renderProductCard(p, true)).join('');
+
+const brandBanners = [
+  { id: 'apple-wear', title: 'Apple 智能穿戴', sub: '智能手表 · 积分可抵', img: IMG.main03, href: `${ACTIVITY_PAGE}?id=apple-wear` },
+  { id: 'water', title: '饮用水专区', sub: '企业团购 · 整箱配送', img: IMG.p13, href: `${ACTIVITY_PAGE}?id=water` },
+  { id: 'menswear', title: '商务男装馆', sub: '立领衬衫 · 职场必备', img: IMG.p15, href: `${ACTIVITY_PAGE}?id=menswear` },
+  { id: 'nike-sport', title: 'Nike 运动专区', sub: 'Flyknit跑鞋 · 限时补贴', img: IMG.main04, href: `${ACTIVITY_PAGE}?id=nike-sport` }
+];
+document.getElementById('brandBanners').innerHTML = brandBanners.map(b =>
+  `<a class="brand-banner" href="${b.href}"><img src="${b.img}" alt="${b.title}"><span class="brand-banner-mask"></span><span class="brand-banner-text"><span class="brand-banner-title">${b.title}</span><span class="brand-banner-sub">${b.sub}</span></span></a>`
+).join('');
+
+const rankProducts = [
+  { name: 'Apple Watch Series 9 智能手表', price: 2999, img: IMG.watch },
+  { name: 'Sony WH-1000XM4 降噪耳机', price: 2199, img: IMG.headphone },
+  { name: 'Nike Free RN Flyknit 竞速跑鞋', price: 899, img: IMG.p16 },
+  { name: 'Adidas EQT Support ADV 运动鞋', price: 699, img: IMG.p10 },
+  { name: '专业彩妆刷具套装 8件套', price: 129, img: IMG.skincare },
+  { name: '纯棉圆领短袖T恤 白色', price: 79, img: IMG.p11 },
+  { name: '浓巧淋面庆典蛋糕 8寸', price: 169, img: IMG.cake },
+  { name: '男士基础款圆领短袖T恤', price: 89, img: IMG.tshirt },
+  { name: '圆盘智能运动手表 白色', price: 399, img: IMG.main02 }
+];
+document.getElementById('rankList').innerHTML = rankProducts.map((p, i) =>
+  `<div class="rank-item"><span class="rank-num ${i < 3 ? 'top' : ''}">${i + 1}</span><div class="rank-thumb"><img src="${p.img}" alt="${p.name}"></div><div class="rank-info"><div class="name">${p.name}</div><div class="price">¥${p.price}</div></div></div>`
+).join('');
+
+const recommendProducts = {
+  hot: [
+    { brand: '苹果', name: 'Apple Watch Series 9 GPS 智能手表', price: 2999, tags: ['热销爆款', '数码'], sales: '2.3万', img: IMG.main01 },
+    { brand: 'Nike', name: 'Free RN Flyknit 竞速跑步鞋', price: 899, tags: ['限时', '运动'], sales: '1.8万', img: IMG.main04 },
+    { brand: '小米', name: '移动电源 20000mAh 快充版', price: 149, tags: ['热销爆款', '数码'], sales: '9600', img: IMG.e17 },
+    { brand: '苹果', name: 'MacBook Air M3 13英寸 16GB+256GB', price: 8999, tags: ['大牌严选', '办公'], sales: '8500', img: IMG.p40 },
+    { brand: '魅丝蔻', name: '专业彩妆刷具套装 8件套', price: 129, tags: ['精选', '美妆'], sales: '6200', img: IMG.skincare },
+    { brand: 'Levi\'s', name: '501经典直筒牛仔裤 深蓝款', price: 459, tags: ['爆款', '服饰'], sales: '5800', img: IMG.p44 },
+    { brand: '味多美', name: '浓巧淋面庆典蛋糕 8寸', price: 198, tags: ['热销爆款', '食品'], sales: '1.2万', img: IMG.cakeBirthday },
+    { brand: '巴黎贝甜', name: '抹茶巧克力纸杯蛋糕 6入装', price: 68, tags: ['人气', '下午茶'], sales: '7800', img: IMG.cakeCupcake },
+    { brand: '宜家', name: '波昂单人扶手椅 北欧款', price: 499, tags: ['积分兑换', '家居'], sales: '8700', img: IMG.chair },
+    { brand: '优衣库', name: '纯棉圆领短袖T恤 白色', price: 79, tags: ['爆款', '服饰'], sales: '3800', img: IMG.tshirt },
+    { brand: '世达', name: '精密维修工具套装 46件套', price: 189, tags: ['惠选', '工具'], sales: '2100', img: IMG.e23 },
+    { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, tags: ['人气', '数码'], sales: '4500', img: IMG.headphone }
+  ],
+  recommend: [
+    { name: '全国影院通兑券 2次卡', price: 89, tags: ['积分特惠', '文娱'], sales: '3200', img: IMG.p51 },
+    { name: '浓巧淋面庆典蛋糕 8寸', price: 198, tags: ['精选', '食品'], sales: '5600', img: IMG.p45 },
+    { name: '主动降噪蓝牙耳机 黑色', price: 899, tags: ['热销爆款', '数码'], sales: '4100', img: IMG.p53 },
+    { name: '玫瑰金彩妆刷具套装 8件套', price: 268, tags: ['精选', '美妆'], sales: '2900', img: IMG.p54 },
+    { name: 'Nike Free RN Flyknit 跑鞋 红色', price: 799, tags: ['推荐', '运动'], sales: '2600', img: IMG.main04 },
+    { name: '纯棉圆领短袖T恤 白色', price: 79, tags: ['爆款', '服饰'], sales: '6400', img: IMG.p11 },
+    { name: '圆盘智能运动手表 白色', price: 399, tags: ['推荐', '穿戴'], sales: '560', img: IMG.main02 },
+    { name: '重瓣粉色郁金香鲜花束', price: 128, tags: ['精选', '鲜花'], sales: '2800', img: IMG.e25 },
+    { name: '新鲜迷你南瓜 5斤装', price: 29.9, tags: ['推荐', '生鲜'], sales: '1500', img: IMG.e26 },
+    { name: 'JENUIN 莓果味苏打饮 6瓶装', price: 68, tags: ['大牌严选', '饮品'], sales: '960', img: IMG.e27 },
+    { name: '雷朋 Wayfarer 偏光太阳镜', price: 1580, tags: ['推荐', '配饰'], sales: '1800', img: IMG.e28 },
+    { name: '小米手环4 智能运动手环', price: 169, tags: ['精选', '穿戴'], sales: '3200', img: IMG.e29 }
+  ],
+  new: [
+    { name: '浓巧淋面庆典蛋糕 8寸', price: 199, tags: ['新品首发', '烘焙'], sales: '230', img: IMG.p52 },
+    { name: '有线头戴式HiFi耳机', price: 599, tags: ['首发', '数码'], sales: '890', img: IMG.headphone },
+    { name: 'uni-ball 针管走珠笔 0.5mm 蓝色', price: 12.5, tags: ['新品', '文具'], sales: '1200', img: IMG.e32 },
+    { name: '香奈儿 可可小姐黑色香水 50ml', price: 1580, tags: ['首发', '美妆'], sales: '560', img: IMG.e33 },
+    { name: '北欧布艺单人沙发椅 黄色', price: 899, tags: ['新品', '家居'], sales: '780', img: IMG.chair },
+    { name: '玫瑰金彩妆套装 8件套', price: 268, tags: ['首发', '美妆'], sales: '1500', img: IMG.e35 },
+    { name: 'Rowkone 爱心印花牛仔衬衫', price: 159, tags: ['新品', '女装'], sales: '3200', img: IMG.e36 },
+    { name: '磨砂森林绿便携保温杯 500ml', price: 79, tags: ['首发', '水具'], sales: '420', img: IMG.e37 },
+    { name: 'Nike SuperRep 荧光绿训练鞋', price: 849, tags: ['新品', '运动'], sales: '680', img: IMG.main04 },
+    { name: 'Levi\'s 501经典直筒牛仔裤 深蓝款', price: 459, tags: ['首发', '服饰'], sales: '350', img: IMG.pants },
+    { name: 'Adidas EQT Support ADV 运动鞋', price: 699, tags: ['新品', '运动'], sales: '520', img: IMG.p16 },
+    { name: '小米移动电源 20000mAh', price: 149, tags: ['首发', '数码'], sales: '680', img: IMG.e41 }
+  ]
+};
+
+function renderProducts(tab) {
+  const list = (recommendProducts[tab] || recommendProducts.hot).slice(0, 12);
+  document.getElementById('productGrid').innerHTML = list.map(p => renderProductCard(p, tab === 'hot')).join('');
+}
+renderProducts('hot');
+
+document.querySelectorAll('.feed-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    renderProducts(this.dataset.tab);
+  });
+});
+
+const UC_USER = { name: '张经理', save: '128.50', avatar: '张', cartCount: 15 };
+
+FloatDock.init({ cartCount: UC_USER.cartCount });
+FloatDock.bindFloorNav({
+  container: '#catFloors',
+  getFloors: () => catFloorConfigs.map(f => ({
+    floor: f.floor,
+    title: f.title,
+    id: 'cat-floor-' + f.floor.toLowerCase()
+  }))
+});
+
+function applyUcState(state) {
+  const card = document.getElementById('ucCard');
+  const logged = state === 'logged';
+  card.dataset.state = state;
+  card.querySelectorAll('[data-guest][data-logged]').forEach(el => {
+    const val = el.getAttribute('data-' + state);
+    if (el.classList.contains('uc-val')) {
+      const unitEl = el.querySelector('.uc-unit');
+      const unitHtml = unitEl ? unitEl.outerHTML : '';
+      el.innerHTML = val + unitHtml;
+    } else {
+      el.textContent = val;
+    }
+  });
+  document.querySelectorAll('.uc-notice-points, .uc-notice-coupon').forEach(el => {
+    if (el.dataset.guest && el.dataset.logged) el.textContent = el.getAttribute('data-' + state);
+  });
+  document.getElementById('ucAvatar').textContent = logged ? UC_USER.avatar : '我';
+  document.getElementById('ucSave').innerHTML = `已省 ¥<em>${logged ? UC_USER.save : '0.00'}</em>`;
+  const userAction = document.getElementById('userAction');
+  userAction.textContent = logged ? UC_USER.name : '请登录';
+  if (typeof SiteTopBar !== 'undefined') {
+    SiteTopBar.setLogged(logged, { userName: UC_USER.name, cartCount: logged ? UC_USER.cartCount : 0 });
+  }
+  if (logged) ProtoAuth.login({ userName: UC_USER.name, cartCount: UC_USER.cartCount });
+  else ProtoAuth.logout();
+  const cartBadge = document.getElementById('floatCartBadge');
+  if (cartBadge) cartBadge.textContent = logged ? UC_USER.cartCount : 0;
+  FloatDock.setCartCount(logged ? UC_USER.cartCount : 0);
+}
+applyUcState(ProtoAuth.isLogged() ? 'logged' : 'guest');
+
+function goToSearchPage(q) {
+  const kw = (q || document.getElementById('searchInput').value || '').trim();
+  if (!kw) return;
+  location.href = SEARCH_PAGE + '?q=' + encodeURIComponent(kw);
+}
+document.getElementById('searchBtn').addEventListener('click', () => goToSearchPage());
+document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') goToSearchPage(); });
+document.querySelectorAll('.search-hot a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    const map = { '5000苏银豆到账': '苏银豆', '积分低至5折起': '积分', '数码家电': '数码家电', '美妆护肤': '美妆护肤', '家居生活': '家居生活', '运动户外': '运动户外', '端午礼品': '端午礼品', '企业福利': '企业福利' };
+    goToSearchPage(map[a.textContent.trim()] || a.textContent.trim());
+  });
+});
+
+(function initUcNoticeScroll() {
+  const wrap = document.getElementById('ucNotices');
+  const track = document.getElementById('ucNoticeTrack');
+  const dotsWrap = document.getElementById('ucNoticeDots');
+  const items = track.querySelectorAll('.uc-notice');
+  const visible = 2;
+  const step = 58 + 6;
+  const maxIdx = Math.max(0, items.length - visible);
+  let idx = 0;
+  let timer = null;
+
+  function goTo(i, animate) {
+    idx = i;
+    track.style.transition = animate ? 'transform .45s ease' : 'none';
+    track.style.transform = `translateY(-${idx * step}px)`;
+    dotsWrap.querySelectorAll('.dot').forEach((d, n) => d.classList.toggle('active', n === idx));
+  }
+  function next() { goTo(idx >= maxIdx ? 0 : idx + 1, true); }
+  function start() { timer = setInterval(next, 3000); }
+  function stop() { clearInterval(timer); timer = null; }
+
+  if (items.length <= visible) {
+    dotsWrap.style.display = 'none';
+    goTo(0, false);
+    return;
+  }
+
+  dotsWrap.style.display = '';
+  dotsWrap.innerHTML = '';
+  for (let i = 0; i <= maxIdx; i++) {
+    const dot = document.createElement('span');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => { stop(); goTo(i, true); start(); });
+    dotsWrap.appendChild(dot);
+  }
+  goTo(0, false);
+  start();
+  wrap.addEventListener('mouseenter', stop);
+  wrap.addEventListener('mouseleave', () => { if (!timer) start(); });
+})();
+
+const UC_LINKS = {
+  account: ProtoPages.account,
+  coupons: ProtoPages.coupons,
+  points: ProtoPages.points,
+  favorites: ProtoPages.favorites,
+  history: ProtoPages.history,
+  address: ProtoPages.address,
+  orders: ProtoPages.order
+};
+
+function ucIsGuest() {
+  return document.getElementById('ucCard').dataset.state === 'guest';
+}
+
+function ucGo(key) {
+  if (ucIsGuest()) { openLogin(); return; }
+  const url = UC_LINKS[key];
+  if (url) location.href = url;
+}
+
+document.getElementById('ucAssets').addEventListener('click', e => {
+  const stat = e.target.closest('.uc-stat[data-link]');
+  if (stat) ucGo(stat.dataset.link);
+});
+
+document.getElementById('ucNotices').addEventListener('click', e => {
+  if (e.target.closest('.uc-notice-dots')) return;
+  const notice = e.target.closest('.uc-notice[data-link]');
+  if (notice) ucGo(notice.dataset.link);
+});
+
+document.getElementById('ucHead').addEventListener('click', e => {
+  if (e.target.closest('#userAction')) return;
+  ucGo('account');
+});
+
+document.getElementById('ucAvatar').style.cursor = 'pointer';
+document.getElementById('ucVipTab').addEventListener('click', e => { e.preventDefault(); ucGo('account'); });
+document.getElementById('ucToolboxTitle').addEventListener('click', () => ucGo('account'));
+
+const UC_NAV_ROUTES = {
+  orders: ProtoPages.order,
+  favorites: ProtoPages.favorites,
+  footprint: ProtoPages.history,
+  address: ProtoPages.address
+};
+
+document.getElementById('ucNav').addEventListener('click', e => {
+  const item = e.target.closest('.uc-nav-item');
+  if (!item) return;
+  if (ucIsGuest()) { openLogin(); return; }
+  const route = UC_NAV_ROUTES[item.dataset.nav];
+  if (route) {
+    location.href = route;
+    return;
+  }
+  document.querySelectorAll('.uc-nav-item').forEach(el => el.classList.remove('active'));
+  item.classList.add('active');
+});
+
+function openLogin() { document.getElementById('loginModal').classList.add('active'); }
+function closeLogin() { document.getElementById('loginModal').classList.remove('active'); }
+
+document.getElementById('userAction').addEventListener('click', e => {
+  e.preventDefault();
+  if (ucIsGuest()) openLogin();
+  else location.href = ProtoPages.account;
+});
+document.getElementById('loginModal').addEventListener('click', e => {
+  if (e.target.id === 'loginModal') closeLogin();
+  if (e.target.classList.contains('modal-submit')) {
+    ProtoAuth.login({ userName: UC_USER.name, cartCount: UC_USER.cartCount });
+    applyUcState('logged');
+    closeLogin();
+  }
+});
+
+function switchLoginTab(el, type) {
+  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const body = document.getElementById('loginBody');
+  if (type === 'wechat') {
+    body.innerHTML = '<div style="text-align:center;padding:24px 0"><div style="width:160px;height:160px;background:#f5f5f5;border-radius:8px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#999;border:1px dashed #ddd">扫码登录</div><p style="font-size:14px;color:#666">微信扫码登录</p><p style="font-size:12px;color:#999;margin-top:8px">请使用企业发放的账号登录</p></div>';
+  } else {
+    body.innerHTML = '<div class="form-group"><label>手机号</label><input class="form-input" type="tel" placeholder="请输入手机号"></div><div class="form-group"><label>验证码</label><div class="form-row"><input class="form-input" placeholder="验证码"><button class="sms-btn">获取验证码</button></div></div><button class="modal-submit">登 录</button>';
+  }
+}
+</script>
+</body>
+</html>

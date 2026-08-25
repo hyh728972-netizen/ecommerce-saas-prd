@@ -1,0 +1,24 @@
+.proto-icon{display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;line-height:1;flex-shrink:0}
+.proto-icon svg{display:block}
+.proto-icon--stroke svg{stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.proto-icon--fill svg{fill:currentColor;stroke:none}
+.proto-stars{display:inline-flex;align-items:center;gap:2px;color:#faad14}
+.proto-star svg{width:14px;height:14px}
+
+.order-empty-icon .proto-icon,.cart-empty-icon .proto-icon,.sc-empty-icon .proto-icon,.ac-placeholder .proto-icon{color:#ddd}
+.ac-order-item .proto-icon,.ac-tool-icon .proto-icon{color:#666}
+.ac-tool-icon .proto-icon{font-size:20px}
+.ac-order-item .proto-icon{font-size:28px}
+.ck-pay-method-icon .proto-icon{font-size:24px;width:32px}
+.modal-close,.order-cancel-close,.pay-modal-close{display:flex;align-items:center;justify-content:center;color:#999;cursor:pointer}
+.modal-close:hover,.order-cancel-close:hover,.pay-modal-close:hover{color:#333}
+.pd-fav-btn .proto-icon{margin-right:4px;vertical-align:-2px}
+
+.pd-service-list span{display:inline-flex;align-items:center;gap:4px}
+.pd-service-list .proto-icon{color:#f63218}
+.pd-gallery-actions span{display:inline-flex;align-items:center;gap:4px;color:#666;cursor:pointer;font-size:13px}
+.pd-gallery-actions span:hover{color:var(--jd-red,#f63218)}
+.pd-fav-text{display:inline-flex;align-items:center;gap:4px;font-size:13px;color:#666;cursor:pointer}
+.sc-view button{display:inline-flex;align-items:center;justify-content:center;padding:4px 8px}
+.sc-view .proto-icon{color:#666}
+.sc-view button.active .proto-icon{color:var(--jd-red,#f63218)}

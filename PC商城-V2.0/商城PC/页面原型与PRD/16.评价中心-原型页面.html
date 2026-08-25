@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>评价中心 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/account-header.css">
+<link rel="stylesheet" href="../assets/account-nav.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input,select,textarea{outline:none;font-family:inherit}
+:root{--page-width:1600px;--jd-red:#f63218;--jd-red-dark:#c81623;--price:#ff0f12;--text-mid:#666;--radius:8px;--radius-sm:6px}
+.container{width:var(--page-width);margin:0 auto}
+.pg-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0f0f0}
+.pg-head h1{font-size:18px;font-weight:600}
+.pg-tabs{display:flex;border-bottom:1px solid #f0f0f0;padding:0 8px}
+.pg-tab{padding:14px 20px;font-size:14px;color:#666;cursor:pointer;position:relative}
+.pg-tab.active{color:var(--jd-red);font-weight:600}
+.pg-tab.active::after{content:'';position:absolute;left:50%;bottom:0;width:28px;height:3px;background:var(--jd-red);transform:translateX(-50%)}
+.pg-body{padding:20px}
+.pg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.pg-card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);overflow:hidden;cursor:pointer;transition:box-shadow .2s}
+.pg-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.pg-card img{width:100%;aspect-ratio:1;object-fit:cover;background:#f8f8f8}
+.pg-card-info{padding:10px}
+.pg-card-name{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pg-card-price{color:var(--price);font-weight:700;margin-top:6px;font-size:16px}
+.pg-list-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #f5f5f5;align-items:center}
+.pg-list-item:last-child{border-bottom:none}
+.pg-list-item.muted{opacity:.72}
+.pg-list-item img{width:64px;height:64px;object-fit:cover;border-radius:4px;background:#f8f8f8;flex-shrink:0}
+.rv-main{flex:1;min-width:0}
+.rv-name{font-size:14px;line-height:1.45;margin-bottom:4px}
+.rv-meta{font-size:12px;color:#999;line-height:1.6}
+.rv-meta span+span{margin-left:12px}
+.rv-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.rv-tag{display:inline-block;height:20px;line-height:20px;padding:0 8px;border-radius:4px;font-size:11px}
+.rv-tag.processing{color:#fa8c16;background:#fff7e6}
+.rv-stars{color:#faad14;font-size:14px;letter-spacing:1px;margin-top:4px}
+.rv-text{font-size:13px;color:#666;margin-top:6px;line-height:1.6}
+.rv-time{font-size:12px;color:#999;margin-top:6px}
+.pg-btn.disabled,.pg-btn:disabled{opacity:.45;cursor:not-allowed;background:#f5f5f5;border-color:#ddd;color:#999}
+.pg-btn.disabled.primary,.pg-btn:disabled.primary{background:#f5c4bc;border-color:#f5c4bc;color:#fff}
+.pg-hero{padding:28px 24px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:var(--radius);color:#fff;margin-bottom:20px}
+.pg-hero-val{font-size:36px;font-weight:700;margin:8px 0}
+.pg-hero-sub{font-size:13px;opacity:.85}
+.pg-tools{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}
+.pg-tool{padding:14px;background:rgba(255,255,255,.1);border-radius:6px;text-align:center;font-size:13px;cursor:pointer}
+.pg-tool:hover{background:rgba(255,255,255,.18)}
+.pg-form-row{margin-bottom:16px}
+.pg-form-row label{display:block;font-size:13px;color:#666;margin-bottom:6px}
+.pg-form-row input,.pg-form-row select,.pg-form-row textarea{width:100%;border:1px solid #ddd;border-radius:var(--radius-sm);font-size:14px;padding:10px 12px}
+.pg-btn{height:36px;padding:0 20px;border-radius:var(--radius-sm);font-size:14px;border:1px solid #ddd;background:#fff;color:#666}
+.pg-btn.primary{background:var(--jd-red);border-color:var(--jd-red);color:#fff}
+.pg-empty{text-align:center;padding:60px 20px;color:#999}
+.pg-placeholder{text-align:center;padding:80px 24px;color:#666}
+.pg-placeholder h2{font-size:20px;margin-bottom:8px;color:#333}
+.pg-addr-card{border:1px solid #f0f0f0;border-radius:var(--radius);padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-start}
+.pg-addr-default{display:inline-block;font-size:11px;background:var(--jd-red);color:#fff;padding:1px 6px;border-radius:2px;margin-left:8px}
+.pg-wallet-card{padding:24px;background:linear-gradient(135deg,#f63218,#ff6a4a);border-radius:var(--radius);color:#fff;margin-bottom:20px}
+.pg-wallet-row{display:flex;gap:40px;margin-top:12px}
+.pg-wallet-item span{display:block;font-size:12px;opacity:.9}
+.pg-wallet-item strong{font-size:22px}
+.pg-faq{display:grid;grid-template-columns:200px 1fr;gap:20px;min-height:320px}
+.pg-faq-nav a{display:block;padding:10px 12px;font-size:14px;color:#666;border-radius:4px;margin-bottom:4px}
+.pg-faq-nav a.active,.pg-faq-nav a:hover{background:#fff5f5;color:var(--jd-red)}
+.pg-msg-list{border-right:1px solid #f0f0f0;padding-right:16px}
+.pg-msg-item{padding:12px;border-radius:4px;cursor:pointer;margin-bottom:4px}
+.pg-msg-item.active,.pg-msg-item:hover{background:#fafafa}
+</style>
+<link rel="stylesheet" href="../assets/write-review.css">
+</head>
+<body>
+<div id="site-topbar-root"></div>
+<header class="pd-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href=ProtoPages.home">
+        <div class="logo-text">苏银豆商城</div>
+        <div class="logo-sub">积分好物 · 一站购齐</div>
+      </div>
+      <div><div class="pd-search"><input type="text" placeholder="搜索商品、品牌、品类" id="searchInput"><button type="button" id="searchBtn">搜索</button></div></div>
+      <div class="pd-header-cart" onclick="location.href=ProtoPages.cart">
+        <img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt="">
+        <span>购物车</span><div class="badge">3</div>
+      </div>
+    </div>
+    <nav class="pd-breadcrumb"><a href="01.首页-原型页面.html">首页</a> &gt; <a href="15.个人中心-原型页面.html">个人中心</a> &gt; <span>评价中心</span></nav>
+  </div>
+</header>
+<div class="container ac-page"><div class="ac-layout"><div id="accountSidebar"></div><div class="ac-main-panel">
+<div class="pg-head"><h1>评价中心</h1></div>
+<div class="pg-tabs"><div class="pg-tab active" data-t="wait">待评价 <span id="waitCount" style="color:var(--jd-red)">(0)</span></div><div class="pg-tab" data-t="done">已评价</div></div>
+<div class="pg-body" id="rvBody"></div>
+</div></div></div>
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/account-nav.js"></script>
+<script src="../assets/product-images.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script>
+FloatDock.init({ cartCount: 15 });
+</script>
+<script src="../assets/write-review.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+if (!ProtoAuth.guardPage()) void 0;
+ProtoAuth.initTopBar({ cartCount: 15 });
+AccountNav.renderSidebar('accountSidebar', 'review');
+document.getElementById('searchBtn').onclick=function(){
+  var q=document.getElementById('searchInput').value.trim();
+  location.href=q?ProtoPages.search+'?q='+encodeURIComponent(q):ProtoPages.search;
+};
+
+var waitAll = [
+  { id: 'w1', name: 'Apple AirPods Pro 第三代', spec: '白色', imgKey: 'headphone', order: 'SY202606080015', aftersale: null },
+  { id: 'w2', name: '索尼 WH-1000XM5 头戴耳机', spec: '黑色', imgKey: 'p31', order: 'SY202606140089', aftersale: 'processing' },
+  { id: 'w3', name: '飞利浦 电动牙刷 HX9911', spec: '星空蓝', imgKey: 'skincare', order: 'SY202606080015', aftersale: 'success' },
+  { id: 'w4', name: '某款限量礼盒', spec: '标准装', imgKey: 'cake', order: 'SY202605280007', aftersale: 'closed' }
+];
+var done = [
+  { name: '人体工学办公椅', spec: '黑色网面', stars: 5, text: '坐感舒适，腰托支撑到位，公司采购很满意。', imgKey: 'chair', order: 'SY202605150022', reviewTime: '2026-05-18 16:45' },
+  { name: '轻奢护肤套装', spec: '礼盒装', stars: 4, text: '包装精美，送人合适，物流也很快。', imgKey: 'p28', order: 'SY202605200031', reviewTime: '2026-05-22 09:12' }
+];
+
+function isAftersaleSuccess(status) {
+  return status === 'success' || status === 'done';
+}
+
+function isReviewBlocked(item) {
+  return item.aftersale === 'processing';
+}
+
+function visibleWaitList() {
+  return waitAll.filter(function (w) { return !isAftersaleSuccess(w.aftersale); });
+}
+
+function aftersaleTag(item) {
+  if (item.aftersale === 'processing') return '售后处理中';
+  return '';
+}
+
+function updateWaitCount() {
+  var el = document.getElementById('waitCount');
+  if (el) el.textContent = '(' + visibleWaitList().length + ')';
+}
+
+function formatStars(n) {
+  return '★'.repeat(n) + '☆'.repeat(5 - n);
+}
+
+function renderWait() {
+  var list = visibleWaitList();
+  if (!list.length) {
+    document.getElementById('rvBody').innerHTML = '<div class="pg-empty">暂无待评价商品</div>';
+    updateWaitCount();
+    return;
+  }
+  document.getElementById('rvBody').innerHTML = list.map(function (w) {
+    var blocked = isReviewBlocked(w);
+    var tag = aftersaleTag(w);
+    var tagHtml = tag ? '<div class="rv-tags"><span class="rv-tag processing">' + tag + '</span></div>' : '';
+    var btnClass = 'pg-btn primary' + (blocked ? ' disabled' : '');
+    var btnAttrs = blocked
+      ? ' disabled title="售后处理中，完成后可评价"'
+      : ' onclick="openReview(\'' + w.id + '\')"';
+    return '<div class="pg-list-item' + (blocked ? ' muted' : '') + '">' +
+      '<img src="' + (IMG[w.imgKey] || '') + '" alt="">' +
+      '<div class="rv-main">' +
+      '<div class="rv-name">' + w.name + '</div>' +
+      '<div class="rv-meta"><span>规格：' + w.spec + '</span><span>订单号：' + w.order + '</span></div>' +
+      tagHtml +
+      '</div>' +
+      '<button type="button" class="' + btnClass + '"' + btnAttrs + '>去评价</button>' +
+      '</div>';
+  }).join('');
+  updateWaitCount();
+}
+
+function openReview(id) {
+  var idx = waitAll.findIndex(function (w) { return w.id === id; });
+  if (idx < 0) return;
+  var w = waitAll[idx];
+  if (isReviewBlocked(w)) {
+    ProtoToast.warn('售后处理中，完成后可评价');
+    return;
+  }
+  WriteReview.open({ name: w.name, imgKey: w.imgKey }, function (data) {
+    waitAll.splice(idx, 1);
+    done.unshift({
+      name: w.name,
+      spec: w.spec,
+      imgKey: w.imgKey,
+      order: w.order,
+      stars: data.stars,
+      text: data.text,
+      reviewTime: formatReviewTime(new Date())
+    });
+    renderWait();
+    updateWaitCount();
+    ProtoToast.success('评价提交成功');
+  });
+}
+
+function formatReviewTime(d) {
+  var p = function (n) { return String(n).padStart(2, '0'); };
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+
+function renderDone() {
+  if (!done.length) {
+    document.getElementById('rvBody').innerHTML = '<div class="pg-empty">暂无已评价记录</div>';
+    return;
+  }
+  document.getElementById('rvBody').innerHTML = done.map(function (d) {
+    return '<div class="pg-list-item">' +
+      '<img src="' + (IMG[d.imgKey] || '') + '" alt="">' +
+      '<div class="rv-main">' +
+      '<div class="rv-name">' + d.name + '</div>' +
+      '<div class="rv-meta"><span>规格：' + (d.spec || '—') + '</span><span>订单号：' + (d.order || '—') + '</span></div>' +
+      '<div class="rv-stars">' + formatStars(d.stars) + '</div>' +
+      '<div class="rv-text">' + d.text + '</div>' +
+      '<div class="rv-time">评价时间：' + d.reviewTime + '</div>' +
+      '</div></div>';
+  }).join('');
+}
+
+document.querySelectorAll('.pg-tab').forEach(function (t) {
+  t.onclick = function () {
+    document.querySelectorAll('.pg-tab').forEach(function (x) { x.classList.remove('active'); });
+    t.classList.add('active');
+    if (t.dataset.t === 'wait') renderWait();
+    else renderDone();
+  };
+});
+renderWait();
+
+</script>
+</body>
+</html>

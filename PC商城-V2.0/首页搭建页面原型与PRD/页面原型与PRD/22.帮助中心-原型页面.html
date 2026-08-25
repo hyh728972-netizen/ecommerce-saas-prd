@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>帮助中心 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/account-header.css">
+<link rel="stylesheet" href="../assets/account-nav.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+:root{--page-width:1600px;--jd-red:#f63218;--radius:8px;--radius-sm:6px}
+.container{width:var(--page-width);margin:0 auto}
+.pg-head{padding:16px 20px;border-bottom:1px solid #f0f0f0}
+.pg-head h1{font-size:18px;font-weight:600;margin-bottom:12px}
+.pg-body{padding:0}
+.help-search{display:flex;gap:0;max-width:480px;border:2px solid var(--jd-red);border-radius:var(--radius);overflow:hidden}
+.help-search input{flex:1;height:40px;padding:0 14px;border:none;font-size:14px}
+.help-search button{width:80px;background:var(--jd-red);color:#fff;font-size:14px}
+.help-list{display:flex;flex-direction:column}
+.help-item{padding:0;border-bottom:1px solid #f5f5f5;background:#fff}
+.help-item:last-child{border-bottom:none}
+.help-item h2{font-size:16px;font-weight:600;margin:0;padding:18px 20px;color:#333;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.help-item h2::after{content:'+';font-size:18px;color:#999;font-weight:400}
+.help-item.open h2::after{content:'−'}
+.help-item.highlight h2{color:var(--jd-red)}
+.help-item .help-body{display:none;padding:0 20px 18px}
+.help-item.open .help-body{display:block}
+.help-item p,.help-item li{font-size:14px;color:#666;line-height:1.8}
+.help-item ul{padding-left:18px;margin:8px 0 0}
+.help-empty{text-align:center;padding:48px 20px;color:#999;font-size:14px}
+</style>
+</head>
+<body>
+<div id="site-topbar-root"></div>
+<header class="pd-header account-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href=ProtoPages.home">
+        <div class="logo-text">苏银豆商城</div>
+        <div class="logo-sub">积分好物 · 一站购齐</div>
+      </div>
+      <div><div class="pd-search"><input type="text" placeholder="搜索商品、品牌、品类" id="searchInput"><button type="button" id="searchBtn">搜索</button></div></div>
+      <div class="pd-header-cart" onclick="location.href=ProtoPages.cart"><img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt=""><span>购物车</span><div class="badge">8</div></div>
+    </div>
+    <nav class="pd-breadcrumb"><a href="01.首页-原型页面.html">首页</a> &gt; <a href="10.个人中心-原型页面.html">个人中心</a> &gt; <span>帮助中心</span></nav>
+  </div>
+</header>
+<div class="container ac-page"><div class="ac-layout"><div id="accountSidebar"></div><div class="ac-main-panel">
+<div class="pg-head">
+  <h1>帮助中心</h1>
+  <div class="help-search"><input type="text" placeholder="例如：苏银豆怎么用、如何申请售后" id="helpSearch"><button type="button" id="helpSearchBtn">搜索</button></div>
+</div>
+<div class="pg-body" id="helpBody"></div>
+</div></div></div>
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+<script src="../assets/cs-widget.js"></script>
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/account-nav.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+if (!ProtoAuth.guardPage()) void 0;
+ProtoAuth.initTopBar({ cartCount: 8 });
+FloatDock.init({ cartCount: 8 });
+AccountNav.renderSidebar('accountSidebar', 'help');
+var FAQ = [
+  { id: 'shop', title: '购物流程', html: '<ul><li>浏览商品并加入购物车</li><li>提交订单并选择收货地址</li><li>使用苏银豆、优惠券或现金组合支付</li><li>等待发货并确认收货</li></ul>' },
+  { id: 'beans', title: '苏银豆说明', html: '<p>1 苏银豆 = ¥0.01，可用于兑换商品或组合支付抵扣，不可提现。余额不足时可通过卡密兑换补充，或联系企业管理员分配。</p>' },
+  { id: 'pay', title: '支付问题', html: '<p>支持微信支付、支付宝及苏银豆支付。支付超时订单将自动关闭，可在订单列表重新支付。</p>' },
+  { id: 'refund', title: '退换货政策', html: '<p>已发货订单支持退货退款、换货；未发货订单支持仅退款。请在订单详情或售后记录中发起申请。</p>' },
+  { id: 'coupon', title: '卡券使用', html: '<p>结算时可选择可用优惠券；卡密可在积分中心或我的卡券中兑换绑定。</p>' },
+  { id: 'contact', title: '联系客服', html: '<p>客服热线 400-888-6688（工作日 9:00-18:00）。也可点击 <a href="#" data-cs-open style="color:#f63218">在线客服</a> 弹窗即时咨询，或页面右下角客服入口。</p>' }
+];
+function render(highlightId, list) {
+  var data = list || FAQ;
+  if (!data.length) {
+    document.getElementById('helpBody').innerHTML = '<div class="help-empty">未找到相关问题</div>';
+    return;
+  }
+  document.getElementById('helpBody').innerHTML = '<div class="help-list">' + data.map(function (f) {
+    var open = f.id === highlightId;
+    return '<section class="help-item' + (open ? ' open highlight' : '') + '" id="help-' + f.id + '">' +
+      '<h2>' + f.title + '</h2>' +
+      '<div class="help-body">' + f.html + '</div></section>';
+  }).join('') + '</div>';
+  document.querySelectorAll('.help-item h2').forEach(function (hd) {
+    hd.onclick = function () {
+      var item = hd.parentElement;
+      item.classList.toggle('open');
+    };
+  });
+  if (highlightId) {
+    var el = document.getElementById('help-' + highlightId);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+function doHelpSearch() {
+  var q = document.getElementById('helpSearch').value.trim();
+  if (!q) { render(); return; }
+  var hits = FAQ.filter(function (f) { return f.title.indexOf(q) >= 0 || f.html.indexOf(q) >= 0; });
+  if (hits.length) render(hits[0].id, hits);
+  else render(null, []);
+}
+document.getElementById('helpSearchBtn').onclick = doHelpSearch;
+document.getElementById('helpSearch').onkeydown = function (e) { if (e.key === 'Enter') doHelpSearch(); };
+document.getElementById('searchBtn').onclick = function () {
+  var q = document.getElementById('searchInput').value.trim();
+  location.href = q ? ProtoPages.search + '?q=' + encodeURIComponent(q) : ProtoPages.search;
+};
+render();
+</script>
+</body>
+</html>

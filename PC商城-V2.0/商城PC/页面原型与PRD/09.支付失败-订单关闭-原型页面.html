@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>支付失败 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+:root{--page-width:1600px;--jd-red:#f63218;--jd-red-dark:#c81623;--price:#ff0f12;--text-mid:#666;--radius:8px;--radius-sm:6px}
+.container{width:var(--page-width);margin:0 auto}
+.ps-header{background:#fff;border-bottom:1px solid #eee;padding:20px 0;text-align:center}
+.ps-header .logo{font-size:28px;font-weight:700;color:var(--jd-red);cursor:pointer}
+.ps-main{padding:40px 0 32px}
+.ps-card{max-width:720px;margin:0 auto;background:#fff;border-radius:var(--radius);padding:48px 40px 36px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.ps-icon{width:72px;height:72px;margin:0 auto 20px;border-radius:50%;background:linear-gradient(135deg,#ff7875,#ff4d4f);display:flex;align-items:center;justify-content:center}
+.ps-icon svg{width:36px;height:36px;stroke:#fff;stroke-width:3;fill:none}
+.ps-title{font-size:22px;font-weight:600;color:#333;margin-bottom:8px}
+.ps-desc{font-size:14px;color:var(--text-mid);margin-bottom:28px}
+.ps-info{text-align:left;background:#fafafa;border-radius:var(--radius);padding:20px 24px;margin-bottom:28px}
+.ps-row{display:flex;justify-content:space-between;padding:8px 0;font-size:14px;color:var(--text-mid);border-bottom:1px solid #f0f0f0}
+.ps-row:last-child{border-bottom:none}
+.ps-row strong{color:#333;font-weight:500}
+.ps-actions{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+.ps-btn{min-width:140px;height:44px;padding:0 28px;font-size:15px;border-radius:var(--radius-sm)}
+.ps-btn-outline{background:#fff;border:1px solid #ddd;color:#666}
+.ps-btn-outline:hover{border-color:var(--jd-red);color:var(--jd-red)}
+.ps-btn-primary{background:var(--jd-red);color:#fff}
+.ps-btn-primary:hover{background:var(--jd-red-dark)}
+</style>
+</head>
+<body>
+<div id="site-topbar-root"></div>
+<header class="ps-header">
+  <div class="container"><div class="logo" onclick="location.href='01.首页-原型页面.html'">苏银豆商城</div></div>
+</header>
+<div class="container ps-main">
+  <div class="ps-card">
+    <div class="ps-icon"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></div>
+    <div class="ps-title" id="pfTitle">支付失败</div>
+    <div class="ps-desc" id="pfDesc">支付未完成，请重新支付或稍后再试</div>
+    <div class="ps-info" id="pfInfo"></div>
+    <div class="ps-actions">
+      <button type="button" class="ps-btn ps-btn-outline" id="pfViewOrder">查看订单</button>
+      <button type="button" class="ps-btn ps-btn-primary" id="pfRetry">重新支付</button>
+      <button type="button" class="ps-btn ps-btn-outline" onclick="location.href='01.首页-原型页面.html'">返回首页</button>
+    </div>
+  </div>
+</div>
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script>
+SiteTopBar.init({ logged: true, cartCount: 8 });
+FloatDock.init({ cartCount: 8 });
+var params = new URLSearchParams(location.search);
+var reason = params.get('reason') || 'fail';
+var orderNo = params.get('order') || 'SY202606150001';
+var titles = { fail: '支付失败', timeout: '订单已关闭', cancel: '支付已取消' };
+var descs = {
+  fail: '支付未完成，订单仍保留在待付款列表，请重新支付。',
+  timeout: '支付超时，订单已自动关闭，如需购买请重新下单。',
+  cancel: '您已取消本次支付，订单仍保留在待付款列表。'
+};
+document.getElementById('pfTitle').textContent = titles[reason] || titles.fail;
+document.getElementById('pfDesc').textContent = descs[reason] || descs.fail;
+document.getElementById('pfInfo').innerHTML = [
+  ['订单编号', orderNo],
+  ['失败原因', titles[reason] || '支付失败'],
+  ['处理建议', reason === 'timeout' ? '请重新挑选商品下单' : '请在 30 分钟内完成支付']
+].map(function (r) {
+  return '<div class="ps-row"><span>' + r[0] + '</span><strong>' + r[1] + '</strong></div>';
+}).join('');
+document.getElementById('pfViewOrder').onclick = function () {
+  location.href = '11.订单详情-原型页面.html?order=' + encodeURIComponent(orderNo);
+};
+document.getElementById('pfRetry').onclick = function () {
+  if (reason === 'timeout') location.href = ProtoPages.checkout + '?mode=pay&order=' + encodeURIComponent(orderNo);
+  else location.href = ProtoPages.checkout + '?mode=pay&order=' + encodeURIComponent(orderNo);
+};
+if (reason === 'timeout') document.getElementById('pfRetry').textContent = '重新支付';
+</script>
+</body>
+</html>

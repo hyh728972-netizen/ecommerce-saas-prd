@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>支付成功 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+:root{--page-width:1600px;--jd-red:#f63218;--jd-red-dark:#c81623;--price:#ff0f12;--text-mid:#666;--radius:8px;--radius-sm:6px}
+.container{width:var(--page-width);margin:0 auto}
+
+.ps-header{background:#fff;border-bottom:1px solid #eee;padding:20px 0;text-align:center}
+.ps-header .logo{font-size:28px;font-weight:700;color:var(--jd-red);cursor:pointer;display:inline-block}
+
+.ps-main{padding:40px 0 32px}
+.ps-card{max-width:720px;margin:0 auto;background:#fff;border-radius:var(--radius);padding:48px 40px 36px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.ps-icon{width:72px;height:72px;margin:0 auto 20px;border-radius:50%;background:linear-gradient(135deg,#52c41a,#73d13d);display:flex;align-items:center;justify-content:center;animation:popIn .4s ease}
+@keyframes popIn{0%{transform:scale(0);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.ps-icon svg{width:36px;height:36px;stroke:#fff;stroke-width:3;fill:none}
+.ps-title{font-size:22px;font-weight:600;color:#333;margin-bottom:8px}
+.ps-desc{font-size:14px;color:var(--text-mid);margin-bottom:28px}
+
+.ps-info{text-align:left;background:#fafafa;border-radius:var(--radius);padding:20px 24px;margin-bottom:28px}
+.ps-row{display:flex;justify-content:space-between;padding:8px 0;font-size:14px;color:var(--text-mid);border-bottom:1px solid #f0f0f0}
+.ps-row:last-child{border-bottom:none}
+.ps-row strong{color:#333;font-weight:500}
+.ps-row em{font-style:normal;color:var(--price);font-weight:600}
+
+.ps-actions{display:flex;justify-content:center;gap:16px}
+.ps-btn{min-width:140px;height:44px;padding:0 28px;font-size:15px;border-radius:var(--radius-sm)}
+.ps-btn-outline{background:#fff;border:1px solid #ff9800;color:#ff9800}
+.ps-btn-outline:hover{background:#fff8e6}
+.ps-btn-primary{background:var(--jd-red);color:#fff}
+.ps-btn-primary:hover{background:var(--jd-red-dark)}
+
+.ps-recommend{max-width:720px;margin:32px auto 0}
+.ps-recommend-hd{font-size:18px;font-weight:600;margin-bottom:14px;color:#333}
+.product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.product-card{background:#fff;border-radius:var(--radius);overflow:hidden;border:1px solid #f0f0f0;cursor:pointer;transition:box-shadow .2s}
+.product-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.product-card img{width:100%;aspect-ratio:1;object-fit:cover;background:#f8f8f8}
+.product-card-info{padding:8px 10px 10px}
+.product-card-name{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.product-card-price{font-size:18px;font-weight:700;color:var(--price);margin-top:6px}
+.product-card-price em{font-size:13px;font-style:normal}
+
+</style>
+</head>
+<body>
+
+<div id="site-topbar-root"></div>
+
+<header class="ps-header">
+  <div class="container"><div class="logo" onclick="location.href='01.首页-原型页面.html'">苏银豆商城</div></div>
+</header>
+
+<div class="container ps-main">
+  <div class="ps-card">
+    <div class="ps-icon"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div>
+    <div class="ps-title">支付成功</div>
+    <div class="ps-desc" id="psDesc">您的订单已提交，我们将尽快为您发货</div>
+    <div class="ps-info" id="psInfo"></div>
+    <div class="ps-actions">
+      <button type="button" class="ps-btn ps-btn-outline" id="psViewOrder">查看订单</button>
+      <button type="button" class="ps-btn ps-btn-primary" onclick="location.href='01.首页-原型页面.html'">返回首页</button>
+    </div>
+  </div>
+  <div class="ps-recommend">
+    <div class="ps-recommend-hd">猜你喜欢</div>
+    <div class="product-grid" id="guessGrid"></div>
+  </div>
+</div>
+
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+
+<script src="../assets/topbar.js"></script>
+<script src="../assets/product-images.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script>
+SiteTopBar.init({ logged: true, cartCount: 15 });
+FloatDock.init({ cartCount: 15 });
+const ORDER_DETAIL='09.订单详情-原型页面.html';
+const params=new URLSearchParams(location.search);
+const type=params.get('type')||'cash';
+const orderNo=params.get('order')||'SY'+Date.now().toString().slice(-12);
+const cash=params.get('cash')||'2299';
+const beans=params.get('beans')||'20000';
+
+let rows=[
+  ['订单编号',orderNo],
+  ['支付方式',type==='points'?'纯积分支付':'组合支付'],
+];
+if(type==='points'){
+  rows.push(['实付积分',beans+' 苏银豆']);
+  document.getElementById('psDesc').textContent='兑换成功，订单已进入待发货';
+}else{
+  rows.push(['苏银豆抵扣',Number(beans).toLocaleString()+' 豆']);
+  rows.push(['现金支付','¥'+Number(cash).toFixed(2)]);
+  rows.push(['实付金额','¥'+Number(cash).toFixed(2)]);
+}
+
+document.getElementById('psInfo').innerHTML=rows.map(([k,v])=>
+  `<div class="ps-row"><span>${k}</span><strong${k.includes('实付')?' style="color:var(--price)"':''}>${v}</strong></div>`
+).join('');
+
+document.getElementById('psViewOrder').onclick=function(){
+  location.href=ORDER_DETAIL+'?order='+encodeURIComponent(orderNo);
+};
+
+document.getElementById('guessGrid').innerHTML=[1,2,3,4].map(i=>`
+  <div class="product-card" onclick="location.href='04.商品详情页-原型页面.html'">
+    <img src="${poolImg(i+20)}" alt="">
+    <div class="product-card-info">
+      <div class="product-card-name">精选好物推荐 ${i}</div>
+      <div class="product-card-price"><em>¥</em>${199+i*80}</div>
+    </div>
+  </div>`).join('');
+</script>
+</body>
+</html>

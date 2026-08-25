@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>售后详情 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/account-header.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/proto-confirm.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;padding-bottom:80px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+:root{--jd-red:#f63218;--jd-red-dark:#c81623;--price:#ff0f12;--text-mid:#666;--radius:8px;--radius-sm:6px;--page-width:1600px;--detail-w:960px}
+.container{width:var(--page-width);margin:0 auto}
+.rd-page{padding:16px 0 24px}
+.rd-wrap{max-width:var(--detail-w);margin:0 auto}
+
+.rd-status{background:#fff;border-radius:var(--radius);padding:28px 24px;margin-bottom:12px;border:1px solid #eee}
+.rd-status-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.rd-status-title{font-size:26px;font-weight:700;color:#333}
+.rd-status-tag{font-size:13px;font-weight:600;padding:4px 12px;border-radius:4px}
+.rd-status-tag.pending,.rd-status-tag.shipping,.rd-status-tag.exchanging{color:#ff9800;background:#fff8e6}
+.rd-status-tag.refunded,.rd-status-tag.exchanged{color:#52c41a;background:#f6ffed}
+.rd-status-tag.closed{color:#999;background:#f5f5f5}
+.rd-status-hint{font-size:14px;color:var(--text-mid);margin-top:10px;width:100%}
+.rd-status-meta{font-size:13px;color:#999;margin-top:8px;line-height:1.8}
+
+.rd-card{background:#fff;border-radius:var(--radius);padding:20px;margin-bottom:12px;border:1px solid #eee}
+.rd-card-hd{font-size:15px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.rd-card-hd a{font-size:13px;color:var(--jd-red);font-weight:400}
+.rd-card-hd a:hover{text-decoration:underline}
+
+.rd-timeline{position:relative;padding-left:4px}
+.rd-timeline-item{position:relative;padding:0 0 22px 28px}
+.rd-timeline-item:last-child{padding-bottom:0}
+.rd-timeline-item::before{content:'';position:absolute;left:5px;top:8px;bottom:0;width:2px;background:#eee}
+.rd-timeline-item:last-child::before{display:none}
+.rd-timeline-dot{position:absolute;left:0;top:4px;width:12px;height:12px;border-radius:50%;background:#ddd;border:2px solid #fff;box-shadow:0 0 0 1px #ddd}
+.rd-timeline-item.active .rd-timeline-dot{background:var(--jd-red);box-shadow:0 0 0 1px var(--jd-red)}
+.rd-timeline-item.active .rd-timeline-title{color:var(--jd-red);font-weight:600}
+.rd-timeline-title{font-size:14px;color:#333;margin-bottom:4px}
+.rd-timeline-desc{font-size:13px;color:var(--text-mid);line-height:1.5}
+.rd-timeline-time{font-size:12px;color:#999;margin-top:4px}
+
+.rd-return-box{padding:14px 16px;background:#fff8e6;border-radius:var(--radius);font-size:13px;color:#666;line-height:1.7;border:1px solid #ffe58f}
+.rd-return-box.exchange{background:#f0f7ff;border-color:#bae0ff}
+.rd-exchange-box{padding:14px 16px;background:#f6ffed;border-radius:var(--radius);font-size:13px;color:#666;line-height:1.7;border:1px solid #b7eb8f;margin-top:12px}
+.rd-return-box strong{display:block;font-size:14px;color:#333;margin-bottom:6px}
+
+.rd-goods-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #f5f5f5}
+.rd-goods-item:last-child{border-bottom:none;padding-bottom:0}
+.rd-goods-item:first-child{padding-top:0}
+.rd-goods-item img{width:72px;height:72px;object-fit:cover;border-radius:4px;background:#f8f8f8;flex-shrink:0}
+.rd-goods-info{flex:1;min-width:0}
+.rd-goods-name{font-size:14px;line-height:1.45;margin-bottom:4px}
+.rd-goods-spec{font-size:12px;color:#999}
+.rd-goods-right{text-align:right;flex-shrink:0;font-size:13px;color:var(--text-mid)}
+.rd-goods-right .p{color:var(--price);font-weight:600;font-size:15px}
+.rd-goods-right .q{margin-top:4px}
+
+.rd-fee-row{display:flex;justify-content:space-between;padding:8px 0;font-size:14px;color:var(--text-mid)}
+.rd-fee-total{display:flex;justify-content:space-between;padding:14px 0 0;margin-top:8px;border-top:1px solid #f0f0f0;font-size:15px}
+.rd-fee-total strong{color:var(--price);font-size:20px;font-weight:700}
+.rd-meta{font-size:13px;color:#999;margin-top:12px;padding-top:12px;border-top:1px solid #f5f5f5;line-height:1.8}
+
+.rd-sticky{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 12px rgba(0,0,0,.06);z-index:100}
+.rd-sticky-inner{max-width:var(--detail-w);margin:0 auto;padding:12px 0;display:flex;align-items:center;justify-content:flex-end;gap:12px}
+.rd-btn{min-width:96px;height:40px;padding:0 20px;font-size:14px;border-radius:6px;border:1px solid #ddd;background:#fff;color:#666}
+.rd-btn:hover{border-color:var(--jd-red);color:var(--jd-red)}
+.rd-btn.primary{background:var(--jd-red);border-color:var(--jd-red);color:#fff;font-weight:600}
+.rd-btn.primary:hover{background:var(--jd-red-dark)}
+
+</style>
+</head>
+<body>
+
+<div id="site-topbar-root"></div>
+
+<header class="pd-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href='01.首页-原型页面.html'">
+        <div class="logo-text">苏银豆商城</div>
+        <div class="logo-sub">积分好物 · 一站购齐</div>
+      </div>
+      <div>
+        <div class="pd-search">
+          <input type="text" placeholder="搜索商品、品牌、品类" id="searchInput">
+          <button type="button" id="searchBtn">搜索</button>
+        </div>
+      </div>
+      <div class="pd-header-cart" onclick="location.href='06.购物车-原型页面.html'">
+        <img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt="">
+        <span>购物车</span><div class="badge">3</div>
+      </div>
+    </div>
+    <nav class="pd-breadcrumb">
+      <a href="01.首页-原型页面.html">首页</a> &gt;
+      <a href="15.个人中心-原型页面.html">个人中心</a> &gt;
+      <a href="12.售后记录-原型页面.html">售后记录</a> &gt;
+      <span>售后详情</span>
+    </nav>
+  </div>
+</header>
+
+<div class="rd-page">
+  <div class="rd-wrap" id="rdWrap"></div>
+</div>
+
+<div class="rd-sticky">
+  <div class="rd-sticky-inner" id="rdActions"></div>
+</div>
+
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+<script src="../assets/cs-widget.js"></script>
+
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/product-images.js"></script>
+<script src="../assets/refund-mock.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/proto-confirm.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+FloatDock.init({ cartCount: 15 });
+</script>
+<link rel="stylesheet" href="../assets/return-logistics.css">
+<script src="../assets/return-logistics.js"></script>
+<script>
+if (!ProtoAuth.guardPage()) void 0;
+ProtoAuth.initTopBar({ cartCount: 15 });
+
+var REFUND_LIST = '12.售后记录-原型页面.html';
+var ORDER_DETAIL = '11.订单详情-原型页面.html';
+
+var STATUS_HINT = {
+  pending: '商家将在 48 小时内处理您的申请，请耐心等待',
+  shipping: function (r) {
+    if (r.type === 'exchange') return '请将原商品寄回以下地址，商家签收后将为您发出换货商品';
+    return '请在规定时间内寄回商品并填写退货物流单号';
+  },
+  exchanging: '商家已收到您寄回的商品，正在为您发出换货商品',
+  refunded: '退款已原路返回，请注意查收',
+  exchanged: '换货商品已发出并签收，本次换货已完成',
+  closed: '售后申请已关闭'
+};
+
+function statusHint(r) {
+  var h = STATUS_HINT[r.status];
+  return typeof h === 'function' ? h(r) : (h || '');
+}
+
+var params = new URLSearchParams(location.search);
+var refundId = params.get('refund') || 'RF202606140001';
+var refund = RefundMock.get(refundId);
+
+function formatPrice(n) { return Number(n).toFixed(2); }
+function itemImg(it) { return IMG[it.imgKey] || ''; }
+
+function renderTimeline(tracks) {
+  return tracks.map(function (t) {
+    return '<div class="rd-timeline-item' + (t.active ? ' active' : '') + '">' +
+      '<span class="rd-timeline-dot"></span>' +
+      '<div class="rd-timeline-title">' + t.title + '</div>' +
+      '<div class="rd-timeline-desc">' + t.desc + '</div>' +
+      '<div class="rd-timeline-time">' + t.time + '</div></div>';
+  }).join('');
+}
+
+function renderGoods(r) {
+  var it = r.item;
+  return '<div class="rd-goods-item">' +
+    '<img src="' + itemImg(it) + '" alt="">' +
+    '<div class="rd-goods-info"><div class="rd-goods-name">' + it.name + '</div><div class="rd-goods-spec">' + it.spec + '</div></div>' +
+    '<div class="rd-goods-right"><div class="p">¥' + formatPrice(it.price) + '</div><div class="q">×' + it.qty + '</div></div></div>';
+}
+
+function renderInfo(r) {
+  var reasonLabel = r.type === 'exchange' ? '换货原因' : '退款原因';
+  var html = '<div class="rd-fee-row"><span>售后类型</span><span>' + r.typeLabel + '</span></div>';
+  html += '<div class="rd-fee-row"><span>' + reasonLabel + '</span><span>' + r.reason + '</span></div>';
+  if (r.type === 'exchange') {
+    html += '<div class="rd-fee-row"><span>换货商品</span><span>' + (r.exchangeTarget || r.item.spec) + '</span></div>';
+    if (r.returnLogistics) {
+      html += '<div class="rd-fee-row"><span>寄回物流</span><span>' + r.returnLogistics.carrier + ' ' + r.returnLogistics.no + '</span></div>';
+    }
+    if (r.exchangeLogistics) {
+      html += '<div class="rd-fee-row"><span>换货物流</span><span>' + r.exchangeLogistics.carrier + ' ' + r.exchangeLogistics.no + '</span></div>';
+    }
+    html += '<div class="rd-meta">售后单号：' + r.id + '<br>关联订单：' + r.orderId +
+      '<br>申请时间：' + r.applyTime + (r.exchangeTime ? '<br>换货完成：' + r.exchangeTime : '') + '</div>';
+    return html;
+  }
+  if (r.type !== 'refund_only' || r.amount) {
+    html += '<div class="rd-fee-row"><span>退款金额</span><span>¥' + formatPrice(r.amount) + '</span></div>';
+  }
+  if (r.beans) html += '<div class="rd-fee-row"><span>退回苏银豆</span><span>' + r.beans + ' 豆</span></div>';
+  if (r.type !== 'refund_only' || r.amount || r.beans) {
+    html += '<div class="rd-fee-total"><span>合计退款</span><strong>¥' + formatPrice(r.amount) +
+      (r.beans ? ' + ' + r.beans + ' 豆' : '') + '</strong></div>';
+  }
+  html += '<div class="rd-meta">售后单号：' + r.id + '<br>关联订单：' + r.orderId +
+    '<br>申请时间：' + r.applyTime + (r.refundTime ? '<br>退款时间：' + r.refundTime : '') + '</div>';
+  return html;
+}
+
+function infoCardTitle(r) {
+  return r.type === 'exchange' ? '换货信息' : '退款信息';
+}
+
+function hasReturnLogistics(r) {
+  return r.tracks && r.tracks.some(function (t) { return t.title === '买家已退货' || t.title === '买家已寄回'; });
+}
+
+function renderReturnBlock(r) {
+  if (!r.returnAddr || r.status !== 'shipping') return '';
+  var isExchange = r.type === 'exchange';
+  var title = isExchange ? '寄回信息' : '退货信息';
+  var lead = isExchange ? '请将原商品寄回以下地址' : '请将商品寄回以下地址';
+  return '<div class="rd-card" id="rdReturn"><div class="rd-card-hd">' + title + '</div>' +
+    '<div class="rd-return-box' + (isExchange ? ' exchange' : '') + '"><strong>' + lead + '</strong>' + r.returnAddr + '</div></div>';
+}
+
+function renderExchangeShipBlock(r) {
+  if (r.type !== 'exchange' || !r.exchangeLogistics) return '';
+  var lg = r.exchangeLogistics;
+  return '<div class="rd-card"><div class="rd-card-hd">换货物流</div>' +
+    '<div class="rd-exchange-box"><strong>' + (lg.latest || '换货商品运输中') + '</strong>' +
+    lg.carrier + ' ' + lg.no + (lg.eta ? '<br>' + lg.eta : '') + '</div></div>';
+}
+
+function renderActions(r) {
+  var html = '<button type="button" class="rd-btn" onclick="location.href=\'' + REFUND_LIST + '\'">返回列表</button>';
+  html += '<button type="button" class="rd-btn" onclick="location.href=\'' + ORDER_DETAIL + '?order=' + r.orderId + '\'">查看原订单</button>';
+  if (r.status === 'pending' || r.status === 'shipping') {
+    html += '<button type="button" class="rd-btn" onclick="revokeRefund()">撤销申请</button>';
+  }
+  if (r.status === 'shipping' && !hasReturnLogistics(r)) {
+    var btnLabel = r.type === 'exchange' ? '填写寄回物流' : '填写物流';
+    html += '<button type="button" class="rd-btn primary" onclick="ReturnLogistics.open(\'' + r.id + '\', onLogisticsSubmitted)">' + btnLabel + '</button>';
+  }
+  html += '<button type="button" class="rd-btn" onclick="ProtoCS.open({topic:\'refund\',order:\'' + r.orderId + '\'})">联系客服</button>';
+  return html;
+}
+
+function onLogisticsSubmitted() {
+  var msg = refund.type === 'exchange' ? '寄回物流已提交，商家签收后将发出换货商品' : '退货物流已提交';
+  ProtoToast.success(msg);
+  render();
+}
+
+function revokeRefund() {
+  RefundRevoke.open(function () {
+    RefundMock.revoke(refundId);
+    render();
+  });
+}
+
+function render() {
+  refund = RefundMock.get(refundId);
+  var hint = statusHint(refund);
+
+  document.getElementById('rdWrap').innerHTML =
+    '<div class="rd-status">' +
+    '<div class="rd-status-row">' +
+    '<div class="rd-status-title">' + refund.statusLabel + '</div>' +
+    '<span class="rd-status-tag ' + refund.status + '">' + refund.typeLabel + '</span></div>' +
+    '<div class="rd-status-hint">' + hint + '</div>' +
+    '<div class="rd-status-meta">售后单号：' + refund.id + ' · 关联订单：' + refund.orderId + '</div></div>' +
+    '<div class="rd-card"><div class="rd-card-hd">处理进度</div><div class="rd-timeline">' + renderTimeline(refund.tracks) + '</div></div>' +
+    renderReturnBlock(refund) +
+    renderExchangeShipBlock(refund) +
+    '<div class="rd-card"><div class="rd-card-hd">售后商品</div>' + renderGoods(refund) + '</div>' +
+    '<div class="rd-card"><div class="rd-card-hd">' + infoCardTitle(refund) + '</div>' + renderInfo(refund) + '</div>';
+
+  document.getElementById('rdActions').innerHTML = renderActions(refund);
+}
+
+render();
+if (location.hash === '#return') {
+  var el = document.getElementById('rdReturn');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (refund.status === 'shipping' && !hasReturnLogistics(refund)) ReturnLogistics.open(refundId, onLogisticsSubmitted);
+}
+
+document.getElementById('searchBtn').onclick = function () {
+  var q = document.getElementById('searchInput').value.trim();
+  location.href = q ? '04.搜索分类页-原型页面.html?q=' + encodeURIComponent(q) : '04.搜索分类页-原型页面.html';
+};
+</script>
+</body>
+</html>

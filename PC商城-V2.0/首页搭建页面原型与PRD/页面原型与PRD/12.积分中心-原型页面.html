@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>积分中心 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/account-header.css">
+<link rel="stylesheet" href="../assets/account-nav.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<link rel="stylesheet" href="../assets/coupon-bind.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+:root{--page-width:1600px;--jd-red:#f63218;--price:#ff0f12;--radius:8px;--radius-sm:6px}
+.container{width:var(--page-width);margin:0 auto}
+.pt-body{padding:20px}
+.pt-top{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.pt-card{background:#fff;border-radius:var(--radius);padding:24px 28px;min-height:160px}
+.pt-card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.pt-card-hd h2{font-size:16px;font-weight:600;color:#333}
+.pt-card-hd a{font-size:13px;color:#999}
+.pt-card-hd a:hover{color:var(--jd-red)}
+.pt-balance{display:flex;align-items:center;gap:10px}
+.pt-balance-val{font-size:42px;font-weight:700;color:var(--price);line-height:1;font-variant-numeric:tabular-nums}
+.pt-bean-icon{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#ffb400,#ff8a00);display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;flex-shrink:0}
+.pt-offset{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:#fff5f5;border:1px solid #ffd0d0;border-radius:4px;font-size:12px;color:var(--jd-red);margin-left:4px}
+.pt-offset em{font-style:normal;font-weight:600}
+.pt-tagline{font-size:13px;color:#999;margin-top:12px}
+.pt-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
+.pt-stat-item{text-align:center;padding:16px 8px;background:#fafafa;border-radius:6px}
+.pt-stat-item strong{display:block;font-size:22px;font-weight:700;color:#333;margin-bottom:4px;font-variant-numeric:tabular-nums}
+.pt-stat-item strong.warn{color:#ff9800}
+.pt-stat-item span{font-size:12px;color:#999}
+.pt-quick{display:flex;gap:12px;margin-top:20px}
+.pt-quick a,.pt-quick button{flex:1;height:40px;display:flex;align-items:center;justify-content:center;border:1px solid #eee;border-radius:6px;font-size:14px;color:#666;transition:all .15s;background:#fff;font-family:inherit;cursor:pointer}
+.pt-quick a:hover,.pt-quick button:hover{border-color:var(--jd-red);color:var(--jd-red);background:#fffafa}
+.pt-rules{font-size:13px;color:#666;line-height:1.9;margin-top:4px}
+.pt-rules li{margin-left:16px}
+.pt-detail{background:#fff;border-radius:var(--radius);padding:0 0 16px}
+.pt-main-tabs{display:flex;gap:32px;padding:20px 24px 0;border-bottom:1px solid #f0f0f0}
+.pt-main-tab{padding:0 0 14px;font-size:16px;color:#666;cursor:pointer;position:relative;font-weight:500}
+.pt-main-tab.active{color:#333;font-weight:600}
+.pt-main-tab.active::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--jd-red)}
+.pt-filters{display:flex;gap:10px;padding:16px 24px 0}
+.pt-filters.hidden{display:none}
+.pt-filter{height:32px;padding:0 16px;border-radius:16px;font-size:13px;color:#666;background:#f5f5f5;cursor:pointer;border:none;font-family:inherit;line-height:32px}
+.pt-filter.active{background:#fff5f5;color:var(--jd-red);font-weight:500}
+.pt-table{width:100%;border-collapse:collapse;margin-top:8px}
+.pt-table th,.pt-table td{padding:14px 24px;text-align:left;font-size:14px;border-bottom:1px solid #f5f5f5}
+.pt-table th{font-weight:500;color:#999;background:#fafafa}
+.pt-table td{color:#333}
+.pt-table .col-change{text-align:right;width:140px;font-weight:600;font-variant-numeric:tabular-nums}
+.pt-table .col-expire{text-align:right;width:140px;font-weight:700;font-variant-numeric:tabular-nums;color:#333}
+.pt-table .plus{color:var(--price)}
+.pt-table .minus{color:#333}
+.pt-table .col-time{width:200px;color:#666;font-size:14px}
+.pt-empty{text-align:center;padding:48px;color:#999;font-size:14px}
+.pt-pager{display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:12px 24px 0}
+.pt-pager.hidden{display:none}
+.pt-pager button{height:32px;padding:0 14px;border:1px solid #ddd;background:#fff;border-radius:var(--radius-sm);font-size:13px;color:#666;font-family:inherit;cursor:pointer}
+.pt-pager button:hover:not(:disabled){border-color:var(--jd-red);color:var(--jd-red)}
+.pt-pager button:disabled{opacity:.45;cursor:not-allowed}
+.pt-pager span{font-size:13px;color:#999;margin:0 8px}
+</style>
+</head>
+<body>
+<div id="site-topbar-root"></div>
+<header class="pd-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href=ProtoPages.home">
+        <div class="logo-text">苏银豆商城</div>
+        <div class="logo-sub">积分好物 · 一站购齐</div>
+      </div>
+      <div><div class="pd-search"><input type="text" placeholder="搜索商品、品牌、品类" id="searchInput"><button type="button" id="searchBtn">搜索</button></div></div>
+      <div class="pd-header-cart" onclick="location.href=ProtoPages.cart">
+        <img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt="">
+        <span>购物车</span><div class="badge">3</div>
+      </div>
+    </div>
+    <nav class="pd-breadcrumb"><a href="01.首页-原型页面.html">首页</a> &gt; <a href="10.个人中心-原型页面.html">个人中心</a> &gt; <span>积分中心</span></nav>
+  </div>
+</header>
+<div class="container ac-page"><div class="ac-layout"><div id="accountSidebar"></div><div class="ac-main-panel">
+<div class="pt-body">
+  <div class="pt-top">
+    <div class="pt-card">
+      <div class="pt-card-hd"><h2>我的苏银豆</h2><a href="#" onclick="ProtoToast.info('苏银豆说明：1豆=¥0.01，可用于兑换或组合支付抵扣，不可提现');return false">苏银豆说明</a></div>
+      <div class="pt-balance">
+        <span class="pt-balance-val" id="balanceVal">128,560</span>
+        <span class="pt-bean-icon">豆</span>
+        <span class="pt-offset">可抵 <em id="offsetVal">¥12,856.00</em></span>
+      </div>
+      <div class="pt-tagline">苏银豆下单可抵现现金</div>
+    </div>
+    <div class="pt-card">
+      <div class="pt-card-hd"><h2>账户概览</h2></div>
+      <div class="pt-stats">
+        <div class="pt-stat-item"><strong id="availVal">125,360</strong><span>可用苏银豆</span></div>
+        <div class="pt-stat-item"><strong class="warn">3,200</strong><span>7天内过期</span></div>
+        <div class="pt-stat-item"><strong>86,420</strong><span>累计已用</span></div>
+      </div>
+      <div class="pt-quick">
+        <a href="05.购物车-原型页面.html">去兑换</a>
+        <button type="button" id="bindBtn">卡密兑换</button>
+      </div>
+    </div>
+  </div>
+  <div class="pt-detail">
+    <div class="pt-main-tabs">
+      <div class="pt-main-tab active" data-panel="records">收支明细</div>
+      <div class="pt-main-tab" data-panel="expiring">即将过期</div>
+    </div>
+    <div class="pt-filters" id="ptFilters">
+      <button type="button" class="pt-filter active" data-filter="all">全部</button>
+      <button type="button" class="pt-filter" data-filter="in">已获取</button>
+      <button type="button" class="pt-filter" data-filter="out">已消耗</button>
+      <button type="button" class="pt-filter" data-filter="expire">过期</button>
+    </div>
+    <table class="pt-table">
+      <thead id="ptThead"><tr><th>详情说明</th><th class="col-time">时间</th><th class="col-change">苏银豆变化</th></tr></thead>
+      <tbody id="ptTableBody"></tbody>
+    </table>
+    <div class="pt-pager" id="ptPager">
+      <button type="button" id="ptPrev" disabled>上一页</button>
+      <span id="ptPageInfo">1 / 1</span>
+      <button type="button" id="ptNext" disabled>下一页</button>
+    </div>
+  </div>
+</div>
+</div></div></div>
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/account-nav.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+FloatDock.init({ cartCount: 15 });
+</script>
+<script src="../assets/coupon-bind.js"></script>
+<script>
+if (!ProtoAuth.guardPage()) void 0;
+ProtoAuth.initTopBar({ cartCount: 15 });
+AccountNav.renderSidebar('accountSidebar', 'points');
+
+var balance=128560,available=125360;
+
+var records=[
+  {type:'in',desc:'平台发放',time:'2026-06-01 09:00:00',change:50000},
+  {type:'in',desc:'卡券绑定',time:'2026-05-28 18:32:15',change:429},
+  {type:'out',desc:'订单抵扣 SY202606140089',time:'2026-06-14 11:20:08',change:-20000},
+  {type:'out',desc:'纯积分兑换 OPPO Find X9',time:'2026-06-10 15:06:44',change:-42990},
+  {type:'in',desc:'卡券绑定',time:'2026-06-08 10:20:00',change:5000},
+  {type:'expire',desc:'过期清零',time:'2026-05-01 00:00:00',change:-1200},
+  {type:'in',desc:'平台发放',time:'2026-06-06 12:00:00',change:888},
+  {type:'out',desc:'订单抵扣 SY202606080015',time:'2026-06-08 09:15:33',change:-8500}
+];
+var expiring=[
+  {time:'2026-06-22 23:59:59',amount:3200},
+  {time:'2026-06-23 23:59:59',amount:0},
+  {time:'2026-06-24 23:59:59',amount:0},
+  {time:'2026-06-25 23:59:59',amount:0},
+  {time:'2026-06-26 23:59:59',amount:0},
+  {time:'2026-06-27 23:59:59',amount:0},
+  {time:'2026-06-28 23:59:59',amount:0},
+  {time:'2026-07-01 23:59:59',amount:1500},
+  {time:'2026-07-15 23:59:59',amount:800},
+  {time:'2026-08-31 23:59:59',amount:5000}
+];
+
+var mainPanel='records',filter='all',page=1,pageSize=5;
+
+function currentList(){
+  if(mainPanel==='expiring')return expiring;
+  if(filter==='in')return records.filter(function(r){return r.type==='in';});
+  if(filter==='out')return records.filter(function(r){return r.type==='out';});
+  if(filter==='expire')return records.filter(function(r){return r.type==='expire';});
+  return records;
+}
+
+function renderThead(){
+  var thead=document.getElementById('ptThead');
+  if(mainPanel==='expiring'){
+    thead.innerHTML='<tr><th class="col-time">时间</th><th class="col-expire">过期苏银豆</th></tr>';
+  }else{
+    thead.innerHTML='<tr><th>详情说明</th><th class="col-time">时间</th><th class="col-change">苏银豆变化</th></tr>';
+  }
+}
+
+function renderTable(){
+  renderThead();
+  document.getElementById('ptFilters').classList.toggle('hidden',mainPanel!=='records');
+  document.getElementById('ptPager').classList.toggle('hidden',mainPanel!=='records');
+
+  var list=currentList();
+  var total=Math.max(1,Math.ceil(list.length/pageSize));
+  if(page>total)page=total;
+  var start=(page-1)*pageSize;
+  var slice=mainPanel==='records'?list.slice(start,start+pageSize):list;
+  var tbody=document.getElementById('ptTableBody');
+  var cols=mainPanel==='expiring'?2:3;
+
+  if(!slice.length){
+    tbody.innerHTML='<tr><td colspan="'+cols+'"><div class="pt-empty">暂无记录</div></td></tr>';
+  }else if(mainPanel==='expiring'){
+    tbody.innerHTML=slice.map(function(r){
+      return '<tr><td class="col-time">'+r.time+'</td><td class="col-expire">'+r.amount.toLocaleString()+'</td></tr>';
+    }).join('');
+  }else{
+    tbody.innerHTML=slice.map(function(r){
+      var ch=r.change>0?'<span class="plus">+'+r.change.toLocaleString()+'</span>':'<span class="minus">'+r.change.toLocaleString()+'</span>';
+      return '<tr><td>'+r.desc+'</td><td class="col-time">'+r.time+'</td><td class="col-change">'+ch+'</td></tr>';
+    }).join('');
+  }
+
+  if(mainPanel==='records'){
+    document.getElementById('ptPrev').disabled=page<=1;
+    document.getElementById('ptNext').disabled=page>=total;
+    document.getElementById('ptPageInfo').textContent=page+' / '+total;
+  }
+}
+
+document.querySelectorAll('.pt-main-tab').forEach(function(tab){
+  tab.onclick=function(){
+    mainPanel=tab.dataset.panel;
+    page=1;
+    document.querySelectorAll('.pt-main-tab').forEach(function(t){t.classList.remove('active');});
+    tab.classList.add('active');
+    renderTable();
+  };
+});
+document.querySelectorAll('.pt-filter').forEach(function(btn){
+  btn.onclick=function(){
+    filter=btn.dataset.filter;
+    page=1;
+    document.querySelectorAll('.pt-filter').forEach(function(b){b.classList.remove('active');});
+    btn.classList.add('active');
+    renderTable();
+  };
+});
+document.getElementById('ptPrev').onclick=function(){if(page>1){page--;renderTable();}};
+document.getElementById('ptNext').onclick=function(){page++;renderTable();};
+document.getElementById('searchBtn').onclick=function(){
+  var q=document.getElementById('searchInput').value.trim();
+  location.href=q?ProtoPages.search+'?q='+encodeURIComponent(q):ProtoPages.search;
+};
+document.getElementById('bindBtn').onclick=function(){CouponBind.open();};
+
+function updateBalanceUI(){
+  document.getElementById('balanceVal').textContent=balance.toLocaleString();
+  document.getElementById('offsetVal').textContent='¥'+(balance*0.01).toFixed(2);
+  document.getElementById('availVal').textContent=available.toLocaleString();
+}
+
+function nowStr(){
+  var d=new Date(),p=function(n){return n<10?'0'+n:n;};
+  return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+}
+
+function applyPointsRecharge(result){
+  var amt=result.amount||0;
+  balance+=amt;
+  available+=amt;
+  updateBalanceUI();
+  records.unshift({type:'in',desc:'卡券绑定',time:nowStr(),change:amt});
+  page=1;
+  renderTable();
+  ProtoToast.success('卡券绑定成功，+'+amt.toLocaleString()+' 苏银豆');
+}
+
+var bindResult=CouponBind.consumeBindResult();
+if(bindResult&&bindResult.action==='points')applyPointsRecharge(bindResult);
+
+renderTable();
+</script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>订单详情 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/account-header.css">
+<link rel="stylesheet" href="../assets/order-cancel.css">
+<link rel="stylesheet" href="../assets/write-review.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-confirm.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;padding-bottom:80px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input{outline:none;border:none;font-family:inherit}
+:root{--jd-red:#f63218;--jd-red-dark:#c81623;--price:#ff0f12;--text-mid:#666;--text-light:#999;--radius:8px;--radius-sm:6px;--page-width:1600px;--detail-w:960px}
+.container{width:var(--page-width);margin:0 auto}
+.od-page{padding:16px 0 24px}
+.od-wrap{max-width:var(--detail-w);margin:0 auto}
+.od-status{background:#fff;border-radius:var(--radius);padding:28px 24px;margin-bottom:12px;border:1px solid #eee}
+.od-status-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.od-status-title{font-size:26px;font-weight:700;color:#333}
+.od-status-tag{font-size:13px;font-weight:600;padding:4px 12px;border-radius:4px}
+.od-status-tag.pay{color:#ff9800;background:#fff8e6}
+.od-status-tag.ship{color:#1890ff;background:#e6f7ff}
+.od-status-tag.recv{color:#52c41a;background:#f6ffed}
+.od-status-tag.partial{color:#1890ff;background:#e6f7ff}
+.od-status-tag.done,.od-status-tag.cancel{color:#999;background:#f5f5f5}
+.od-status-hint{font-size:14px;color:var(--text-mid);margin-top:10px;width:100%}
+.od-status-meta{font-size:13px;color:#999;margin-top:8px}
+.od-status-summary{margin-top:12px;padding:12px 14px;background:#fafafa;border-radius:6px;font-size:14px;color:#333;line-height:1.6}
+.od-status-summary strong{font-weight:600;color:var(--jd-red)}
+.od-countdown{font-size:14px;color:#ff9800;margin-top:8px}
+.od-countdown em{font-style:normal;font-weight:600}
+
+.od-card{background:#fff;border-radius:var(--radius);padding:20px;margin-bottom:12px;border:1px solid #eee}
+.od-card-hd{font-size:15px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+
+.od-addr-name{font-size:15px;font-weight:600;margin-bottom:6px}
+.od-addr-name em{font-style:normal;font-weight:400;color:var(--text-mid);margin-left:12px}
+.od-addr-detail{font-size:13px;color:var(--text-mid);line-height:1.6}
+.od-zigzag{height:4px;margin-top:14px;background:linear-gradient(135deg,#f63218 25%,transparent 25%) -4px 0/8px 8px,linear-gradient(225deg,#1890ff 25%,transparent 25%) -4px 0/8px 8px,linear-gradient(315deg,#52c41a 25%,transparent 25%),linear-gradient(45deg,#faad14 25%,transparent 25%);background-size:8px 8px;background-color:#fff}
+.od-msg{font-size:14px;color:var(--text-mid);line-height:1.6;padding-top:4px}
+
+.od-pkg-card{background:#fff;border-radius:var(--radius);margin-bottom:12px;border:1px solid #eee;overflow:hidden}
+.od-pkg-hd{padding:14px 20px 0;font-size:15px;font-weight:600;color:#333}
+.od-pkg-hd span{font-size:13px;font-weight:400;color:#999;margin-left:8px}
+.od-pkg-lg{display:flex;align-items:center;gap:14px;padding:14px 20px;margin:12px 20px 0;background:#fafafa;border-radius:var(--radius);cursor:pointer;transition:background .15s}
+.od-pkg-lg:hover{background:#f5f5f5}
+.od-pkg-lg-icon{width:40px;height:40px;border-radius:6px;background:linear-gradient(135deg,var(--jd-red),#ff6a4a);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px}
+.od-pkg-lg-info{flex:1;min-width:0}
+.od-pkg-lg-title{font-size:14px;font-weight:600;color:#333;margin-bottom:4px}
+.od-pkg-lg-eta{font-size:12px;color:#52c41a;margin-top:2px;font-weight:500}
+.od-pkg-lg-tag{display:inline-block;font-size:12px;padding:1px 8px;border-radius:4px;margin-left:8px;font-weight:500;vertical-align:middle}
+.od-pkg-lg-tag.shipping{color:#1890ff;background:#e6f7ff}
+.od-pkg-lg-tag.delivered{color:#52c41a;background:#f6ffed}
+.od-pkg-lg-desc{font-size:13px;color:var(--text-mid);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.od-pkg-lg-arrow{color:#ccc;font-size:18px;flex-shrink:0;transition:transform .2s;display:inline-block}
+.od-pkg-lg-arrow.expanded{transform:rotate(90deg)}
+
+.od-pkg-goods{padding:4px 20px 16px}
+.od-pkg-timeline{display:none;padding:0 20px 16px;border-top:1px solid #f5f5f5;margin:0 20px 16px}
+.od-pkg-timeline.show{display:block;padding-top:16px}
+.od-pkg-timeline-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.od-pkg-timeline-hd .courier{font-size:14px;color:#333;font-weight:500}
+.od-pkg-copy{font-size:12px;color:var(--jd-red);border:1px solid var(--jd-red);padding:2px 10px;border-radius:4px;cursor:pointer;background:#fff}
+.od-pkg-copy:hover{background:#fff5f5}
+
+.od-pending-card{background:#fff;border-radius:var(--radius);margin-bottom:12px;border:1px solid #eee;overflow:hidden}
+.od-pending-hd{padding:14px 20px;font-size:15px;font-weight:600;color:#333;border-bottom:1px solid #f5f5f5;display:flex;align-items:center;justify-content:space-between}
+.od-pending-hd span{font-size:13px;font-weight:400;color:#ff9800}
+.od-pending-tip{padding:10px 20px;font-size:13px;color:var(--text-mid);background:#fffbf5;border-bottom:1px solid #fff3e0}
+.od-pending-goods{padding:4px 20px 16px}
+
+.od-timeline{position:relative;padding-left:4px}
+.od-timeline-item{position:relative;padding:0 0 22px 28px}
+.od-timeline-item:last-child{padding-bottom:0}
+.od-timeline-item::before{content:'';position:absolute;left:5px;top:8px;bottom:0;width:2px;background:#eee}
+.od-timeline-item:last-child::before{display:none}
+.od-timeline-dot{position:absolute;left:0;top:4px;width:12px;height:12px;border-radius:50%;background:#ddd;border:2px solid #fff;box-shadow:0 0 0 1px #ddd}
+.od-timeline-item.active .od-timeline-dot{background:var(--jd-red);box-shadow:0 0 0 1px var(--jd-red)}
+.od-timeline-item.active .od-timeline-content{color:#333;font-weight:500}
+.od-timeline-content{font-size:13px;color:var(--text-mid);line-height:1.6;margin-bottom:2px}
+.od-timeline-time{font-size:12px;color:#999}
+
+.od-aftersale{padding:10px 20px 14px;border-top:1px solid #f5f5f5}
+.od-aftersale a{font-size:13px;color:#ff9800;font-weight:500}
+.od-aftersale a:hover{text-decoration:underline}
+.od-goods-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #f5f5f5}
+.od-goods-item:last-child{border-bottom:none;padding-bottom:0}
+.od-goods-item:first-child{padding-top:0}
+.od-goods-item.aftersale-muted{opacity:.55}
+.od-goods-item.aftersale-muted img{filter:grayscale(.35)}
+.od-goods-item img{width:72px;height:72px;object-fit:cover;border-radius:4px;background:#f8f8f8;flex-shrink:0}
+.od-goods-info{flex:1;min-width:0}
+.od-goods-name{font-size:14px;line-height:1.45;margin-bottom:4px}
+.od-goods-spec{font-size:12px;color:#999}
+.od-goods-right{text-align:right;flex-shrink:0;font-size:13px;color:var(--text-mid)}
+.od-goods-right .p{color:var(--price);font-weight:600;font-size:15px}
+.od-goods-right .q{margin-top:4px}
+
+.od-pay-only .od-goods-item{padding:14px 0}
+
+.od-fee-row{display:flex;justify-content:space-between;padding:8px 0;font-size:14px;color:var(--text-mid)}
+.od-fee-row.discount{color:var(--jd-red)}
+.od-fee-total{display:flex;justify-content:space-between;padding:14px 0 0;margin-top:8px;border-top:1px solid #f0f0f0;font-size:15px}
+.od-fee-total strong{color:var(--price);font-size:20px;font-weight:700}
+.od-meta{font-size:13px;color:#999;margin-top:12px;padding-top:12px;border-top:1px solid #f5f5f5;line-height:1.8}
+
+.od-sticky{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 12px rgba(0,0,0,.06);z-index:100}
+.od-sticky-inner{max-width:var(--detail-w);margin:0 auto;padding:12px 0;display:flex;align-items:center;justify-content:flex-end;gap:12px}
+.od-btn{min-width:96px;height:40px;padding:0 20px;font-size:14px;border-radius:6px;border:1px solid #ddd;background:#fff;color:#666}
+.od-btn:hover{border-color:var(--jd-red);color:var(--jd-red)}
+.od-btn.primary{background:var(--jd-red);border-color:var(--jd-red);color:#fff;font-weight:600}
+.od-btn.primary:hover{background:var(--jd-red-dark)}
+.od-btn.warn{border-color:#ff9800;color:#ff9800}
+.od-btn.warn:hover{background:#fff8e6}
+</style>
+</head>
+<body>
+
+<div id="site-topbar-root"></div>
+
+<header class="pd-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href='01.首页-原型页面.html'">
+        <div class="logo-text">苏银豆商城</div>
+        <div class="logo-sub">积分好物 · 一站购齐</div>
+      </div>
+      <div>
+        <div class="pd-search">
+          <input type="text" placeholder="搜索商品、品牌、品类" id="searchInput">
+          <button type="button" id="searchBtn">搜索</button>
+        </div>
+      </div>
+      <div class="pd-header-cart" onclick="location.href='06.购物车-原型页面.html'">
+        <img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt="">
+        <span>购物车</span><div class="badge">3</div>
+      </div>
+    </div>
+    <nav class="pd-breadcrumb">
+      <a href="01.首页-原型页面.html">首页</a> &gt;
+      <a href="15.个人中心-原型页面.html">个人中心</a> &gt;
+      <a href="10.订单页-原型页面.html">我的订单</a> &gt;
+      <span>订单详情</span>
+    </nav>
+  </div>
+</header>
+
+<div class="od-page">
+  <div class="od-wrap" id="odWrap"></div>
+</div>
+
+<div class="od-sticky" id="odSticky">
+  <div class="od-sticky-inner" id="odActions"></div>
+</div>
+
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/product-images.js"></script>
+<script src="../assets/order-mock.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/order-cancel.js"></script>
+<script src="../assets/write-review.js"></script>
+<script src="../assets/proto-confirm.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+if (!ProtoAuth.guardPage()) void 0;
+ProtoAuth.initTopBar({ cartCount: 15 });
+FloatDock.init({ cartCount: 15 });
+
+var PAY = '07.结算付款-原型页面.html';
+var DETAIL_GOODS = '05.商品详情页-原型页面.html';
+var REFUND_APPLY = '13.申请售后-原型页面.html';
+
+function goApplyRefund(id) {
+  location.href = REFUND_APPLY + '?order=' + encodeURIComponent(id);
+}
+
+var TRACKS = {
+  recv: [
+    { content: '快件已到达【南京转运中心】，正在发往下一站', time: '2026-06-15 14:32', active: true },
+    { content: '快件已从【南京建邺营业部】发出', time: '2026-06-15 08:10', active: false },
+    { content: '顺丰速运已收取快件', time: '2026-06-14 18:45', active: false }
+  ],
+  done: [
+    { content: '本人签收，感谢使用圆通速递', time: '2026-06-10 16:20', active: true },
+    { content: '快件到达【南京建邺区网点】', time: '2026-06-10 09:15', active: false },
+    { content: '圆通速递已收取快件', time: '2026-06-08 11:30', active: false }
+  ]
+};
+
+var STATUS = {
+  pay: { title: '等待买家付款', hint: '超时未支付，订单将自动取消', cls: 'pay', tag: '待付款' },
+  ship: { title: '等待商家发货', hint: '商家正在为您备货，请耐心等待', cls: 'ship', tag: '待发货' },
+  recv: { title: '商家已发货', hint: '包裹运输中，请注意查收', cls: 'recv', tag: '待收货' },
+  done: { title: '交易成功', hint: '感谢您的购买，欢迎再次光临', cls: 'done', tag: '已完成' },
+  cancel: { title: '订单已取消', hint: '订单已关闭', cls: 'cancel', tag: '已取消' }
+};
+
+var params = new URLSearchParams(location.search);
+var orderId = params.get('order') || 'SY202606150001';
+var payCountdown = 29 * 60 + 58;
+var timerId = null;
+
+function formatPrice(n) { return Number(n).toFixed(2); }
+function itemImg(it) { return IMG[it.imgKey] || ''; }
+
+function renderPayTotal(o) {
+  if (o.payType === '纯积分') return o.beans + ' 苏银豆';
+  if (o.payType === '纯现金') return '¥' + formatPrice(o.goodsAmount);
+  return '¥' + formatPrice(o.cash) + ' + ' + o.beans + ' 苏银豆';
+}
+
+function resolveStatus(o) {
+  var sum = OrderMock.summary(o);
+  if (sum.partialDeliver) {
+    return { title: '部分签收', hint: '部分包裹已送达，其余包裹运输中，请按包裹查看物流', cls: 'partial', tag: '部分签收' };
+  }
+  if (sum.partialShip) {
+    return { title: '部分发货', hint: '部分商品已发出，其余商品备货中；包裹到达时间可能不同', cls: 'partial', tag: '部分发货' };
+  }
+  if (sum.multiPackage && o.status === 'recv') {
+    return { title: '商家已发货', hint: '您的订单拆分为多个包裹发出，请按包裹查看物流', cls: 'recv', tag: '待收货' };
+  }
+  return STATUS[o.status] || STATUS.pay;
+}
+
+function renderStatusSummary(o) {
+  var sum = OrderMock.summary(o);
+  if (o.status === 'pay' || o.status === 'cancel') return '';
+  if (!sum.aggregateText && o.status !== 'ship') return '';
+  var text = sum.aggregateText;
+  if (!text && o.status === 'ship') text = o.items.reduce(function (s, i) { return s + i.qty; }, 0) + ' 件商品备货中';
+  if (!text) return '';
+  return '<div class="od-status-summary"><strong>发货进度：</strong>' + text + '</div>';
+}
+
+function renderTimeline(tracks) {
+  return tracks.map(function (t) {
+    return '<div class="od-timeline-item' + (t.active ? ' active' : '') + '">' +
+      '<span class="od-timeline-dot"></span>' +
+      '<div class="od-timeline-content">' + t.content + '</div>' +
+      '<div class="od-timeline-time">' + t.time + '</div></div>';
+  }).join('');
+}
+
+function pkgTimeline(pkg, orderStatus) {
+  if (pkg.timeline && pkg.timeline.length) return pkg.timeline;
+  if (!pkg.logistics) return [];
+  return orderStatus === 'done' ? TRACKS.done : TRACKS.recv;
+}
+
+function lgStatusClass(lg) {
+  return OrderMock.pkgState(lg) === 'delivered' ? 'delivered' : 'shipping';
+}
+
+function renderPkgGoods(items, muted) {
+  return items.map(function (it) {
+    return '<div class="od-goods-item' + (muted ? ' aftersale-muted' : '') + '">' +
+      '<img src="' + itemImg(it) + '" alt="">' +
+      '<div class="od-goods-info"><div class="od-goods-name">' + it.name + '</div><div class="od-goods-spec">' + it.spec + '</div></div>' +
+      '<div class="od-goods-right"><div class="p">¥' + formatPrice(it.price) + '</div><div class="q">×' + it.qty + '</div></div></div>';
+  }).join('');
+}
+
+function renderPackage(pkg, idx, shippedTotal, orderStatus) {
+  var lg = pkg.logistics;
+  if (!lg) return '';
+  var pid = pkg.id || idx;
+  var stCls = lgStatusClass(lg);
+  var lgBar = '<div class="od-pkg-lg" data-pkg="' + pid + '" id="od-pkg-lg-' + pid + '">' +
+    '<div class="od-pkg-lg-icon">🚚</div>' +
+    '<div class="od-pkg-lg-info">' +
+    '<div class="od-pkg-lg-title">' + lg.carrier + ' ' + lg.no +
+    '<span class="od-pkg-lg-tag ' + stCls + '">' + (lg.label || '运输中') + '</span></div>' +
+    (lg.eta ? '<div class="od-pkg-lg-eta">' + lg.eta + '</div>' : '') +
+    '<div class="od-pkg-lg-desc">' + (lg.latest || '') + '</div></div>' +
+    '<span class="od-pkg-lg-arrow" id="od-tg-' + pid + '">›</span></div>';
+  var timelineBlock = '<div class="od-pkg-timeline" id="od-tl-' + pid + '">' +
+    '<div class="od-pkg-timeline-hd"><span class="courier">' + lg.carrier + ' · ' + lg.no + '</span>' +
+    '<button type="button" class="od-pkg-copy" onclick="event.stopPropagation();ProtoToast.success(\'已复制单号\')">复制单号</button></div>' +
+    '<div class="od-timeline">' + renderTimeline(pkgTimeline(pkg, orderStatus)) + '</div></div>';
+  var aftersale = pkg.aftersale
+    ? '<div class="od-aftersale"><a href="' + pkg.aftersale.href + '">' + (pkg.aftersale.label || '售后详情') + ' ›</a></div>'
+    : '';
+  var label = shippedTotal > 1 ? '包裹 ' + idx : '';
+  return '<div class="od-pkg-card" id="od-pkg-' + pid + '">' +
+    (label ? '<div class="od-pkg-hd">' + label + '<span>含 ' + pkg.items.length + ' 件商品</span></div>' : '') +
+    lgBar + timelineBlock +
+    '<div class="od-pkg-goods">' + renderPkgGoods(pkg.items, !!pkg.aftersale) + '</div>' +
+    aftersale + '</div>';
+}
+
+function renderShippedPackages(o) {
+  var pkgs = OrderMock.packages(o).filter(function (p) { return p.logistics; });
+  if (!pkgs.length) return '';
+  return '<div id="odPackages">' + pkgs.map(function (p, i) {
+    return renderPackage(p, i + 1, pkgs.length, o.status);
+  }).join('') + '</div>';
+}
+
+function renderPendingSection(o) {
+  var pending = OrderMock.pendingItems(o);
+  if (!pending.length) return '';
+  var qty = pending.reduce(function (s, i) { return s + i.qty; }, 0);
+  return '<div class="od-pending-card" id="odPending">' +
+    '<div class="od-pending-hd">待发货商品<span>备货中 · ' + qty + ' 件</span></div>' +
+    '<div class="od-pending-tip">商家正在为您备货，预计 24 小时内发出，发货后将更新物流信息</div>' +
+    '<div class="od-pending-goods">' + renderPkgGoods(pending, false) + '</div></div>';
+}
+
+function renderPayGoods(o) {
+  return '<div class="od-card od-pay-only"><div class="od-card-hd">商品清单</div>' +
+    renderPkgGoods(o.items, false) + '</div>';
+}
+
+function bindPkgToggle() {
+  document.querySelectorAll('.od-pkg-lg[data-pkg]').forEach(function (el) {
+    el.onclick = function () {
+      var pid = this.dataset.pkg;
+      var tl = document.getElementById('od-tl-' + pid);
+      var tg = document.getElementById('od-tg-' + pid);
+      if (!tl) return;
+      tl.classList.toggle('show');
+      if (tg) tg.classList.toggle('expanded');
+    };
+  });
+}
+
+function scrollToLogistics() {
+  var el = document.getElementById('odPackages') || document.getElementById('odPending') || document.querySelector('.od-pkg-lg');
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderFee(o) {
+  var rows = [['商品总额', '¥' + formatPrice(o.goodsAmount)]];
+  rows.push(['运费', o.freight ? '¥' + formatPrice(o.freight) : '免邮']);
+  if (o.coupon) rows.push(['优惠券', '-¥' + formatPrice(o.coupon)]);
+  if (o.beans) rows.push(['苏银豆抵扣', '-¥' + formatPrice(o.beans * 0.01)]);
+  var html = rows.map(function (r) {
+    return '<div class="od-fee-row' + (r[0].indexOf('抵扣') >= 0 || r[0] === '优惠券' ? ' discount' : '') + '"><span>' + r[0] + '</span><span>' + r[1] + '</span></div>';
+  }).join('');
+  html += '<div class="od-fee-total"><span>实付</span><strong>' + renderPayTotal(o) + '</strong></div>';
+  html += '<div class="od-meta">订单编号：' + o.id + '<br>下单时间：' + o.time + '<br>支付方式：' + o.payType + '</div>';
+  return html;
+}
+
+function openOrderReview() {
+  var order = OrderMock.get(orderId);
+  if (!order || !order.items || !order.items.length) {
+    ProtoToast.warn('暂无可评价商品');
+    return;
+  }
+  var it = order.items[0];
+  WriteReview.open({ name: it.name, imgKey: it.imgKey }, function () {
+    ProtoToast.success('评价提交成功，感谢您的反馈！');
+  });
+}
+
+function renderActions(o) {
+  var s = o.status;
+  var id = o.id;
+  var sum = OrderMock.summary(o);
+  if (s === 'pay') {
+    return '<button type="button" class="od-btn" onclick="doCancel()">取消订单</button>' +
+      '<button type="button" class="od-btn primary" onclick="location.href=\'' + PAY + '?mode=pay&order=' + id + '\'">去支付</button>';
+  }
+  if (s === 'ship') {
+    return '<button type="button" class="od-btn" onclick="goApplyRefund(\'' + id + '\')">申请售后</button>';
+  }
+  if (s === 'recv') {
+    var btns = '';
+    if (sum.shippedCount) btns += '<button type="button" class="od-btn" onclick="scrollToLogistics()">查看物流</button>';
+    btns += '<button type="button" class="od-btn" onclick="goApplyRefund(\'' + id + '\')">申请售后</button>';
+    if (sum.canConfirmReceive) btns += '<button type="button" class="od-btn warn" onclick="confirmReceive()">确认收货</button>';
+    return btns;
+  }
+  if (s === 'done') {
+    return '<button type="button" class="od-btn" onclick="goApplyRefund(\'' + id + '\')">申请售后</button>' +
+      '<button type="button" class="od-btn warn" onclick="openOrderReview()">评价</button>' +
+      '<button type="button" class="od-btn primary" onclick="location.href=\'' + DETAIL_GOODS + '\'">再次购买</button>';
+  }
+  return '<button type="button" class="od-btn primary" onclick="location.href=\'' + DETAIL_GOODS + '\'">再次购买</button>';
+}
+
+function tickCountdown() {
+  var el = document.getElementById('odCountdown');
+  if (!el || payCountdown <= 0) return;
+  var m = String(Math.floor(payCountdown / 60)).padStart(2, '0');
+  var s = String(payCountdown % 60).padStart(2, '0');
+  el.innerHTML = '支付剩余时间 <em>' + m + ':' + s + '</em>，超时订单将自动取消';
+  payCountdown--;
+}
+
+function render() {
+  var order = OrderMock.get(orderId);
+  var st = resolveStatus(order);
+  var countdownHtml = order.status === 'pay'
+    ? '<div class="od-countdown" id="odCountdown">支付剩余时间 <em>29:58</em>，超时订单将自动取消</div>' : '';
+  var body = '';
+
+  if (order.status === 'pay' || order.status === 'cancel') {
+    body = renderPayGoods(order);
+  } else if (order.status === 'ship' && !OrderMock.packages(order).some(function (p) { return p.logistics; })) {
+    body = renderPendingSection(order) || renderPayGoods(order);
+  } else {
+    body = renderShippedPackages(order) + renderPendingSection(order);
+    if (!body.trim()) body = renderPayGoods(order);
+  }
+
+  document.getElementById('odWrap').innerHTML =
+    '<div class="od-status">' +
+    '<div class="od-status-row">' +
+    '<div class="od-status-title">' + st.title + '</div>' +
+    '<span class="od-status-tag ' + st.cls + '">' + st.tag + '</span></div>' +
+    '<div class="od-status-meta">主订单号：' + order.id + '</div>' +
+    '<div class="od-status-hint">' + st.hint + '</div>' +
+    renderStatusSummary(order) + countdownHtml + '</div>' +
+    '<div class="od-card"><div class="od-card-hd">收货信息</div>' +
+    '<div class="od-addr-name">' + order.address.name + '<em>' + order.address.phone + '</em></div>' +
+    '<div class="od-addr-detail">' + order.address.addr + '</div>' +
+    '<div class="od-zigzag"></div></div>' +
+    (order.message ? '<div class="od-card"><div class="od-card-hd">买家留言</div><div class="od-msg">' + order.message + '</div></div>' : '') +
+    body +
+    '<div class="od-card"><div class="od-card-hd">订单信息</div>' + renderFee(order) + '</div>';
+
+  document.getElementById('odActions').innerHTML = renderActions(order);
+  bindPkgToggle();
+
+  if (timerId) clearInterval(timerId);
+  if (order.status === 'pay') {
+    tickCountdown();
+    timerId = setInterval(tickCountdown, 1000);
+  }
+}
+
+function doCancel() {
+  OrderCancel.open(orderId, function () {
+    OrderMock.cancel(orderId);
+    render();
+  });
+}
+
+function confirmReceive() {
+  ConfirmReceive.open(function () {
+    OrderMock.receive(orderId);
+    render();
+  });
+}
+
+render();
+if (location.hash === '#logistics') {
+  setTimeout(function () {
+    scrollToLogistics();
+    var first = document.querySelector('.od-pkg-lg[data-pkg]');
+    if (first) first.click();
+  }, 100);
+}
+
+document.getElementById('searchBtn').onclick = function () {
+  var q = document.getElementById('searchInput').value.trim();
+  location.href = q ? '04.搜索分类页-原型页面.html?q=' + encodeURIComponent(q) : '04.搜索分类页-原型页面.html';
+};
+</script>
+</body>
+</html>

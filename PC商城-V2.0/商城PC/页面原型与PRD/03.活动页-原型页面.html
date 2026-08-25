@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="zh-CN" style="--primary-color:#2e7d32">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>品牌活动 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei","Source Han Sans CN",-apple-system,sans-serif;color:var(--text-dark);background:var(--bg-page);line-height:1.5;min-width:var(--page-width);-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+ul,li{list-style:none}
+img{display:block;max-width:100%}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input{outline:none;border:none;font-family:inherit}
+
+:root{
+  --page-width:1600px;
+  --jd-red:#f63218;
+  --jd-red-dark:#c81623;
+  --price:#ff0f12;
+  --price-alt:#f2270c;
+  --text-dark:rgba(0,0,0,.85);
+  --text-mid:#666;
+  --text-light:#999;
+  --bg-page:#f4f4f4;
+  --border-light:#f0f0f0;
+  --radius:8px;
+  --radius-sm:6px;
+  --radius-lg:12px;
+  --shadow-card:0 2px 12px rgba(0,0,0,.06);
+  --space-section:16px;
+  --space-block:12px;
+  --icon-cart:url(https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png);
+  --icon-cart-hover:url(https://img12.360buyimg.com/img/jfs/t1/329610/14/5367/642/68afc86aF292b557f/49aac701bcc27b4f.png);
+}
+
+.container{width:var(--page-width);margin:0 auto}
+
+.pd-header{background:#fff;border-bottom:1px solid #eee;padding:16px 0 0}
+.pd-header-grid{display:grid;grid-template-columns:230px minmax(0,1fr) 230px;gap:12px;align-items:start}
+.pd-logo{cursor:pointer;padding-top:4px}
+.pd-logo .logo-text{font-size:32px;font-weight:700;color:var(--jd-red);letter-spacing:1px;line-height:1.15;text-align:center}
+.pd-logo .logo-sub{font-size:12px;color:var(--text-mid);margin-top:6px;text-align:center;letter-spacing:.5px}
+.pd-search-col{min-width:0}
+.pd-search{display:flex;border:2px solid var(--jd-red);border-radius:var(--radius);overflow:hidden;background:#fff}
+.pd-search input{flex:1;min-width:0;height:42px;padding:0 16px;font-size:15px}
+.pd-search button{width:80px;height:38px;margin:2px;background:var(--jd-red);color:#fff;font-size:15px;font-weight:600;border-radius:var(--radius-sm)}
+.search-hot{margin-top:10px;padding-left:2px;display:flex;flex-wrap:wrap;align-items:center;gap:0 18px;line-height:1.4}
+.search-hot a{font-size:12px;color:var(--text-mid);white-space:nowrap;transition:color .2s}
+.search-hot a:hover{color:var(--jd-red)}
+.search-hot a.hot-highlight{color:var(--jd-red);font-weight:500}
+.pd-cart-col{display:flex;justify-content:flex-end;padding-top:2px}
+.pd-header-cart{display:flex;flex-direction:column;align-items:center;gap:4px;color:#333;font-size:12px;cursor:pointer;position:relative;padding:4px 8px;min-width:72px}
+.pd-header-cart .cart-icon-img{width:28px;height:28px;object-fit:contain}
+.pd-header-cart .badge{position:absolute;top:0;right:4px;min-width:16px;height:16px;background:var(--jd-red);color:#fff;font-size:10px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-weight:600}
+.pd-breadcrumb{font-size:13px;color:var(--text-mid);padding:12px 0 14px;margin-top:12px;border-top:1px solid #f5f5f5;line-height:1.5}
+.pd-breadcrumb a{color:var(--text-mid);transition:color .15s}
+.pd-breadcrumb a:hover{color:var(--jd-red)}
+.pd-breadcrumb span{margin:0 6px;color:#ccc}
+.pd-breadcrumb .pd-breadcrumb-current{color:var(--text-dark)}
+
+.act-main{padding:12px 0 24px;display:flex;flex-direction:column;gap:var(--space-section)}
+
+.activity-hero{position:relative;height:320px;border-radius:var(--radius-lg);overflow:hidden;background:#e8e8e8;box-shadow:var(--shadow-card)}
+.activity-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.activity-hero-mask{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.62) 0%,rgba(0,0,0,.25) 45%,transparent 72%)}
+.activity-hero-copy{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:center;height:100%;padding:0 48px;color:#fff;max-width:58%}
+.activity-hero-title{font-size:36px;font-weight:700;line-height:1.2;letter-spacing:1px}
+.activity-hero-sub{font-size:16px;margin-top:10px;opacity:.92}
+.activity-hero-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.activity-hero-tag{font-size:12px;padding:4px 12px;border-radius:14px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35)}
+.activity-rule-bar{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#fff;border-radius:var(--radius);border:1px solid var(--border-light);box-shadow:var(--shadow-card);font-size:13px;color:var(--text-mid)}
+.activity-rule-bar svg{width:16px;height:16px;flex-shrink:0;fill:var(--jd-red)}
+.activity-rule-bar strong{color:var(--jd-red);font-weight:600;margin-right:4px}
+
+.cat-floors{display:flex;flex-direction:column;gap:var(--space-section)}
+.cat-floor{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-card);border:1px solid var(--border-light);overflow:hidden;scroll-margin-top:12px}
+.cat-floor-head{display:flex;justify-content:space-between;align-items:center;padding:10px 11px 8px;border-bottom:1px solid #f5f5f5}
+.cat-floor-head h3{font-size:14px;font-weight:600;color:var(--jd-red);letter-spacing:.3px}
+.cat-floor-head h3 em{font-style:normal;display:inline-block;min-width:27px;padding:2px 6px;margin-right:8px;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--jd-red),var(--price-alt));border-radius:3px;text-align:center;box-shadow:0 2px 6px rgba(246,50,24,.25)}
+.cat-floor-head a{font-size:10px;color:var(--text-mid);transition:color .15s}
+.cat-floor-head a:hover{color:var(--jd-red)}
+.cat-floor-body{display:grid;grid-template-columns:minmax(0,42%) minmax(0,58%);gap:8px;padding:9px;background:linear-gradient(180deg,#fafbfc 0%,#f3f4f6 100%)}
+.cat-floor-assembler{display:grid;gap:6px;min-height:0}
+.cat-floor-assembler--mix{grid-template-rows:minmax(128px,1.15fr) minmax(94px,.85fr)}
+.cat-floor-assembler--stack{grid-template-rows:1fr 1fr}
+.cat-floor-assembler-bottom{display:grid;grid-template-columns:1fr 1fr;gap:6px;min-height:0}
+.cat-floor-poster{position:relative;border-radius:8px;overflow:hidden;display:block;border:1px solid transparent;transition:box-shadow .2s;color:inherit}
+.cat-floor-poster:hover{box-shadow:0 8px 22px rgba(0,0,0,.08)}
+.cat-floor-poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.cat-floor-poster--hero{min-height:0;height:100%;background:#e8e8e8}
+.cat-floor-poster--hero::after{content:'';position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(255,255,255,.82) 0%,rgba(255,255,255,.35) 40%,transparent 68%)}
+.cat-floor-poster-copy{position:relative;z-index:1;padding:13px 11px 10px;max-width:58%;pointer-events:none}
+.cat-floor-poster-copy .cat-floor-brand{font-size:9px;font-weight:700;color:var(--jd-red);letter-spacing:.5px}
+.cat-floor-poster-copy strong{display:block;margin-top:5px;font-size:13px;font-weight:700;color:var(--text-dark);line-height:1.25}
+.cat-floor-points{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;padding:0;list-style:none}
+.cat-floor-points li{font-size:9px;font-weight:500;padding:2px 8px;border-radius:10px;line-height:1.3}
+.cat-floor-poster--green .cat-floor-points li{color:#2e7d32;background:rgba(46,125,50,.1);border:1px solid rgba(46,125,50,.22)}
+.cat-floor-poster--blue .cat-floor-points li{color:#0958d9;background:rgba(9,88,217,.08);border:1px solid rgba(9,88,217,.18)}
+.cat-floor-poster--warm .cat-floor-points li{color:#e65100;background:rgba(230,81,0,.08);border:1px solid rgba(230,81,0,.15)}
+.cat-floor-poster--stack{min-height:0;height:100%;border:1px solid #e8e8e8;background:#e8e8e8}
+.cat-floor-poster--stack::after{content:'';position:absolute;inset:0;z-index:0}
+.cat-floor-poster--mini{min-height:0;height:100%;border:1px solid #e8e8e8;background:#e8e8e8}
+.cat-floor-poster--mini::after{content:'';position:absolute;inset:0;z-index:0;background:linear-gradient(90deg,rgba(255,255,255,.86) 0%,rgba(255,255,255,.3) 42%,transparent 72%)}
+.cat-floor-poster-copy--mini{max-width:68%;padding:8px 6px}
+.cat-floor-poster-copy--mini strong{font-size:10px;margin-top:3px}
+.cat-floor-poster-copy--mini .cat-floor-mini-desc{display:block;font-size:8px;color:var(--text-light);margin-top:2px;line-height:1.3}
+.cat-floor-poster--dark::after{background:linear-gradient(90deg,rgba(15,20,35,.72) 0%,rgba(15,20,35,.15) 55%,transparent 100%)}
+.cat-floor-poster--office::after{background:linear-gradient(90deg,rgba(255,255,255,.92) 0%,rgba(255,255,255,.4) 50%,transparent 100%)}
+.cat-floor-poster--stack .cat-floor-poster-copy{max-width:52%;height:100%;display:flex;flex-direction:column;justify-content:center}
+.cat-floor-poster--dark .cat-floor-poster-copy{color:#fff}
+.cat-floor-poster--dark .cat-floor-brand{color:#ff6b6b}
+.cat-floor-poster--dark strong{color:#fff}
+.cat-floor-poster--stack .cat-floor-poster-copy span{font-size:10px;color:var(--text-mid);margin-top:5px;line-height:1.35}
+.cat-floor-poster--dark .cat-floor-poster-copy span{color:rgba(255,255,255,.75)}
+.cat-floor-mini-stack{display:flex;flex-direction:column;gap:6px;min-height:0}
+.cat-floor-mini-stack .cat-floor-poster--mini{flex:1;min-height:0}
+.cat-floor-products{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,1fr);gap:8px;min-height:0}
+.cat-floor-products .product-card{height:100%;display:flex;flex-direction:column}
+.cat-floor-products .product-card-img{flex-shrink:0;aspect-ratio:25/16}
+.cat-floor-products .product-card-info{flex:1;display:flex;flex-direction:column;padding:6px 6px 8px}
+.cat-floor-products .product-card-name{font-size:12px}
+.cat-floor-products .product-card-tags{display:none}
+.cat-floor-products .product-card-bottom{margin-top:6px}
+.cat-floor-products .price-subsidy{font-size:18px}
+.cat-floor-products .price-subsidy em{font-size:12px}
+.cat-floor-products .price-origin{font-size:11px}
+.cat-floor-products .price-meta{display:none}
+.cat-floor-products .cart-add{width:28px;height:28px}
+.cat-floor-products .cart-add .cart-icon{width:16px;height:16px}
+
+.act-recommend{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-card);border:1px solid var(--border-light);overflow:hidden}
+.act-recommend-head{padding:14px 16px 10px;border-bottom:1px solid #f5f5f5;font-size:15px;font-weight:600;color:var(--text-dark)}
+.act-recommend .product-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--space-block);padding:16px}
+.act-recommend .product-card-name{font-size:12px}
+.act-recommend .price-subsidy{font-size:18px}
+.act-recommend .price-subsidy em{font-size:12px}
+.act-recommend .price-origin{font-size:11px}
+.act-recommend .cart-add{width:28px;height:28px}
+.act-recommend .cart-add .cart-icon{width:16px;height:16px}
+.product-card{cursor:pointer;transition:box-shadow .2s,border-color .2s,transform .2s;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border-light);background:#fff}
+.product-card:hover{box-shadow:0 6px 20px rgba(246,50,24,.1);border-color:#ffd0d0;transform:translateY(-2px)}
+.product-card-img{aspect-ratio:1;background:#f8f8f8;overflow:hidden}
+.product-card-img img{width:100%;height:100%;object-fit:cover;display:block}
+.product-card-info{padding:8px 8px 10px}
+.product-card-name{font-size:13px;color:var(--text-dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.45}
+.product-card-name .brand-tag{color:var(--price-alt);font-weight:600}
+.product-card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;min-height:18px}
+.info-tag{font-size:10px;line-height:16px;padding:0 5px;border-radius:2px;white-space:nowrap}
+.info-tag.red{color:var(--price-alt);border:1px solid rgba(242,39,12,.4);background:#fffafa}
+.info-tag.green{color:#00a854;border:1px solid rgba(0,168,84,.45)}
+.product-card-bottom{display:flex;align-items:flex-end;justify-content:space-between;margin-top:8px;gap:4px}
+.product-card-price-col{flex:1;min-width:0}
+.price-row{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.price-origin{font-size:12px;color:#999;text-decoration:line-through}
+.price-subsidy{font-size:22px;font-weight:700;color:var(--price);line-height:1.1;font-variant-numeric:tabular-nums}
+.price-subsidy em{font-size:14px;font-style:normal;font-weight:700;margin-right:1px}
+.price-meta{display:flex;align-items:center;gap:6px;margin-top:3px;flex-wrap:wrap}
+.subsidy-tip{font-size:11px;color:var(--jd-red)}
+.cart-add{width:34px;height:34px;border-radius:var(--radius-sm);background:#fff;border:1px solid #e8e8e8;color:var(--jd-red);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .2s}
+.cart-add .cart-icon{display:block;width:20px;height:20px;background:var(--icon-cart) center/contain no-repeat}
+.cart-add:hover{background:#fff;border-color:var(--jd-red)}
+.cart-add:hover .cart-icon{background-image:var(--icon-cart-hover)}
+
+.act-empty{text-align:center;padding:80px 20px;background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-card)}
+.act-empty p{font-size:15px;color:var(--text-mid);margin-bottom:16px}
+.act-empty a{display:inline-block;padding:8px 24px;background:var(--jd-red);color:#fff;border-radius:var(--radius-sm);font-size:14px}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:none;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:12px;width:400px;overflow:hidden;animation:modalIn .25s ease}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.modal-header{display:flex;justify-content:flex-end;padding:16px 16px 0}
+.modal-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-light);font-size:18px;border-radius:50%}
+.modal-close:hover{background:#f5f5f5}
+.modal-tabs{display:flex;padding:0 24px;gap:20px;border-bottom:1px solid #eee}
+.modal-tab{font-size:15px;color:var(--text-light);cursor:pointer;padding:12px 0;border-bottom:2px solid transparent;margin-bottom:-1px}
+.modal-tab.active{color:var(--jd-red);border-bottom-color:var(--jd-red);font-weight:600}
+.modal-body{padding:24px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;color:var(--text-mid);margin-bottom:6px}
+.form-input{width:100%;height:42px;border:1px solid #ddd;border-radius:var(--radius-sm);padding:0 12px;font-size:14px}
+.form-input:focus{border-color:var(--jd-red)}
+.form-row{display:flex;gap:10px}
+.form-row .form-input{flex:1}
+.sms-btn{width:110px;height:42px;background:#fff;border:1px solid var(--jd-red);color:var(--jd-red);border-radius:var(--radius-sm);font-size:13px}
+.modal-submit{width:100%;height:44px;background:var(--jd-red);color:#fff;border-radius:var(--radius-sm);font-size:15px;font-weight:600;margin-top:6px}
+</style>
+</head>
+<body>
+
+<div id="site-topbar-root"></div>
+
+<header class="pd-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href='01.首页-原型页面.html'">
+        <div class="logo-text">苏银豆商城</div>
+        <div class="logo-sub">积分好物 · 一站购齐</div>
+      </div>
+      <div class="pd-search-col">
+        <div class="pd-search">
+          <input type="text" placeholder="搜索商品、品牌、品类" id="searchInput">
+          <button type="button" id="searchBtn">搜索</button>
+        </div>
+        <div class="search-hot">
+          <a href="#" class="hot-highlight">5000苏银豆到账</a>
+          <a href="#">积分低至5折起</a>
+          <a href="#">数码家电</a>
+          <a href="#">美妆护肤</a>
+          <a href="#">运动户外</a>
+          <a href="#">企业福利</a>
+        </div>
+      </div>
+      <div class="pd-cart-col">
+        <div class="pd-header-cart" onclick="location.href='06.购物车-原型页面.html'">
+          <img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt="购物车">
+          <span>购物车</span>
+          <div class="badge" id="headerCartBadge">3</div>
+        </div>
+      </div>
+    </div>
+    <nav class="pd-breadcrumb" id="actBreadcrumb"></nav>
+  </div>
+</header>
+
+<div class="container act-main" id="actMain">
+  <div id="actHero"></div>
+  <div id="actRule"></div>
+  <div class="cat-floors" id="actFloors"></div>
+  <div class="act-recommend" id="actRecommend"></div>
+</div>
+
+<div class="container act-empty" id="actEmpty" style="display:none">
+  <p>活动不存在或已结束</p>
+  <a href="01.首页-原型页面.html">返回首页</a>
+</div>
+
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-close" onclick="closeLogin()" data-proto-icon="close" data-icon-size="18"></div></div>
+    <div class="modal-tabs">
+      <div class="modal-tab active" onclick="switchLoginTab(this,'phone')">手机号登录</div>
+      <div class="modal-tab" onclick="switchLoginTab(this,'wechat')">微信扫码</div>
+    </div>
+    <div class="modal-body" id="loginBody">
+      <div class="form-group"><label>手机号</label><input class="form-input" type="tel" placeholder="请输入手机号" maxlength="11"></div>
+      <div class="form-group"><label>验证码</label><div class="form-row"><input class="form-input" type="text" placeholder="请输入验证码" maxlength="6"><button class="sms-btn">获取验证码</button></div></div>
+      <button class="modal-submit">登 录</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/product-images.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+ProtoAuth.initTopBar({
+  cartCount: 15,
+  openLogin: function () { openLogin(); },
+  onLogoutClick: function () { applyUcState('guest'); }
+});
+FloatDock.init({ cartCount: 15 });
+const HOME_PAGE = '01.首页-原型页面.html';
+const DETAIL_PAGE = '05.商品详情页-原型页面.html';
+const ACTIVITY_PAGE = '03.活动页-原型页面.html';
+const ZONE_HUB_PAGE = '02.活动专区页-原型页面.html';
+
+function getProductBrand(name, brand) {
+  if (brand) return brand;
+  const rules = [[/Apple|Watch/i, '苹果'], [/Nike/i, 'Nike'], [/Sony/i, '索尼'], [/小米/i, '小米']];
+  for (const [re, b] of rules) if (re.test(name)) return b;
+  const cn = name.match(/^[\u4e00-\u9fa5]{2,4}/);
+  return cn ? cn[0] : name.split(/\s/)[0].slice(0, 6);
+}
+
+function formatPrice(n) {
+  return Number.isInteger(n) ? String(n) : n.toFixed(2);
+}
+
+function renderInfoTags(tags) {
+  const list = (tags || []).filter(Boolean).slice(0, 2);
+  if (!list.length) return '';
+  return `<div class="product-card-tags">${list.map((t, i) => `<span class="info-tag ${i % 2 ? 'green' : 'red'}">${t}</span>`).join('')}</div>`;
+}
+
+function renderProductCard(p, linkable) {
+  const brand = getProductBrand(p.name, p.brand);
+  const originPrice = p.originPrice || Math.round(p.price * 1.12);
+  const subsidy = p.subsidy != null ? p.subsidy : +(originPrice - p.price).toFixed(2);
+  const goDetail = linkable ? ` onclick="location.href='${DETAIL_PAGE}'"` : '';
+  return `<div class="product-card"${goDetail}>
+    <div class="product-card-img"><img src="${p.img}" alt="${p.name}"></div>
+    <div class="product-card-info">
+      <div class="product-card-name"><span class="brand-tag">【${brand}】</span>${p.name}</div>
+      ${renderInfoTags(p.tags)}
+      <div class="product-card-bottom">
+        <div class="product-card-price-col">
+          <div class="price-row">
+            <span class="price-origin">¥${formatPrice(originPrice)}</span>
+            <span class="price-subsidy"><em>¥</em>${formatPrice(p.price)}</span>
+          </div>
+          <div class="price-meta"><span class="subsidy-tip">已补贴${formatPrice(subsidy)}元</span></div>
+        </div>
+        <button class="cart-add" type="button" title="加入购物车" onclick="event.stopPropagation();ProtoToast.show()"><i class="cart-icon"></i></button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderCatFloorMini(m) {
+  return `<a class="cat-floor-poster cat-floor-poster--mini" href="${m.href || '#'}">
+    <img src="${m.img}" alt="${m.title}">
+    <div class="cat-floor-poster-copy cat-floor-poster-copy--mini">
+      <span class="cat-floor-brand">${m.tag}</span>
+      <strong>${m.title}</strong>
+      <span class="cat-floor-mini-desc">${m.desc}</span>
+    </div>
+  </a>`;
+}
+
+function renderPosterHero(s) {
+  const pointsHtml = (s.points || []).map(p => `<li>${p}</li>`).join('');
+  return `<a class="cat-floor-poster cat-floor-poster--hero cat-floor-poster--${s.theme || 'green'}" href="${s.href || '#'}">
+    <div class="cat-floor-poster-copy">
+      <span class="cat-floor-brand">${s.brand}</span>
+      <strong>${s.headline}</strong>
+      ${pointsHtml ? `<ul class="cat-floor-points">${pointsHtml}</ul>` : ''}
+    </div>
+    <img src="${s.img}" alt="${s.headline}">
+  </a>`;
+}
+
+function renderPosterStack(s) {
+  return `<a class="cat-floor-poster cat-floor-poster--stack cat-floor-poster--${s.theme || 'dark'}" href="${s.href || '#'}">
+    <div class="cat-floor-poster-copy">
+      <span class="cat-floor-brand">${s.brand}</span>
+      <strong>${s.headline}</strong>
+      ${s.sub ? `<span>${s.sub}</span>` : ''}
+    </div>
+    <img src="${s.img}" alt="${s.headline}">
+  </a>`;
+}
+
+function renderPosterAsm(asm) {
+  if (asm.layout === 'stack') {
+    return `<div class="cat-floor-assembler cat-floor-assembler--stack">${asm.slots.map(renderPosterStack).join('')}</div>`;
+  }
+  const hero = asm.slots.find(s => s.role === 'hero');
+  const tall = asm.slots.find(s => s.role === 'tall');
+  const wides = asm.slots.filter(s => s.role === 'wide');
+  return `<div class="cat-floor-assembler cat-floor-assembler--mix">
+    ${renderPosterHero(hero)}
+    <div class="cat-floor-assembler-bottom">
+      ${tall ? renderCatFloorMini(tall) : ''}
+      <div class="cat-floor-mini-stack">${wides.map(renderCatFloorMini).join('')}</div>
+    </div>
+  </div>`;
+}
+
+function renderCatFloor(f) {
+  const floorId = 'act-floor-' + f.floor.toLowerCase();
+  return `<section class="cat-floor" id="${floorId}" data-floor="${f.floor}">
+    <div class="cat-floor-head">
+      <h3><em>${f.floor}</em>${f.title}</h3>
+      <a href="${f.moreHref || '#'}">查看全部 ›</a>
+    </div>
+    <div class="cat-floor-body">
+      ${renderPosterAsm(f.posterAsm)}
+      <div class="cat-floor-products">${f.products.map(p => renderProductCard(p, true)).join('')}</div>
+    </div>
+  </section>`;
+}
+
+const ACTIVITY_PAGES = {
+  'apple-wear': {
+    banner: {
+      img: IMG.p12,
+      title: 'Apple 智能穿戴',
+      sub: '智能手表 · 积分可抵 · 限时补贴',
+      tags: ['限时补贴', '积分可抵', '大牌严选']
+    },
+    rule: '活动时间：6.15–6.30 · 指定 Apple 穿戴商品可用苏银豆抵扣，单笔最高抵 ¥500',
+    floors: [
+      {
+        floor: '1F',
+        title: '智能手表',
+        moreHref: '#',
+        posterAsm: {
+          layout: 'mix',
+          slots: [
+            { role: 'hero', brand: '苹果', headline: 'Apple Watch 系列', points: ['Series 9', 'GPS版', '健康监测'], img: IMG.watch, theme: 'blue', href: '#' },
+            { role: 'tall', tag: '新品', title: '运动手表', desc: '圆盘设计 白色款', img: IMG.p57, href: '#' },
+            { role: 'wide', tag: '配件', title: '表带精选', desc: '硅胶/金属 多色可选', img: IMG.p29, href: '#' },
+            { role: 'wide', tag: '耳机', title: 'AirPods', desc: '无线聆听 随行相伴', img: IMG.headphone, href: '#' }
+          ]
+        },
+        products: [
+          { brand: '苹果', name: 'Apple Watch Series 9 GPS 智能手表', price: 2999, tags: ['热销爆款', '穿戴'], img: IMG.watch },
+          { brand: '智能穿戴', name: '圆盘智能运动手表 白色', price: 399, tags: ['标品', '穿戴'], img: IMG.p57 },
+          { brand: '小米', name: '手环4 智能运动手环 黑色', price: 169, tags: ['惠选', '穿戴'], img: IMG.e16 },
+          { brand: '智能穿戴', name: '圆盘智能运动手表 白色', price: 399, tags: ['标品', '穿戴'], img: IMG.e48 },
+          { brand: '苹果', name: 'Apple Watch 硅胶表带 多色', price: 299, tags: ['配件', '穿戴'], img: IMG.p12 },
+          { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, tags: ['大牌严选', '音频'], img: IMG.headphone }
+        ]
+      },
+      {
+        floor: '2F',
+        title: '数码配件',
+        moreHref: '#',
+        posterAsm: {
+          layout: 'stack',
+          slots: [
+            { brand: '苹果', headline: 'MacBook 移动办公', sub: 'M3芯片 轻薄随行', img: IMG.p42, theme: 'dark', href: '#' },
+            { brand: '小米', headline: '移动电源快充', sub: '20000mAh 出行必备', img: IMG.p41, theme: 'office', href: '#' }
+          ]
+        },
+        products: [
+          { brand: '苹果', name: 'MacBook Air M3 13英寸 16GB+256GB', price: 8999, tags: ['大牌严选', '电脑'], img: IMG.p42 },
+          { brand: '小米', name: '移动电源 20000mAh 快充版', price: 149, tags: ['标品', '配件'], img: IMG.p41 },
+          { brand: '小米', name: '手环4 智能运动手环 黑色', price: 169, tags: ['惠选', '穿戴'], img: IMG.p29 },
+          { brand: '苹果', name: 'Apple Watch Series 9 GPS 智能手表', price: 2999, tags: ['标品', '穿戴'], img: IMG.e48 },
+          { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, tags: ['惠选', '音频'], img: IMG.p53 },
+          { brand: '智能穿戴', name: '圆盘智能运动手表 白色', price: 399, tags: ['标品', '穿戴'], img: IMG.e12 }
+        ]
+      }
+    ],
+    recommend: [
+      { brand: '苹果', name: 'Apple Watch Series 9 GPS 智能手表', price: 2999, tags: ['热销爆款', '数码'], img: IMG.e29 },
+      { brand: 'Nike', name: 'Free RN Flyknit 竞速跑步鞋', price: 899, tags: ['限时', '运动'], img: IMG.sneaker },
+      { brand: '小米', name: '移动电源 20000mAh 快充版', price: 149, tags: ['热销爆款', '数码'], img: IMG.p41 },
+      { brand: '苹果', name: 'MacBook Air M3 13英寸 16GB+256GB', price: 8999, tags: ['大牌严选', '办公'], img: IMG.p42 },
+      { brand: '魅丝蔻', name: '专业彩妆刷具套装 8件套', price: 129, tags: ['精选', '美妆'], img: IMG.skincare },
+      { brand: 'Levi\'s', name: '501经典直筒牛仔裤 深蓝款', price: 459, tags: ['爆款', '服饰'], img: IMG.p44 },
+      { brand: '味多美', name: '浓巧淋面庆典蛋糕 8寸', price: 198, tags: ['热销爆款', '食品'], img: IMG.p45 },
+      { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, tags: ['人气', '数码'], img: IMG.p31 },
+      { brand: '智能穿戴', name: '圆盘智能运动手表 白色', price: 399, tags: ['标品', '穿戴'], img: IMG.p57 },
+      { brand: '小米', name: '手环4 智能运动手环 黑色', price: 169, tags: ['惠选', '穿戴'], img: IMG.e16 },
+      { brand: '苹果', name: 'Apple Watch 硅胶表带 多色', price: 299, tags: ['配件', '穿戴'], img: IMG.p12 },
+      { brand: '巴黎贝甜', name: '抹茶巧克力纸杯蛋糕 6入装', price: 68, tags: ['人气', '下午茶'], img: IMG.p46 }
+    ]
+  },
+  'water': {
+    banner: {
+      img: IMG.p13,
+      title: '饮用水专区',
+      sub: '企业团购 · 整箱配送 · 苏银豆可抵',
+      tags: ['企业团购', '整箱配送', '标品特惠']
+    },
+    rule: '活动时间：长期有效 · 饮用水整箱购满 3 箱享企业团购价，支持苏银豆抵扣',
+    floors: [
+      {
+        floor: '1F',
+        title: '瓶装饮用水',
+        moreHref: '#',
+        posterAsm: {
+          layout: 'mix',
+          slots: [
+            { role: 'hero', brand: '怡宝', headline: '纯净水整箱购', points: ['555ml×24', '企业团购', '同城配送'], img: IMG.e13, theme: 'blue', href: '#' },
+            { role: 'tall', tag: '乳品', title: '鲜牛奶', desc: '全脂营养 早餐必备', img: IMG.e19, href: '#' },
+            { role: 'wide', tag: '饮品', title: '苏打饮', desc: '莓果味 6瓶装', img: IMG.e27, href: '#' },
+            { role: 'wide', tag: '乳品', title: '特仑苏', desc: '250ml×12盒装', img: IMG.p19, href: '#' }
+          ]
+        },
+        products: [
+          { brand: '怡宝', name: '纯净水 555ml×24瓶', price: 36.8, tags: ['标品', '饮品'], img: IMG.e13 },
+          { brand: '特仑苏', name: '全脂鲜牛奶 250ml×12盒', price: 68, tags: ['标品', '乳品'], img: IMG.e19 },
+          { brand: 'JENUIN', name: '莓果味苏打饮 6瓶装', price: 68, tags: ['大牌严选', '饮品'], img: IMG.e27 },
+          { brand: '特仑苏', name: '全脂鲜牛奶 250ml×12盒', price: 128, tags: ['标品', '乳品'], img: IMG.p19 },
+          { brand: '乐扣', name: '高硼硅耐热玻璃杯 6只装', price: 49, tags: ['惠选', '水具'], img: IMG.e18 },
+          { brand: '膳魔师', name: '磨砂保温杯 500ml 森林绿', price: 79, tags: ['惠选', '水具'], img: IMG.p37 }
+        ]
+      },
+      {
+        floor: '2F',
+        title: '乳品饮料',
+        moreHref: '#',
+        posterAsm: {
+          layout: 'stack',
+          slots: [
+            { brand: '特仑苏', headline: '全脂鲜牛奶', sub: '营养早餐 家庭装', img: IMG.p19, theme: 'office', href: '#' },
+            { brand: '饮品', headline: '企业饮品集采', sub: '整箱配送 对公开票', img: IMG.p13, theme: 'dark', href: '#' }
+          ]
+        },
+        products: [
+          { brand: '特仑苏', name: '全脂鲜牛奶 250ml×12盒', price: 68, tags: ['标品', '乳品'], img: IMG.e19 },
+          { brand: '怡宝', name: '纯净水 555ml×24瓶', price: 36.8, tags: ['标品', '饮品'], img: IMG.p37 },
+          { brand: '乐扣', name: '办公耐热玻璃杯 4只装', price: 39, tags: ['标品', '水具'], img: IMG.p18 },
+          { brand: 'Curology', name: '洁面保湿护肤套装 2件套', price: 298, tags: ['惠选', '个护'], img: IMG.e20 },
+          { brand: '味多美', name: '浓巧淋面庆典蛋糕 8寸', price: 198, tags: ['标品', '食品'], img: IMG.p45 },
+          { brand: '乐扣', name: '高硼硅耐热玻璃杯 6只装', price: 49, tags: ['惠选', '生活'], img: IMG.e18 }
+        ]
+      }
+    ],
+    recommend: [
+      { brand: '怡宝', name: '纯净水 555ml×24瓶', price: 36.8, tags: ['标品', '饮品'], img: IMG.p13 },
+      { brand: '特仑苏', name: '全脂鲜牛奶 250ml×12盒', price: 68, tags: ['标品', '乳品'], img: IMG.p45 },
+      { brand: 'JENUIN', name: '莓果味苏打饮 6瓶装', price: 68, tags: ['大牌严选', '饮品'], img: IMG.e27 },
+      { brand: '乐扣', name: '高硼硅耐热玻璃杯 6只装', price: 49, tags: ['惠选', '水具'], img: IMG.p18 },
+      { brand: '味多美', name: '浓巧淋面庆典蛋糕 8寸', price: 198, tags: ['热销爆款', '食品'], img: IMG.p45 },
+      { brand: '优衣库', name: '纯棉圆领短袖T恤 白色', price: 79, tags: ['爆款', '服饰'], img: IMG.tshirt },
+      { brand: '小米', name: '移动电源 20000mAh 快充版', price: 149, tags: ['热销爆款', '数码'], img: IMG.p41 },
+      { brand: '宜家', name: '波昂单人扶手椅 北欧款', price: 499, tags: ['积分兑换', '家居'], img: IMG.pen },
+      { brand: '膳魔师', name: '磨砂保温杯 500ml 森林绿', price: 79, tags: ['惠选', '水具'], img: IMG.p37 },
+      { brand: '乐扣', name: '办公耐热玻璃杯 4只装', price: 39, tags: ['标品', '水具'], img: IMG.p18 },
+      { brand: 'Curology', name: '洁面保湿护肤套装 2件套', price: 298, tags: ['惠选', '个护'], img: IMG.e20 },
+      { brand: '特仑苏', name: '全脂鲜牛奶 250ml×12盒', price: 128, tags: ['标品', '乳品'], img: IMG.p41 },
+    ]
+  },
+  'menswear': {
+    banner: {
+      img: IMG.p15,
+      title: '商务男装馆',
+      sub: '立领衬衫 · 职场必备 · 品质男装',
+      tags: ['职场必备', '品质男装', '限时补贴']
+    },
+    rule: '活动时间：6.15–6.25 · 男装专区满 ¥299 减 ¥30，可与苏银豆叠加',
+    floors: [
+      {
+        floor: '1F',
+        title: '衬衫/T恤',
+        moreHref: '#',
+        posterAsm: {
+          layout: 'mix',
+          slots: [
+            { role: 'hero', brand: '男装', headline: '立领衬衫精选', points: ['商务休闲', '纯棉透气', '多色可选'], img: IMG.p15, theme: 'blue', href: '#' },
+            { role: 'tall', tag: '服饰', title: '圆领T恤', desc: '纯棉白色 基础款', img: IMG.tshirt, href: '#' },
+            { role: 'wide', tag: '女装', title: '牛仔衬衫', desc: '爱心印花 休闲款', img: IMG.e36, href: '#' },
+            { role: 'wide', tag: '服饰', title: '基础T恤', desc: '男士圆领 多色', img: IMG.p11, href: '#' }
+          ]
+        },
+        products: [
+          { brand: '优衣库', name: '纯棉圆领短袖T恤 白色', price: 79, tags: ['爆款', '服饰'], img: IMG.p56 },
+          { brand: 'Rowkone', name: '爱心印花牛仔衬衫', price: 159, tags: ['新品', '女装'], img: IMG.e36 },
+          { brand: '优衣库', name: '男士基础款圆领短袖T恤', price: 89, tags: ['爆款', '服饰'], img: IMG.p11 },
+          { brand: 'Levi\'s', name: '501经典直筒牛仔裤 深蓝款', price: 459, tags: ['爆款', '服饰'], img: IMG.p44 },
+          { brand: '纯棉', name: '圆领短袖T恤 白色', price: 79, tags: ['爆款', '服饰'], img: IMG.shirt }
+        ]
+      },
+      {
+        floor: '2F',
+        title: '裤装/外套',
+        moreHref: '#',
+        posterAsm: {
+          layout: 'stack',
+          slots: [
+            { brand: 'Levi\'s', headline: '经典直筒牛仔裤', sub: '501深蓝款 百搭必备', img: IMG.pants, theme: 'dark', href: '#' },
+            { brand: 'Levi\'s', headline: '501经典牛仔裤', sub: '深蓝直筒 职场休闲', img: IMG.p44, theme: 'office', href: '#' }
+          ]
+        },
+        products: [
+          { brand: 'Levi\'s', name: '501经典直筒牛仔裤 深蓝款', price: 459, tags: ['爆款', '服饰'], img: IMG.p44 },
+          { brand: 'Levi\'s', name: '501经典直筒牛仔裤 深蓝款', price: 459, tags: ['首发', '服饰'], img: IMG.pants },
+          { brand: '优衣库', name: '纯棉圆领短袖T恤 白色', price: 79, tags: ['爆款', '服饰'], img: IMG.shirt },
+          { brand: 'Rowkone', name: '爱心印花牛仔衬衫', price: 159, tags: ['新品', '女装'], img: IMG.e36 },
+          { brand: '优衣库', name: '男士基础款圆领短袖T恤', price: 89, tags: ['爆款', '服饰'], img: IMG.p11 },
+          { brand: 'Levi\'s', name: '501经典直筒牛仔裤 深蓝款', price: 459, tags: ['爆款', '服饰'], img: IMG.p15 }
+        ]
+      }
+    ],
+    recommend: [
+      { brand: 'Levi\'s', name: '501经典直筒牛仔裤 深蓝款', price: 459, tags: ['爆款', '服饰'], img: IMG.pants },
+      { brand: '优衣库', name: '纯棉圆领短袖T恤 白色', price: 79, tags: ['爆款', '服饰'], img: IMG.tshirt },
+      { brand: 'Rowkone', name: '爱心印花牛仔衬衫', price: 159, tags: ['新品', '女装'], img: IMG.p56 },
+      { brand: 'Nike', name: 'Free RN Flyknit 竞速跑步鞋', price: 899, tags: ['限时', '运动'], img: IMG.sneaker },
+      { brand: 'Adidas', name: 'EQT Support ADV 运动鞋', price: 699, tags: ['新品', '运动'], img: IMG.p10 },
+      { brand: '雷朋', name: 'Wayfarer 偏光太阳镜', price: 1580, tags: ['推荐', '配饰'], img: IMG.e28 },
+      { brand: '魅丝蔻', name: '专业彩妆刷具套装 8件套', price: 129, tags: ['精选', '美妆'], img: IMG.skincare },
+      { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, tags: ['人气', '数码'], img: IMG.headphone },
+      { brand: '优衣库', name: '男士基础款圆领短袖T恤', price: 89, tags: ['爆款', '服饰'], img: IMG.shirt },
+      { brand: '优衣库', name: '纯棉圆领短袖T恤 白色', price: 79, tags: ['爆款', '服饰'], img: IMG.p56 },
+      { brand: 'Levi\'s', name: '501经典直筒牛仔裤 深蓝款', price: 459, tags: ['首发', '服饰'], img: IMG.p46 },
+      { brand: '巴黎贝甜', name: '抹茶巧克力纸杯蛋糕 6入装', price: 68, tags: ['人气', '下午茶'], img: IMG.p46 }
+    ]
+  },
+  'nike-sport': {
+    banner: {
+      img: IMG.p16,
+      title: 'Nike 运动专区',
+      sub: 'Flyknit跑鞋 · 限时补贴 · 运动装备',
+      tags: ['限时补贴', '运动户外', 'Nike官方']
+    },
+    rule: '活动时间：6.15–6.22 · Nike 专区限时补贴，跑鞋类最高补贴 ¥200',
+    floors: [
+      {
+        floor: '1F',
+        title: '跑步鞋',
+        moreHref: '#',
+        posterAsm: {
+          layout: 'mix',
+          slots: [
+            { role: 'hero', brand: 'Nike', headline: 'Flyknit 竞速跑鞋', points: ['轻便透气', '限时补贴', '多色可选'], img: IMG.sneaker, theme: 'green', href: '#' },
+            { role: 'tall', tag: 'Nike', title: '红色跑鞋', desc: 'Free RN Flyknit', img: IMG.p55, href: '#' },
+            { role: 'wide', tag: 'Adidas', title: '运动鞋', desc: 'EQT Support ADV', img: IMG.p10, href: '#' },
+            { role: 'wide', tag: 'Nike', title: '训练鞋', desc: 'SuperRep 荧光绿', img: IMG.e38, href: '#' }
+          ]
+        },
+        products: [
+          { brand: 'Nike', name: 'Free RN Flyknit 竞速跑步鞋', price: 899, tags: ['限时', '运动'], img: IMG.sneaker },
+          { brand: 'Nike', name: 'Free RN Flyknit 跑鞋 红色', price: 799, tags: ['推荐', '运动'], img: IMG.p55 },
+          { brand: 'Adidas', name: 'EQT Support ADV 运动鞋', price: 699, tags: ['新品', '运动'], img: IMG.p10 },
+          { brand: 'Nike', name: 'SuperRep 荧光绿训练鞋', price: 849, tags: ['新品', '运动'], img: IMG.e38 },
+          { brand: 'Adidas', name: 'EQT Support ADV 运动鞋', price: 699, tags: ['新品', '运动'], img: IMG.p3 },
+          { brand: 'Nike', name: 'Free RN Flyknit 竞速跑步鞋', price: 899, tags: ['限时', '运动'], img: IMG.p16 }
+        ]
+      },
+      {
+        floor: '2F',
+        title: '运动穿戴',
+        moreHref: '#',
+        posterAsm: {
+          layout: 'stack',
+          slots: [
+            { brand: 'Nike', headline: '运动装备精选', sub: '跑鞋+手环 运动套装', img: IMG.p3, theme: 'dark', href: '#' },
+            { brand: '小米', headline: '智能运动手环', sub: '健康监测 久坐提醒', img: IMG.p29, theme: 'office', href: '#' }
+          ]
+        },
+        products: [
+          { brand: '小米', name: '手环4 智能运动手环 黑色', price: 169, tags: ['标品', '穿戴'], img: IMG.p29 },
+          { brand: '智能穿戴', name: '圆盘智能运动手表 白色', price: 399, tags: ['标品', '穿戴'], img: IMG.p57 },
+          { brand: '苹果', name: 'Apple Watch Series 9 GPS 智能手表', price: 2999, tags: ['标品', '穿戴'], img: IMG.watch },
+          { brand: 'Nike', name: 'Free RN Flyknit 竞速跑步鞋', price: 899, tags: ['限时', '运动'], img: IMG.e48 },
+          { brand: 'JBL', name: '无线蓝牙降噪头戴耳机', price: 1299, tags: ['大牌严选', '音频'], img: IMG.pants },
+          { brand: '飞利浦', name: '有线头戴会议耳机 灰色', price: 599, tags: ['惠选', '音频'], img: IMG.p53 }
+        ]
+      }
+    ],
+    recommend: [
+      { brand: 'Nike', name: 'Free RN Flyknit 竞速跑步鞋', price: 899, tags: ['限时', '运动'], img: IMG.sneaker },
+      { brand: 'Nike', name: 'Free RN Flyknit 跑鞋 红色', price: 799, tags: ['推荐', '运动'], img: IMG.p55 },
+      { brand: 'Adidas', name: 'EQT Support ADV 运动鞋', price: 699, tags: ['新品', '运动'], img: IMG.p10 },
+      { brand: 'Nike', name: 'SuperRep 荧光绿训练鞋', price: 849, tags: ['新品', '运动'], img: IMG.e38 },
+      { brand: '小米', name: '手环4 智能运动手环 黑色', price: 169, tags: ['标品', '穿戴'], img: IMG.e16 },
+      { brand: '苹果', name: 'Apple Watch Series 9 GPS 智能手表', price: 2999, tags: ['标品', '穿戴'], img: IMG.watch },
+      { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, tags: ['人气', '数码'], img: IMG.headphone },
+      { brand: 'Levi\'s', name: '501经典直筒牛仔裤 深蓝款', price: 459, tags: ['爆款', '服饰'], img: IMG.p44 },
+      { brand: '智能穿戴', name: '圆盘智能运动手表 白色', price: 399, tags: ['标品', '穿戴'], img: IMG.p57 },
+      { brand: 'JBL', name: '无线蓝牙降噪头戴耳机', price: 1299, tags: ['大牌严选', '音频'], img: IMG.pants },
+      { brand: '飞利浦', name: '有线头戴会议耳机 灰色', price: 599, tags: ['惠选', '音频'], img: IMG.p53 },
+      { brand: 'Nike', name: 'Free RN Flyknit 竞速跑步鞋', price: 899, tags: ['限时', '运动'], img: IMG.p16 }
+    ]
+  },
+  'welfare-food': {
+    banner: {
+      img: IMG.p45,
+      title: '美食礼盒',
+      sub: '香煎牛排 · 家宴首选 · 企业福利集采',
+      tags: ['企业福利', '礼盒装', '苏银豆可抵']
+    },
+    rule: '活动时间：长期有效 · 美食礼盒类商品支持苏银豆抵扣，企业集采享专属价',
+    floors: [
+      {
+        floor: '1F',
+        title: '烘焙礼盒',
+        moreHref: '#',
+        posterAsm: {
+          layout: 'mix',
+          slots: [
+            { role: 'hero', brand: '味多美', headline: '庆典蛋糕精选', points: ['浓巧淋面', '聚会首选', '8寸装'], img: IMG.cake, theme: 'warm', href: '#' },
+            { role: 'tall', tag: '烘焙', title: '纸杯蛋糕', desc: '抹茶巧克力 6入装', img: IMG.cakeCupcake, href: '#' },
+            { role: 'wide', tag: '礼盒', title: '端午礼盒', desc: '坚果糕点 组合装', img: IMG.e25, href: '#' },
+            { role: 'wide', tag: '食品', title: '迷你南瓜', desc: '新鲜 5斤装', img: IMG.e26, href: '#' }
+          ]
+        },
+        products: [
+          { brand: '味多美', name: '浓巧淋面庆典蛋糕 8寸', price: 198, tags: ['标品', '食品'], img: IMG.cake },
+          { brand: '巴黎贝甜', name: '抹茶巧克力纸杯蛋糕 6入装', price: 68, tags: ['人气', '下午茶'], img: IMG.cakeCupcake },
+          { brand: '企业福利', name: '端午礼盒 坚果糕点组合装', price: 268, tags: ['企业福利', '礼盒'], img: IMG.e25 },
+          { brand: '生鲜', name: '新鲜迷你南瓜 5斤装', price: 29.9, tags: ['推荐', '生鲜'], img: IMG.e26 },
+          { brand: '味多美', name: '浓巧淋面庆典蛋糕 8寸', price: 199, tags: ['新品首发', '烘焙'], img: IMG.p52 },
+          { brand: 'JENUIN', name: '莓果味苏打饮 6瓶装', price: 68, tags: ['大牌严选', '饮品'], img: IMG.e27 }
+        ]
+      }
+    ],
+    recommend: [
+      { brand: '味多美', name: '浓巧淋面庆典蛋糕 8寸', price: 198, tags: ['热销爆款', '食品'], img: IMG.p45 },
+      { brand: '巴黎贝甜', name: '抹茶巧克力纸杯蛋糕 6入装', price: 68, tags: ['人气', '下午茶'], img: IMG.p46 },
+      { brand: '企业福利', name: '端午礼盒 坚果糕点组合装', price: 268, tags: ['企业福利', '礼盒'], img: IMG.e25 },
+      { brand: '味多美', name: '浓巧淋面庆典蛋糕 8寸', price: 199, tags: ['新品', '烘焙'], img: IMG.cakeBirthday },
+      { brand: '生鲜', name: '新鲜迷你南瓜 5斤装', price: 29.9, tags: ['推荐', '生鲜'], img: IMG.e26 },
+      { brand: 'JENUIN', name: '莓果味苏打饮 6瓶装', price: 68, tags: ['精选', '饮品'], img: IMG.e27 },
+      { brand: '味多美', name: '浓巧淋面庆典蛋糕 8寸', price: 198, tags: ['标品', '食品'], img: IMG.cake },
+      { brand: '巴黎贝甜', name: '抹茶巧克力纸杯蛋糕 6入装', price: 68, tags: ['人气', '食品'], img: IMG.cakeCupcake },
+      { brand: '企业福利', name: '端午礼盒 坚果糕点组合装', price: 268, tags: ['礼盒', '福利'], img: IMG.p45 },
+      { brand: '味多美', name: '浓巧淋面庆典蛋糕 8寸', price: 198, tags: ['热销', '食品'], img: IMG.p52 },
+      { brand: '生鲜', name: '新鲜迷你南瓜 5斤装', price: 29.9, tags: ['推荐', '生鲜'], img: IMG.e26 },
+      { brand: 'JENUIN', name: '莓果味苏打饮 6瓶装', price: 68, tags: ['饮品', '福利'], img: IMG.e27 }
+    ]
+  },
+  'welfare-digital': {
+    banner: {
+      img: IMG.p53,
+      title: '数码音频',
+      sub: '降噪耳机 · 沉浸聆听 · 积分可抵',
+      tags: ['大牌严选', '数码音频', '限时补贴']
+    },
+    rule: '活动时间：6.15–6.30 · 指定耳机/音频类商品可用苏银豆抵扣，单笔最高抵 ¥300',
+    floors: [
+      {
+        floor: '1F',
+        title: '头戴耳机',
+        moreHref: '#',
+        posterAsm: {
+          layout: 'mix',
+          slots: [
+            { role: 'hero', brand: '索尼', headline: '无线降噪耳机', points: ['WH-1000XM4', '沉浸音质', '长续航'], img: IMG.headphone, theme: 'blue', href: '#' },
+            { role: 'tall', tag: '蓝牙', title: '降噪耳机', desc: '主动降噪 黑色', img: IMG.p53, href: '#' },
+            { role: 'wide', tag: 'HiFi', title: '有线耳机', desc: '头戴式 高保真', img: IMG.e31, href: '#' },
+            { role: 'wide', tag: 'JBL', title: '蓝牙头戴', desc: '无线降噪 便携', img: IMG.pants, href: '#' }
+          ]
+        },
+        products: [
+          { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, tags: ['大牌严选', '音频'], img: IMG.headphone },
+          { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, tags: ['惠选', '音频'], img: IMG.p53 },
+          { brand: 'HiFi', name: '有线头戴式HiFi耳机', price: 599, tags: ['首发', '数码'], img: IMG.e31 },
+          { brand: 'JBL', name: '无线蓝牙降噪头戴耳机', price: 1299, tags: ['大牌严选', '音频'], img: IMG.pants },
+          { brand: '飞利浦', name: '有线头戴会议耳机 灰色', price: 599, tags: ['惠选', '音频'], img: IMG.p53 },
+          { brand: '主动降噪', name: '蓝牙耳机 黑色', price: 899, tags: ['热销爆款', '数码'], img: IMG.p53 }
+        ]
+      }
+    ],
+    recommend: [
+      { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, tags: ['人气', '数码'], img: IMG.p53 },
+      { brand: 'JBL', name: '无线蓝牙降噪头戴耳机', price: 1299, tags: ['大牌严选', '音频'], img: IMG.pants },
+      { brand: 'HiFi', name: '有线头戴式HiFi耳机', price: 599, tags: ['首发', '数码'], img: IMG.e31 },
+      { brand: '飞利浦', name: '有线头戴会议耳机 灰色', price: 599, tags: ['惠选', '音频'], img: IMG.p53 },
+      { brand: '主动降噪', name: '蓝牙耳机 黑色', price: 899, tags: ['热销爆款', '数码'], img: IMG.headphone },
+      { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, tags: ['大牌严选', '音频'], img: IMG.p31 },
+      { brand: 'JBL', name: '无线蓝牙降噪头戴耳机', price: 1299, tags: ['精选', '音频'], img: IMG.pants },
+      { brand: 'HiFi', name: '有线头戴式HiFi耳机', price: 599, tags: ['数码', '音频'], img: IMG.e31 },
+      { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, tags: ['惠选', '音频'], img: IMG.headphone },
+      { brand: '飞利浦', name: '有线头戴会议耳机 灰色', price: 599, tags: ['惠选', '音频'], img: IMG.p53 },
+      { brand: '主动降噪', name: '蓝牙耳机 黑色', price: 899, tags: ['推荐', '数码'], img: IMG.p53 },
+      { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, tags: ['人气', '数码'], img: IMG.p53 }
+    ]
+  },
+  'welfare-home': {
+    banner: {
+      img: IMG.chair,
+      title: '舒适家居',
+      sub: '北欧单人沙发椅 · 积分兑换 · 品质生活',
+      tags: ['积分兑换', '家居生活', '企业福利']
+    },
+    rule: '活动时间：长期有效 · 家居类商品支持苏银豆全额或组合兑换',
+    floors: [
+      {
+        floor: '1F',
+        title: '沙发座椅',
+        moreHref: '#',
+        posterAsm: {
+          layout: 'stack',
+          slots: [
+            { brand: '宜家', headline: '波昂单人扶手椅', sub: '北欧款 舒适久坐', img: IMG.pen, theme: 'office', href: '#' },
+            { brand: '北欧', headline: '布艺单人沙发椅', sub: '黄色款 客厅书房', img: IMG.e34, theme: 'warm', href: '#' }
+          ]
+        },
+        products: [
+          { brand: '宜家', name: '波昂单人扶手椅 北欧款', price: 499, tags: ['积分兑换', '家居'], img: IMG.pen },
+          { brand: '北欧', name: '布艺单人沙发椅 黄色', price: 899, tags: ['新品', '家居'], img: IMG.e34 },
+          { brand: '宜家', name: '波昂单人扶手椅 北欧款', price: 499, tags: ['积分兑换', '家居'], img: IMG.chair },
+          { brand: '乐扣', name: '高硼硅耐热玻璃杯 6只装', price: 49, tags: ['惠选', '生活'], img: IMG.e12 },
+          { brand: '苏泊尔', name: '珐琅铸铁炖锅 3.5L 红色', price: 399, tags: ['标品', '厨具'], img: IMG.e22 },
+          { brand: '膳魔师', name: '磨砂保温杯 500ml 森林绿', price: 79, tags: ['惠选', '水具'], img: IMG.p37 }
+        ]
+      }
+    ],
+    recommend: [
+      { brand: '宜家', name: '波昂单人扶手椅 北欧款', price: 499, tags: ['积分兑换', '家居'], img: IMG.chair },
+      { brand: '北欧', name: '布艺单人沙发椅 黄色', price: 899, tags: ['新品', '家居'], img: IMG.e34 },
+      { brand: '宜家', name: '波昂单人扶手椅 北欧款', price: 499, tags: ['精选', '家居'], img: IMG.pen },
+      { brand: '乐扣', name: '高硼硅耐热玻璃杯 6只装', price: 49, tags: ['惠选', '生活'], img: IMG.e12 },
+      { brand: '苏泊尔', name: '珐琅铸铁炖锅 3.5L 红色', price: 399, tags: ['标品', '厨具'], img: IMG.e22 },
+      { brand: '膳魔师', name: '磨砂保温杯 500ml 森林绿', price: 79, tags: ['惠选', '水具'], img: IMG.p37 },
+      { brand: '宜家', name: '波昂单人扶手椅 北欧款', price: 499, tags: ['积分兑换', '家居'], img: IMG.chair },
+      { brand: '北欧', name: '布艺单人沙发椅 黄色', price: 899, tags: ['新品', '家居'], img: IMG.e34 },
+      { brand: '乐扣', name: '高硼硅耐热玻璃杯 6只装', price: 49, tags: ['惠选', '生活'], img: IMG.e18 },
+      { brand: '苏泊尔', name: '珐琅铸铁炖锅 3.5L 红色', price: 399, tags: ['标品', '厨具'], img: IMG.e22 },
+      { brand: '膳魔师', name: '磨砂保温杯 500ml 森林绿', price: 79, tags: ['惠选', '水具'], img: IMG.p37 },
+      { brand: '宜家', name: '波昂单人扶手椅 北欧款', price: 499, tags: ['家居', '福利'], img: IMG.pen }
+    ]
+  },
+  'welfare-office': {
+    banner: {
+      img: IMG.camera,
+      title: '职场读物',
+      sub: '创业管理 · 8册套装 · 企业学习福利',
+      tags: ['企业福利', '图书', '苏银豆可抵']
+    },
+    rule: '活动时间：长期有效 · 职场读物类商品企业集采享专属折扣，支持苏银豆抵扣',
+    floors: [
+      {
+        floor: '1F',
+        title: '管理/职场',
+        moreHref: '#',
+        posterAsm: {
+          layout: 'mix',
+          slots: [
+            { role: 'hero', brand: '中信出版', headline: '职场必读书籍', points: ['8册套装', '商务学习', '企业管理'], img: IMG.p8, theme: 'green', href: '#' },
+            { role: 'tall', tag: '读物', title: '创业管理', desc: '8册套装 精选', img: IMG.camera, href: '#' },
+            { role: 'wide', tag: '文具', title: '走珠笔', desc: 'uni-ball 0.5mm', img: IMG.p32, href: '#' },
+            { role: 'wide', tag: '美术', title: '绘画画笔', desc: '专业颜料 美术专用', img: IMG.p24, href: '#' }
+          ]
+        },
+        products: [
+          { brand: '中信出版', name: '职场办公必读书籍 8册套装', price: 428, tags: ['大牌严选', '图书'], img: IMG.camera },
+          { brand: '中信出版', name: '职场办公必读书籍 8册套装', price: 428, tags: ['大牌严选', '图书'], img: IMG.p8 },
+          { brand: '晨光', name: 'uni-ball 针管走珠笔 0.5mm 蓝色', price: 12.5, tags: ['标品', '文具'], img: IMG.p32 },
+          { brand: '温莎牛顿', name: '专业美术绘画画笔套装', price: 89, tags: ['惠选', '文具'], img: IMG.money },
+          { brand: '得力', name: '透明办公玻璃杯 单只装', price: 15, tags: ['标品', '水具'], img: IMG.e18 },
+          { brand: '乐扣', name: '办公耐热玻璃杯 4只装', price: 39, tags: ['标品', '水具'], img: IMG.p18 }
+        ]
+      }
+    ],
+    recommend: [
+      { brand: '中信出版', name: '职场办公必读书籍 8册套装', price: 428, tags: ['大牌严选', '图书'], img: IMG.camera },
+      { brand: '中信出版', name: '职场办公必读书籍 8册套装', price: 428, tags: ['精选', '图书'], img: IMG.p8 },
+      { brand: '晨光', name: 'uni-ball 针管走珠笔 0.5mm 蓝色', price: 12.5, tags: ['标品', '文具'], img: IMG.p32 },
+      { brand: '温莎牛顿', name: '专业美术绘画画笔套装', price: 89, tags: ['惠选', '文具'], img: IMG.money },
+      { brand: '得力', name: '透明办公玻璃杯 单只装', price: 15, tags: ['标品', '水具'], img: IMG.e18 },
+      { brand: '乐扣', name: '办公耐热玻璃杯 4只装', price: 39, tags: ['标品', '水具'], img: IMG.p18 },
+      { brand: '中信出版', name: '职场办公必读书籍 8册套装', price: 428, tags: ['图书', '福利'], img: IMG.camera },
+      { brand: '晨光', name: 'uni-ball 针管走珠笔 0.5mm 蓝色', price: 12.5, tags: ['标品', '文具'], img: IMG.e32 },
+      { brand: '温莎牛顿', name: '专业美术绘画画笔套装', price: 89, tags: ['惠选', '文具'], img: IMG.p24 },
+      { brand: '得力', name: '透明办公玻璃杯 单只装', price: 15, tags: ['标品', '水具'], img: IMG.e18 },
+      { brand: '乐扣', name: '办公耐热玻璃杯 4只装', price: 39, tags: ['标品', '水具'], img: IMG.p18 },
+      { brand: '中信出版', name: '职场办公必读书籍 8册套装', price: 428, tags: ['企业福利', '图书'], img: IMG.p8 }
+    ]
+  }
+};
+
+let currentFloors = [];
+
+function renderActivityHero(banner) {
+  const tagsHtml = (banner.tags || []).map(t => `<span class="activity-hero-tag">${t}</span>`).join('');
+  return `<div class="activity-hero">
+    <img src="${banner.img}" alt="${banner.title}">
+    <div class="activity-hero-mask"></div>
+    <div class="activity-hero-copy">
+      <h1 class="activity-hero-title">${banner.title}</h1>
+      <p class="activity-hero-sub">${banner.sub}</p>
+      ${tagsHtml ? `<div class="activity-hero-tags">${tagsHtml}</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderActivityRule(rule) {
+  if (!rule) return '';
+  return `<div class="activity-rule-bar">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+    <span><strong>活动规则</strong>${rule}</span>
+  </div>`;
+}
+
+function renderRecommend(list) {
+  return `<div class="act-recommend-head">为你推荐</div>
+    <div class="product-grid">${list.map(p => renderProductCard(p, true)).join('')}</div>`;
+}
+
+function initActivityPage() {
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id') || 'apple-wear';
+  const page = ACTIVITY_PAGES[id];
+
+  if (!page) {
+    document.getElementById('actMain').style.display = 'none';
+    document.getElementById('actEmpty').style.display = '';
+    document.title = '活动不存在 - 苏银豆商城';
+    return;
+  }
+
+  document.title = `${page.banner.title} - 品牌活动 - 苏银豆商城`;
+
+  document.getElementById('actBreadcrumb').innerHTML =
+    `<a href="${HOME_PAGE}">首页</a><span>›</span><a href="${ZONE_HUB_PAGE}#${id.indexOf('welfare-') === 0 ? 'welfare' : 'brand'}">活动专区</a><span>›</span><span class="pd-breadcrumb-current">${page.banner.title}</span>`;
+
+  document.getElementById('actHero').innerHTML = renderActivityHero(page.banner);
+  document.getElementById('actRule').innerHTML = renderActivityRule(page.rule);
+
+  currentFloors = page.floors;
+  document.getElementById('actFloors').innerHTML = page.floors.map(renderCatFloor).join('');
+
+  document.getElementById('actRecommend').innerHTML = renderRecommend(page.recommend.slice(0, 12));
+  FloatDock.bindFloorNav({
+    getFloors: () => currentFloors.map(f => ({
+      floor: f.floor,
+      title: f.title,
+      id: 'act-floor-' + f.floor.toLowerCase()
+    }))
+  });
+}
+
+initActivityPage();
+
+const UC_USER = { name: '张经理', cartCount: 15 };
+
+function applyUcState(state) {
+  const logged = state === 'logged';
+  const headerBadge = document.getElementById('headerCartBadge');
+  if (typeof SiteTopBar !== 'undefined') {
+    SiteTopBar.setLogged(logged, { userName: UC_USER.name, cartCount: logged ? UC_USER.cartCount : 0 });
+  }
+  if (headerBadge) headerBadge.textContent = logged ? '3' : '0';
+  if (typeof FloatDock !== 'undefined') FloatDock.setCartCount(logged ? UC_USER.cartCount : 0);
+  if (logged) ProtoAuth.login({ userName: UC_USER.name, cartCount: UC_USER.cartCount });
+  else ProtoAuth.logout();
+}
+applyUcState(ProtoAuth.isLogged() ? 'logged' : 'guest');
+
+const SEARCH_PAGE = '04.搜索分类页-原型页面.html';
+function goToSearchPage(q) {
+  const kw = (q || document.getElementById('searchInput').value || '').trim();
+  if (!kw) return;
+  location.href = SEARCH_PAGE + '?q=' + encodeURIComponent(kw);
+}
+document.getElementById('searchBtn').addEventListener('click', () => goToSearchPage());
+document.getElementById('searchInput').addEventListener('keydown', e => { if (e.key === 'Enter') goToSearchPage(); });
+document.querySelectorAll('.search-hot a').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    goToSearchPage(a.textContent.trim());
+  });
+});
+
+document.getElementById('loginModal').addEventListener('click', e => {
+  if (e.target.id === 'loginModal') closeLogin();
+  if (e.target.classList.contains('modal-submit')) {
+    ProtoAuth.login({ userName: UC_USER.name, cartCount: UC_USER.cartCount });
+    applyUcState('logged');
+    closeLogin();
+  }
+});
+
+function openLogin() { document.getElementById('loginModal').classList.add('active'); }
+function closeLogin() { document.getElementById('loginModal').classList.remove('active'); }
+
+function switchLoginTab(el, type) {
+  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const body = document.getElementById('loginBody');
+  if (type === 'wechat') {
+    body.innerHTML = '<div style="text-align:center;padding:24px 0"><div style="width:160px;height:160px;background:#f5f5f5;border-radius:8px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#999;border:1px dashed #ddd">扫码登录</div><p style="font-size:14px;color:#666">微信扫码登录</p></div>';
+  } else {
+    body.innerHTML = '<div class="form-group"><label>手机号</label><input class="form-input" type="tel" placeholder="请输入手机号" maxlength="11"></div><div class="form-group"><label>验证码</label><div class="form-row"><input class="form-input" type="text" placeholder="请输入验证码" maxlength="6"><button class="sms-btn">获取验证码</button></div></div><button class="modal-submit">登 录</button>';
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>设置 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/account-header.css">
+<link rel="stylesheet" href="../assets/account-nav.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+:root{--page-width:1600px;--jd-red:#f63218;--text-mid:#666;--text-light:#999;--radius:8px;--radius-sm:6px}
+.container{width:var(--page-width);margin:0 auto}
+
+.pd-header{background:#fff;border-bottom:1px solid #eee;padding:16px 0 0}
+.pd-header-grid{display:grid;grid-template-columns:230px minmax(0,1fr) 230px;gap:12px;align-items:start}
+.pd-logo{cursor:pointer;padding-top:4px}
+.pd-logo .logo-text{font-size:32px;font-weight:700;color:var(--jd-red);letter-spacing:1px;line-height:1.15;text-align:center}
+.pd-logo .logo-sub{font-size:12px;color:var(--text-mid);margin-top:6px;text-align:center}
+.pd-search{display:flex;border:2px solid var(--jd-red);border-radius:var(--radius);overflow:hidden;background:#fff}
+.pd-search input{flex:1;min-width:0;height:42px;padding:0 16px;font-size:15px;border:none;outline:none}
+.pd-search button{width:80px;height:38px;margin:2px;background:var(--jd-red);color:#fff;font-size:15px;font-weight:600;border:none;border-radius:var(--radius-sm)}
+.pd-header-cart{display:flex;flex-direction:column;align-items:center;gap:4px;color:#333;font-size:12px;cursor:pointer;position:relative;padding:4px 8px;min-width:72px;justify-self:end}
+.pd-header-cart .cart-icon-img{width:28px;height:28px;object-fit:contain}
+.pd-header-cart .badge{position:absolute;top:0;right:4px;min-width:16px;height:16px;background:var(--jd-red);color:#fff;font-size:10px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-weight:600}
+.pd-breadcrumb{font-size:13px;color:var(--text-mid);padding:12px 0 14px;margin-top:12px;border-top:1px solid #f5f5f5}
+.pd-breadcrumb a{color:var(--text-mid)}
+.pd-breadcrumb a:hover{color:var(--jd-red)}
+.pd-breadcrumb span{margin:0 6px;color:#ccc}
+
+.set-head{padding:18px 24px;border-bottom:1px solid #f0f0f0}
+.set-head h1{font-size:18px;font-weight:600}
+.set-body{padding:20px 24px}
+.set-section{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);margin-bottom:16px;overflow:hidden}
+.set-section-title{padding:12px 20px;font-size:13px;color:var(--text-light);border-bottom:1px solid #f5f5f5;background:#fafafa}
+.set-row{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid #f5f5f5;transition:background .15s}
+.set-row:last-child{border-bottom:none}
+.set-row.clickable{cursor:pointer}
+.set-row.clickable:hover{background:#fff5f5}
+.set-row.locked{cursor:default}
+.set-row.locked:hover{background:transparent}
+.set-row .set-label{font-size:14px;color:#333}
+.set-row .set-right{display:flex;align-items:center;gap:8px;color:var(--text-light);font-size:13px}
+.set-row .set-arrow{color:#ccc;font-size:14px}
+.set-row .set-tag-lock{font-size:11px;color:#bbb;border:1px solid #eee;border-radius:3px;padding:1px 6px}
+
+.toggle{width:38px;height:22px;background:#d9d9d9;border-radius:11px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--jd-red)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{left:18px}
+.toggle.disabled{opacity:.5;cursor:not-allowed}
+
+.set-logout{width:100%;height:44px;background:#fff;border:1px solid #ddd;border-radius:var(--radius);color:var(--jd-red);font-size:15px;font-weight:500;margin-top:8px}
+.set-logout:hover{background:#fff5f5;border-color:var(--jd-red)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:none;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:12px;width:380px;overflow:hidden}
+.modal-title{padding:24px 24px 8px;text-align:center;font-size:16px;font-weight:600}
+.modal-desc{text-align:center;font-size:13px;color:var(--text-mid);padding:0 24px 20px}
+.modal-actions{display:flex;border-top:1px solid #f0f0f0}
+.modal-actions button{flex:1;height:46px;font-size:15px;background:#fff;border:none}
+.modal-actions .cancel{color:var(--text-mid);border-right:1px solid #f0f0f0}
+.modal-actions .confirm{color:var(--jd-red);font-weight:600}
+
+.dev-modal{width:440px}
+.dev-modal .modal-title{text-align:left;padding:18px 24px;border-bottom:1px solid #f0f0f0}
+.dev-modal .modal-close{position:absolute;top:16px;right:16px;color:var(--text-light);font-size:20px;cursor:pointer}
+.dev-item{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:1px solid #f5f5f5}
+.dev-item:last-child{border-bottom:none}
+.dev-info .dev-name{font-size:14px;color:#333}
+.dev-info .dev-meta{font-size:12px;color:var(--text-light);margin-top:3px}
+.dev-current{font-size:12px;color:#52c41a;border:1px solid #d9f7be;background:#f6ffed;padding:2px 8px;border-radius:3px}
+.dev-kickout{font-size:13px;color:var(--jd-red);background:none;border:none;cursor:pointer}
+.dev-kickout:disabled{color:#ccc;cursor:not-allowed}
+.modal-wrap{position:relative}
+</style>
+</head>
+<body>
+<div id="site-topbar-root"></div>
+
+<header class="pd-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href=ProtoPages.home">
+        <div class="logo-text">苏银豆商城</div>
+        <div class="logo-sub">积分好物 · 一站购齐</div>
+      </div>
+      <div><div class="pd-search"><input type="text" placeholder="搜索商品、品牌、品类" id="searchInput"><button type="button" id="searchBtn">搜索</button></div></div>
+      <div class="pd-header-cart" onclick="location.href=ProtoPages.cart">
+        <img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt="">
+        <span>购物车</span><div class="badge" id="headerCartBadge">3</div>
+      </div>
+    </div>
+    <nav class="pd-breadcrumb"><a href="01.首页-原型页面.html">首页</a><span>›</span><a href="15.个人中心-原型页面.html">个人中心</a><span>›</span><span>设置</span></nav>
+  </div>
+</header>
+
+<div class="container ac-page"><div class="ac-layout"><div id="accountSidebar"></div><div class="ac-main-panel">
+  <div class="set-head"><h1>设置</h1></div>
+  <div class="set-body" id="setBody"></div>
+</div></div></div>
+
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+<script src="../assets/cs-widget.js"></script>
+
+<!-- 退出登录确认 -->
+<div class="modal-overlay" id="logoutModal">
+  <div class="modal">
+    <div class="modal-title">确认退出登录？</div>
+    <div class="modal-desc">退出后需重新登录才能查看订单、购物车与个人资产</div>
+    <div class="modal-actions">
+      <button type="button" class="cancel" onclick="closeLogout()">取消</button>
+      <button type="button" class="confirm" onclick="doLogout()">退出登录</button>
+    </div>
+  </div>
+</div>
+
+<!-- 登录设备管理 -->
+<div class="modal-overlay" id="deviceModal">
+  <div class="modal dev-modal">
+    <div class="modal-wrap">
+      <div class="modal-title">登录设备管理</div>
+      <span class="modal-close" onclick="closeDevice()">×</span>
+    </div>
+    <div id="deviceList"></div>
+  </div>
+</div>
+
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/account-nav.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+if (!ProtoAuth.guardPage()) void 0;
+ProtoAuth.initTopBar({ cartCount: 15 });
+FloatDock.init({ cartCount: ProtoAuth.isLogged() ? 15 : 0 });
+AccountNav.renderSidebar('accountSidebar', 'settings');
+
+document.getElementById('searchBtn').onclick = function () {
+  var q = document.getElementById('searchInput').value.trim();
+  location.href = q ? ProtoPages.search + '?q=' + encodeURIComponent(q) : ProtoPages.search;
+};
+
+var USER = { phone: '138****8888', realName: '已认证 · 张**' };
+
+// 通知开关状态（可持久化到 localStorage）
+var NOTIFY = JSON.parse(localStorage.getItem('set_notify') || 'null') || {
+  order: true, aftersale: true, expire: true, promo: false, system: true
+};
+
+var GROUPS = [
+  { title: '账号与安全', items: [
+    { type: 'arrow', label: '登录手机号', value: USER.phone, locked: true, tip: '企业账户请联系管理员修改' },
+    { type: 'arrow', label: '实名认证', value: USER.realName, locked: true, tip: '企业账户不可自助修改' },
+    { type: 'arrow', label: '登录设备管理', action: 'openDevice' }
+  ]},
+  { title: '消息通知', items: [
+    { type: 'switch', key: 'order', label: '订单物流通知' },
+    { type: 'switch', key: 'aftersale', label: '售后进度通知' },
+    { type: 'switch', key: 'expire', label: '积分/卡券到期提醒' },
+    { type: 'switch', key: 'promo', label: '活动/营销推送' },
+    { type: 'switch', key: 'system', label: '系统与安全通知', locked: true }
+  ]},
+  { title: '隐私', items: [
+    { type: 'switch', key: 'recommend', label: '个性化推荐' },
+    { type: 'switch', key: 'history', label: '浏览记录授权' }
+  ]},
+  { title: '关于', items: [
+    { type: 'arrow', label: '当前版本', value: 'V1.0.0', locked: true },
+    { type: 'link', label: '用户协议', action: 'tbd' },
+    { type: 'link', label: '隐私政策', action: 'tbd' },
+    { type: 'link', label: '联系客服', action: 'openCS' }
+  ]}
+];
+NOTIFY.recommend = NOTIFY.recommend != null ? NOTIFY.recommend : true;
+NOTIFY.history = NOTIFY.history != null ? NOTIFY.history : true;
+
+function persist() { localStorage.setItem('set_notify', JSON.stringify(NOTIFY)); }
+
+function renderRows() {
+  var html = GROUPS.map(function (g) {
+    var rows = g.items.map(function (it) {
+      if (it.type === 'switch') {
+        var on = NOTIFY[it.key];
+        var locked = it.locked;
+        return '<div class="set-row' + (locked ? ' locked' : '') + '">' +
+          '<span class="set-label">' + it.label + (locked ? '<span class="set-tag-lock" style="margin-left:8px">不可关闭</span>' : '') + '</span>' +
+          '<div class="toggle' + (on ? ' on' : '') + (locked ? ' disabled' : '') + '" data-key="' + it.key + '"' + (locked ? ' data-locked="1"' : '') + '></div></div>';
+      }
+      if (it.type === 'arrow' || it.type === 'link') {
+        var click = it.action ? ' onclick="' + it.action + '()"' : '';
+        if (it.locked) click = '';
+        var right = it.value ? '<span>' + it.value + '</span>' : '';
+        return '<div class="set-row clickable' + (it.locked ? ' locked' : '') + '"' + click + '>' +
+          '<span class="set-label">' + it.label + '</span>' +
+          '<div class="set-right">' + right + (it.locked ? '' : '<span class="set-arrow">›</span>') + '</div></div>';
+      }
+      return '';
+    }).join('');
+    return '<div class="set-section"><div class="set-section-title">' + g.title + '</div>' + rows + '</div>';
+  }).join('');
+  html += '<button type="button" class="set-logout" onclick="openLogout()">退出登录</button>';
+  document.getElementById('setBody').innerHTML = html;
+  bindToggles();
+}
+
+function bindToggles() {
+  document.querySelectorAll('.toggle').forEach(function (el) {
+    el.onclick = function () {
+      if (el.dataset.locked) { ProtoToast.warn('该项不可关闭'); return; }
+      var key = el.dataset.key;
+      NOTIFY[key] = !NOTIFY[key];
+      el.classList.toggle('on', NOTIFY[key]);
+      persist();
+      ProtoToast.success((NOTIFY[key] ? '已开启' : '已关闭'));
+    };
+  });
+}
+
+function tbd() { ProtoToast.info('协议页待上线，敬请期待'); }
+function openCS() { if (window.ProtoCS) ProtoCS.open({ topic: 'account' }); }
+
+function openLogout() { document.getElementById('logoutModal').classList.add('active'); }
+function closeLogout() { document.getElementById('logoutModal').classList.remove('active'); }
+function doLogout() {
+  closeLogout();
+  ProtoAuth.logout();
+  if (typeof SiteTopBar !== 'undefined') SiteTopBar.setLogged(false, { cartCount: 0 });
+  if (typeof FloatDock !== 'undefined') FloatDock.setCartCount(0);
+  var b = document.getElementById('headerCartBadge'); if (b) b.textContent = '0';
+  ProtoToast.success('已退出登录');
+  setTimeout(function () { location.href = ProtoPages.home; }, 600);
+}
+
+// 登录设备
+var DEVICES = [
+  { id: 1, name: '当前设备 · Chrome on Windows', meta: '南京 · 刚刚登录', current: true },
+  { id: 2, name: 'Chrome on macOS', meta: '南京 · 2026-08-02 09:12', current: false },
+  { id: 3, name: '微信内置浏览器', meta: '苏州 · 2026-07-28 18:40', current: false }
+];
+function openDevice() {
+  renderDevices();
+  document.getElementById('deviceModal').classList.add('active');
+}
+function closeDevice() { document.getElementById('deviceModal').classList.remove('active'); }
+function renderDevices() {
+  document.getElementById('deviceList').innerHTML = DEVICES.map(function (d) {
+    return '<div class="dev-item"><div class="dev-info"><div class="dev-name">' + d.name + '</div><div class="dev-meta">' + d.meta + '</div></div>' +
+      (d.current ? '<span class="dev-current">在线</span>' : '<button class="dev-kickout" onclick="kickout(' + d.id + ')">下线</button>') + '</div>';
+  }).join('');
+}
+function kickout(id) {
+  DEVICES = DEVICES.filter(function (d) { return d.id !== id; });
+  renderDevices();
+  ProtoToast.success('设备已下线');
+}
+
+renderRows();
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+.address-select-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2100;display:none;align-items:center;justify-content:center;padding:20px}
+.address-select-overlay.active{display:flex}
+.address-select-modal{background:#fff;border-radius:12px;width:520px;max-width:100%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;animation:asIn .22s ease}
+@keyframes asIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.address-select-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #f0f0f0}
+.address-select-hd h3{font-size:17px;font-weight:600}
+.address-select-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:#999;border-radius:50%;cursor:pointer;background:none;border:none}
+.address-select-close:hover{background:#f5f5f5}
+.address-select-bd{padding:12px 20px;overflow-y:auto;flex:1}
+.address-select-item{display:flex;align-items:flex-start;gap:12px;padding:14px;border:1px solid #f0f0f0;border-radius:8px;margin-bottom:10px;cursor:pointer;transition:border-color .15s}
+.address-select-item:hover{border-color:#ffd0d0}
+.address-select-item.active{border-color:#f63218;background:#fffafa}
+.address-select-radio{width:18px;height:18px;border:2px solid #ddd;border-radius:50%;flex-shrink:0;margin-top:4px;position:relative}
+.address-select-item.active .address-select-radio{border-color:#f63218}
+.address-select-item.active .address-select-radio::after{content:'';position:absolute;inset:3px;background:#f63218;border-radius:50%}
+.address-select-body{flex:1;min-width:0}
+.address-select-name{font-size:14px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.address-select-name em{font-style:normal;font-weight:400;color:#666}
+.address-select-tag{font-size:11px;background:#f63218;color:#fff;padding:1px 6px;border-radius:2px;font-weight:400}
+.address-select-detail{font-size:13px;color:#666;line-height:1.6}
+.address-select-ft{padding:16px 20px;border-top:1px solid #f0f0f0;display:flex;align-items:center;gap:12px}
+.address-select-manage{font-size:13px;color:#666;white-space:nowrap}
+.address-select-manage:hover{color:#f63218}
+.address-select-confirm{flex:1;height:40px;background:#f63218;border:none;border-radius:6px;color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.address-select-confirm:hover{background:#c81623}

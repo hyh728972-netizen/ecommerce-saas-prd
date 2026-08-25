@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>申请售后 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/account-header.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;padding-bottom:80px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input,select,textarea{outline:none;font-family:inherit}
+:root{--jd-red:#f63218;--jd-red-dark:#c81623;--price:#ff0f12;--text-mid:#666;--radius:8px;--radius-sm:6px;--page-width:1600px;--detail-w:960px}
+.container{width:var(--page-width);margin:0 auto}
+.ap-page{padding:16px 0 24px}
+.ap-wrap{max-width:var(--detail-w);margin:0 auto}
+
+.ap-status{background:#fff;border-radius:var(--radius);padding:28px 24px;margin-bottom:12px;border:1px solid #eee}
+.ap-status-title{font-size:26px;font-weight:700;color:#333;margin-bottom:8px}
+.ap-status-meta{font-size:13px;color:#999;line-height:1.8}
+
+.ap-card{background:#fff;border-radius:var(--radius);padding:20px;margin-bottom:12px;border:1px solid #eee}
+.ap-card-hd{font-size:15px;font-weight:600;margin-bottom:14px;color:#333}
+
+.ap-goods{display:flex;gap:14px;padding:14px;background:#fafafa;border-radius:var(--radius)}
+.ap-goods img{width:72px;height:72px;object-fit:cover;border-radius:4px;background:#fff;flex-shrink:0}
+.ap-goods-info{flex:1;min-width:0}
+.ap-goods-name{font-size:14px;line-height:1.45;margin-bottom:4px}
+.ap-goods-spec{font-size:12px;color:#999}
+.ap-goods-pick{display:flex;flex-direction:column;gap:10px}
+.ap-goods-pick-item{display:flex;gap:14px;padding:14px;border:2px solid #f0f0f0;border-radius:var(--radius);cursor:pointer;align-items:center;transition:border-color .12s,background .12s}
+.ap-goods-pick-item:hover{border-color:#ffd0d0}
+.ap-goods-pick-item.active{border-color:var(--jd-red);background:#fffafa}
+.ap-goods-pick-item img{width:72px;height:72px;object-fit:cover;border-radius:4px;background:#fff;flex-shrink:0}
+.ap-goods-pick-radio{width:18px;height:18px;border:2px solid #ddd;border-radius:50%;flex-shrink:0;position:relative}
+.ap-goods-pick-item.active .ap-goods-pick-radio{border-color:var(--jd-red)}
+.ap-goods-pick-item.active .ap-goods-pick-radio::after{content:'';position:absolute;inset:3px;background:var(--jd-red);border-radius:50%}
+.ap-goods-status{font-size:12px;color:var(--jd-red);margin-top:4px}
+.ap-pick-tip{font-size:14px;color:#999;text-align:center;padding:24px 0}
+
+.ap-form-row{margin-bottom:18px}
+.ap-form-row label{display:block;font-size:13px;color:#666;margin-bottom:8px}
+.ap-form-row label em{color:var(--jd-red);font-style:normal;margin-right:2px}
+.ap-type-group{display:flex;gap:12px}
+.ap-type-opt{flex:1;padding:14px;border:1px solid #ddd;border-radius:var(--radius);cursor:pointer;text-align:center;font-size:14px;color:#333;transition:border-color .12s,background .12s}
+.ap-type-opt.active{border-color:var(--jd-red);background:#fff5f5;color:var(--jd-red);font-weight:500}
+.ap-type-opt small{display:block;font-size:12px;color:#999;font-weight:400;margin-top:4px}
+.ap-form select,.ap-form textarea{width:100%;border:1px solid #ddd;border-radius:var(--radius-sm);font-size:14px}
+.ap-form select{height:40px;padding:0 12px}
+.ap-form textarea{min-height:88px;padding:10px 12px;resize:vertical}
+.ap-amt{height:40px;line-height:40px;padding:0 12px;background:#fafafa;border:1px solid #eee;border-radius:var(--radius-sm);font-size:15px;color:var(--price);font-weight:600}
+.ap-upload{display:flex;gap:10px;flex-wrap:wrap}
+.ap-upload-slot{width:72px;height:72px;border:1px dashed #ddd;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:#999;font-size:24px;background:#fafafa;cursor:pointer}
+.ap-upload-tip{font-size:12px;color:#999;margin-top:6px}
+
+.ap-empty{text-align:center;padding:60px 20px;color:#999;font-size:14px}
+.ap-empty a{color:var(--jd-red)}
+
+.ap-sticky{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #eee;box-shadow:0 -2px 12px rgba(0,0,0,.06);z-index:100}
+.ap-sticky-inner{max-width:var(--detail-w);margin:0 auto;padding:12px 0;display:flex;align-items:center;justify-content:flex-end;gap:12px}
+.ap-btn{min-width:96px;height:40px;padding:0 20px;font-size:14px;border-radius:var(--radius-sm);border:1px solid #ddd;background:#fff;color:#666}
+.ap-btn:hover{border-color:var(--jd-red);color:var(--jd-red)}
+.ap-btn.primary{background:var(--jd-red);border-color:var(--jd-red);color:#fff;font-weight:600}
+.ap-btn.primary:hover{background:var(--jd-red-dark)}
+
+</style>
+</head>
+<body>
+
+<div id="site-topbar-root"></div>
+
+<header class="pd-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href='01.首页-原型页面.html'">
+        <div class="logo-text">苏银豆商城</div>
+        <div class="logo-sub">积分好物 · 一站购齐</div>
+      </div>
+      <div>
+        <div class="pd-search">
+          <input type="text" placeholder="搜索商品、品牌、品类" id="searchInput">
+          <button type="button" id="searchBtn">搜索</button>
+        </div>
+      </div>
+      <div class="pd-header-cart" onclick="location.href='05.购物车-原型页面.html'">
+        <img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt="">
+        <span>购物车</span><div class="badge">3</div>
+      </div>
+    </div>
+    <nav class="pd-breadcrumb">
+      <a href="01.首页-原型页面.html">首页</a> &gt;
+      <a href="10.个人中心-原型页面.html">个人中心</a> &gt;
+      <a href="18.售后记录-原型页面.html">售后记录</a> &gt;
+      <span>申请售后</span>
+    </nav>
+  </div>
+</header>
+
+<div class="ap-page">
+  <div class="ap-wrap" id="apWrap"></div>
+</div>
+
+<div class="ap-sticky">
+  <div class="ap-sticky-inner" id="apActions"></div>
+</div>
+
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/product-images.js"></script>
+<script src="../assets/order-mock.js"></script>
+<script src="../assets/refund-mock.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+FloatDock.init({ cartCount: 15 });
+</script>
+<script>
+if (!ProtoAuth.guardPage()) void 0;
+ProtoAuth.initTopBar({ cartCount: 15 });
+
+var REFUND_LIST = '18.售后记录-原型页面.html';
+var ORDER_LIST = '08.订单页-原型页面.html';
+
+var params = new URLSearchParams(location.search);
+var orderId = params.get('order');
+var order = orderId ? OrderMock.get(orderId) : null;
+var selectedIdx = params.get('item') != null ? parseInt(params.get('item'), 10) : null;
+var applyType = 'return_refund';
+var isShipOnly = false;
+
+function selectableRows() {
+  return order ? OrderMock.getSelectableItems(order) : [];
+}
+
+function selectedRow() {
+  var rows = selectableRows();
+  if (selectedIdx == null) return rows.length === 1 ? rows[0] : null;
+  return rows.find(function (r) { return r.index === selectedIdx; }) || null;
+}
+
+function statusHint(st) {
+  if (st === 'ship') return '该商品未发货，仅支持仅退款';
+  return '该商品已发货，支持退货退款或换货';
+}
+
+function formatPrice(n) { return Number(n).toFixed(2); }
+function itemImg(it) { return IMG[it.imgKey] || ''; }
+
+function reasonOptions(list) {
+  return list.map(function (r) { return '<option value="' + r + '">' + r + '</option>'; }).join('');
+}
+
+function renderTypeBlock() {
+  if (isShipOnly) {
+    applyType = 'refund_only';
+    return '<div class="ap-type-group">' +
+      '<div class="ap-type-opt active" data-type="refund_only">仅退款<small>商品未发货，无需退回</small></div></div>';
+  }
+  if (applyType === 'refund_only') applyType = 'return_refund';
+  return '<div class="ap-type-group">' +
+    '<div class="ap-type-opt' + (applyType === 'return_refund' ? ' active' : '') + '" data-type="return_refund">退货退款<small>已收到货，需退回商品</small></div>' +
+    '<div class="ap-type-opt' + (applyType === 'exchange' ? ' active' : '') + '" data-type="exchange">换货<small>已收到货，更换同款或规格</small></div></div>';
+}
+
+function updateFormByType() {
+  var reasonLabel = document.getElementById('apReasonLabel');
+  var reasonSelect = document.getElementById('apReasonSelect');
+  var amtRow = document.getElementById('apAmtRow');
+  if (!reasonLabel || !reasonSelect) return;
+  if (applyType === 'exchange') {
+    reasonLabel.innerHTML = '<em>*</em>换货原因';
+    reasonSelect.innerHTML = reasonOptions(RefundMock.exchangeReasons);
+    if (amtRow) amtRow.style.display = 'none';
+  } else {
+    reasonLabel.innerHTML = '<em>*</em>退款原因';
+    reasonSelect.innerHTML = reasonOptions(RefundMock.reasons);
+    if (amtRow) amtRow.style.display = '';
+  }
+}
+
+function bindForm() {
+  document.querySelectorAll('.ap-type-opt').forEach(function (el) {
+    if (isShipOnly) return;
+    el.onclick = function () {
+      applyType = el.dataset.type;
+      document.querySelectorAll('.ap-type-opt').forEach(function (x) {
+        x.classList.toggle('active', x.dataset.type === applyType);
+      });
+      updateFormByType();
+    };
+  });
+}
+
+function renderEmpty() {
+  document.getElementById('apWrap').innerHTML =
+    '<div class="ap-card"><div class="ap-empty"><p>请从订单中选择需要售后的商品</p>' +
+    '<a href="' + ORDER_LIST + '?tab=done">去选择订单</a></div></div>';
+  document.getElementById('apActions').innerHTML =
+    '<button type="button" class="ap-btn" onclick="location.href=\'' + REFUND_LIST + '\'">返回</button>';
+}
+
+function renderPickList(rows) {
+  return '<div class="ap-card"><div class="ap-card-hd">选择售后商品</div><div class="ap-goods-pick">' +
+    rows.map(function (r) {
+      var it = r.item;
+      var active = selectedIdx === r.index ? ' active' : '';
+      return '<div class="ap-goods-pick-item' + active + '" data-idx="' + r.index + '">' +
+        '<div class="ap-goods-pick-radio"></div>' +
+        '<img src="' + itemImg(it) + '" alt="">' +
+        '<div class="ap-goods-info"><div class="ap-goods-name">' + it.name + '</div>' +
+        '<div class="ap-goods-spec">' + it.spec + ' · ×' + it.qty + ' · ¥' + formatPrice(r.amount) + '</div>' +
+        '<div class="ap-goods-status">' + r.statusLabel + '</div></div></div>';
+    }).join('') + '</div></div>';
+}
+
+function renderSingleGoods(row) {
+  var it = row.item;
+  return '<div class="ap-card"><div class="ap-card-hd">售后商品</div>' +
+    '<div class="ap-goods"><img src="' + itemImg(it) + '" alt="">' +
+    '<div class="ap-goods-info"><div class="ap-goods-name">' + it.name + '</div>' +
+    '<div class="ap-goods-spec">' + it.spec + ' · ×' + it.qty + '</div>' +
+    '<div class="ap-goods-status">' + row.statusLabel + ' · ' + statusHint(row.status) + '</div></div></div></div>';
+}
+
+function bindPickList() {
+  document.querySelectorAll('.ap-goods-pick-item').forEach(function (el) {
+    el.onclick = function () {
+      selectedIdx = parseInt(el.dataset.idx, 10);
+      var row = selectedRow();
+      if (!row) return;
+      isShipOnly = row.status === 'ship';
+      if (isShipOnly) applyType = 'refund_only';
+      else if (applyType === 'refund_only') applyType = 'return_refund';
+      renderForm();
+    };
+  });
+}
+
+function renderApplyForm(row) {
+  isShipOnly = row.status === 'ship';
+  if (isShipOnly) applyType = 'refund_only';
+  else if (applyType === 'refund_only') applyType = 'return_refund';
+  var maxAmt = row.amount;
+
+  return '<div class="ap-card ap-form"><div class="ap-card-hd">填写申请信息</div>' +
+    '<p style="font-size:13px;color:#999;margin:-6px 0 14px">' + statusHint(row.status) + '</p>' +
+    '<form id="applyForm" onsubmit="return submitApply(event)">' +
+    '<div class="ap-form-row"><label><em>*</em>售后类型</label>' + renderTypeBlock() + '</div>' +
+    '<div class="ap-form-row"><label id="apReasonLabel"><em>*</em>退款原因</label><select id="apReasonSelect" required>' + reasonOptions(RefundMock.reasons) + '</select></div>' +
+    '<div class="ap-form-row" id="apAmtRow"><label><em>*</em>退款金额</label><div class="ap-amt">¥' + formatPrice(maxAmt) + '</div></div>' +
+    '<div class="ap-form-row"><label>补充说明</label><textarea placeholder="请描述具体情况（选填）" maxlength="200"></textarea></div>' +
+    '<div class="ap-form-row"><label>上传凭证</label>' +
+    '<div class="ap-upload"><div class="ap-upload-slot">+</div><div class="ap-upload-slot">+</div><div class="ap-upload-slot">+</div></div>' +
+    '<div class="ap-upload-tip">最多上传 3 张，支持 jpg/png</div></div></form></div>';
+}
+
+function renderForm() {
+  if (order && !['ship', 'recv', 'done'].includes(order.status)) order = null;
+  if (!order) { renderEmpty(); return; }
+
+  var rows = selectableRows();
+  if (!rows.length) { renderEmpty(); return; }
+  if (rows.length === 1) selectedIdx = rows[0].index;
+
+  var row = selectedRow();
+  var multi = rows.length > 1;
+  var pickBlock = multi ? renderPickList(rows) : '';
+  var goodsBlock = !multi && row ? renderSingleGoods(row) : '';
+  var formBlock = row ? renderApplyForm(row) : '<div class="ap-card"><div class="ap-pick-tip">请先选择需要售后的商品</div></div>';
+
+  document.getElementById('apWrap').innerHTML =
+    '<div class="ap-status">' +
+    '<div class="ap-status-title">申请售后</div>' +
+    '<div class="ap-status-meta">关联订单：' + order.id + ' · 下单时间：' + order.time +
+    (multi ? ' · 共 ' + rows.length + ' 件可申请商品' : '') + '</div></div>' +
+    pickBlock + goodsBlock + formBlock;
+
+  document.getElementById('apActions').innerHTML =
+    '<button type="button" class="ap-btn" onclick="location.href=\'' + REFUND_LIST + '\'">取消</button>' +
+    (row ? '<button type="button" class="ap-btn primary" onclick="document.getElementById(\'applyForm\').requestSubmit()">提交申请</button>' :
+      '<button type="button" class="ap-btn primary" disabled style="opacity:.45;cursor:not-allowed">提交申请</button>');
+
+  bindPickList();
+  bindForm();
+  updateFormByType();
+}
+
+function submitApply(e) {
+  e.preventDefault();
+  var row = selectedRow();
+  if (!row) { ProtoToast.warn('请选择售后商品'); return false; }
+  var reasonEl = document.getElementById('apReasonSelect');
+  var reason = reasonEl ? reasonEl.value : '';
+  if (!reason) { ProtoToast.warn('请选择原因'); return false; }
+  var created = RefundMock.create({
+    orderId: order.id,
+    type: applyType,
+    reason: reason,
+    amount: row.amount,
+    item: row.item
+  });
+  location.href = '20.售后详情-原型页面.html?refund=' + encodeURIComponent(created.id);
+  return false;
+}
+
+renderForm();
+
+document.getElementById('searchBtn').onclick = function () {
+  var q = document.getElementById('searchInput').value.trim();
+  location.href = q ? '03.搜索分类页-原型页面.html?q=' + encodeURIComponent(q) : '03.搜索分类页-原型页面.html';
+};
+</script>
+</body>
+</html>

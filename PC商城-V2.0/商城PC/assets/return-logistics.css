@@ -1,0 +1,21 @@
+.return-logistics-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2100;display:none;align-items:center;justify-content:center;padding:20px}
+.return-logistics-overlay.active{display:flex}
+.return-logistics-modal{background:#fff;border-radius:12px;width:480px;max-width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;animation:rlIn .22s ease}
+@keyframes rlIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.return-logistics-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #f0f0f0}
+.return-logistics-hd h3{font-size:17px;font-weight:600}
+.return-logistics-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:#999;border-radius:50%;cursor:pointer;background:none;border:none}
+.return-logistics-close:hover{background:#f5f5f5}
+.return-logistics-bd{padding:16px 20px;overflow-y:auto;flex:1}
+.return-logistics-tip{font-size:13px;color:#999;margin-bottom:14px;line-height:1.6}
+.return-logistics-row{margin-bottom:14px}
+.return-logistics-row label{display:block;font-size:13px;color:#666;margin-bottom:6px}
+.return-logistics-row label em{color:#f63218;font-style:normal;margin-right:2px}
+.return-logistics-row select,.return-logistics-row input{width:100%;height:40px;border:1px solid #eee;border-radius:6px;padding:0 12px;font-size:14px;font-family:inherit}
+.return-logistics-row select:focus,.return-logistics-row input:focus{border-color:#f63218}
+.return-logistics-ft{display:flex;gap:12px;padding:16px 20px;border-top:1px solid #f0f0f0}
+.return-logistics-ft button{flex:1;height:40px;border-radius:6px;font-size:14px;cursor:pointer;font-family:inherit}
+.return-logistics-back{border:1px solid #ddd;background:#fff;color:#666}
+.return-logistics-back:hover{border-color:#f63218;color:#f63218}
+.return-logistics-confirm{background:#f63218;border:none;color:#fff;font-weight:600}
+.return-logistics-confirm:hover{background:#c81623}

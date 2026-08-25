@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商品不可用 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+:root{--page-width:1600px;--jd-red:#f63218;--jd-red-dark:#c81623;--text-mid:#666;--radius:8px;--radius-sm:6px}
+.container{width:var(--page-width);margin:0 auto}
+.ps-header{background:#fff;border-bottom:1px solid #eee;padding:20px 0;text-align:center}
+.ps-header .logo{font-size:28px;font-weight:700;color:var(--jd-red);cursor:pointer}
+.ps-main{padding:40px 0 32px}
+.ps-card{max-width:720px;margin:0 auto;background:#fff;border-radius:var(--radius);padding:48px 40px 36px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.ps-icon{width:72px;height:72px;margin:0 auto 20px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;color:#bbb}
+.ps-icon svg{width:36px;height:36px;stroke:currentColor;stroke-width:1.2;fill:none}
+.ps-title{font-size:22px;font-weight:600;color:#333;margin-bottom:8px}
+.ps-desc{font-size:14px;color:var(--text-mid);margin-bottom:28px;max-width:360px;margin-left:auto;margin-right:auto}
+.ps-actions{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+.ps-btn{min-width:140px;height:44px;padding:0 28px;font-size:15px;border-radius:var(--radius-sm)}
+.ps-btn-outline{background:#fff;border:1px solid #ddd;color:#666}
+.ps-btn-outline:hover{border-color:var(--jd-red);color:var(--jd-red)}
+.ps-btn-primary{background:var(--jd-red);color:#fff}
+.ps-btn-primary:hover{background:var(--jd-red-dark)}
+</style>
+</head>
+<body>
+<div id="site-topbar-root"></div>
+<header class="ps-header">
+  <div class="container"><div class="logo" onclick="location.href='01.首页-原型页面.html'">苏银豆商城</div></div>
+</header>
+<div class="container ps-main">
+  <div class="ps-card">
+    <div class="ps-icon">
+      <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+    </div>
+    <div class="ps-title" id="unavailTitle">该商品已下架</div>
+    <div class="ps-desc" id="unavailDesc">商品可能已下架或暂时无法购买，去看看其他好物吧</div>
+    <div class="ps-actions">
+      <button type="button" class="ps-btn ps-btn-primary" onclick="location.href='01.首页-原型页面.html'">去逛逛</button>
+      <button type="button" class="ps-btn ps-btn-outline" onclick="history.back()">返回上一页</button>
+    </div>
+  </div>
+</div>
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script>
+SiteTopBar.init({ logged: true, cartCount: 8 });
+FloatDock.init({ cartCount: 8 });
+(function () {
+  var map = {
+    offshelf: { title: '该商品已下架', desc: '商品已下架，暂时无法购买，去看看其他好物吧' },
+    soldout: { title: '该商品已售罄', desc: '商品库存不足或已售罄，去看看其他好物吧' },
+    invalid: { title: '该商品已失效', desc: '商品可能已下架或库存不足，去看看其他好物吧' }
+  };
+  var reason = (new URLSearchParams(location.search).get('reason') || 'offshelf').toLowerCase();
+  var info = map[reason] || map.invalid;
+  document.getElementById('unavailTitle').textContent = info.title;
+  document.getElementById('unavailDesc').textContent = info.desc;
+  document.title = info.title + ' - 苏银豆商城';
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>活动专区 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei","Source Han Sans CN",-apple-system,sans-serif;color:var(--text-dark);background:var(--bg-page);line-height:1.5;min-width:var(--page-width);-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+img{display:block;max-width:100%}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input{outline:none;border:none;font-family:inherit}
+
+:root{
+  --page-width:1600px;
+  --jd-red:#f63218;
+  --price:#ff0f12;
+  --text-dark:rgba(0,0,0,.85);
+  --text-mid:#666;
+  --text-light:#999;
+  --bg-page:#f4f4f4;
+  --border-light:#f0f0f0;
+  --radius:8px;
+  --radius-lg:12px;
+  --shadow-card:0 2px 12px rgba(0,0,0,.06);
+  --icon-cart:url(https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png);
+  --icon-cart-hover:url(https://img12.360buyimg.com/img/jfs/t1/329610/14/5367/642/68afc86aF292b557f/49aac701bcc27b4f.png);
+}
+
+.container{width:var(--page-width);margin:0 auto}
+
+.pd-header{background:#fff;border-bottom:1px solid #eee;padding:16px 0 0}
+.pd-header-grid{display:grid;grid-template-columns:230px minmax(0,1fr) 230px;gap:12px;align-items:start}
+.pd-logo{cursor:pointer;padding-top:4px}
+.pd-logo .logo-text{font-size:32px;font-weight:700;color:var(--jd-red);letter-spacing:1px;line-height:1.15;text-align:center}
+.pd-logo .logo-sub{font-size:12px;color:var(--text-mid);margin-top:6px;text-align:center;letter-spacing:.5px}
+.pd-search-col{min-width:0}
+.pd-search{display:flex;border:2px solid var(--jd-red);border-radius:var(--radius);overflow:hidden;background:#fff}
+.pd-search input{flex:1;min-width:0;height:42px;padding:0 16px;font-size:15px}
+.pd-search button{width:80px;height:38px;margin:2px;background:var(--jd-red);color:#fff;font-size:15px;font-weight:600;border-radius:6px}
+.search-hot{margin-top:10px;padding-left:2px;display:flex;flex-wrap:wrap;align-items:center;gap:0 18px;line-height:1.4}
+.search-hot a{font-size:12px;color:var(--text-mid);white-space:nowrap;transition:color .2s}
+.search-hot a:hover{color:var(--jd-red)}
+.search-hot a.hot-highlight{color:var(--jd-red);font-weight:500}
+.pd-cart-col{display:flex;justify-content:flex-end;padding-top:2px}
+.pd-header-cart{display:flex;flex-direction:column;align-items:center;gap:4px;color:#333;font-size:12px;cursor:pointer;position:relative;padding:4px 8px;min-width:72px}
+.pd-header-cart .cart-icon-img{width:28px;height:28px;object-fit:contain}
+.pd-header-cart .badge{position:absolute;top:0;right:4px;min-width:16px;height:16px;background:var(--jd-red);color:#fff;font-size:10px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-weight:600}
+.pd-breadcrumb{font-size:13px;color:var(--text-mid);padding:12px 0 14px;margin-top:12px;border-top:1px solid #f5f5f5;line-height:1.5}
+.pd-breadcrumb a{color:var(--text-mid);transition:color .15s}
+.pd-breadcrumb a:hover{color:var(--jd-red)}
+.pd-breadcrumb span{margin:0 6px;color:#ccc}
+
+.zone-main{padding:12px 0 32px;display:flex;flex-direction:column;gap:20px}
+
+.zone-group{display:flex;flex-direction:column;gap:10px;scroll-margin-top:16px}
+.zone-banner{position:relative;display:block;height:300px;overflow:hidden;background:#e8e8e8;border-radius:var(--radius-lg);box-shadow:var(--shadow-card)}
+.zone-banner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.zone-banner-mask{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.62) 0%,rgba(0,0,0,.22) 42%,transparent 70%)}
+.zone-banner-copy{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:center;height:100%;padding:0 40px;color:#fff;max-width:52%}
+.zone-banner-title{font-size:32px;font-weight:700;line-height:1.2;letter-spacing:1px}
+.zone-banner-sub{font-size:15px;margin-top:10px;opacity:.92}
+.zone-banner-go{display:inline-flex;align-items:center;margin-top:16px;font-size:13px;padding:6px 16px;border-radius:16px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);width:fit-content}
+.zone-banner:hover .zone-banner-go{background:rgba(255,255,255,.28)}
+
+.zone-goods-card{background:#fff;border-radius:var(--radius-lg);box-shadow:var(--shadow-card);border:1px solid var(--border-light);overflow:hidden}
+.zone-scroll-wrap{padding:0 16px 14px;overflow:hidden}
+.zone-scroll{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;padding:14px 0 6px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity;scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:#ddd transparent}
+.zone-scroll::-webkit-scrollbar{height:6px}
+.zone-scroll::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px}
+.zone-scroll::-webkit-scrollbar-thumb:hover{background:#ccc}
+
+.zone-product{flex:0 0 176px;width:176px;scroll-snap-align:start;border:1px solid var(--border-light);border-radius:var(--radius);background:#fff;overflow:hidden;cursor:pointer;transition:box-shadow .2s,border-color .2s,transform .2s}
+.zone-product:hover{box-shadow:0 6px 18px rgba(246,50,24,.1);border-color:#ffd0d0;transform:translateY(-2px)}
+.zone-product-img{aspect-ratio:1;background:#f8f8f8;overflow:hidden}
+.zone-product-img img{width:100%;height:100%;object-fit:cover}
+.zone-product-info{padding:8px 8px 10px}
+.zone-product-name{font-size:12px;color:var(--text-dark);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.4}
+.zone-product-name .brand{color:var(--jd-red);font-weight:600}
+.zone-product-bottom{display:flex;align-items:flex-end;justify-content:space-between;margin-top:6px;gap:4px}
+.zone-product-price{font-size:18px;font-weight:700;color:var(--price);font-variant-numeric:tabular-nums;line-height:1}
+.zone-product-price em{font-size:12px;font-style:normal;font-weight:700}
+.zone-cart-add{width:28px;height:28px;border-radius:6px;background:#fff;border:1px solid #e8e8e8;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.zone-cart-add .cart-icon{display:block;width:16px;height:16px;background:var(--icon-cart) center/contain no-repeat}
+.zone-cart-add:hover{border-color:var(--jd-red)}
+.zone-cart-add:hover .cart-icon{background-image:var(--icon-cart-hover)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:none;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:12px;width:400px;overflow:hidden}
+.modal-header{display:flex;justify-content:flex-end;padding:16px 16px 0}
+.modal-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-light);border-radius:50%}
+.modal-close:hover{background:#f5f5f5}
+.modal-tabs{display:flex;padding:0 24px;gap:20px;border-bottom:1px solid #eee}
+.modal-tab{font-size:15px;color:var(--text-light);cursor:pointer;padding:12px 0;border-bottom:2px solid transparent;margin-bottom:-1px}
+.modal-tab.active{color:var(--jd-red);border-bottom-color:var(--jd-red);font-weight:600}
+.modal-body{padding:24px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;color:var(--text-mid);margin-bottom:6px}
+.form-input{width:100%;height:42px;border:1px solid #ddd;border-radius:6px;padding:0 12px;font-size:14px}
+.form-input:focus{border-color:var(--jd-red)}
+.form-row{display:flex;gap:10px}
+.form-row .form-input{flex:1}
+.sms-btn{width:110px;height:42px;background:#fff;border:1px solid var(--jd-red);color:var(--jd-red);border-radius:6px;font-size:13px}
+.modal-submit{width:100%;height:44px;background:var(--jd-red);color:#fff;border-radius:6px;font-size:15px;font-weight:600;margin-top:6px}
+</style>
+</head>
+<body>
+
+<div id="site-topbar-root"></div>
+
+<header class="pd-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href='01.首页-原型页面.html'">
+        <div class="logo-text">苏银豆商城</div>
+        <div class="logo-sub">积分好物 · 一站购齐</div>
+      </div>
+      <div class="pd-search-col">
+        <div class="pd-search">
+          <input type="text" placeholder="搜索商品、品牌、品类" id="searchInput">
+          <button type="button" id="searchBtn">搜索</button>
+        </div>
+        <div class="search-hot">
+          <a href="#" class="hot-highlight">5000苏银豆到账</a>
+          <a href="#">积分低至5折起</a>
+          <a href="#">数码家电</a>
+          <a href="#">美妆护肤</a>
+          <a href="#">运动户外</a>
+          <a href="#">企业福利</a>
+        </div>
+      </div>
+      <div class="pd-cart-col">
+        <div class="pd-header-cart" onclick="location.href='05.购物车-原型页面.html'">
+          <img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt="购物车">
+          <span>购物车</span>
+          <div class="badge" id="headerCartBadge">15</div>
+        </div>
+      </div>
+    </div>
+    <nav class="pd-breadcrumb">
+      <a href="01.首页-原型页面.html">首页</a><span>›</span><span>活动专区</span>
+    </nav>
+  </div>
+</header>
+
+<div class="container zone-main" id="zoneMain"></div>
+
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-close" onclick="closeLogin()" data-proto-icon="close" data-icon-size="18"></div></div>
+    <div class="modal-tabs">
+      <div class="modal-tab active" onclick="switchLoginTab(this,'phone')">手机号登录</div>
+      <div class="modal-tab" onclick="switchLoginTab(this,'wechat')">微信扫码</div>
+    </div>
+    <div class="modal-body" id="loginBody">
+      <div class="form-group"><label>手机号</label><input class="form-input" type="tel" placeholder="请输入手机号" maxlength="11"></div>
+      <div class="form-group"><label>验证码</label><div class="form-row"><input class="form-input" type="text" placeholder="请输入验证码" maxlength="6"><button class="sms-btn">获取验证码</button></div></div>
+      <button class="modal-submit">登 录</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/product-images.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+ProtoAuth.initTopBar({
+  cartCount: 15,
+  openLogin: function () { openLogin(); },
+  onLogoutClick: function () { applyUcState('guest'); }
+});
+FloatDock.init({ cartCount: 15 });
+
+const ACTIVITY_PAGE = '02.活动页-原型页面.html';
+const DETAIL_PAGE = '04.商品详情页-原型页面.html';
+const SEARCH_PAGE = '03.搜索分类页-原型页面.html';
+
+function formatPrice(n) {
+  return Number.isInteger(n) ? String(n) : n.toFixed(2);
+}
+
+function getBrand(name, brand) {
+  if (brand) return brand;
+  var cn = name.match(/^[\u4e00-\u9fa5]{2,4}/);
+  return cn ? cn[0] : name.split(/\s/)[0].slice(0, 6);
+}
+
+function renderScrollProduct(p) {
+  var brand = getBrand(p.name, p.brand);
+  return '<div class="zone-product" onclick="location.href=\'' + DETAIL_PAGE + '\'">' +
+    '<div class="zone-product-img"><img src="' + p.img + '" alt="' + p.name + '"></div>' +
+    '<div class="zone-product-info">' +
+    '<div class="zone-product-name"><span class="brand">【' + brand + '】</span>' + p.name + '</div>' +
+    '<div class="zone-product-bottom">' +
+    '<div class="zone-product-price"><em>¥</em>' + formatPrice(p.price) + '</div>' +
+    '<button type="button" class="zone-cart-add" title="加入购物车" onclick="event.stopPropagation();ProtoToast.show()"><i class="cart-icon"></i></button>' +
+    '</div></div></div>';
+}
+
+function renderZoneBlock(z) {
+  var href = ACTIVITY_PAGE + '?id=' + z.id;
+  var productsHtml = z.products.map(renderScrollProduct).join('');
+  return '<section class="zone-group" id="' + z.id + '">' +
+    '<a class="zone-banner" href="' + href + '">' +
+    '<img src="' + z.img + '" alt="' + z.title + '">' +
+    '<span class="zone-banner-mask"></span>' +
+    '<span class="zone-banner-copy">' +
+    '<span class="zone-banner-title">' + z.title + '</span>' +
+    '<span class="zone-banner-sub">' + z.sub + '</span>' +
+    '<span class="zone-banner-go">进入专题 ›</span></span></a>' +
+    '<div class="zone-goods-card"><div class="zone-scroll-wrap"><div class="zone-scroll">' + productsHtml + '</div></div></div>' +
+    '</section>';
+}
+
+var ZONE_LIST = [
+  {
+    id: 'apple-wear',
+    title: 'Apple 智能穿戴',
+    sub: '智能手表 · 积分可抵 · 限时补贴',
+    img: IMG.main03,
+    products: [
+      { brand: '苹果', name: 'Apple Watch Series 9 GPS 智能手表', price: 2999, img: IMG.watch },
+      { brand: '智能穿戴', name: '圆盘智能运动手表 白色', price: 399, img: IMG.p57 },
+      { brand: '小米', name: '手环4 智能运动手环 黑色', price: 169, img: IMG.e16 },
+      { brand: '苹果', name: 'Apple Watch 硅胶表带 多色', price: 299, img: IMG.p12 },
+      { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, img: IMG.headphone },
+      { brand: '苹果', name: 'MacBook Air M3 13英寸 16GB+256GB', price: 8999, img: IMG.p42 },
+      { brand: '小米', name: '移动电源 20000mAh 快充版', price: 149, img: IMG.p41 },
+      { brand: '智能穿戴', name: '圆盘智能运动手表 白色', price: 399, img: IMG.e48 }
+    ]
+  },
+  {
+    id: 'water',
+    title: '饮用水专区',
+    sub: '企业团购 · 整箱配送 · 苏银豆可抵',
+    img: IMG.p13,
+    products: [
+      { brand: '怡宝', name: '纯净水 555ml×24瓶', price: 36.8, img: IMG.e13 },
+      { brand: '特仑苏', name: '全脂鲜牛奶 250ml×12盒', price: 68, img: IMG.e19 },
+      { brand: 'JENUIN', name: '莓果味苏打饮 6瓶装', price: 68, img: IMG.e27 },
+      { brand: '乐扣', name: '高硼硅耐热玻璃杯 6只装', price: 49, img: IMG.e18 },
+      { brand: '膳魔师', name: '磨砂保温杯 500ml 森林绿', price: 79, img: IMG.p37 },
+      { brand: '特仑苏', name: '全脂鲜牛奶 250ml×12盒', price: 128, img: IMG.p19 },
+      { brand: '怡宝', name: '纯净水 555ml×24瓶', price: 36.8, img: IMG.p13 },
+      { brand: '乐扣', name: '办公耐热玻璃杯 4只装', price: 39, img: IMG.p18 }
+    ]
+  },
+  {
+    id: 'menswear',
+    title: '商务男装馆',
+    sub: '立领衬衫 · 职场必备 · 品质男装',
+    img: IMG.p15,
+    products: [
+      { brand: '优衣库', name: '纯棉圆领短袖T恤 白色', price: 79, img: IMG.tshirt },
+      { brand: 'Levi\'s', name: '501经典直筒牛仔裤 深蓝款', price: 459, img: IMG.p44 },
+      { brand: 'Rowkone', name: '爱心印花牛仔衬衫', price: 159, img: IMG.e36 },
+      { brand: '优衣库', name: '男士基础款圆领短袖T恤', price: 89, img: IMG.p11 },
+      { brand: 'Levi\'s', name: '501经典直筒牛仔裤 深蓝款', price: 459, img: IMG.pants },
+      { brand: '优衣库', name: '纯棉圆领短袖T恤 白色', price: 79, img: IMG.shirt },
+      { brand: 'Rowkone', name: '爱心印花牛仔衬衫', price: 159, img: IMG.p56 },
+      { brand: 'Levi\'s', name: '501经典直筒牛仔裤 深蓝款', price: 459, img: IMG.p15 }
+    ]
+  },
+  {
+    id: 'nike-sport',
+    title: 'Nike 运动专区',
+    sub: 'Flyknit跑鞋 · 限时补贴 · 运动装备',
+    img: IMG.sneaker,
+    products: [
+      { brand: 'Nike', name: 'Free RN Flyknit 竞速跑步鞋', price: 899, img: IMG.sneaker },
+      { brand: 'Nike', name: 'Free RN Flyknit 跑鞋 红色', price: 799, img: IMG.p55 },
+      { brand: 'Adidas', name: 'EQT Support ADV 运动鞋', price: 699, img: IMG.p10 },
+      { brand: 'Nike', name: 'SuperRep 荧光绿训练鞋', price: 849, img: IMG.e38 },
+      { brand: '小米', name: '手环4 智能运动手环 黑色', price: 169, img: IMG.p29 },
+      { brand: '智能穿戴', name: '圆盘智能运动手表 白色', price: 399, img: IMG.p57 },
+      { brand: 'Nike', name: 'Free RN Flyknit 竞速跑步鞋', price: 899, img: IMG.p16 },
+      { brand: 'Adidas', name: 'EQT Support ADV 运动鞋', price: 699, img: IMG.p3 }
+    ]
+  },
+  {
+    id: 'welfare-food',
+    title: '美食礼盒',
+    sub: '香煎牛排 · 家宴首选 · 企业福利集采',
+    img: IMG.p45,
+    products: [
+      { brand: '味多美', name: '浓巧淋面庆典蛋糕 8寸', price: 198, img: IMG.cake },
+      { brand: '巴黎贝甜', name: '抹茶巧克力纸杯蛋糕 6入装', price: 68, img: IMG.cakeCupcake },
+      { brand: '企业福利', name: '端午礼盒 坚果糕点组合装', price: 268, img: IMG.e25 },
+      { brand: '生鲜', name: '新鲜迷你南瓜 5斤装', price: 29.9, img: IMG.e26 },
+      { brand: '味多美', name: '浓巧淋面庆典蛋糕 8寸', price: 199, img: IMG.p52 },
+      { brand: 'JENUIN', name: '莓果味苏打饮 6瓶装', price: 68, img: IMG.e27 },
+      { brand: '味多美', name: '浓巧淋面庆典蛋糕 8寸', price: 198, img: IMG.p45 },
+      { brand: '巴黎贝甜', name: '抹茶巧克力纸杯蛋糕 6入装', price: 68, img: IMG.p46 }
+    ]
+  },
+  {
+    id: 'welfare-digital',
+    title: '数码音频',
+    sub: '降噪耳机 · 沉浸聆听 · 积分可抵',
+    img: IMG.p53,
+    products: [
+      { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, img: IMG.headphone },
+      { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, img: IMG.p53 },
+      { brand: 'HiFi', name: '有线头戴式HiFi耳机', price: 599, img: IMG.e31 },
+      { brand: 'JBL', name: '无线蓝牙降噪头戴耳机', price: 1299, img: IMG.pants },
+      { brand: '飞利浦', name: '有线头戴会议耳机 灰色', price: 599, img: IMG.p53 },
+      { brand: '主动降噪', name: '蓝牙耳机 黑色', price: 899, img: IMG.p53 },
+      { brand: '索尼', name: 'WH-1000XM4 无线降噪耳机', price: 2199, img: IMG.p31 },
+      { brand: 'JBL', name: '无线蓝牙降噪头戴耳机', price: 1299, img: IMG.pants }
+    ]
+  },
+  {
+    id: 'welfare-home',
+    title: '舒适家居',
+    sub: '北欧单人沙发椅 · 积分兑换 · 品质生活',
+    img: IMG.chair,
+    products: [
+      { brand: '宜家', name: '波昂单人扶手椅 北欧款', price: 499, img: IMG.pen },
+      { brand: '北欧', name: '布艺单人沙发椅 黄色', price: 899, img: IMG.e34 },
+      { brand: '宜家', name: '波昂单人扶手椅 北欧款', price: 499, img: IMG.chair },
+      { brand: '乐扣', name: '高硼硅耐热玻璃杯 6只装', price: 49, img: IMG.e12 },
+      { brand: '苏泊尔', name: '珐琅铸铁炖锅 3.5L 红色', price: 399, img: IMG.e22 },
+      { brand: '膳魔师', name: '磨砂保温杯 500ml 森林绿', price: 79, img: IMG.p37 },
+      { brand: '乐扣', name: '办公耐热玻璃杯 4只装', price: 39, img: IMG.p18 },
+      { brand: '宜家', name: '波昂单人扶手椅 北欧款', price: 499, img: IMG.pen }
+    ]
+  },
+  {
+    id: 'welfare-office',
+    title: '职场读物',
+    sub: '创业管理 · 8册套装 · 企业学习福利',
+    img: IMG.camera,
+    products: [
+      { brand: '中信出版', name: '职场办公必读书籍 8册套装', price: 428, img: IMG.camera },
+      { brand: '中信出版', name: '职场办公必读书籍 8册套装', price: 428, img: IMG.p8 },
+      { brand: '晨光', name: 'uni-ball 针管走珠笔 0.5mm 蓝色', price: 12.5, img: IMG.p32 },
+      { brand: '温莎牛顿', name: '专业美术绘画画笔套装', price: 89, img: IMG.money },
+      { brand: '得力', name: '透明办公玻璃杯 单只装', price: 15, img: IMG.e18 },
+      { brand: '乐扣', name: '办公耐热玻璃杯 4只装', price: 39, img: IMG.p18 },
+      { brand: '晨光', name: 'uni-ball 针管走珠笔 0.5mm 蓝色', price: 12.5, img: IMG.e32 },
+      { brand: '中信出版', name: '职场办公必读书籍 8册套装', price: 428, img: IMG.p8 }
+    ]
+  }
+];
+
+document.getElementById('zoneMain').innerHTML = ZONE_LIST.map(renderZoneBlock).join('');
+initZoneAutoScroll();
+
+function initZoneAutoScroll() {
+  var CARD_W = 176;
+  var GAP = 12;
+  var STEP = CARD_W + GAP;
+  var INTERVAL = 2800;
+
+  document.querySelectorAll('.zone-scroll').forEach(function (el) {
+    var paused = false;
+    el.addEventListener('mouseenter', function () { paused = true; });
+    el.addEventListener('mouseleave', function () { paused = false; });
+
+    setInterval(function () {
+      if (paused) return;
+      var max = el.scrollWidth - el.clientWidth;
+      if (max <= 0) return;
+      var next = el.scrollLeft + STEP;
+      if (next >= max - 2) {
+        el.scrollTo({ left: 0, behavior: 'auto' });
+      } else {
+        el.scrollTo({ left: next, behavior: 'smooth' });
+      }
+    }, INTERVAL);
+  });
+}
+
+document.getElementById('searchBtn').addEventListener('click', function () {
+  var kw = (document.getElementById('searchInput').value || '').trim();
+  if (!kw) return;
+  location.href = SEARCH_PAGE + '?q=' + encodeURIComponent(kw);
+});
+document.getElementById('searchInput').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') document.getElementById('searchBtn').click();
+});
+
+(function scrollToHash() {
+  var hash = (location.hash || '').replace('#', '');
+  if (!hash) return;
+  var map = { brand: 'apple-wear', welfare: 'welfare-food' };
+  var id = map[hash] || hash;
+  var el = document.getElementById(id);
+  if (el) requestAnimationFrame(function () { el.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+})();
+
+const UC_USER = { name: '张经理', cartCount: 15 };
+
+function applyUcState(state) {
+  var logged = state === 'logged';
+  var headerBadge = document.getElementById('headerCartBadge');
+  if (typeof SiteTopBar !== 'undefined') {
+    SiteTopBar.setLogged(logged, { userName: UC_USER.name, cartCount: logged ? UC_USER.cartCount : 0 });
+  }
+  if (headerBadge) headerBadge.textContent = logged ? String(UC_USER.cartCount) : '0';
+  if (typeof FloatDock !== 'undefined') FloatDock.setCartCount(logged ? UC_USER.cartCount : 0);
+  if (logged) ProtoAuth.login({ userName: UC_USER.name, cartCount: UC_USER.cartCount });
+  else ProtoAuth.logout();
+}
+applyUcState(ProtoAuth.isLogged() ? 'logged' : 'guest');
+
+document.getElementById('loginModal').addEventListener('click', function (e) {
+  if (e.target.id === 'loginModal') closeLogin();
+  if (e.target.classList.contains('modal-submit')) {
+    ProtoAuth.login({ userName: UC_USER.name, cartCount: UC_USER.cartCount });
+    applyUcState('logged');
+    closeLogin();
+  }
+});
+
+function openLogin() { document.getElementById('loginModal').classList.add('active'); }
+function closeLogin() { document.getElementById('loginModal').classList.remove('active'); }
+
+function switchLoginTab(el, type) {
+  document.querySelectorAll('.modal-tab').forEach(function (t) { t.classList.remove('active'); });
+  el.classList.add('active');
+  var body = document.getElementById('loginBody');
+  if (type === 'wechat') {
+    body.innerHTML = '<div style="text-align:center;padding:24px 0"><div style="width:160px;height:160px;background:#f5f5f5;border-radius:8px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#999;border:1px dashed #ddd">扫码登录</div><p style="font-size:14px;color:#666">微信扫码登录</p></div>';
+  } else {
+    body.innerHTML = '<div class="form-group"><label>手机号</label><input class="form-input" type="tel" placeholder="请输入手机号" maxlength="11"></div><div class="form-group"><label>验证码</label><div class="form-row"><input class="form-input" type="text" placeholder="请输入验证码" maxlength="6"><button class="sms-btn">获取验证码</button></div></div><button class="modal-submit">登 录</button>';
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+.cs-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2100;display:none;align-items:center;justify-content:center;padding:24px}
+.cs-overlay.active{display:flex}
+.cs-modal{position:relative;width:min(920px,96vw);height:min(640px,88vh);background:#fff;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.18);overflow:hidden;animation:csModalIn .22s ease;display:flex;flex-direction:column}
+@keyframes csModalIn{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+.cs-close{position:absolute;top:12px;right:12px;z-index:2;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.92);color:#666;font-size:20px;line-height:1;cursor:pointer;border:1px solid #eee;display:flex;align-items:center;justify-content:center}
+.cs-close:hover{background:#fff;color:#f63218;border-color:#ffd0d0}
+.cs-layout{display:grid;grid-template-columns:240px minmax(0,1fr);flex:1;min-height:0}
+.cs-side{background:#fafafa;border-right:1px solid #f0f0f0;display:flex;flex-direction:column;min-height:0}
+.cs-side-head{padding:18px 14px 14px;border-bottom:1px solid #f0f0f0;text-align:center}
+.cs-avatar{width:48px;height:48px;margin:0 auto 8px;border-radius:50%;background:linear-gradient(135deg,#ff6b4a,#f63218);color:#fff;font-size:18px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.cs-side-head h2{font-size:15px;font-weight:600}
+.cs-side-head p{font-size:11px;color:#999;margin-top:3px}
+.cs-meta{padding:12px 14px;font-size:11px;color:#666;line-height:1.65;border-bottom:1px solid #f0f0f0}
+.cs-meta strong{color:#333}
+.cs-topics{padding:10px 8px;flex:1;overflow-y:auto}
+.cs-topics h3{font-size:11px;color:#999;padding:2px 8px 6px;font-weight:500}
+.cs-topic{display:block;width:100%;text-align:left;padding:8px 10px;border-radius:6px;font-size:12px;color:#333;background:transparent;cursor:pointer;border:none;font-family:inherit}
+.cs-topic:hover,.cs-topic.active{background:#fff5f5;color:#f63218}
+.cs-side-foot{padding:10px 14px;border-top:1px solid #f0f0f0;font-size:11px;color:#999}
+.cs-side-foot a{color:#f63218}
+.cs-chat{display:flex;flex-direction:column;min-height:0;background:#fff}
+.cs-chat-head{display:flex;align-items:center;justify-content:space-between;padding:14px 48px 14px 18px;border-bottom:1px solid #f5f5f5;background:#fafafa;flex-shrink:0}
+.cs-chat-head h1{font-size:15px;font-weight:600}
+.cs-status{font-size:11px;color:#52c41a;display:flex;align-items:center;gap:5px}
+.cs-status::before{content:'';width:6px;height:6px;border-radius:50%;background:#52c41a}
+.cs-messages{flex:1;overflow-y:auto;padding:16px;background:#f7f8fa;min-height:0}
+.cs-msg{display:flex;gap:8px;margin-bottom:14px;max-width:82%}
+.cs-msg.user{margin-left:auto;flex-direction:row-reverse}
+.cs-msg-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff}
+.cs-msg.bot .cs-msg-avatar{background:linear-gradient(135deg,#ff6b4a,#f63218)}
+.cs-msg.user .cs-msg-avatar{background:#1890ff}
+.cs-bubble{padding:9px 12px;border-radius:10px;font-size:13px;line-height:1.6;color:#333;background:#fff;border:1px solid #eee;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.cs-msg.user .cs-bubble{background:#fff1f0;border-color:#ffd6d0}
+.cs-time{font-size:10px;color:#bbb;margin-top:3px;text-align:center}
+.cs-msg.user .cs-time{text-align:right}
+.cs-quick{padding:8px 16px 0;display:flex;flex-wrap:wrap;gap:6px;border-top:1px solid #f5f5f5;flex-shrink:0}
+.cs-chip{height:26px;padding:0 10px;border-radius:13px;border:1px solid #e8e8e8;background:#fff;font-size:11px;color:#666;cursor:pointer;font-family:inherit}
+.cs-chip:hover{border-color:#ffb8b0;color:#f63218;background:#fff5f5}
+.cs-input-bar{display:flex;gap:8px;padding:12px 16px 14px;flex-shrink:0}
+.cs-input-wrap{flex:1;display:flex;align-items:flex-end;gap:6px;border:1px solid #e8e8e8;border-radius:8px;padding:6px 10px;background:#fff}
+.cs-input-wrap:focus-within{border-color:#ffb8b0;box-shadow:0 0 0 2px rgba(246,50,24,.08)}
+.cs-input-wrap textarea{flex:1;resize:none;min-height:20px;max-height:72px;font-size:13px;line-height:1.5;border:none;outline:none;font-family:inherit}
+.cs-tool{width:28px;height:28px;border-radius:6px;background:#f5f5f5;color:#666;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;border:none}
+.cs-send{height:36px;padding:0 18px;border-radius:6px;background:#f63218;color:#fff;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:inherit}
+.cs-send:disabled{opacity:.45;cursor:not-allowed}
+.cs-card{display:inline-block;margin-top:6px;padding:8px 10px;border-radius:6px;background:#fafafa;border:1px solid #eee;font-size:11px;color:#666;line-height:1.55}
+.cs-card a{color:#f63218}

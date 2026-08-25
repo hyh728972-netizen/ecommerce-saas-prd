@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>首页搭建器</title>
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="./page-builder/builder.css">
+<script src="../assets/product-images.js"></script>
+<script src="../assets/proto-icons.js"></script>
+</head>
+<body>
+<!-- 顶栏：对齐移动端搭建器操作区 -->
+<header class="app-topbar">
+  <div class="app-topbar-left">
+    <span class="app-brand">首页搭建器</span>
+    <span class="app-divider"></span>
+    <span class="app-page-name">标准首页</span>
+    <span class="app-page-tag">首页</span>
+  </div>
+  <div class="app-topbar-right">
+    <span class="app-autosave" id="autoSaveHint">已自动保存</span>
+    <button type="button" class="app-btn ghost" onclick="selectThemePanel()">风格设置</button>
+    <button type="button" class="app-btn ghost" id="previewPageBtn" onclick="window.open('./01.首页-原型页面.html','_blank')">预览</button>
+    <button type="button" class="app-btn ghost" onclick="confirmSave()">保存</button>
+    <button type="button" class="app-btn primary" onclick="confirmPublish()">发布</button>
+  </div>
+</header>
+
+<div class="app-workspace">
+  <!-- 左侧：上-页面 / 下-内置组件（可收起） -->
+  <aside class="col-nav" id="colNav">
+    <button type="button" class="left-collapse-btn" id="leftCollapseBtn" onclick="toggleLeftPanel()" title="收起左侧面板">‹</button>
+
+    <div class="nav-top" id="navTop" style="--nav-top-h: 280px">
+      <div class="col-header nav-page-hd">
+        <h3>页面</h3>
+        <button type="button" class="nav-add-inline" onclick="addActivitySubPage()" title="新建页面">+ 新建</button>
+      </div>
+      <div class="nav-panel" id="navPanel"></div>
+    </div>
+    <div class="nav-resize" id="navResize" title="拖动调整高度"></div>
+
+    <div class="nav-bottom">
+      <div class="col-header">
+        <h3>内置组件</h3>
+        <span class="badge" id="compCount">0</span>
+      </div>
+      <div class="layout-toolbar">
+        <button type="button" onclick="toggleAll(true)">全部启用</button>
+        <button type="button" onclick="toggleAll(false)">全部隐藏</button>
+        <button type="button" onclick="resetAll()">恢复默认</button>
+      </div>
+      <div class="comp-list" id="compList"></div>
+    </div>
+  </aside>
+
+  <!-- 预览画布 -->
+  <section class="col-preview">
+    <div class="preview-toolbar">
+      <div class="preview-title-wrap">
+        <strong>标准首页</strong>
+        <span class="preview-hint">预览对齐线上首页 · 商品图为示意</span>
+      </div>
+      <div class="preview-zoom-ctrl">
+        <button type="button" class="preview-zoom-step" onclick="nudgePreviewZoom(-5)" title="缩小">−</button>
+        <input type="range" id="previewZoomSlider" class="preview-zoom-slider"
+          min="25" max="100" step="1" value="50"
+          oninput="setPreviewZoom(this.value / 100)" title="拖动调节预览比例">
+        <button type="button" class="preview-zoom-step" onclick="nudgePreviewZoom(5)" title="放大">+</button>
+        <span class="preview-zoom-label" id="previewZoomLabel">50%</span>
+      </div>
+    </div>
+    <div class="preview-area" id="previewArea">
+      <div class="preview-stage" id="previewStage">
+        <div class="preview-canvas" id="previewRoot"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 右侧：属性面板（可收起） -->
+  <aside class="col-right" id="colRight">
+    <button type="button" class="right-collapse-btn" id="rightCollapseBtn" onclick="toggleRightPanel()" title="收起右侧面板">›</button>
+    <div class="right-tabs">
+      <span class="right-tabs-title">属性面板</span>
+      <span class="badge" id="configBadge">请选择组件</span>
+    </div>
+    <div class="right-pane on" id="panelAttrs">
+      <div class="attrs-subhead" id="configTitle">组件属性</div>
+      <div class="config-empty" id="configEmpty">
+        <div>在画布或左侧「内置组件」中选择组件<br><span style="font-size:11px;color:#ddd">或点击顶栏「风格设置」配置页面背景 / 字体</span></div>
+      </div>
+      <div class="config-body" id="configBody"></div>
+    </div>
+  </aside>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">导出配置</h3>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body"><pre id="modalContent"></pre></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="confirmOverlay">
+  <div class="modal confirm-modal">
+    <div class="modal-header">
+      <h3 id="confirmTitle">确认</h3>
+      <button type="button" class="modal-close" onclick="closeConfirmModal()">✕</button>
+    </div>
+    <div class="modal-body confirm-body">
+      <p id="confirmMessage"></p>
+    </div>
+    <div class="confirm-ft">
+      <button type="button" class="promo-img-btn" onclick="closeConfirmModal()">取消</button>
+      <button type="button" class="promo-img-btn primary" id="confirmOkBtn" onclick="submitConfirmModal()">确定</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="mediaLibraryOverlay">
+  <div class="modal media-library-modal">
+    <div class="modal-header">
+      <h3>素材库</h3>
+      <button class="modal-close" onclick="closeMaterialLibrary()">✕</button>
+    </div>
+    <div class="modal-body media-library-body" id="mediaLibraryBody"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="productPickerOverlay">
+  <div class="modal product-picker-modal">
+    <div class="modal-header">
+      <h3 id="productPickerTitle">选择商品</h3>
+      <button class="modal-close" onclick="closeProductPicker()">✕</button>
+    </div>
+    <div class="modal-body product-picker-body" id="productPickerBody"></div>
+    <div class="product-picker-ft">
+      <span class="product-picker-count" id="productPickerCount">已选 0</span>
+      <div class="product-picker-actions">
+        <button type="button" class="promo-img-btn" onclick="closeProductPicker()">取消</button>
+        <button type="button" class="promo-img-btn primary" onclick="confirmProductPicker()">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="./page-builder/helpers.js"></script>
+<script src="./page-builder/defaults.js"></script>
+<script src="./page-builder/render.js"></script>
+<script src="./page-builder/config-panel.js"></script>
+<script src="./page-builder/app.js"></script>
+</body>
+</html>

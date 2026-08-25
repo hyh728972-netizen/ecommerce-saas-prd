@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>登录 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+input{outline:none;border:none;font-family:inherit}
+:root{--page-width:1600px;--jd-red:#f63218;--jd-red-dark:#c81623;--text-mid:#666;--text-light:#999;--radius:8px;--radius-sm:6px;--radius-lg:12px}
+.container{width:var(--page-width);margin:0 auto}
+
+.lg-header{background:#fff;border-bottom:1px solid #eee;padding:20px 0}
+.lg-header-inner{display:flex;align-items:center;justify-content:space-between}
+.lg-logo{font-size:28px;font-weight:700;color:var(--jd-red);cursor:pointer}
+.lg-header-tip{font-size:13px;color:var(--text-mid)}
+.lg-header-tip a{color:var(--jd-red);margin-left:8px}
+
+.lg-main{padding:48px 0 64px;display:flex;justify-content:center}
+.lg-card{width:420px;background:#fff;border-radius:var(--radius-lg);box-shadow:0 4px 24px rgba(0,0,0,.06);overflow:hidden}
+.lg-tabs{display:flex;padding:0 28px;gap:24px;border-bottom:1px solid #eee}
+.lg-tab{font-size:15px;color:var(--text-light);cursor:pointer;padding:16px 0;border-bottom:2px solid transparent;margin-bottom:-1px}
+.lg-tab.active{color:var(--jd-red);border-bottom-color:var(--jd-red);font-weight:600}
+.lg-body{padding:28px}
+.lg-form-group{margin-bottom:18px}
+.lg-form-group label{display:block;font-size:13px;color:#666;margin-bottom:8px}
+.lg-input{width:100%;height:42px;border:1px solid #e8e8e8;border-radius:var(--radius-sm);padding:0 14px;font-size:14px}
+.lg-input:focus{border-color:var(--jd-red)}
+.lg-row{display:flex;gap:10px}
+.lg-row .lg-input{flex:1}
+.lg-sms{flex-shrink:0;height:42px;padding:0 14px;background:#fff;border:1px solid var(--jd-red);color:var(--jd-red);border-radius:var(--radius-sm);font-size:13px;white-space:nowrap}
+.lg-submit{width:100%;height:44px;background:var(--jd-red);color:#fff;border-radius:var(--radius-sm);font-size:15px;font-weight:600;margin-top:8px}
+.lg-submit:hover{background:var(--jd-red-dark)}
+.lg-wechat{text-align:center;padding:20px 0 8px}
+.lg-qr{width:168px;height:168px;background:#f5f5f5;border-radius:var(--radius);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:13px;color:#999;border:1px dashed #ddd}
+.lg-wechat p{font-size:14px;color:#666}
+.lg-wechat small{display:block;font-size:12px;color:#999;margin-top:8px}
+.lg-agree{font-size:12px;color:#999;text-align:center;margin-top:16px;line-height:1.6}
+.lg-agree a{color:var(--jd-red)}
+</style>
+</head>
+<body>
+
+<div id="site-topbar-root"></div>
+
+<header class="lg-header">
+  <div class="container lg-header-inner">
+    <div class="lg-logo" id="lgHome">苏银豆商城</div>
+    <div class="lg-header-tip">还没有账号？<a href="#" id="lgHelp">联系企业管理员开通</a></div>
+  </div>
+</header>
+
+<div class="container lg-main">
+  <div class="lg-card">
+    <div class="lg-tabs">
+      <div class="lg-tab active" data-tab="phone">手机号登录</div>
+      <div class="lg-tab" data-tab="wechat">微信扫码</div>
+    </div>
+    <div class="lg-body" id="lgBody">
+      <div class="lg-form-group"><label>手机号</label><input class="lg-input" id="lgPhone" type="tel" placeholder="请输入手机号" maxlength="11"></div>
+      <div class="lg-form-group"><label>验证码</label><div class="lg-row"><input class="lg-input" id="lgCode" type="text" placeholder="请输入验证码" maxlength="6"><button type="button" class="lg-sms" id="lgSms">获取验证码</button></div></div>
+      <button type="button" class="lg-submit" id="lgSubmit">登 录</button>
+      <p class="lg-agree">登录即表示同意 <a href="#">《用户服务协议》</a> 与 <a href="#">《隐私政策》</a></p>
+    </div>
+  </div>
+</div>
+
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script>
+var HOME = ProtoPages.home;
+var returnUrl = new URLSearchParams(location.search).get('return') || HOME;
+
+ProtoAuth.initTopBar({ logged: false, cartCount: 0, afterLogout: false });
+
+document.getElementById('lgHome').onclick = function () { location.href = HOME; };
+
+function switchTab(tab) {
+  document.querySelectorAll('.lg-tab').forEach(function (el) {
+    el.classList.toggle('active', el.dataset.tab === tab);
+  });
+  var body = document.getElementById('lgBody');
+  if (tab === 'wechat') {
+    body.innerHTML = '<div class="lg-wechat"><div class="lg-qr">扫码登录</div><p>微信扫码登录</p><small>请使用企业发放的账号登录</small></div>';
+    return;
+  }
+  body.innerHTML =
+    '<div class="lg-form-group"><label>手机号</label><input class="lg-input" id="lgPhone" type="tel" placeholder="请输入手机号" maxlength="11"></div>' +
+    '<div class="lg-form-group"><label>验证码</label><div class="lg-row"><input class="lg-input" id="lgCode" type="text" placeholder="请输入验证码" maxlength="6"><button type="button" class="lg-sms" id="lgSms">获取验证码</button></div></div>' +
+    '<button type="button" class="lg-submit" id="lgSubmit">登 录</button>' +
+    '<p class="lg-agree">登录即表示同意 <a href="#">《用户服务协议》</a> 与 <a href="#">《隐私政策》</a></p>';
+  bindForm();
+}
+
+function doLogin() {
+  ProtoAuth.login();
+  location.href = returnUrl;
+}
+
+function bindForm() {
+  var sms = document.getElementById('lgSms');
+  var submit = document.getElementById('lgSubmit');
+  if (sms) sms.onclick = function () { this.textContent = '已发送'; };
+  if (submit) submit.onclick = doLogin;
+}
+
+document.querySelectorAll('.lg-tab').forEach(function (el) {
+  el.onclick = function () { switchTab(el.dataset.tab); };
+});
+bindForm();
+
+if (ProtoAuth.isLogged() && !ProtoAuth.isDemoMode()) location.replace(returnUrl);
+</script>
+</body>
+</html>

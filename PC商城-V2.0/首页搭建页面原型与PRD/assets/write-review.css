@@ -1,0 +1,30 @@
+.write-review-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:2100;display:none;align-items:center;justify-content:center;padding:20px}
+.write-review-overlay.active{display:flex}
+.write-review-modal{background:#fff;border-radius:12px;width:520px;max-width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;animation:wrIn .22s ease}
+@keyframes wrIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.write-review-hd{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid #f0f0f0}
+.write-review-hd h3{font-size:17px;font-weight:600}
+.write-review-close{width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:#999;border-radius:50%;cursor:pointer;background:none;border:none}
+.write-review-close:hover{background:#f5f5f5}
+.write-review-bd{padding:16px 20px;overflow-y:auto;flex:1}
+.write-review-goods{display:flex;gap:12px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid #f5f5f5}
+.write-review-goods img{width:64px;height:64px;object-fit:cover;border-radius:4px;background:#f8f8f8}
+.write-review-goods-name{font-size:14px;font-weight:500;line-height:1.4}
+.write-review-stars{display:flex;gap:6px;margin-bottom:16px}
+.write-review-star{width:32px;height:32px;font-size:24px;color:#ddd;cursor:pointer;line-height:32px;text-align:center;user-select:none}
+.write-review-star.on{color:#ffb400}
+.write-review-row{margin-bottom:14px}
+.write-review-row label{display:block;font-size:13px;color:#666;margin-bottom:6px}
+.write-review-row textarea{width:100%;height:96px;border:1px solid #eee;border-radius:6px;padding:10px 12px;font-size:14px;resize:none;font-family:inherit}
+.write-review-row textarea:focus{border-color:#f63218}
+.write-review-count{text-align:right;font-size:12px;color:#999;margin-top:4px}
+.write-review-upload{display:flex;gap:8px;flex-wrap:wrap}
+.write-review-upload-btn{width:72px;height:72px;border:1px dashed #ddd;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#999;font-size:24px;cursor:pointer;background:#fafafa}
+.write-review-upload-btn:hover{border-color:#f63218;color:#f63218}
+.write-review-thumb{width:72px;height:72px;border-radius:6px;object-fit:cover;background:#f8f8f8}
+.write-review-ft{display:flex;gap:12px;padding:16px 20px;border-top:1px solid #f0f0f0}
+.write-review-ft button{flex:1;height:40px;border-radius:6px;font-size:14px;cursor:pointer;font-family:inherit}
+.write-review-cancel{border:1px solid #ddd;background:#fff;color:#666}
+.write-review-cancel:hover{border-color:#f63218;color:#f63218}
+.write-review-submit{background:#f63218;border:none;color:#fff;font-weight:600}
+.write-review-submit:hover{background:#c81623}

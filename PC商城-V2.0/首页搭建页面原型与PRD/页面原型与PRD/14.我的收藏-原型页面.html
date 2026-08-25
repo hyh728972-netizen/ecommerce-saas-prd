@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的收藏 - 苏银豆商城</title>
+<link rel="stylesheet" href="../assets/topbar.css">
+<link rel="stylesheet" href="../assets/site-footer.css">
+<link rel="stylesheet" href="../assets/account-header.css">
+<link rel="stylesheet" href="../assets/account-nav.css">
+<link rel="stylesheet" href="../assets/proto-icons.css">
+<link rel="stylesheet" href="../assets/proto-toast.css">
+<link rel="stylesheet" href="../assets/float-dock.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"PingFang SC","Microsoft YaHei",sans-serif;color:rgba(0,0,0,.85);background:#f4f4f4;line-height:1.5;min-width:1600px;-webkit-font-smoothing:antialiased}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;border:none;outline:none;font-family:inherit}
+:root{--page-width:1600px;--jd-red:#f63218;--price:#ff0f12;--radius:8px;--radius-sm:6px}
+.container{width:var(--page-width);margin:0 auto}
+.pg-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f0f0f0}
+.pg-head h1{font-size:18px;font-weight:600}
+.pg-head-actions{display:flex;gap:10px}
+.pg-btn{height:36px;padding:0 16px;border-radius:var(--radius-sm);font-size:14px;border:1px solid #ddd;background:#fff;color:#666}
+.pg-btn.primary{background:var(--jd-red);border-color:var(--jd-red);color:#fff}
+.pg-body{padding:20px}
+.pg-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.pg-card{background:#fff;border:1px solid #f0f0f0;border-radius:var(--radius);overflow:hidden;position:relative;transition:box-shadow .2s}
+.pg-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.pg-card img{width:100%;aspect-ratio:1;object-fit:cover;background:#f8f8f8;cursor:pointer}
+.pg-card-info{padding:10px}
+.pg-card-name{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.pg-card-name:hover{color:var(--jd-red)}
+.pg-card-price{color:var(--price);font-weight:700;margin-top:6px;font-size:16px}
+.pg-card-ft{display:flex;gap:8px;margin-top:10px}
+.pg-card-ft button{flex:1;height:32px;font-size:12px;border-radius:var(--radius-sm);border:1px solid #ddd;background:#fff;color:#666}
+.pg-card-ft button.primary{background:var(--jd-red);border-color:var(--jd-red);color:#fff}
+.pg-card-del{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.45);color:#fff;font-size:14px;display:none;align-items:center;justify-content:center;cursor:pointer}
+.pg-card:hover .pg-card-del,.pg-card.batch .pg-card-del{display:flex}
+.pg-card-check{position:absolute;top:8px;left:8px;width:20px;height:20px;border:2px solid #fff;border-radius:4px;background:rgba(0,0,0,.3);display:none;cursor:pointer}
+.pg-card.batch .pg-card-check{display:block}
+.pg-card.batch.selected .pg-card-check{background:var(--jd-red);border-color:var(--jd-red)}
+.pg-empty{text-align:center;padding:60px 20px;color:#999}
+</style>
+</head>
+<body>
+<div id="site-topbar-root"></div>
+<header class="pd-header">
+  <div class="container">
+    <div class="pd-header-grid">
+      <div class="pd-logo" onclick="location.href=ProtoPages.home"><div class="logo-text">苏银豆商城</div><div class="logo-sub">积分好物 · 一站购齐</div></div>
+      <div><div class="pd-search"><input type="text" placeholder="搜索商品" id="searchInput"><button type="button" id="searchBtn">搜索</button></div></div>
+      <div class="pd-header-cart" onclick="location.href=ProtoPages.cart"><img class="cart-icon-img" src="https://img11.360buyimg.com/img/jfs/t1/299913/28/14314/667/68afc75cFbc268bc7/0b4232db253d0e2a.png" alt=""><span>购物车</span><div class="badge">3</div></div>
+    </div>
+    <nav class="pd-breadcrumb"><a href="01.首页-原型页面.html">首页</a> &gt; <a href="10.个人中心-原型页面.html">个人中心</a> &gt; <span>我的收藏</span></nav>
+  </div>
+</header>
+<div class="container ac-page"><div class="ac-layout"><div id="accountSidebar"></div><div class="ac-main-panel">
+<div class="pg-head"><h1>我的收藏 <span style="font-size:14px;color:#999;font-weight:400" id="favCount"></span></h1>
+<div class="pg-head-actions"><button type="button" class="pg-btn" id="batchBtn">批量管理</button><button type="button" class="pg-btn primary" id="batchDelBtn" style="display:none">删除选中</button></div></div>
+<div class="pg-body" id="favBody"></div>
+</div></div></div>
+<div id="site-footer-root"></div>
+<script src="../assets/site-footer.js"></script>
+<script src="../assets/proto-pages.js"></script>
+<script src="../assets/proto-auth.js"></script>
+<script src="../assets/topbar.js"></script>
+<script src="../assets/account-nav.js"></script>
+<script src="../assets/product-images.js"></script>
+<script src="../assets/proto-icons.js"></script>
+<script src="../assets/float-dock.js"></script>
+<script src="../assets/proto-toast.js"></script>
+<script>
+FloatDock.init({ cartCount: 15 });
+</script>
+<script>
+if (!ProtoAuth.guardPage()) void 0;
+ProtoAuth.initTopBar({ cartCount: 15 });
+AccountNav.renderSidebar('accountSidebar', 'favorites');
+var list=[
+  {id:1,name:'Apple AirPods Pro 第三代',price:1899,imgKey:'headphone'},
+  {id:2,name:'OPPO Find X9 5G 旗舰手机',price:4299,imgKey:'oppo'},
+  {id:3,name:'索尼 WH-1000XM5 头戴耳机',price:2299,imgKey:'p31'},
+  {id:4,name:'飞利浦 电动牙刷 HX9911',price:899,imgKey:'skincare'},
+  {id:5,name:'人体工学办公椅',price:1299,imgKey:'chair'},
+  {id:6,name:'轻奢护肤套装',price:680,imgKey:'p28'}
+];
+var batchMode=false,selected={};
+function render(){
+  document.getElementById('favCount').textContent='('+list.length+')';
+  if(!list.length){document.getElementById('favBody').innerHTML='<div class="pg-empty">暂无收藏商品</div>';return;}
+  document.getElementById('favBody').innerHTML='<div class="pg-grid">'+list.map(function(p){
+    return '<div class="pg-card'+(batchMode?' batch':'')+(selected[p.id]?' selected':'')+'" data-id="'+p.id+'">'+
+      '<div class="pg-card-check" onclick="toggleSel('+p.id+')"></div>'+
+      '<div class="pg-card-del" onclick="removeOne('+p.id+')">×</div>'+
+      '<img src="'+(IMG[p.imgKey]||'')+'" alt="" onclick="goDetail()">'+
+      '<div class="pg-card-info"><div class="pg-card-name" onclick="goDetail()">'+p.name+'</div><div class="pg-card-price">¥'+p.price.toLocaleString()+'</div>'+
+      '<div class="pg-card-ft"><button type="button" onclick="removeOne('+p.id+')">取消收藏</button><button type="button" class="primary" onclick="ProtoToast.show()">加入购物车</button></div></div></div>';
+  }).join('')+'</div>';
+}
+function goDetail(){location.href='04.商品详情页-原型页面.html';}
+function removeOne(id){list=list.filter(function(p){return p.id!==id;});delete selected[id];render();}
+function toggleSel(id){if(selected[id])delete selected[id];else selected[id]=1;render();}
+document.getElementById('batchBtn').onclick=function(){
+  batchMode=!batchMode;selected={};
+  document.getElementById('batchDelBtn').style.display=batchMode?'inline-block':'none';
+  document.getElementById('batchBtn').textContent=batchMode?'完成':'批量管理';
+  render();
+};
+document.getElementById('batchDelBtn').onclick=function(){
+  var ids=Object.keys(selected);if(!ids.length){ProtoToast.warn('请选择商品');return;}
+  list=list.filter(function(p){return !selected[p.id];});selected={};render();
+};
+document.getElementById('searchBtn').onclick=function(){var q=document.getElementById('searchInput').value.trim();location.href=q?ProtoPages.search+'?q='+encodeURIComponent(q):ProtoPages.search;};
+render();
+</script>
+</body>
+</html>
