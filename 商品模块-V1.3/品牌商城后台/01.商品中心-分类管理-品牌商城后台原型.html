@@ -203,6 +203,43 @@ tr.drag-source { opacity: .4; }
 .sort-editable:hover { background: var(--accent-soft); border-bottom-color: var(--accent); }
 .sort-input { width: 50px; padding: 3px 6px; border: 1px solid var(--accent); border-radius: var(--radius-sm); font-size: 12.5px; font-family: "Consolas","Monaco",monospace; text-align: center; outline: none; }
 
+/* Self-built category modal (aligned with dev system) */
+.thumb-upload { width: 80px; height: 80px; border: 1px dashed var(--border); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all var(--transition); background: var(--bg-surface); overflow: hidden; }
+.thumb-upload:hover { border-color: var(--blue); }
+.thumb-upload .thumb-plus { font-size: 26px; color: var(--text-muted); line-height: 1; }
+.thumb-upload .thumb-img { width: 100%; height: 100%; object-fit: cover; }
+.btn-modal-secondary { min-width: 64px; padding: 6px 16px; border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; cursor: pointer; border: 1px solid var(--border); background: var(--bg-surface); color: var(--text-primary); font-weight: 500; transition: all var(--transition); }
+.btn-modal-secondary:hover { border-color: var(--text-muted); }
+.btn-modal-primary { min-width: 64px; padding: 6px 16px; border-radius: var(--radius-sm); font-size: 13px; font-family: inherit; cursor: pointer; border: 1px solid var(--accent); background: var(--accent); color: #fff; font-weight: 500; transition: all var(--transition); }
+.btn-modal-primary:hover { opacity: .88; }
+
+/* Manage Products Modal */
+.manage-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+.manage-tab { padding: 8px 14px; font-size: 13px; color: var(--text-secondary); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all var(--transition); }
+.manage-tab:hover { color: var(--text-primary); }
+.manage-tab.active { color: var(--text-primary); font-weight: 500; border-bottom-color: var(--accent); }
+.manage-tab-count { display: inline-block; min-width: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent-soft); color: var(--text-secondary); font-size: 11px; text-align: center; line-height: 17px; }
+.manage-list { border: 1px solid var(--border-light); border-radius: var(--radius-sm); max-height: 320px; overflow-y: auto; }
+.manage-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid var(--border-light); font-size: 12.5px; }
+.manage-row:last-child { border-bottom: none; }
+.manage-row:hover { background: var(--bg-hover); }
+.manage-row .m-img { width: 34px; height: 34px; border-radius: var(--radius-sm); background: #e8e6e2; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.manage-row .m-info { flex: 1; min-width: 0; }
+.manage-row .m-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.manage-row .m-code { font-size: 11px; color: var(--text-muted); font-family: "Consolas","Monaco",monospace; }
+.manage-row .m-price { color: var(--text-primary); font-family: "Consolas","Monaco",monospace; flex-shrink: 0; }
+.manage-row .m-status { flex-shrink: 0; font-size: 11px; padding: 1px 8px; border-radius: 100px; }
+.m-status.on { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.m-status.off { background: var(--gray-bg); color: var(--gray); border: 1px solid var(--gray-border); }
+.manage-empty { padding: 36px 16px; text-align: center; color: var(--text-muted); font-size: 12.5px; }
+.btn-sm { padding: 4px 10px; font-size: 11.5px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg-surface); cursor: pointer; font-family: inherit; font-weight: 500; transition: all var(--transition); white-space: nowrap; }
+.btn-sm:hover { border-color: var(--text-muted); }
+.btn-sm.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-sm.danger { color: var(--red); border-color: var(--red-border); background: var(--red-bg); }
+.btn-sm.danger:hover { border-color: var(--red); }
+
+
+
 /* Mini-program preview phone frame */
 .phone-frame { width: 300px; height: 620px; background: #1a1a1c; border-radius: 38px; padding: 9px; box-shadow: 0 12px 36px rgba(0,0,0,.28); position: relative; flex-shrink: 0; }
 .phone-frame::before { content: ""; position: absolute; top: 9px; left: 50%; transform: translateX(-50%); width: 108px; height: 26px; background: #1a1a1c; border-radius: 0 0 16px 16px; z-index: 30; }
@@ -332,34 +369,32 @@ tr.drag-source { opacity: .4; }
   </div>
 </div>
 
-<!-- Modal: 新建营销分类 -->
+<!-- Modal: 新建/编辑营销分类（对齐已开发系统的自建前台分类弹窗） -->
 <div class="modal-overlay" id="newMarketModal">
-  <div class="modal">
-    <div class="modal-header"><h3>新建营销分类</h3><button class="modal-close" onclick="closeModal('newMarketModal')">✕</button></div>
+  <div class="modal" style="width:480px;">
+    <div class="modal-header"><h3 id="newCatModalTitle">新建营销分类</h3><button class="modal-close" onclick="closeModal('newMarketModal')">✕</button></div>
     <div class="modal-body">
-      <div class="form-group"><label>分类名称 <span style="color:var(--red);">*</span></label><input type="text" id="newCatName" placeholder="例如：年中大促专区" maxlength="50" oninput="checkCategoryDup()" onfocus="checkCategoryDup()"><div class="hint">限制50字以内；分类名称全局唯一，平台与自有分类之间、自有分类之间均不可重名</div><div id="catDupWarning" class="warning-box" style="display:none;margin-top:8px;"></div></div>
-      <div class="form-group"><label>所属上级</label>
-        <div class="parent-tree" id="newCatParentTree"></div>
-        <div class="hint">点击选择所属上级；不选则新建为一级分类</div>
+      <div class="form-group"><label>分类名称 <span style="color:var(--red);">*</span></label><input type="text" id="newCatName" placeholder="请输入" maxlength="30" oninput="checkCategoryDup()" onfocus="checkCategoryDup()"><div class="hint">必填，最多 30 个字符；分类名称全局唯一，平台与自有分类显示名之间、自有分类之间均不可重名</div><div id="catDupWarning" class="warning-box" style="display:none;margin-top:8px;"></div></div>
+      <div class="form-group" id="newCatIconGroup" style="display:none;"><label>分类缩略图</label>
+        <div class="thumb-upload" id="newCatThumbUpload" onclick="simulateThumbUpload()">
+          <div class="thumb-plus">+</div>
+        </div>
+        <div class="hint">建议尺寸：200*200</div>
       </div>
-      <div class="form-group"><label>节点类型</label>
-        <div style="padding:8px 12px;background:var(--bg-hover);border:1px solid var(--border-light);border-radius:var(--radius-sm);font-size:12.5px;color:var(--text-secondary);" id="newCatTypeDisplay">请先选择所属上级</div>
-        <div class="hint">节点类型由层级自动决定：一二级为目录，第三级为节点（可关联商品）</div>
-      </div>
-      <div class="form-group" id="newCatIconGroup" style="display:none;"><label>分类图标</label><div style="display:flex;align-items:center;gap:10px;"><div class="icon-placeholder" id="newCatIconPreview" style="width:40px;height:40px;">图标</div><a href="javascript:void(0)" onclick="alert('上传图标(演示)')" style="color:var(--blue);text-decoration:none;font-size:12px;">上传</a></div><div class="hint" style="color:var(--text-muted);">仅第三级节点可上传图标</div></div>
+      <div class="hint" id="newCatParentHint" style="margin-top:4px;"></div>
     </div>
-    <div class="modal-footer"><a href="javascript:void(0)" onclick="closeModal('newMarketModal')" style="color:var(--text-secondary);text-decoration:none;font-size:13px;">取消</a><a href="javascript:void(0)" onclick="saveNewMarket()" style="color:var(--accent);text-decoration:none;font-size:13px;font-weight:500;">保存</a></div>
+    <div class="modal-footer" style="justify-content:center;gap:8px;"><button class="btn-modal-secondary" onclick="closeModal('newMarketModal')">取消</button><button class="btn-modal-primary" onclick="saveNewMarket()">确定</button></div>
   </div>
 </div>
 
-<!-- Modal: 编辑平台分类 -->
+<!-- Modal: 编辑(平台)前台分类 —— 自定义前端显示名称 -->
 <div class="modal-overlay" id="editBaselineModal">
-  <div class="modal">
-    <div class="modal-header"><h3>编辑平台分类</h3><button class="modal-close" onclick="closeModal('editBaselineModal')">✕</button></div>
+  <div class="modal" style="width:520px;">
+    <div class="modal-header"><h3>编辑(平台)前台分类</h3><button class="modal-close" onclick="closeModal('editBaselineModal')">✕</button></div>
     <div class="modal-body">
-      <div class="form-group"><label>分类名称 <span style="color:var(--red);">*</span></label><input type="text" id="editBaseName" placeholder="分类名称" maxlength="50" oninput="checkBaselineDup()" onfocus="checkBaselineDup()"><div id="editBaseDupWarning" class="warning-box" style="display:none;margin-top:8px;"></div></div>
-      <div class="form-group"><label>分类图标</label><div style="display:flex;align-items:center;gap:10px;"><div class="icon-placeholder" id="editBaseIconPreview" style="width:40px;height:40px;">图标</div><a href="javascript:void(0)" onclick="alert('上传图标(演示)')" style="color:var(--blue);text-decoration:none;font-size:12px;">上传</a></div></div>
-      <div class="hint" style="margin-top:8px;color:var(--orange);">平台分类仅可修改名称和图标，其他属性由运营平台维护</div>
+      <div class="form-group"><label>前台分类名称（平台维护，不可修改）</label><input type="text" id="editBaseName" readonly style="background:var(--bg-hover);color:var(--text-secondary);cursor:not-allowed;"></div>
+      <div class="form-group"><label>自定义前端显示名称</label><input type="text" id="editBaseCustomName" placeholder="不填则取分类名称" maxlength="30"><div class="hint">限制30字以内；C端与列表将展示该名称，平台原名保留；平台再次发布不会覆盖此名称</div><div id="editBaseDupWarning" class="warning-box" style="display:none;margin-top:8px;"></div></div>
+      <div class="hint" style="margin-top:8px;color:var(--orange);">仅可自定义显示名称，分类结构、图标、类型等属性由运营平台维护</div>
     </div>
     <div class="modal-footer"><a href="javascript:void(0)" onclick="closeModal('editBaselineModal')" style="color:var(--text-secondary);text-decoration:none;font-size:13px;">取消</a><a href="javascript:void(0)" onclick="saveEditBaseline()" style="color:var(--accent);text-decoration:none;font-size:13px;font-weight:500;">保存</a></div>
   </div>
@@ -376,6 +411,40 @@ tr.drag-source { opacity: .4; }
       <span style="font-size:11px;color:var(--text-muted);">仅展示已开启C端展示的分类</span>
       <button class="btn btn-primary" onclick="closeModal('syncModal')">关闭</button>
     </div>
+  </div>
+</div>
+
+<!-- Modal: 管理商品（分类↔商品关联管理） -->
+<div class="modal-overlay" id="manageProductsModal">
+  <div class="modal" style="width:760px;">
+    <div class="modal-header"><h3 id="manageModalTitle">管理分类商品</h3><button class="modal-close" onclick="closeModal('manageProductsModal')">✕</button></div>
+    <div class="modal-body" style="padding:16px 24px;">
+      <div class="manage-tabs">
+        <div class="manage-tab active" id="mtabCurrent" onclick="switchManageTab('current')">已在该分类 <span class="manage-tab-count" id="mtabCurrentCount">0</span></div>
+        <div class="manage-tab" id="mtabAdd" onclick="switchManageTab('add')">添加商品</div>
+      </div>
+
+      <!-- Tab 1: 已在该分类 -->
+      <div id="managePaneCurrent">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <input type="text" id="manageCurrentSearch" placeholder="搜索SKU名称 / 客户商品编码" oninput="renderManageCurrent()" style="flex:1;height:32px;padding:0 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;font-family:inherit;outline:none;">
+          <button class="btn-sm danger" onclick="batchRemoveFromCate()">批量移出</button>
+        </div>
+        <div class="manage-list" id="manageCurrentList"></div>
+        <div class="hint" style="margin-top:8px;">移出仅解除该商品与本分类的关联，不影响商品在其他分类的归属，也不会下架或删除商品。</div>
+      </div>
+
+      <!-- Tab 2: 添加商品 -->
+      <div id="managePaneAdd" style="display:none;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <input type="text" id="manageAddSearch" placeholder="搜索SKU名称 / 客户商品编码" oninput="renderManageAdd()" style="flex:1;height:32px;padding:0 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;font-family:inherit;outline:none;">
+          <button class="btn-sm primary" onclick="batchAddToCate()">加入分类</button>
+        </div>
+        <div class="manage-list" id="manageAddList"></div>
+        <div class="hint" style="margin-top:8px;">仅展示本商城在售商品；已在当前分类中的商品不再重复展示。一个商品可同时属于多个分类。</div>
+      </div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="closeModal('manageProductsModal')">完成</button></div>
   </div>
 </div>
 
@@ -405,7 +474,8 @@ function toggleSection(label){label.parentElement.classList.toggle('collapsed');
 // source: 'baseline' (from ops platform) or 'self' (created in brand mall)
 var categories = [
   // 平台-基础分类（三级结构：一级目录 > 二级目录 > 三级节点）
-  { id:'B1', name:'米面粮油', type:'basic', source:'baseline', icon:'', productCount:'—', sort:1, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-08 10:00', children:[
+  // customName：商城侧自定义前端显示名称（不填则取平台原名 name）
+  { id:'B1', name:'米面粮油', customName:'粮油副食', type:'basic', source:'baseline', icon:'', productCount:'—', sort:1, visible:true, updatedBy:'王管理员', updatedAt:'2026-06-10 15:00', children:[
     { id:'B1-1', name:'大米', type:'basic', source:'baseline', icon:'', productCount:'—', sort:1, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-08 10:00', children:[
       { id:'B1-1-1', name:'五常大米', type:'basic', source:'baseline', icon:'', productCount:'45/58', sort:1, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-08 10:00' },
       { id:'B1-1-2', name:'东北珍珠米', type:'basic', source:'baseline', icon:'', productCount:'32/40', sort:2, visible:true, updatedBy:'运营平台', updatedAt:'2026-06-08 10:00' },
@@ -433,6 +503,29 @@ var categories = [
       { id:'S1-1-2', name:'节日礼盒B', type:'market', source:'self', icon:'', productCount:'28/35', sort:2, visible:true, updatedBy:'王管理员', updatedAt:'2026-06-10 11:20' },
     ]},
   ]},
+];
+
+// ========================================
+// 管理商品：本商城商品池（演示数据）
+// cateIds 记录商品当前所属的三级分类 id（一个商品可属于多个分类）
+// ========================================
+var productPool = [
+  { id:'P001', name:'五常大米 5kg', code:'SP-00101', price:39.9, status:true,  img:'🍚', cateIds:['B1-1-1'] },
+  { id:'P002', name:'东北珍珠米 10kg', code:'SP-00102', price:59.9, status:true,  img:'🍚', cateIds:['B1-1-2'] },
+  { id:'P003', name:'金龙鱼花生油 5L', code:'SP-00103', price:79.9, status:true,  img:'🫒', cateIds:['B1-2-1'] },
+  { id:'P004', name:'茅台飞天 500ml', code:'SP-00104', price:1499, status:true,  img:'🍶', cateIds:['B2-1-1'] },
+  { id:'P005', name:'红米Note 13 Pro', code:'SP-00106', price:1599, status:true,  img:'📱', cateIds:['M1-1-1'] },
+  { id:'P006', name:'华为MatePad 11', code:'SP-00109', price:2499, status:true,  img:'📟', cateIds:['M1-1-1'] },
+  { id:'P007', name:'小米手环 8 Pro', code:'SP-00114', price:329, status:true,  img:'⌚', cateIds:['M1-1-2'] },
+  { id:'P008', name:'美的空调 1.5匹', code:'SP-00107', price:3299, status:false, img:'❄️', cateIds:[] },
+  { id:'P009', name:'海尔冰箱 218L', code:'SP-00108', price:2199, status:true,  img:'🧊', cateIds:[] },
+  { id:'P010', name:'戴森V15吸尘器', code:'SP-00110', price:4490, status:true,  img:'🧹', cateIds:[] },
+  { id:'P011', name:'得力A4打印纸', code:'SP-00111', price:29.9, status:true,  img:'📄', cateIds:[] },
+  { id:'P012', name:'晨光中性笔 0.5mm', code:'SP-00112', price:15.8, status:true,  img:'✒️', cateIds:['S1-1-1'] },
+  { id:'P013', name:'坚果礼盒 1.5kg', code:'SP-00115', price:129, status:true,  img:'🥜', cateIds:['S1-1-2'] },
+  { id:'P014', name:'橄榄油礼盒 750ml×2', code:'SP-00116', price:168, status:true,  img:'🎁', cateIds:[] },
+  { id:'P015', name:'有机糙米 2.5kg', code:'SP-00117', price:45, status:true,  img:'🌾', cateIds:[] },
+  { id:'P016', name:'亚麻籽油 1L', code:'SP-00118', price:62, status:false, img:'🛢️', cateIds:[] },
 ];
 
 // State
@@ -501,7 +594,7 @@ function renderTreeNode(node, depth) {
   } else {
     html += '<span class="expand-arrow" style="visibility:hidden;">▶</span>';
   }
-  html += '<span>' + node.name + '</span>' + badgeHtml;
+  html += '<span>' + (node.customName || node.name) + '</span>' + badgeHtml;
   if (!showChildren && !hasChildren) {
     html += '<span style="margin-left:auto;font-size:10px;color:var(--text-muted);">' + (node.productCount || '0/0') + '</span>';
   }
@@ -572,7 +665,7 @@ function getFilteredData() {
   var sourceFilter = document.getElementById('filterSource')?.value || 'all';
   var visibleFilter = document.getElementById('filterVisible')?.value || 'all';
 
-  if (nameFilter) result = result.filter(function(r) { return r.node.name.toLowerCase().includes(nameFilter); });
+  if (nameFilter) result = result.filter(function(r) { var dn = (r.node.customName || r.node.name).toLowerCase(); return dn.includes(nameFilter) || r.node.name.toLowerCase().includes(nameFilter); });
   if (typeFilter !== 'all') result = result.filter(function(r) { return r.node.type === typeFilter; });
   if (sourceFilter !== 'all') result = result.filter(function(r) { return r.node.source === sourceFilter; });
   if (visibleFilter === 'show') result = result.filter(function(r) { return r.node.visible !== false; });
@@ -631,23 +724,37 @@ function renderRow(node, depth, hasChildren, isExp) {
   var rowChildClass = depth > 0 ? ' row-child' : '';
   var hiddenClass = node.visible === false ? ' disabled-row' : '';
 
-  // Operation links
-  var ops = '';
-  if (isBaseline) {
-    ops += '';
+  // 分类名称：平台分类若设置了自定义显示名，展示自定义名 + 原名小字
+  var displayName;
+  if (isBaseline && node.customName) {
+    displayName = '<span style="font-weight:500;">' + node.customName + '</span><span style="font-size:11px;color:var(--text-muted);margin-left:4px;">(' + node.name + ')</span>';
   } else {
-    ops += '<a href="javascript:void(0)" onclick="openEditSelfModal(\'' + node.id + '\')" style="color:var(--blue);text-decoration:none;font-size:12px;">编辑</a>';
+    displayName = '<span style="font-weight:500;">' + node.name + '</span>';
+  }
+
+  // Operation links
+  var isLeaf = !node.children;
+  var ops = '';
+  // 三级节点：管理商品（平台/自有均开放）
+  if (isLeaf) {
+    ops += '<a href="javascript:void(0)" onclick="openManageProducts(\'' + node.id + '\')" style="color:var(--blue);text-decoration:none;font-size:12px;">管理商品</a>';
+  }
+  if (isBaseline) {
+    // 平台分类：可编辑（自定义前端显示名称）、可管理商品，不可删除
+    ops += (ops ? ' ' : '') + '<a href="javascript:void(0)" onclick="openEditBaselineModal(\'' + node.id + '\')" style="color:var(--blue);text-decoration:none;font-size:12px;' + (isLeaf ? 'margin-left:8px;' : '') + '">编辑</a>';
+  } else {
+    ops += (ops ? ' ' : '') + '<a href="javascript:void(0)" onclick="openEditSelfModal(\'' + node.id + '\')" style="color:var(--blue);text-decoration:none;font-size:12px;' + (isLeaf ? 'margin-left:8px;' : '') + '">编辑</a>';
     ops += ' <a href="javascript:void(0)" onclick="openDeleteModal(\'' + node.id + '\')" style="color:var(--red);text-decoration:none;font-size:12px;margin-left:8px;">删除</a>';
   }
 
   return '<tr class="' + rowChildClass + hiddenClass + '" draggable="true" data-node-id="' + node.id + '" data-depth="' + depth + '" onmousedown="selectTableNode(\'' + node.id + '\')"'
     + ' ondragstart="onDragStart(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)" ondragend="onDragEnd(event)"'
     + '>'
-    + '<td><span class="tree-indent">' + indent + arrow + '</span><span class="drag-handle" title="拖拽排序">⋮⋮</span><span style="font-weight:500;">' + node.name + '</span></td>'
+    + '<td><span class="tree-indent">' + indent + arrow + '</span><span class="drag-handle" title="拖拽排序">⋮⋮</span>' + displayName + '</td>'
     + '<td>' + typeTag + '</td>'
     + '<td>' + sourceTag + '</td>'
-    + '<td><div class="icon-placeholder">' + node.name.charAt(0) + '</div></td>'
-    + '<td>' + (hasChildren ? '<span style="color:var(--text-muted);">—</span>' : '<span style="font-weight:500;">' + node.productCount + '</span>') + '</td>'
+    + '<td>' + (node.icon ? '<div class="icon-placeholder" style="font-size:16px;">' + node.icon + '</div>' : '<div class="icon-placeholder">' + (node.customName || node.name).charAt(0) + '</div>') + '</td>'
+    + '<td>' + (hasChildren ? '<span style="color:var(--text-muted);">—</span>' : '<a href="javascript:void(0)" onclick="openManageProducts(\'' + node.id + '\')" title="点击管理分类商品" style="color:var(--blue);text-decoration:none;font-weight:500;font-family:Consolas,Monaco,monospace;font-size:12.5px;">' + node.productCount + '</a>') + '</td>'
     + '<td><span class="price sort-editable" onclick="startSortEdit(event, \'' + node.id + '\')" title="点击编辑排序权重">' + (node.sort || 99) + '</span></td>'
     + '<td><div style="display:flex;align-items:center;gap:6px;">'
     + '<label class="toggle"><input type="checkbox" ' + (node.visible !== false ? 'checked' : '') + ' onchange="toggleVisible(\'' + node.id + '\')"><span class="slider"></span></label><span style="font-size:11px;color:' + (node.visible !== false ? 'var(--green)' : 'var(--text-muted)') + ';white-space:nowrap;">' + (node.visible !== false ? '显示' : '隐藏') + '</span>'
@@ -750,18 +857,18 @@ function renderPreview() {
   // 主体：左分类 + 右内容
   h += '<div class="mp-cat-body"><div class="mp-cat-left">';
   cats.forEach(function(c, i) {
-    h += '<div class="mp-cat-item' + (i === previewSelIdx ? ' active' : '') + '" onclick="previewSelect(' + i + ')">' + c.name + '</div>';
+    h += '<div class="mp-cat-item' + (i === previewSelIdx ? ' active' : '') + '" onclick="previewSelect(' + i + ')">' + (c.customName || c.name) + '</div>';
   });
   h += '</div><div class="mp-cat-right">';
   // Banner
-  h += '<div class="mp-banner">' + active.name + ' · 精选好物</div>';
+  h += '<div class="mp-banner">' + (active.customName || active.name) + ' · 精选好物</div>';
   // 子分类/宫格
-  h += '<div class="mp-grp-title">' + active.name + (active.children && active.children.length ? ' 子分类' : '') + '</div>';
+  h += '<div class="mp-grp-title">' + (active.customName || active.name) + (active.children && active.children.length ? ' 子分类' : '') + '</div>';
   h += '<div class="mp-grid">';
   var subs = (active.children && active.children.length) ? active.children : null;
   if (subs) {
     subs.forEach(function(s, i) {
-      h += '<div class="mp-cell"><div class="ic">' + previewIcons[i % previewIcons.length] + '</div><div class="nm">' + s.name + '</div></div>';
+      h += '<div class="mp-cell"><div class="ic">' + previewIcons[i % previewIcons.length] + '</div><div class="nm">' + (s.customName || s.name) + '</div></div>';
     });
   } else {
     var labels = ['全部', '精选', '热销', '新品', '优惠', '套装'];
@@ -795,66 +902,49 @@ var tableSelectedNode = null;
 var newParentId = ''; // 新建营销分类时树选中的所属上级
 function getDepth(id){ function d(ns,p){ for(var i=0;i<ns.length;i++){ if(ns[i].id===id) return p; if(ns[i].children){ var r=d(ns[i].children,p+1); if(r>=0) return r; } } return -1; } return d(categories,0); }
 
-function updateNewCatTypeByParent() {
-  var display = document.getElementById('newCatTypeDisplay');
+// 按所属上级层级决定新建层级与缩略图显隐（一二级=目录无缩略图，三级=节点可传缩略图）
+function updateNewCatFormByParent() {
   var iconGroup = document.getElementById('newCatIconGroup');
+  var hint = document.getElementById('newCatParentHint');
   var pid = newParentId;
-  if (!pid) {
-    // 一级分类 = 目录
-    display.textContent = '目录（一级分类）';
+  var parentDepth = pid ? getDepth(pid) : -1;
+  if (parentDepth >= 2) {
+    // 父是三级（叶子）→ 不允许再加子级
     iconGroup.style.display = 'none';
+    hint.textContent = '所选上级已是第三级节点，不可继续添加子级';
+    hint.style.color = 'var(--red)';
+  } else if (parentDepth === 1) {
+    // 父是二级 → 新建三级节点，可传缩略图
+    iconGroup.style.display = 'block';
+    hint.textContent = '将新建为「' + findNode(pid).name + '」下的三级节点（可关联商品）';
+    hint.style.color = 'var(--text-muted)';
+  } else if (parentDepth === 0) {
+    // 父是一级 → 新建二级目录
+    iconGroup.style.display = 'none';
+    hint.textContent = '将新建为「' + findNode(pid).name + '」下的二级目录';
+    hint.style.color = 'var(--text-muted)';
   } else {
-    var parentDepth = getDepth(pid); // 父级深度：0=一级,1=二级
-    if (parentDepth === 0) {
-      // 父是一级 → 新建的是二级 = 目录
-      display.textContent = '目录（二级分类）';
-      iconGroup.style.display = 'none';
-    } else if (parentDepth === 1) {
-      // 父是二级 → 新建的是三级 = 节点
-      display.textContent = '节点（三级分类，可关联商品）';
-      iconGroup.style.display = 'block';
-    } else {
-      // 父是三级 → 不允许再加子级（三级是叶子）
-      display.textContent = '已达最大层级，不可继续添加';
-      iconGroup.style.display = 'none';
-    }
+    // 无上级 → 新建一级目录
+    iconGroup.style.display = 'none';
+    hint.textContent = '未选择所属上级时，将新建为一级目录';
+    hint.style.color = 'var(--text-muted)';
   }
 }
 
-// 渲染所属上级树（只列一级、二级自有营销分类）
-function renderParentTree() {
-  var container = document.getElementById('newCatParentTree');
-  var html = '';
-  // 一级（无上级）选项
-  html += '<div class="parent-tree-item' + (newParentId === '' ? ' selected' : '') + '" onclick="selectParentNode(\'\')"><span class="radio-dot"></span>一级分类（无上级）</div>';
-  function addTree(nodes, depth) {
-    nodes.forEach(function(n) {
-      if (n.type === 'market' && n.source === 'self') {
-        var d = getDepth(n.id);
-        if (d <= 1) { // 只显示一级、二级
-          var indent = '&nbsp;&nbsp;&nbsp;&nbsp;'.repeat(d);
-          html += '<div class="parent-tree-item' + (newParentId === n.id ? ' selected' : '') + '" onclick="selectParentNode(\'' + n.id + '\')" style="padding-left:' + (12 + d * 20) + 'px;"><span class="radio-dot"></span>' + n.name + '</div>';
-        }
-        if (n.children) addTree(n.children, depth + 1);
-      }
-    });
-  }
-  addTree(categories, 0);
-  if (html === '<div class="parent-tree-item' + (newParentId === '' ? ' selected' : '') + '" onclick="selectParentNode(\'\')"><span class="radio-dot"></span>一级分类（无上级）</div>') {
-    html += '<div class="parent-tree-empty">暂无可选的上级分类，将新建为一级分类</div>';
-  }
-  container.innerHTML = html;
-}
-
-function selectParentNode(id) {
-  newParentId = id;
-  renderParentTree();
-  updateNewCatTypeByParent();
+// 缩略图上传（演示）
+var _thumbEmoji = ['🏷️', '🎁', '🎊', '🛍️', '📦'];
+function simulateThumbUpload() {
+  var box = document.getElementById('newCatThumbUpload');
+  var emoji = _thumbEmoji[Math.floor(Math.random() * _thumbEmoji.length)];
+  box.innerHTML = '<div class="thumb-img" style="display:flex;align-items:center;justify-content:center;font-size:32px;background:var(--accent-soft);">' + emoji + '</div>';
+  showToast('info', '缩略图已上传（演示）');
 }
 
 function openNewMarketModal() {
   document.getElementById('newCatName').value = '';
-  // 自动填表格选中行（点击表格行后，新建时所属上级自动选中该行）
+  document.getElementById('newCatModalTitle').textContent = '新建营销分类';
+  document.getElementById('newCatThumbUpload').innerHTML = '<div class="thumb-plus">+</div>';
+  // 自动填表格选中行（点击表格行后，新建时作为所属上级）
   if (tableSelectedNode) {
     var sd = getDepth(tableSelectedNode.id);
     if (sd >= 0 && sd <= 1 && tableSelectedNode.type === 'market' && tableSelectedNode.source === 'self') {
@@ -867,20 +957,19 @@ function openNewMarketModal() {
   }
   editTarget = null;
   document.getElementById('catDupWarning').style.display = 'none';
-  renderParentTree();
-  updateNewCatTypeByParent();
+  updateNewCatFormByParent();
   openModal('newMarketModal');
 }
 
 // ========================================
-// 查重：自有分类名称 不可与 平台分类 同名（自有之间可重名）
-// 忽略大小写、去首尾空格
+// 查重：显示名全局唯一（忽略大小写、去首尾空格）
+// 显示名集合 = 各节点 customName || name，平台与自有之间、各自内部均不可重复
 // ========================================
 function collectAllNames() {
   var names = [];
   (function walk(nodes) {
     nodes.forEach(function(n) {
-      names.push(n.name);
+      names.push(n.customName || n.name);
       if (n.children) walk(n.children);
     });
   })(categories);
@@ -893,11 +982,11 @@ function checkCategoryDup() {
   if (!input || !warn) return true;
   var val = input.value.trim().toLowerCase();
   if (!val) { warn.style.display = 'none'; return true; }
-  // 编辑自有时，排除自身
+  // 编辑自有时，排除自身当前显示名
   var selfName = '';
   if (editTarget) {
     var selfNode = findNode(editTarget);
-    if (selfNode) selfName = selfNode.name.trim().toLowerCase();
+    if (selfNode) selfName = (selfNode.customName || selfNode.name).trim().toLowerCase();
   }
   var hit = null;
   collectAllNames().forEach(function(raw) {
@@ -905,7 +994,7 @@ function checkCategoryDup() {
   });
   if (hit) {
     warn.style.display = 'flex';
-    warn.innerHTML = '<span style="font-size:18px;">⚠</span><div>分类名称「<strong>' + hit + '</strong>」已存在（平台/自有分类均不可重名），请修改。</div>';
+    warn.innerHTML = '<span style="font-size:18px;">⚠</span><div>分类名称「<strong>' + hit + '</strong>」已存在（平台/自有分类显示名均不可重名），请修改。</div>';
     return false;
   }
   warn.style.display = 'none';
@@ -915,14 +1004,17 @@ function checkCategoryDup() {
 function saveNewMarket() {
   var name = document.getElementById('newCatName').value.trim();
   if (!name) { showToast('info', '请输入分类名称'); return; }
-  // 查重：自有新建 不可与 平台分类 同名
-  if (editTarget) {
-    // 编辑自有分类时也查重（自身名除外）
-    if (!checkCategoryDup()) { showToast('info', '分类名称与平台分类重复，请修改'); return; }
-  } else {
-    if (!checkCategoryDup()) { showToast('info', '分类名称与平台分类重复，请修改'); return; }
-  }
+  if (name.length > 30) { showToast('info', '分类名称最多输入 30 个字符'); return; }
+  // 查重（编辑时排除自身）
+  if (!checkCategoryDup()) { showToast('info', '分类名称与已有分类重复，请修改'); return; }
+  // 读取缩略图（演示：从上传框取 emoji 字符）
+  var thumbBox = document.getElementById('newCatThumbUpload');
+  var thumbEl = thumbBox ? thumbBox.querySelector('.thumb-img') : null;
+  var thumbIcon = thumbEl ? (thumbEl.textContent || '').trim() : '';
+
   var parentId = newParentId;
+  // 新建：层级约束（父为三级节点时禁止）
+  if (!editTarget && parentId && getDepth(parentId) >= 2) { showToast('info', '所选上级已是第三级节点，不可继续添加子级'); return; }
   // 节点类型由层级自动决定：一二级=目录，三级=节点
   var nodeType = parentId ? (getDepth(parentId) >= 1 ? 'leaf' : 'dir') : 'dir';
 
@@ -931,19 +1023,19 @@ function saveNewMarket() {
     var node = findNode(editTarget);
     if (node) {
       node.name = name;
+      if (node.icon !== undefined && thumbIcon) node.icon = thumbIcon; // 三级节点更新缩略图
       node.updatedBy = '王管理员';
       node.updatedAt = nowStr();
     }
     closeModal('newMarketModal');
     renderTree(); renderTable();
-    document.getElementById('syncBadge').style.display = 'inline-block';
     editTarget = null;
     showToast('success', '营销分类「' + name + '」已更新');
     return;
   }
 
   var newNode = {
-    id: 'S' + Date.now(), name: name, type: 'market', source: 'self', icon: '',
+    id: 'S' + Date.now(), name: name, type: 'market', source: 'self', icon: nodeType === 'leaf' ? (thumbIcon || '') : '',
     productCount: nodeType === 'dir' ? '—' : '0/0',
     sort: 99, visible: true, updatedBy: '王管理员', updatedAt: nowStr(),
     children: nodeType === 'dir' ? [] : undefined
@@ -963,32 +1055,42 @@ function saveNewMarket() {
   showToast('success', '营销分类「' + name + '」已创建');
 }
 
+// ========================================
+// 编辑(平台)前台分类：自定义前端显示名称
+// ========================================
 function openEditBaselineModal(id) {
   var node = findNode(id); if (!node) return;
   editTarget = id;
   document.getElementById('editBaseName').value = node.name;
+  document.getElementById('editBaseCustomName').value = node.customName || '';
   document.getElementById('editBaseDupWarning').style.display = 'none';
   openModal('editBaselineModal');
 }
 
-// 查重：编辑平台分类时，改名不得与其它平台分类重名
+// 查重：自定义显示名不得与全树其它分类的显示名重复
+// （显示名集合 = 各节点 customName || name；自身当前显示名不参与查重）
 function checkBaselineDup() {
-  var input = document.getElementById('editBaseName');
+  var input = document.getElementById('editBaseCustomName');
   var warn = document.getElementById('editBaseDupWarning');
   if (!input || !warn || !editTarget) return true;
   var selfNode = findNode(editTarget);
   if (!selfNode) return true;
   var val = input.value.trim().toLowerCase();
   if (!val) { warn.style.display = 'none'; return true; }
-  var selfName = selfNode.name.trim().toLowerCase();
-  if (val === selfName) { warn.style.display = 'none'; return true; } // 未改名
+  var selfDisplay = (selfNode.customName || selfNode.name).trim().toLowerCase();
+  if (val === selfDisplay) { warn.style.display = 'none'; return true; } // 未改名
   var hit = null;
-  collectAllNames().forEach(function(raw) {
-    if (raw.trim().toLowerCase() === val) hit = raw.trim();
-  });
+  (function walk(nodes) {
+    nodes.forEach(function(n) {
+      if (n === selfNode) return;
+      var display = (n.customName || n.name).trim().toLowerCase();
+      if (display === val) hit = n.customName || n.name;
+      if (n.children) walk(n.children);
+    });
+  })(categories);
   if (hit) {
     warn.style.display = 'flex';
-    warn.innerHTML = '<span style="font-size:18px;">⚠</span><div>分类名称「<strong>' + hit + '</strong>」已存在（平台/自有分类均不可重名），请修改。</div>';
+    warn.innerHTML = '<span style="font-size:18px;">⚠</span><div>显示名称「<strong>' + hit + '</strong>」已存在（与其它分类显示名重复），请修改。</div>';
     return false;
   }
   warn.style.display = 'none';
@@ -996,19 +1098,16 @@ function checkBaselineDup() {
 }
 
 function saveEditBaseline() {
-  var name = document.getElementById('editBaseName').value.trim();
-  if (!name) { showToast('info', '请输入分类名称'); return; }
-  if (!checkBaselineDup()) { showToast('info', '分类名称与平台分类重复，请修改'); return; }
+  if (!checkBaselineDup()) { showToast('info', '显示名称与其它分类重复，请修改'); return; }
   var node = findNode(editTarget);
-  if (node) {
-    node.name = name;
-    node.updatedBy = '王管理员';
-    node.updatedAt = nowStr();
-  }
+  if (!node) return;
+  var customName = document.getElementById('editBaseCustomName').value.trim();
+  node.customName = customName || null; // 留空则恢复取平台原名
+  node.updatedBy = '王管理员';
+  node.updatedAt = nowStr();
   closeModal('editBaselineModal');
   renderTree(); renderTable();
-  document.getElementById('syncBadge').style.display = 'inline-block';
-  showToast('success', '平台分类已更新（名称/图标）');
+  showToast('success', customName ? '已自定义显示名称「' + customName + '」' : '已恢复平台原名「' + node.name + '」');
 }
 
 function selectTableNode(id) {
@@ -1026,15 +1125,143 @@ function selectTableNode(id) {
 }
 
 function openEditSelfModal(id) {
-  // Reuse new market modal for editing self-owned categories
+  // 编辑自有营销分类：复用弹窗（对齐开发的「编辑自建前台分类」= 名称 + 缩略图）
   var node = findNode(id); if (!node) return;
   editTarget = id;
+  newParentId = '';
+  document.getElementById('newCatModalTitle').textContent = '编辑营销分类';
   document.getElementById('newCatName').value = node.name;
-  document.querySelector('input[name="newCatType"][value="' + (node.children ? 'dir' : 'leaf') + '"]').checked = true;
-  var sel = document.getElementById('newCatParent');
-  sel.innerHTML = '<option value="">一级分类（无上级）</option>';
+  // 三级节点显示缩略图（有则回显）
+  var isLeaf = !node.children;
+  document.getElementById('newCatIconGroup').style.display = isLeaf ? 'block' : 'none';
+  var box = document.getElementById('newCatThumbUpload');
+  box.innerHTML = node.icon
+    ? '<div class="thumb-img" style="display:flex;align-items:center;justify-content:center;font-size:32px;background:var(--accent-soft);">' + node.icon + '</div>'
+    : '<div class="thumb-plus">+</div>';
+  document.getElementById('newCatParentHint').textContent = '';
+  document.getElementById('catDupWarning').style.display = 'none';
   openModal('newMarketModal');
-  // Override save to edit mode
+}
+
+// ========================================
+// 管理商品（分类↔商品关联管理）
+// ========================================
+var manageTargetCate = null; // 当前管理的三级分类节点
+var manageTab = 'current';  // 'current' | 'add'
+var manageRemoveChecks = {}; // 已在该分类：勾选的商品 id
+var manageAddChecks = {};    // 添加商品：勾选的商品 id
+
+function cateProducts(cid) {
+  return productPool.filter(function(p) { return p.cateIds.indexOf(cid) >= 0; });
+}
+
+function refreshCateCount(node) {
+  if (!node || node.children) return; // 仅三级节点
+  var pros = cateProducts(node.id);
+  var on = pros.filter(function(p) { return p.status; }).length;
+  node.productCount = on + '/' + pros.length;
+}
+
+function openManageProducts(id) {
+  var node = findNode(id);
+  if (!node) return;
+  if (node.children) { showToast('info', '仅三级分类节点可管理商品'); return; }
+  manageTargetCate = node;
+  manageRemoveChecks = {};
+  manageAddChecks = {};
+  manageTab = 'current';
+  document.getElementById('manageModalTitle').textContent = '管理分类商品 - ' + (node.customName || node.name);
+  var cs = document.getElementById('manageCurrentSearch'); if (cs) cs.value = '';
+  var as = document.getElementById('manageAddSearch'); if (as) as.value = '';
+  switchManageTab('current');
+  openModal('manageProductsModal');
+}
+
+function switchManageTab(tab) {
+  manageTab = tab;
+  document.getElementById('mtabCurrent').classList.toggle('active', tab === 'current');
+  document.getElementById('mtabAdd').classList.toggle('active', tab === 'add');
+  document.getElementById('managePaneCurrent').style.display = tab === 'current' ? 'block' : 'none';
+  document.getElementById('managePaneAdd').style.display = tab === 'add' ? 'block' : 'none';
+  if (tab === 'current') renderManageCurrent(); else renderManageAdd();
+}
+
+function manageRowHtml(p, checked, action) {
+  var statusHtml = p.status
+    ? '<span class="m-status on">在售</span>'
+    : '<span class="m-status off">已下架</span>';
+  return '<div class="manage-row">'
+    + '<input type="checkbox" style="width:14px;height:14px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;" ' + (checked ? 'checked ' : '') + 'onchange="toggleManageCheck(\'' + action + '\',\'' + p.id + '\',this.checked)">'
+    + '<div class="m-img">' + p.img + '</div>'
+    + '<div class="m-info"><div class="m-name">' + p.name + '</div><div class="m-code">客户商品编码：' + p.code + '</div></div>'
+    + statusHtml
+    + '<span class="m-price">¥' + p.price + '</span>'
+    + '</div>';
+}
+
+function toggleManageCheck(action, pid, on) {
+  var map = action === 'remove' ? manageRemoveChecks : manageAddChecks;
+  if (on) map[pid] = true; else delete map[pid];
+}
+
+function renderManageCurrent() {
+  if (!manageTargetCate) return;
+  var kw = (document.getElementById('manageCurrentSearch').value || '').trim().toLowerCase();
+  var list = cateProducts(manageTargetCate.id);
+  if (kw) list = list.filter(function(p) { return p.name.toLowerCase().indexOf(kw) >= 0 || p.code.toLowerCase().indexOf(kw) >= 0; });
+  document.getElementById('mtabCurrentCount').textContent = cateProducts(manageTargetCate.id).length;
+  var el = document.getElementById('manageCurrentList');
+  if (!list.length) {
+    el.innerHTML = '<div class="manage-empty">' + (kw ? '未找到匹配商品' : '该分类下暂无商品，可切换到「添加商品」加入') + '</div>';
+    return;
+  }
+  el.innerHTML = list.map(function(p) { return manageRowHtml(p, !!manageRemoveChecks[p.id], 'remove'); }).join('');
+}
+
+function renderManageAdd() {
+  if (!manageTargetCate) return;
+  var kw = (document.getElementById('manageAddSearch').value || '').trim().toLowerCase();
+  // 候选 = 本商城商品 - 已在该分类的（含已下架商品，加入后不可见但保留关联）
+  var inCate = {};
+  cateProducts(manageTargetCate.id).forEach(function(p) { inCate[p.id] = true; });
+  var list = productPool.filter(function(p) { return !inCate[p.id]; });
+  if (kw) list = list.filter(function(p) { return p.name.toLowerCase().indexOf(kw) >= 0 || p.code.toLowerCase().indexOf(kw) >= 0; });
+  var el = document.getElementById('manageAddList');
+  if (!list.length) {
+    el.innerHTML = '<div class="manage-empty">' + (kw ? '未找到匹配商品' : '没有可添加的商品') + '</div>';
+    return;
+  }
+  el.innerHTML = list.map(function(p) { return manageRowHtml(p, !!manageAddChecks[p.id], 'add'); }).join('');
+}
+
+function batchRemoveFromCate() {
+  var ids = Object.keys(manageRemoveChecks);
+  if (!ids.length) { showToast('info', '请先勾选要移出的商品'); return; }
+  var cid = manageTargetCate.id;
+  ids.forEach(function(pid) {
+    var p = productPool.find(function(x) { return x.id === pid; });
+    if (p) p.cateIds = p.cateIds.filter(function(c) { return c !== cid; });
+  });
+  manageRemoveChecks = {};
+  refreshCateCount(manageTargetCate);
+  renderTree(); renderTable();
+  renderManageCurrent();
+  showToast('success', '已将 ' + ids.length + ' 件商品移出「' + (manageTargetCate.customName || manageTargetCate.name) + '」');
+}
+
+function batchAddToCate() {
+  var ids = Object.keys(manageAddChecks);
+  if (!ids.length) { showToast('info', '请先勾选要加入的商品'); return; }
+  var cid = manageTargetCate.id;
+  ids.forEach(function(pid) {
+    var p = productPool.find(function(x) { return x.id === pid; });
+    if (p && p.cateIds.indexOf(cid) < 0) p.cateIds.push(cid);
+  });
+  manageAddChecks = {};
+  refreshCateCount(manageTargetCate);
+  renderTree(); renderTable();
+  renderManageAdd();
+  showToast('success', '已将 ' + ids.length + ' 件商品加入「' + (manageTargetCate.customName || manageTargetCate.name) + '」');
 }
 
 function openDeleteModal(id) {
