@@ -1,0 +1,1272 @@
+/* ============================================================
+   CS 鍟嗗煄瀹㈡湇绯荤粺 鈥?鍘熷瀷璁捐缁熶竴鏍峰紡锛堣璁＄郴缁?V2锛?
+   Unified Design System for Prototype (P06)
+   ============================================================
+   - 绠＄悊绔?Admin: Ant Design v5 style (#1677ff primary)
+   - 鐢ㄦ埛绔?User:  Mobile chat style (375px, iOS-like)
+   - Phase3 AI:    Dashboard dark theme accents
+   ============================================================ */
+
+/* ============================================================
+   1. Design Tokens (CSS Custom Properties)
+   ============================================================ */
+:root {
+  /* --- Color Tokens --- */
+  --cs-primary: #1677ff;
+  --cs-primary-hover: #4096ff;
+  --cs-primary-active: #0958d9;
+  --cs-primary-bg: #e6f4ff;
+
+  --cs-success: #52c41a;
+  --cs-success-hover: #73d13d;
+  --cs-success-bg: #f6ffed;
+
+  --cs-warning: #faad14;
+  --cs-warning-hover: #ffc53d;
+  --cs-warning-bg: #fffbe6;
+
+  --cs-danger: #f5222d;
+  --cs-danger-hover: #ff7875;
+  --cs-danger-bg: #fff1f0;
+
+  --cs-purple: #722ed1;
+  --cs-purple-hover: #9254de;
+  --cs-purple-bg: #f9f0ff;
+
+  --cs-orange: #fa8c16;
+  --cs-orange-hover: #ffa940;
+  --cs-orange-bg: #fff7e6;
+
+  /* --- Neutral Palette --- */
+  --cs-text: #1f1f1f;
+  --cs-text-secondary: #595959;
+  --cs-text-tertiary: #8c8c8c;
+  --cs-text-placeholder: #bfbfbf;
+
+  --cs-border: #d9d9d9;
+  --cs-border-light: #f0f0f0;
+  --cs-border-lighter: #f5f5f5;
+
+  --cs-bg-page: #f0f2f5;
+  --cs-bg-card: #ffffff;
+  --cs-bg-header: #fafafa;
+  --cs-bg-hover: #fafafa;
+
+  --cs-shadow-sm: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-md: 0 2px 8px rgba(0,0,0,0.06);
+  --cs-shadow-card: 0 1px 2px rgba(0,0,0,0.03);
+  --cs-shadow-card-hover: 0 4px 16px rgba(0,0,0,0.08);
+
+  /* --- Spacing Scale (4px grid) --- */
+  --cs-space-1: 4px;
+  --cs-space-2: 8px;
+  --cs-space-3: 12px;
+  --cs-space-4: 16px;
+  --cs-space-5: 20px;
+  --cs-space-6: 24px;
+  --cs-space-8: 32px;
+
+  /* --- Typography --- */
+  --cs-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --cs-font-size-xs: 11px;
+  --cs-font-size-sm: 12px;
+  --cs-font-size-base: 13px;
+  --cs-font-size-md: 14px;
+  --cs-font-size-lg: 15px;
+  --cs-font-size-xl: 16px;
+  --cs-font-size-2xl: 20px;
+  --cs-font-size-3xl: 28px;
+
+  --cs-font-weight-normal: 400;
+  --cs-font-weight-medium: 500;
+  --cs-font-weight-semibold: 600;
+  --cs-font-weight-bold: 700;
+
+  /* --- Border Radius --- */
+  --cs-radius-xs: 4px;
+  --cs-radius-sm: 6px;
+  --cs-radius-md: 8px;
+  --cs-radius-lg: 10px;
+  --cs-radius-xl: 12px;
+
+  /* --- Transitions --- */
+  --cs-transition-fast: all 0.15s ease;
+  --cs-transition-normal: all 0.2s ease;
+
+  /* --- Avatar Sizes --- */
+  --cs-avatar-xs: 24px;
+  --cs-avatar-sm: 28px;
+  --cs-avatar-md: 32px;
+  --cs-avatar-lg: 40px;
+  --cs-avatar-xl: 48px;
+
+  /* --- Dark Theme Tokens (AI pages) --- */
+  --cs-dark-bg: #141414;
+  --cs-dark-surface: #1f1f1f;
+  --cs-dark-elevated: #2a2a2a;
+  --cs-dark-border: #303030;
+  --cs-dark-text: rgba(255,255,255,0.85);
+  --cs-dark-text-muted: rgba(255,255,255,0.45);
+}
+
+/* ============================================================
+   2. Reset & Base
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--cs-font-family);
+  font-size: var(--cs-font-size-md);
+  color: var(--cs-text);
+  background: var(--cs-bg-page);
+  line-height: 1.5;
+}
+a { color: var(--cs-primary); text-decoration: none; }
+
+/* ============================================================
+   3. Admin Layout (Ant Design v5)
+   ============================================================ */
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+.admin-sidebar {
+  width: 208px;
+  background: var(--cs-bg-card);
+  color: var(--cs-text);
+  padding: 0;
+  flex-shrink: 0;
+  border-right: 1px solid var(--cs-border-light);
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  overflow-y: auto;
+}
+.admin-sidebar .logo {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cs-text);
+  font-size: var(--cs-font-size-lg);
+  font-weight: var(--cs-font-weight-semibold);
+  border-bottom: 1px solid var(--cs-border-light);
+  margin-bottom: 0;
+}
+.admin-sidebar .menu-item {
+  display: block;
+  padding: 10px 24px;
+  cursor: pointer;
+  transition: var(--cs-transition-normal);
+  font-size: var(--cs-font-size-md);
+  color: var(--cs-text-secondary);
+  text-decoration: none;
+}
+.admin-sidebar .menu-item:hover { background: var(--cs-bg-hover); color: var(--cs-primary); }
+.admin-sidebar .menu-item.active { background: var(--cs-primary-bg); color: var(--cs-primary); font-weight: var(--cs-font-weight-medium); }
+.admin-sidebar .menu-item .menu-ver {
+  margin-left: 6px;
+  font-size: 10px;
+  color: var(--cs-text-tertiary);
+  background: var(--cs-border-light);
+  padding: 0 5px;
+  border-radius: 8px;
+  font-weight: var(--cs-font-weight-medium);
+  vertical-align: middle;
+}
+/* mo 商城运营后台侧栏版本角标(同款;2026-07-27 十轮:订单列表/客服工单/工单配置 标 V1.5) */
+.mo-sub-item .menu-ver {
+  margin-left: 6px;
+  font-size: 10px;
+  color: var(--cs-text-tertiary);
+  background: var(--cs-border-light);
+  padding: 0 5px;
+  border-radius: 8px;
+  font-weight: var(--cs-font-weight-medium);
+  vertical-align: middle;
+}
+
+.admin-header {
+  height: 56px;
+  background: var(--cs-bg-card);
+  border-bottom: 1px solid var(--cs-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.admin-header .breadcrumb { color: var(--cs-text-tertiary); font-size: var(--cs-font-size-base); }
+.admin-header .user-info { display: flex; align-items: center; gap: var(--cs-space-2); }
+
+.admin-content {
+  flex: 1;
+  padding: var(--cs-space-6);
+  overflow-y: auto;
+  background: var(--cs-bg-page);
+}
+
+/* ---------- Sidebar Group Title ---------- */
+.sidebar-menu-group-title {
+  padding: 8px 24px 4px;
+  font-size: var(--cs-font-size-xs);
+  color: var(--cs-text-tertiary);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ---------- 菜单：独立一级项 + 可折叠分组（会话管理 / 知识库） ---------- */
+.admin-sidebar .nav-group-head {
+  display: flex;
+  align-items: center;
+  gap: var(--cs-space-2);
+  padding: 10px 24px;
+  font-size: var(--cs-font-size-md);
+  color: var(--cs-text);
+  cursor: pointer;
+  user-select: none;
+}
+.admin-sidebar .nav-group-head:hover { background: var(--cs-bg-hover); }
+.admin-sidebar .nav-group-head .gp-icon { width: 16px; height: 16px; flex-shrink: 0; }
+.admin-sidebar .nav-group-head .gp-label { flex: 1; }
+.admin-sidebar .nav-group-head .gp-chev { width: 12px; height: 12px; opacity: 0.4; transition: transform 0.2s; }
+.admin-sidebar .nav-group.collapsed .gp-chev { transform: rotate(-90deg); }
+.admin-sidebar .nav-group.collapsed .nav-group-body { display: none; }
+.admin-sidebar .menu-item.nav-sub { padding-left: 48px; color: var(--cs-text-secondary); }
+.admin-sidebar .menu-item.nav-sub:hover { background: var(--cs-bg-hover); color: var(--cs-primary); }
+.admin-sidebar .menu-item.nav-sub.active { color: var(--cs-primary); background: var(--cs-primary-bg); font-weight: var(--cs-font-weight-medium); }
+
+/* ============================================================
+   4. Card
+   ============================================================ */
+.card {
+  background: var(--cs-bg-card);
+  border-radius: var(--cs-radius-md);
+  border: 1px solid var(--cs-border-light);
+  padding: var(--cs-space-5);
+  box-shadow: var(--cs-shadow-card);
+}
+.card-title {
+  font-size: var(--cs-font-size-lg);
+  font-weight: var(--cs-font-weight-semibold);
+  margin-bottom: var(--cs-space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ============================================================
+   5. Buttons
+   ============================================================ */
+.btn-primary {
+  background: var(--cs-primary);
+  color: #fff;
+  border: none;
+  padding: 6px 16px;
+  border-radius: var(--cs-radius-sm);
+  font-size: var(--cs-font-size-md);
+  cursor: pointer;
+  transition: var(--cs-transition-normal);
+}
+.btn-primary:hover { background: var(--cs-primary-hover); }
+
+.btn-default {
+  background: var(--cs-bg-card);
+  color: var(--cs-text);
+  border: 1px solid var(--cs-border);
+  padding: 6px 16px;
+  border-radius: var(--cs-radius-sm);
+  font-size: var(--cs-font-size-md);
+  cursor: pointer;
+  transition: var(--cs-transition-normal);
+}
+.btn-default:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+
+/* mo 商城运营后台内容区按钮统一收敛(2026-07-27 十一轮:工单列表/订单列表/详情/建单 全局一致;
+   原为详情/建单页内覆盖,十一轮上移全局,两列表页同步生效) */
+.mo-content .btn-primary, .mo-content .btn-default { font-size: var(--cs-font-size-base); padding: 5px 14px; }
+
+.btn-sm {
+  padding: 3px 10px;
+  font-size: var(--cs-font-size-base);
+  border-radius: var(--cs-radius-xs);
+}
+.btn-danger {
+  background: var(--cs-danger-bg);
+  color: var(--cs-danger);
+  border: 1px solid #ffccc7;
+  padding: 6px 16px;
+  border-radius: var(--cs-radius-sm);
+  font-size: var(--cs-font-size-md);
+  cursor: pointer;
+  transition: var(--cs-transition-normal);
+}
+.btn-danger:hover { border-color: var(--cs-danger); }
+
+.btn-success {
+  background: var(--cs-success-bg);
+  color: var(--cs-success);
+  border: 1px solid #b7eb8f;
+  padding: 6px 16px;
+  border-radius: var(--cs-radius-sm);
+  font-size: var(--cs-font-size-md);
+  cursor: pointer;
+  transition: var(--cs-transition-normal);
+}
+.btn-success:hover { border-color: var(--cs-success); }
+
+.btn-text {
+  background: none;
+  border: none;
+  color: var(--cs-primary);
+  padding: 4px 8px;
+  font-size: var(--cs-font-size-md);
+  cursor: pointer;
+  transition: var(--cs-transition-normal);
+}
+.btn-text:hover { color: var(--cs-primary-hover); }
+
+/* ============================================================
+   6. Tags & Status
+   ============================================================ */
+.tag-urgent {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--cs-danger-bg);
+  color: var(--cs-danger);
+  border: 1px solid #ffccc7;
+  border-radius: var(--cs-radius-xs);
+  font-size: var(--cs-font-size-sm);
+}
+.tag-normal {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--cs-success-bg);
+  color: var(--cs-success);
+  border: 1px solid #b7eb8f;
+  border-radius: var(--cs-radius-xs);
+  font-size: var(--cs-font-size-sm);
+}
+
+/* --- Status Tag (unified: 彩色圆点 + 黑色字，无彩色底) --- */
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--cs-font-size-sm);
+  line-height: 1.5;
+  color: var(--cs-text);
+}
+.status-tag::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+/* Session states */
+.status-tag.ongoing::before,
+.status-tag.active::before { background: var(--cs-primary); }
+.status-tag.closed::before { background: #bfbfbf; }
+.status-tag.transferred::before { background: var(--cs-purple); }
+.status-tag.cancelled::before { background: var(--cs-danger); }
+/* Leave states */
+.status-tag.pending::before { background: var(--cs-orange); }
+.status-tag.replied::before { background: var(--cs-success); }
+.status-tag.process::before { background: var(--cs-primary); }
+.status-tag.invalid::before { background: #bfbfbf; }
+/* Quality states */
+.status-tag.pass::before { background: var(--cs-success); }
+.status-tag.warn::before { background: var(--cs-warning); }
+.status-tag.fail::before { background: var(--cs-danger); }
+
+/* --- Status Badge (dot indicator) --- */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--cs-font-size-sm);
+}
+.status-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #d9d9d9;
+}
+.status-badge.online::before { background: var(--cs-success); }
+.status-badge.offline::before { background: #bfbfbf; }
+.status-badge.waiting::before { background: var(--cs-warning); }
+.status-badge.break::before { background: var(--cs-orange); }
+
+/* --- Agent Status Switcher (客服状态切换器) --- */
+/* 小休状态下徽章内嵌计时器，等宽数字防抖动 */
+.status-badge.break { font-variant-numeric: tabular-nums; }
+.agent-status-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+.agent-status-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--cs-border);
+  border-radius: 16px;
+  background: var(--cs-bg-card);
+  cursor: pointer;
+  font-size: var(--cs-font-size-sm);
+  user-select: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.agent-status-trigger:hover { border-color: var(--cs-primary); }
+.agent-status-trigger .caret {
+  display: inline-block;
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid currentColor;
+  margin-left: 2px;
+  opacity: .6;
+  transition: transform .2s;
+}
+.agent-status-switch.open .agent-status-trigger .caret { transform: rotate(180deg); }
+.agent-status-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 168px;
+  background: var(--cs-bg-card);
+  border: 1px solid var(--cs-border-light);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0,0,0,.12);
+  padding: 6px;
+  z-index: 100;
+  display: none;
+}
+.agent-status-switch.open .agent-status-menu { display: block; }
+.agent-status-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: var(--cs-font-size-sm);
+  color: var(--cs-text);
+  transition: background .15s;
+}
+.agent-status-option:hover { background: var(--cs-bg-hover); }
+.agent-status-option.active { background: var(--cs-primary-bg); color: var(--cs-primary); }
+.agent-status-option .dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.agent-status-option[data-status="online"] .dot { background: var(--cs-success); }
+.agent-status-option[data-status="break"]  .dot { background: var(--cs-orange); }
+.agent-status-option[data-status="offline"] .dot { background: #bfbfbf; }
+.agent-status-option .desc {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--cs-text-tertiary);
+}
+.agent-status-option.active .desc { color: var(--cs-primary); opacity: .8; }
+
+/* --- Stars Rating --- */
+.stars { color: var(--cs-warning); letter-spacing: 1px; font-size: var(--cs-font-size-base); }
+.stars .empty { color: #e8e8e8; }
+.no-rate { color: #c0c0c0; font-size: var(--cs-font-size-sm); }
+
+/* ============================================================
+   7. Filter Bar
+   ============================================================ */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--cs-space-3);
+  margin-bottom: var(--cs-space-4);
+}
+/* filter/工具条作为卡片唯一子元素时去掉自带 margin-bottom，避免卡片内「下留白 > 上留白」 */
+.card > .filter-bar:last-child,
+.card > .kb-toolbar:last-child { margin-bottom: 0; }
+.filter-bar .field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.filter-bar .field-label {
+  font-size: var(--cs-font-size-base);
+  color: var(--cs-text-secondary);
+  white-space: nowrap;
+}
+
+/* --- Pseudo Input / Select (prototype controls) --- */
+.ipt,
+.select {
+  height: 32px;
+  border: 1px solid var(--cs-border);
+  border-radius: var(--cs-radius-sm);
+  padding: 0 11px;
+  font-size: var(--cs-font-size-base);
+  background: var(--cs-bg-card);
+  color: var(--cs-text);
+  display: inline-flex;
+  align-items: center;
+  min-width: 120px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+.ipt:hover,
+.select:hover { border-color: var(--cs-primary); }
+.ipt.input-search { min-width: 220px; cursor: text; }
+.select::after {
+  content: "鈻?;
+  margin-left: 6px;
+  color: var(--cs-text-placeholder);
+  font-size: 10px;
+}
+
+/* ============================================================
+   8. Status Tabs
+   ============================================================ */
+.status-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: var(--cs-space-4);
+  border-bottom: 1px solid var(--cs-border-light);
+}
+.status-tab {
+  padding: 10px 16px;
+  font-size: var(--cs-font-size-md);
+  color: var(--cs-text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: var(--cs-transition-normal);
+  position: relative;
+  top: 1px;
+}
+.status-tab:hover { color: var(--cs-primary); }
+.status-tab.active {
+  color: var(--cs-primary);
+  border-bottom-color: var(--cs-primary);
+  font-weight: var(--cs-font-weight-medium);
+}
+.status-tab .tab-count {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 7px;
+  min-width: 22px;
+  height: 18px;
+  line-height: 18px;
+  text-align: center;
+  background: var(--cs-border-light);
+  color: var(--cs-text-tertiary);
+  border-radius: 10px;
+  font-size: var(--cs-font-size-xs);
+  font-weight: var(--cs-font-weight-medium);
+}
+.status-tab.active .tab-count {
+  background: var(--cs-primary-bg);
+  color: var(--cs-primary);
+}
+
+/* ============================================================
+   9. Data Table
+   ============================================================ */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+.data-table {
+  width: 100%;
+  min-width: max-content;
+  border-collapse: collapse;
+  font-size: var(--cs-font-size-base);
+}
+.data-table thead th {
+  background: var(--cs-bg-header);
+  color: var(--cs-text-secondary);
+  font-weight: var(--cs-font-weight-medium);
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--cs-border-light);
+  white-space: nowrap;
+}
+.data-table tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--cs-border-lighter);
+  color: var(--cs-text);
+  vertical-align: middle;
+}
+.data-table tbody tr { transition: background 0.15s; }
+.data-table tbody tr:hover { background: var(--cs-bg-hover); }
+.data-table .col-id {
+  font-family: "SFMono-Regular", Consolas, monospace;
+  color: var(--cs-text-secondary);
+  font-size: var(--cs-font-size-sm);
+}
+.data-table .col-user { display: flex; align-items: center; gap: var(--cs-space-2); }
+.data-table .mini-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--cs-primary);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--cs-font-size-sm);
+  flex-shrink: 0;
+}
+.data-table .mini-avatar.orange { background: var(--cs-primary); }
+.data-table .mini-avatar.purple { background: var(--cs-primary); }
+.data-table .mini-avatar.green  { background: var(--cs-primary); }
+.data-table .mini-avatar.red    { background: var(--cs-primary); }
+.data-table .duration { color: var(--cs-text-secondary); }
+
+/* --- Row Actions --- */
+.row-actions { display: flex; gap: var(--cs-space-2); }
+.row-actions a {
+  font-size: var(--cs-font-size-base);
+  color: var(--cs-primary);
+  cursor: pointer;
+  padding: 0 4px;
+}
+.row-actions a:hover { color: var(--cs-primary-hover); }
+.row-actions .divider { color: var(--cs-border); }
+
+/* ============================================================
+   10. Pagination
+   ============================================================ */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: var(--cs-space-5);
+}
+.pagination .pg-info { font-size: var(--cs-font-size-base); color: var(--cs-text-tertiary); margin-right: var(--cs-space-3); }
+.pagination .pg-btn,
+.pagination .pg-num {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--cs-border);
+  border-radius: var(--cs-radius-sm);
+  background: var(--cs-bg-card);
+  color: var(--cs-text);
+  font-size: var(--cs-font-size-base);
+  cursor: pointer;
+  transition: var(--cs-transition-fast);
+}
+.pagination .pg-btn:hover,
+.pagination .pg-num:hover { border-color: var(--cs-primary); color: var(--cs-primary); }
+.pagination .pg-num.active {
+  background: var(--cs-primary);
+  border-color: var(--cs-primary);
+  color: #fff;
+}
+.pagination .pg-btn.disabled {
+  color: var(--cs-border);
+  cursor: not-allowed;
+  background: var(--cs-bg-hover);
+}
+.pagination .pg-jump {
+  font-size: var(--cs-font-size-base);
+  color: var(--cs-text-tertiary);
+  margin-left: var(--cs-space-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.pagination .pg-jump input {
+  width: 48px;
+  height: 32px;
+  border: 1px solid var(--cs-border);
+  border-radius: var(--cs-radius-sm);
+  text-align: center;
+  font-size: var(--cs-font-size-base);
+  outline: none;
+}
+
+/* ============================================================
+   11. Metric Card & Stat Card
+   ============================================================ */
+/* --- Metric Card (dashboard KPI) --- */
+.metric-card {
+  background: var(--cs-bg-card);
+  border-radius: var(--cs-radius-md);
+  border: 1px solid var(--cs-border-light);
+  padding: var(--cs-space-5) var(--cs-space-6);
+  box-shadow: var(--cs-shadow-card);
+  display: flex;
+  align-items: center;
+  gap: var(--cs-space-4);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.metric-card:hover {
+  box-shadow: var(--cs-shadow-card-hover);
+  transform: translateY(-2px);
+}
+.metric-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--cs-radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
+  flex-shrink: 0;
+}
+/* 指标图标按语义着色（KPI 多指标场景保留色彩区分，名实一致） */
+.metric-icon.blue   { background: var(--cs-primary); }
+.metric-icon.green  { background: var(--cs-success); }
+.metric-icon.orange { background: var(--cs-orange); }
+.metric-icon.purple { background: var(--cs-purple); }
+.metric-icon.red    { background: var(--cs-danger); }
+.metric-body { flex: 1; min-width: 0; }
+.metric-value {
+  font-size: var(--cs-font-size-3xl);
+  font-weight: var(--cs-font-weight-bold);
+  color: var(--cs-text);
+  line-height: 1.2;
+}
+.metric-value .unit {
+  font-size: var(--cs-font-size-md);
+  font-weight: var(--cs-font-weight-medium);
+  color: var(--cs-text-tertiary);
+  margin-left: 4px;
+}
+.metric-label {
+  font-size: var(--cs-font-size-base);
+  color: var(--cs-text-tertiary);
+  margin-top: 4px;
+}
+.metric-trend {
+  font-size: var(--cs-font-size-sm);
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.metric-trend.up   { color: var(--cs-success); }
+.metric-trend.down { color: var(--cs-danger); }
+
+/* --- Stat Card (compact KPI) --- */
+.stat-card {
+  background: var(--cs-bg-card);
+  border-radius: var(--cs-radius-md);
+  border: 1px solid var(--cs-border-light);
+  padding: var(--cs-space-4) 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: box-shadow 0.2s;
+}
+.stat-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+.stat-card .stat-icon {
+  width: 44px; height: 44px;
+  border-radius: var(--cs-radius-lg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.stat-card .stat-num { font-size: 26px; font-weight: var(--cs-font-weight-bold); line-height: 1.1; }
+.stat-card .stat-name { font-size: var(--cs-font-size-base); color: var(--cs-text-tertiary); margin-top: 2px; }
+
+/* Icon gradient backgrounds */
+.icon-unreply  { background: var(--cs-primary); }
+.icon-timeout  { background: var(--cs-danger); }
+.icon-rate     { background: var(--cs-primary); }
+.icon-total    { background: var(--cs-primary); }
+.icon-pending  { background: var(--cs-warning); }
+.icon-process  { background: var(--cs-primary); }
+.icon-replied  { background: var(--cs-success); }
+.icon-invalid  { background: #8c8c8c; }
+.icon-scene    { background: var(--cs-primary); }
+.icon-usage    { background: var(--cs-primary); }
+.icon-hot      { background: var(--cs-danger); }
+
+/* ============================================================
+   12. Chart Placeholder
+   ============================================================ */
+.chart-placeholder {
+  height: 280px;
+  background: var(--cs-bg-header);
+  border: 1px dashed var(--cs-border);
+  border-radius: var(--cs-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: var(--cs-space-2);
+  color: var(--cs-text-placeholder);
+  position: relative;
+  overflow: hidden;
+}
+.chart-placeholder .chart-icon { font-size: 36px; opacity: 0.6; }
+.chart-placeholder .chart-label { font-size: var(--cs-font-size-base); }
+
+/* ============================================================
+   13. Avatar Sizes
+   ============================================================ */
+.avatar-xs { width: 24px; height: 24px; }
+.avatar-sm { width: 28px; height: 28px; }
+.avatar-md { width: 32px; height: 32px; }
+.avatar-lg { width: 40px; height: 40px; }
+.avatar-xl { width: 48px; height: 48px; }
+
+/* ============================================================
+   17. Admin Panels
+   ============================================================ */
+.todo-panel {
+  background: var(--cs-bg-card);
+  border-radius: var(--cs-radius-md);
+  border: 1px solid var(--cs-border-light);
+  padding: var(--cs-space-4);
+}
+.todo-panel .todo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--cs-border-lighter);
+}
+
+.session-list .session-item {
+  display: flex;
+  align-items: center;
+  gap: var(--cs-space-3);
+  padding: var(--cs-space-3);
+  border-bottom: 1px solid var(--cs-border-light);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.session-list .session-item:hover { background: var(--cs-border-lighter); }
+.session-list .session-item.active { background: var(--cs-primary-bg); border-left: 3px solid var(--cs-primary); }
+.session-list .session-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--cs-primary);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: var(--cs-font-size-md);
+}
+.session-list .session-meta { flex: 1; min-width: 0; }
+.session-list .session-last-msg { font-size: var(--cs-font-size-sm); color: var(--cs-text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.customer-info-panel {
+  background: var(--cs-bg-card);
+  border-radius: var(--cs-radius-md);
+  border: 1px solid var(--cs-border-light);
+  padding: var(--cs-space-4);
+}
+.customer-info-panel .info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--cs-space-2) 0;
+  border-bottom: 1px solid var(--cs-border-lighter);
+  font-size: var(--cs-font-size-base);
+}
+.customer-info-panel .info-label { color: var(--cs-text-tertiary); font-size: var(--cs-font-size-base); }
+
+/* ============================================================
+   18. AI Dark Theme
+   ============================================================ */
+.dashboard-dark {
+  background: var(--cs-dark-bg);
+  color: var(--cs-dark-text);
+  padding: var(--cs-space-6);
+  min-height: 100vh;
+}
+.dashboard-dark .card {
+  background: var(--cs-dark-surface);
+  border-color: var(--cs-dark-border);
+  color: var(--cs-dark-text);
+}
+.dashboard-stat {
+  background: linear-gradient(135deg, var(--cs-dark-surface), var(--cs-dark-elevated));
+  border: 1px solid var(--cs-dark-border);
+  border-radius: var(--cs-radius-md);
+  padding: var(--cs-space-5);
+  text-align: center;
+}
+.dashboard-stat .stat-value {
+  font-size: var(--cs-font-size-3xl);
+  font-weight: var(--cs-font-weight-bold);
+  background: linear-gradient(90deg, var(--cs-primary), var(--cs-success));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.dashboard-stat .stat-label { color: var(--cs-dark-text-muted); font-size: var(--cs-font-size-base); margin-top: 4px; }
+
+/* --- AI Accent Card --- */
+.ai-dark-card {
+  background: var(--cs-dark-surface);
+  border: 1px solid var(--cs-dark-border);
+  border-radius: var(--cs-radius-md);
+  overflow: hidden;
+}
+.ai-dark-card .accent-head {
+  padding: var(--cs-space-4) var(--cs-space-5);
+  border-bottom: 1px solid var(--cs-dark-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.ai-dark-card .accent-head .h-title {
+  font-size: var(--cs-font-size-md);
+  font-weight: var(--cs-font-weight-semibold);
+  color: var(--cs-dark-text);
+  display: flex;
+  align-items: center;
+  gap: var(--cs-space-2);
+}
+.ai-dark-card .accent-head .h-title .ai-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--cs-purple);
+  display: inline-block;
+}
+.ai-dark-card .accent-body {
+  padding: var(--cs-space-5);
+}
+.ai-accent-bar {
+  height: 3px;
+  background: linear-gradient(90deg, var(--cs-purple), var(--cs-primary), var(--cs-success));
+}
+
+/* ============================================================
+   19. Responsive Grid
+   ============================================================ */
+.grid { display: grid; gap: var(--cs-space-4); }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 1200px) {
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ============================================================
+   20. Prototype Note
+   ------------------------------------------------------------
+   浜や簰璇存槑鍗＄墖鏍峰紡宸茬Щ闄わ紙V1.0锛夈€?
+   浜や簰闇€姹傛敼鐢卞師鍨嬪唴鐨勭湡瀹炰氦浜掑疄鐜?+ PRD 鏂囨。锛圥RD-OCS-V1.0.md锛?
+   鍏卞悓婢勬竻锛屼笉鍐嶄娇鐢ㄦ偓娴?宓屽叆寮忚鏄庡崱鐗囥€?
+   ============================================================ */
+
+/* ============================================================
+   21. Utility Classes
+   ============================================================ */
+.flex { display: flex; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-col { display: flex; flex-direction: column; }
+.gap-4 { gap: 4px; } .gap-8 { gap: 8px; } .gap-12 { gap: 12px; } .gap-16 { gap: 16px; } .gap-24 { gap: 24px; }
+.text-muted { color: var(--cs-text-tertiary); }
+.text-secondary { color: var(--cs-text-secondary); }
+.text-center { text-align: center; }
+.text-primary { color: var(--cs-primary); }
+.text-success { color: var(--cs-success); }
+.text-danger { color: var(--cs-danger); }
+.text-warning { color: var(--cs-warning); }
+.mb-4 { margin-bottom: 4px; } .mb-8 { margin-bottom: 8px; } .mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; } .mb-20 { margin-bottom: 20px; } .mb-24 { margin-bottom: 24px; }
+.mt-8 { margin-top: 8px; } .mt-16 { margin-top: 16px; }
+.ml-8 { margin-left: 8px; } .ml-16 { margin-left: 16px; }
+.mr-8 { margin-right: 8px; } .mr-16 { margin-right: 16px; }
+.w-full { width: 100%; }
+.truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ============================================================
+   22. cs-modal 弹窗运行时（iframe + postMessage，file:// 可用）
+   ------------------------------------------------------------
+   宿主页调用：csModal.open('modals/modal-x.html', {variant,width,...})
+   弹窗页调用：window.parent 通过 csModalBridge 通信（见 cs-modal.js）
+   三种 variant：center（居中）/ drawer-right（右侧抽屉）/ sheet（移动端底部）
+   ============================================================ */
+
+/* —— 宿主层：遮罩 + iframe 容器 —— */
+.csm-host {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.csm-host.show { opacity: 1; }
+
+/* variant: center（居中弹窗） */
+.csm-host.center .csm-frame {
+  width: 480px;
+  max-width: 92vw;
+  max-height: 86vh;
+  border-radius: var(--cs-radius-md);
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  background: #fff;
+  transform: scale(0.96) translateY(8px);
+  transition: transform 0.2s ease;
+}
+.csm-host.center.show .csm-frame { transform: scale(1) translateY(0); }
+
+/* variant: drawer-right（右侧抽屉） */
+.csm-host.drawer-right {
+  align-items: stretch;
+  justify-content: flex-end;
+}
+.csm-host.drawer-right .csm-frame {
+  width: 480px;
+  max-width: 92vw;
+  height: 100%;
+  border-radius: 0;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
+  background: #fff;
+  transform: translateX(100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.csm-host.drawer-right.show .csm-frame { transform: translateX(0); }
+
+/* variant: sheet（移动端底部弹出） */
+.csm-host.sheet {
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+.csm-host.sheet .csm-frame {
+  width: 420px;
+  max-width: 100vw;
+  max-height: 90vh;
+  border-radius: var(--cs-radius-xl) var(--cs-radius-xl) 0 0;
+  background: #fff;
+  transform: translateY(100%);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+.csm-host.sheet.show .csm-frame { transform: translateY(0); }
+
+/* iframe 本体：透明背景，让弹窗页控制内部背景 */
+.csm-frame {
+  border: none;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.csm-host.center .csm-frame,
+.csm-host.sheet .csm-frame { height: auto; }
+.csm-host.center .csm-frame { min-height: 120px; }
+
+/* —— 弹窗页内部通用结构（供独立 modal HTML 复用） —— */
+.csm-body {
+  background: #fff;
+  font-family: var(--cs-font-family);
+  font-size: var(--cs-font-size-md);
+  color: var(--cs-text);
+  -webkit-font-smoothing: antialiased;
+}
+.csm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--cs-border-light);
+  font-size: var(--cs-font-size-lg);
+  font-weight: var(--cs-font-weight-semibold);
+}
+.csm-head .csm-close {
+  font-size: 22px;
+  line-height: 1;
+  color: var(--cs-text-tertiary);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--cs-radius-xs);
+  transition: var(--cs-transition-normal);
+}
+.csm-head .csm-close:hover { color: var(--cs-text); background: var(--cs-border-lighter); }
+.csm-content { padding: 20px; }
+.csm-foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 20px 16px;
+  border-top: 1px solid var(--cs-border-light);
+  background: var(--cs-bg-card);
+}
+.csm-foot.sticky {
+  position: sticky;
+  bottom: 0;
+}
+
+/* —— 通用确认弹窗内容（删除/标记无效/结束会话等） —— */
+.csm-confirm { padding: 4px 0 8px; }
+.csm-confirm .csm-icon {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 12px;
+  font-size: 20px;
+}
+.csm-confirm .csm-icon.danger { background: var(--cs-danger-bg); color: var(--cs-danger); }
+.csm-confirm .csm-icon.warn { background: var(--cs-warning-bg); color: var(--cs-warning); }
+.csm-confirm .csm-icon.info { background: var(--cs-primary-bg); color: var(--cs-primary); }
+.csm-confirm .csm-title {
+  text-align: center;
+  font-size: var(--cs-font-size-lg);
+  font-weight: var(--cs-font-weight-semibold);
+  margin-bottom: 6px;
+}
+.csm-confirm .csm-desc {
+  text-align: center;
+  font-size: var(--cs-font-size-base);
+  color: var(--cs-text-secondary);
+  line-height: 1.6;
+}
+
+/* ---- 服务评价卡片（客服侧只读态，.msg-rating-card.sent）---- */
+.msg-rating-card {
+  background: #fff; border-radius: 12px; padding: 14px;
+  border: 1px solid var(--cs-border-light);
+  width: 252px;
+  box-sizing: border-box;
+}
+.msg-rating-card .rc-title { font-size: 14px; font-weight: 600; color: var(--cs-text); margin: 0 0 4px; }
+.msg-rating-card .rc-sub { font-size: 12px; color: var(--cs-text-tertiary); margin: 0 0 12px; }
+.msg-rating-card .rc-stars { display: flex; gap: 8px; margin-bottom: 12px; }
+.msg-rating-card .rc-star { font-size: 28px; color: #d9d9d9; user-select: none; }
+.msg-rating-card.sent .rc-star { cursor: default; }
+.msg-rating-card .rc-resolve { margin-bottom: 12px; }
+.msg-rating-card .rc-resolve-q { font-size: 12px; color: var(--cs-text-secondary); display: block; margin-bottom: 8px; }
+.msg-rating-card .rc-resolve-btns { display: flex; gap: 12px; }
+.msg-rating-card .rc-resolve-btn {
+  flex: 1; text-align: center; font-size: 12px; padding: 8px 0;
+  border: 1px solid #d9d9d9; border-radius: 8px; background: #fff;
+  color: var(--cs-text-secondary); cursor: pointer;
+}
+.msg-rating-card .rc-resolve-btn:disabled { cursor: not-allowed; opacity: 0.6; }
+.msg-rating-card .rc-submit {
+  width: 100%; height: 36px; border: none;
+  background: #f0f0f0; color: #bfbfbf; border-radius: 18px;
+  font-size: 13px; cursor: not-allowed;
+}
+
+/* —— 轻提示 toast（移动端「+」面板图标点击反馈） —— */
+.csm-toast-host {
+  position: fixed;
+  left: 50%;
+  bottom: 90px;
+  transform: translateX(-50%);
+  z-index: 2100;
+  background: rgba(0, 0, 0, 0.78);
+  color: #fff;
+  font-size: var(--cs-font-size-base);
+  padding: 9px 18px;
+  border-radius: 20px;
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.csm-toast-host.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+
+/* —— 新消息浮动卡片（notify.js · V2.2）z-index 1500 = 位于 modal(2000) 之下 —— */
+/* 堆叠容器：固定在右下角，多条消息纵向堆叠（最新在底部，旧消息上推） */
+.nm-popup-stack {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column-reverse;  /* DOM 第一个子节点显示在底部 → 最新消息靠近右下角 */
+  gap: 10px;
+  z-index: 1500;
+  pointer-events: none;            /* 容器本身不拦截事件 */
+  max-width: 320px;
+}
+/* 展开模式：列表过高时可滚动，不遮挡整个视口 */
+.nm-popup-stack.expanded {
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.nm-popup-stack .nm-popup-host {
+  position: relative;              /* 覆盖原 fixed 定位，由容器统一管理位置 */
+  right: auto;
+  bottom: auto;
+  pointer-events: auto;            /* 每条弹窗可交互 */
+  flex-shrink: 0;
+}
+.nm-popup-host {
+  position: relative;
+  width: 300px;
+  background: #fff;
+  border: 1px solid var(--cs-border-light);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  padding: 12px 14px 10px;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.nm-popup-host.show { opacity: 1; transform: none; }
+/* 折叠态：隐藏被溢出的旧消息（不删除，点击药丸可恢复） */
+.nm-popup-host.nm-collapsed { display: none; }
+.nm-popup-host .nm-close {
+  position: absolute; top: 6px; right: 8px;
+  color: var(--cs-text-tertiary); cursor: pointer; font-size: 14px; line-height: 1;
+}
+.nm-popup-host .nm-close:hover { color: var(--cs-text-secondary); }
+.nm-popup-host .nm-header { display: flex; align-items: center; gap: 8px; padding-right: 16px; }
+.nm-popup-host .nm-avatar {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: var(--cs-primary-bg); color: var(--cs-primary);
+  font-size: 14px; font-weight: var(--cs-font-weight-semibold);
+  text-align: center; line-height: 32px;
+}
+.nm-popup-host .nm-name { font-weight: var(--cs-font-weight-semibold); color: var(--cs-text); font-size: var(--cs-font-size-base); }
+.nm-popup-host .nm-preview {
+  margin-top: 6px; font-size: 12px; color: var(--cs-text-tertiary); line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+/* 结构化多行正文（转接原因/转接备注 等） */
+.nm-popup-host .nm-lines { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+.nm-popup-host .nm-line { display: flex; gap: 6px; font-size: 12px; line-height: 1.5; }
+.nm-popup-host .nm-line-label {
+  color: var(--cs-text-tertiary); flex-shrink: 0; min-width: 48px;
+  font-weight: 500;
+}
+.nm-popup-host .nm-line-value {
+  color: var(--cs-text-secondary); flex: 1; word-break: break-word;
+}
+.nm-popup-host .nm-actions { margin-top: 10px; text-align: right; }
+.nm-popup-host .nm-btn {
+  background: var(--cs-primary); color: #fff; border: none; border-radius: 4px;
+  padding: 5px 14px; cursor: pointer; font-size: 12px; line-height: 1.4;
+}
+.nm-popup-host .nm-btn:hover { background: var(--cs-primary-hover); }
+/* 折叠计数药丸：顶部「还有 N 条未读消息，点击展开」 */
+.nm-popup-host.nm-pill {
+  padding: 8px 14px;
+  background: var(--cs-primary-bg);
+  border: 1px solid var(--cs-primary);
+  cursor: pointer;
+  text-align: center;
+}
+.nm-popup-host.nm-pill:hover { background: #fff0f2; }
+.nm-pill .nm-pill-inner {
+  font-size: 12px; color: var(--cs-primary); font-weight: 500;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+}
+.nm-pill .nm-pill-icon { font-size: 13px; }
+.nm-pill .nm-count { color: var(--cs-danger); }
